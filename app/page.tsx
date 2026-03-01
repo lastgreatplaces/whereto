@@ -95,15 +95,7 @@ export default function Home() {
           m.setLabel({ text: emoji, fontSize });
         }
 
-        // also resize demo markers if you keep them
-        if (demoBirdMarker) {
-          demoBirdMarker.setIcon(makeCircleIcon(scale));
-          demoBirdMarker.setLabel({ text: "🦅", fontSize });
-        }
-        if (demoHikeMarker) {
-          demoHikeMarker.setIcon(makeCircleIcon(scale));
-          demoHikeMarker.setLabel({ text: "🚶", fontSize });
-        }
+        
       };
 
       // ---- CLICK POPUP FOR BYWAYS (click a line) ----
@@ -123,21 +115,7 @@ export default function Home() {
         infoWindow.open(map);
       });
 
-      // ---- DEMO markers (optional; safe to delete later) ----
-      const demoBirdMarker = new google.maps.Marker({
-        position: { lat: 35.9, lng: -78.8 },
-        map,
-        title: "Demo Birding Spot",
-      });
-      (demoBirdMarker as any).__emoji = "🦅";
-
-      const demoHikeMarker = new google.maps.Marker({
-        position: { lat: 35.6, lng: -78.4 },
-        map,
-        title: "Demo Hike Spot",
-      });
-      (demoHikeMarker as any).__emoji = "🚶";
-
+      
       // ---- LOAD BYWAYS from Supabase based on map bounds (fast + scalable) ----
       const clearByways = () => {
         map.data.forEach((f: any) => map.data.remove(f));
