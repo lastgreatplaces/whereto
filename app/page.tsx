@@ -41,7 +41,7 @@ export default function Home() {
   const emojiForType = (t: PlaceType) => {
     if (t === "birds") return "🦅";
     if (t === "hikes") return "🚶";
-    return "🏕️";
+    return "💤";
   };
 
   const makeIcon = (google: any, scale: number) => ({
