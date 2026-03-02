@@ -197,13 +197,15 @@ export default function Home() {
         const name = r.name ?? "(No name)";
         const subtype = r.subtype ? ` • ${r.subtype}` : "";
         
-        // Show immediate info
-        let html = `
+        // 1. Initial Popup Content
+        const html = `
           <div style="font-family: Arial; font-size: 14px; max-width: 240px;">
             <div style="font-weight:700;">${name}</div>
             <div style="opacity:0.85; margin-bottom: 4px;">${t}${subtype}</div>
-            <div id="popup-detail-loader" style="font-size: 11px; color: #888;">${t === 'camps' ? 'Loading details...' : ''}</div>
-            <div id="popup-detail-content"></div>
+            <div id="popup-detail-area">
+                ${t === 'camps' ? '<div id="popup-detail-loader" style="font-size: 11px; color: #888;">Loading details...</div>' : ''}
+                <div id="popup-detail-content"></div>
+            </div>
             ${r.website ? `<div style="margin-top:8px;"><a href="${r.website}" target="_blank">Website</a></div>` : ""}
           </div>
         `;
@@ -212,7 +214,7 @@ export default function Home() {
         infoWindowRef.current.setPosition(marker.getPosition());
         infoWindowRef.current.open(map);
 
-        // Optional: Load details from v_camps_popup only for camps
+        // 2. Wait for the InfoWindow to actually exist in the DOM before updating it
         if (t === "camps") {
           const { data: detail } = await supabase
             .from("v_camps_popup")
@@ -221,19 +223,26 @@ export default function Home() {
             .eq("lon", r.lon)
             .maybeSingle();
 
-          const loader = document.getElementById("popup-detail-loader");
-          const content = document.getElementById("popup-detail-content");
-          
-          if (loader) loader.style.display = "none";
-          if (content && detail) {
-            content.innerHTML = `
-              <div style="margin-top:6px; padding-top:6px; border-top:1px solid #eee; font-size:12px;">
-                ${detail.open ? `<div><b>Open:</b> ${detail.open}</div>` : ""}
-                ${detail.sites ? `<div><b>Sites:</b> ${detail.sites}</div>` : ""}
-                ${detail.elevation ? `<div><b>Elevation:</b> ${detail.elevation}ft</div>` : ""}
-              </div>
-            `;
-          }
+          // We use a small listener to ensure the div is ready to be edited
+          const updatePopup = () => {
+            const loader = document.getElementById("popup-detail-loader");
+            const content = document.getElementById("popup-detail-content");
+            
+            if (loader) loader.style.display = "none";
+            if (content && detail) {
+              content.innerHTML = `
+                <div style="margin-top:6px; padding-top:6px; border-top:1px solid #eee; font-size:12px;">
+                  ${detail.open ? `<div><b>Open:</b> ${detail.open}</div>` : ""}
+                  ${detail.sites ? `<div><b>Sites:</b> ${detail.sites}</div>` : ""}
+                  ${detail.elevation ? `<div><b>Elevation:</b> ${detail.elevation}ft</div>` : ""}
+                </div>
+              `;
+            }
+          };
+
+          // Try updating immediately, but also listen for 'domready' in case it's still rendering
+          updatePopup();
+          google.maps.event.addListenerOnce(infoWindowRef.current, 'domready', updatePopup);
         }
       });
 
