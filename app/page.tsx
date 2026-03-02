@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
 
-// Inline Supabase client (simple, no import-path headaches)
+// Inline Supabase client (no external import path issues)
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL ?? "",
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? ""
@@ -11,12 +11,12 @@ const supabase = createClient(
 
 type PlaceRow = {
   id: number;
-  place_type: string;
+  place_type: string; // "birds" | "hikes" | "camps"
   name: string;
   state: string | null;
   subtype: string | null;
-  website: string | null;
   notes: string | null;
+  website: string | null;
   favorite: boolean | null;
   lat: number | null;
   lon: number | null;
@@ -26,9 +26,34 @@ export default function Home() {
   const mapRef = useRef<any>(null);
   const infoWindowRef = useRef<any>(null);
 
-  // keep references so we can clear/rebuild markers when needed
-  const birdMarkersRef = useRef<any[]>([]);
-  const lastFetchTimerRef = useRef<any>(null);
+  // Debounce timers
+  const bywaysTimerRef = useRef<any>(null);
+  const placesTimerRef = useRef<any>(null);
+
+  // Keep track of current place markers so we can clear them
+  const placeMarkersRef = useRef<any[]>([]);
+
+  // UI state (toggles)
+  const [stateFilters, setStateFilters] = useState<Record<string, boolean>>({
+    NC: true,
+    VA: true,
+    WV: true,
+  });
+
+  const [typeFilters, setTypeFilters] = useState<Record<string, boolean>>({
+    birds: true,
+    hikes: true,
+    camps: true,
+  });
+
+  // --- Helper: selected values from toggles ---
+  const selectedStates = Object.entries(stateFilters)
+    .filter(([, v]) => v)
+    .map(([k]) => k);
+
+  const selectedTypes = Object.entries(typeFilters)
+    .filter(([, v]) => v)
+    .map(([k]) => k);
 
   useEffect(() => {
     const key = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY;
@@ -50,7 +75,7 @@ export default function Home() {
       const google = (window as any).google;
 
       const map = new google.maps.Map(document.getElementById("map"), {
-        center: { lat: 35.8, lng: -78.6 },
+        center: { lat: 36.2, lng: -79.0 },
         zoom: 7,
       });
 
@@ -63,50 +88,21 @@ export default function Home() {
         strokeOpacity: 0.85,
       });
 
-      // One shared popup for everything we click (byways + markers)
+      // Shared InfoWindow (for both lines and points)
       const infoWindow = new google.maps.InfoWindow();
       infoWindowRef.current = infoWindow;
 
-      // ---- ICON HELPERS (your red-circled emoji style) ----
-      const makeCircleIcon = (scale: number) => ({
-        path: google.maps.SymbolPath.CIRCLE,
-        scale,
-        fillColor: "#fafbfb",
-        fillOpacity: 1,
-        strokeWeight: 2,
-        strokeColor: "#f80808",
-      });
-
-      const sizeForZoom = (z: number) => {
-        const scale = z <= 7 ? 10 : z <= 9 ? 12 : z <= 11 ? 15 : 18;
-        const fontSize = z <= 7 ? "14px" : z <= 9 ? "16px" : z <= 11 ? "18px" : "22px";
-        return { scale, fontSize };
-      };
-
-      const applyMarkerSizing = () => {
-        const z = map.getZoom() ?? 7;
-        const { scale, fontSize } = sizeForZoom(z);
-
-        // resize all bird markers we created from DB
-        for (const m of birdMarkersRef.current) {
-          // each marker stores its emoji in a custom property we set
-          const emoji = (m as any).__emoji ?? "🦅";
-          m.setIcon(makeCircleIcon(scale));
-          m.setLabel({ text: emoji, fontSize });
-        }
-
-        
-      };
-
-      // ---- CLICK POPUP FOR BYWAYS (click a line) ----
+      // --- Byways click popup (line features in map.data layer) ---
       map.data.addListener("click", (event: any) => {
         const name = event.feature.getProperty("name") || "(No name)";
         const designats = event.feature.getProperty("designats") || "";
 
         const html = `
-          <div style="font-family: Arial, sans-serif; font-size: 14px; max-width: 260px;">
-            <div style="font-weight: 700; margin-bottom: 4px;">${name}</div>
-            <div>${designats}</div>
+          <div style="font-family: Arial, sans-serif; font-size: 14px; max-width: 280px;">
+            <div style="font-weight: 700; margin-bottom: 4px;">${escapeHtml(
+              name
+            )}</div>
+            <div>${escapeHtml(designats)}</div>
           </div>
         `;
 
@@ -115,10 +111,39 @@ export default function Home() {
         infoWindow.open(map);
       });
 
-      
-      // ---- LOAD BYWAYS from Supabase based on map bounds (fast + scalable) ----
+      // --- Your icon style: white fill + red outline ---
+      const makeIcon = (scale: number) => ({
+        path: google.maps.SymbolPath.CIRCLE,
+        scale,
+        fillColor: "#fafbfb",
+        fillOpacity: 1,
+        strokeWeight: 2,
+        strokeColor: "#f80808",
+      });
+
+      // Apply sizing to ALL place markers based on zoom
+      const applySizingToPlaceMarkers = (z: number) => {
+        const scale = z <= 7 ? 10 : z <= 9 ? 12 : z <= 11 ? 15 : 18;
+        const fontSize =
+          z <= 7 ? "14px" : z <= 9 ? "16px" : z <= 11 ? "18px" : "22px";
+
+        for (const m of placeMarkersRef.current) {
+          const emoji = (m as any).__emoji || "•";
+          m.setIcon(makeIcon(scale));
+          m.setLabel({ text: emoji, fontSize });
+        }
+      };
+
+      applySizingToPlaceMarkers(map.getZoom());
+      map.addListener("zoom_changed", () =>
+        applySizingToPlaceMarkers(map.getZoom())
+      );
+
+      // -----------------------------
+      // Load BYWAYS (via RPC) by bbox
+      // -----------------------------
       const clearByways = () => {
-        map.data.forEach((f: any) => map.data.remove(f));
+        map.data.forEach((feature: any) => map.data.remove(feature));
       };
 
       const loadBywaysInView = async () => {
@@ -133,7 +158,8 @@ export default function Home() {
         const max_lng = ne.lng();
         const max_lat = ne.lat();
 
-        const states = ["NC", "VA", "WV"]; // MVP constraint
+        // Use selectedStates toggle for byways too
+        const states = selectedStates.length ? selectedStates : ["NC", "VA", "WV"];
 
         const { data, error } = await supabase.rpc("rpc_byways_in_bbox", {
           min_lng,
@@ -170,97 +196,241 @@ export default function Home() {
       };
 
       const scheduleBywaysLoad = () => {
-        if (lastFetchTimerRef.current) clearTimeout(lastFetchTimerRef.current);
-        lastFetchTimerRef.current = setTimeout(() => {
+        if (bywaysTimerRef.current) clearTimeout(bywaysTimerRef.current);
+        bywaysTimerRef.current = setTimeout(() => {
           loadBywaysInView();
-        }, 250);
+        }, 300);
       };
 
-      // ---- LOAD BIRDS from places table (once at startup) ----
-      const clearBirdMarkers = () => {
-        for (const m of birdMarkersRef.current) m.setMap(null);
-        birdMarkersRef.current = [];
+      // -----------------------------------
+      // Load PLACES (direct query) by bbox
+      // -----------------------------------
+      const clearPlaces = () => {
+        for (const m of placeMarkersRef.current) {
+          m.setMap(null);
+        }
+        placeMarkersRef.current = [];
       };
 
-      const loadBirds = async () => {
-        // fetch birds only (you said place_type is "birds")
-        const { data, error } = await supabase
+      const emojiForPlaceType = (t: string) => {
+        if (t === "birds") return "🦅";
+        if (t === "hikes") return "🚶"; // hiker
+        if (t === "camps") return "🏕️";
+        return "•";
+      };
+
+      const openPlacePopup = (row: PlaceRow, latLng: any) => {
+        const name = row.name || "(No name)";
+        const state = row.state || "";
+        const subtype = row.subtype ? ` • ${row.subtype}` : "";
+        const notes = row.notes ? `<div style="margin-top:6px;">${escapeHtml(row.notes)}</div>` : "";
+        const website =
+          row.website && row.website.startsWith("http")
+            ? `<div style="margin-top:6px;"><a href="${row.website}" target="_blank" rel="noreferrer">Website</a></div>`
+            : "";
+
+        // NAVIGATION LINK (works great on phone)
+        const destLat = row.lat;
+        const destLon = row.lon;
+        const navUrl =
+          destLat != null && destLon != null
+            ? `https://www.google.com/maps/dir/?api=1&destination=${destLat},${destLon}`
+            : null;
+
+        const navLink = navUrl
+          ? `<div style="margin-top:8px;">
+               <a href="${navUrl}" target="_blank" rel="noreferrer">📍 Navigate</a>
+             </div>`
+          : "";
+
+        const html = `
+          <div style="font-family: Arial, sans-serif; font-size: 14px; max-width: 280px;">
+            <div style="font-weight:700; margin-bottom:4px;">${escapeHtml(
+              name
+            )}</div>
+            <div style="opacity:0.9;">${escapeHtml(
+              (row.place_type || "").toUpperCase()
+            )}${state ? " • " + escapeHtml(state) : ""}${escapeHtml(subtype)}</div>
+            ${website}
+            ${navLink}
+            ${notes}
+          </div>
+        `;
+
+        infoWindow.setContent(html);
+        infoWindow.setPosition(latLng);
+        infoWindow.open(map);
+      };
+
+      const loadPlacesInView = async () => {
+        const bounds = map.getBounds();
+        if (!bounds) return;
+
+        // If user unchecks everything, show nothing
+        if (!selectedStates.length || !selectedTypes.length) {
+          clearPlaces();
+          return;
+        }
+
+        const sw = bounds.getSouthWest();
+        const ne = bounds.getNorthEast();
+
+        const minLon = sw.lng();
+        const minLat = sw.lat();
+        const maxLon = ne.lng();
+        const maxLat = ne.lat();
+
+        // Pull only what we need for markers + popups
+        let q = supabase
           .from("places")
-          .select("id, place_type, name, state, subtype, website, notes, favorite, lat, lon")
-          .eq("place_type", "birds");
+          .select(
+            "id, place_type, name, state, subtype, notes, website, favorite, lat, lon"
+          )
+          .in("state", selectedStates)
+          .in("place_type", selectedTypes)
+          .gte("lon", minLon)
+          .lte("lon", maxLon)
+          .gte("lat", minLat)
+          .lte("lat", maxLat);
+
+        const { data, error } = await q;
 
         if (error) {
           console.error("Places query error:", error);
           return;
         }
 
-        // console.log("birds rows:", (data || []).length);
-
-        clearBirdMarkers();
+        clearPlaces();
 
         const rows = (data || []) as PlaceRow[];
+        const z = map.getZoom();
+        applySizingToPlaceMarkers(z); // ensures scale/font are set for any markers that exist
 
         for (const r of rows) {
           if (r.lat == null || r.lon == null) continue;
 
-          const marker = new google.maps.Marker({
+          const m = new google.maps.Marker({
             position: { lat: r.lat, lng: r.lon },
             map,
             title: r.name,
           });
 
-          // store emoji for resizing
-          (marker as any).__emoji = "🦅";
+          (m as any).__emoji = emojiForPlaceType(r.place_type);
 
-          // click popup for bird marker
-          marker.addListener("click", () => {
-            const websiteHtml = r.website
-              ? `<div style="margin-top:6px;"><a href="${r.website}" target="_blank" rel="noreferrer">Website</a></div>`
-              : "";
+          // Apply current zoom sizing immediately
+          const scale = z <= 7 ? 10 : z <= 9 ? 12 : z <= 11 ? 15 : 18;
+          const fontSize =
+            z <= 7 ? "14px" : z <= 9 ? "16px" : z <= 11 ? "18px" : "22px";
+          m.setIcon(makeIcon(scale));
+          m.setLabel({ text: (m as any).__emoji, fontSize });
 
-            const html = `
-              <div style="font-family: Arial, sans-serif; font-size: 14px; max-width: 260px;">
-                <div style="font-weight: 700; margin-bottom: 4px;">${r.name}</div>
-                <div>${r.state ?? ""}${r.subtype ? " • " + r.subtype : ""}</div>
-                ${websiteHtml}
-              </div>
-            `;
-
-            infoWindow.setContent(html);
-            infoWindow.setPosition(marker.getPosition()!);
-            infoWindow.open(map);
+          m.addListener("click", () => {
+            openPlacePopup(r, m.getPosition());
           });
 
-          birdMarkersRef.current.push(marker);
+          placeMarkersRef.current.push(m);
         }
-
-        // apply current zoom sizing to new markers
-        applyMarkerSizing();
       };
 
-      // ---- Wire up events ----
-      applyMarkerSizing();
-      map.addListener("zoom_changed", applyMarkerSizing);
+      const schedulePlacesLoad = () => {
+        if (placesTimerRef.current) clearTimeout(placesTimerRef.current);
+        placesTimerRef.current = setTimeout(() => {
+          loadPlacesInView();
+        }, 300);
+      };
 
-      // byways: update whenever map settles
-      map.addListener("idle", scheduleBywaysLoad);
+      // Load once at start, then whenever user pans/zooms
+      map.addListener("idle", () => {
+        scheduleBywaysLoad();
+        schedulePlacesLoad();
+      });
 
-      // initial loads
-      loadBirds();        // birds once
-      scheduleBywaysLoad(); // byways now
+      // initial load
+      scheduleBywaysLoad();
+      schedulePlacesLoad();
     };
 
-    script.onerror = () => {
-      console.error("Failed to load Google Maps script");
-    };
-
+    script.onerror = () => console.error("Failed to load Google Maps script");
     document.head.appendChild(script);
-  }, []);
+  }, [stateFilters, typeFilters]); // re-run loading when toggles change
+
+  // --- UI handlers ---
+  const toggleState = (st: string) => {
+    setStateFilters((prev) => ({ ...prev, [st]: !prev[st] }));
+  };
+
+  const toggleType = (t: string) => {
+    setTypeFilters((prev) => ({ ...prev, [t]: !prev[t] }));
+  };
 
   return (
-    <div>
-      <h1 style={{ padding: 10 }}>whereto MVP</h1>
+    <div style={{ position: "relative" }}>
+      <h1 style={{ padding: 10, margin: 0 }}>whereto MVP</h1>
+
+      {/* Control panel overlay */}
+      <div
+        style={{
+          position: "absolute",
+          top: 60,
+          left: 10,
+          zIndex: 10,
+          background: "white",
+          padding: "10px 12px",
+          borderRadius: 8,
+          boxShadow: "0 2px 10px rgba(0,0,0,0.15)",
+          fontFamily: "Arial, sans-serif",
+          fontSize: 14,
+          maxWidth: 240,
+        }}
+      >
+        <div style={{ fontWeight: 700, marginBottom: 6 }}>Filters</div>
+
+        <div style={{ fontWeight: 700, marginTop: 6 }}>States</div>
+        {["NC", "VA", "WV"].map((st) => (
+          <label key={st} style={{ display: "block", marginTop: 4 }}>
+            <input
+              type="checkbox"
+              checked={!!stateFilters[st]}
+              onChange={() => toggleState(st)}
+              style={{ marginRight: 6 }}
+            />
+            {st}
+          </label>
+        ))}
+
+        <div style={{ fontWeight: 700, marginTop: 10 }}>Places</div>
+        {[
+          { key: "birds", label: "Birds 🦅" },
+          { key: "hikes", label: "Hikes 🚶" },
+          { key: "camps", label: "Camps 🏕️" },
+        ].map((t) => (
+          <label key={t.key} style={{ display: "block", marginTop: 4 }}>
+            <input
+              type="checkbox"
+              checked={!!typeFilters[t.key]}
+              onChange={() => toggleType(t.key)}
+              style={{ marginRight: 6 }}
+            />
+            {t.label}
+          </label>
+        ))}
+
+        <div style={{ marginTop: 10, fontSize: 12, opacity: 0.75 }}>
+          Tip: pan/zoom reloads byways + places.
+        </div>
+      </div>
+
       <div id="map" style={{ height: "80vh", width: "100%" }} />
     </div>
   );
+}
+
+// tiny helper to avoid HTML injection from data
+function escapeHtml(str: string) {
+  return String(str)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
 }
