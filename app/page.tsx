@@ -193,19 +193,48 @@ export default function Home() {
       (marker as any).__emoji = emoji;
       (marker as any).__type = t;
 
-      marker.addListener("click", () => {
+      marker.addListener("click", async () => {
         const name = r.name ?? "(No name)";
         const subtype = r.subtype ? ` • ${r.subtype}` : "";
-        const html = `
+        
+        // Show immediate info
+        let html = `
           <div style="font-family: Arial; font-size: 14px; max-width: 240px;">
             <div style="font-weight:700;">${name}</div>
-            <div style="opacity:0.85;">${t}${subtype}</div>
-            ${r.website ? `<div style="margin-top:5px;"><a href="${r.website}" target="_blank">Website</a></div>` : ""}
+            <div style="opacity:0.85; margin-bottom: 4px;">${t}${subtype}</div>
+            <div id="popup-detail-loader" style="font-size: 11px; color: #888;">${t === 'camps' ? 'Loading details...' : ''}</div>
+            <div id="popup-detail-content"></div>
+            ${r.website ? `<div style="margin-top:8px;"><a href="${r.website}" target="_blank">Website</a></div>` : ""}
           </div>
         `;
+        
         infoWindowRef.current.setContent(html);
         infoWindowRef.current.setPosition(marker.getPosition());
         infoWindowRef.current.open(map);
+
+        // Optional: Load details from v_camps_popup only for camps
+        if (t === "camps") {
+          const { data: detail } = await supabase
+            .from("v_camps_popup")
+            .select("open, sites, elevation")
+            .eq("lat", r.lat)
+            .eq("lon", r.lon)
+            .maybeSingle();
+
+          const loader = document.getElementById("popup-detail-loader");
+          const content = document.getElementById("popup-detail-content");
+          
+          if (loader) loader.style.display = "none";
+          if (content && detail) {
+            content.innerHTML = `
+              <div style="margin-top:6px; padding-top:6px; border-top:1px solid #eee; font-size:12px;">
+                ${detail.open ? `<div><b>Open:</b> ${detail.open}</div>` : ""}
+                ${detail.sites ? `<div><b>Sites:</b> ${detail.sites}</div>` : ""}
+                ${detail.elevation ? `<div><b>Elevation:</b> ${detail.elevation}ft</div>` : ""}
+              </div>
+            `;
+          }
+        }
       });
 
       placeMarkersRef.current.push(marker);
