@@ -10,6 +10,20 @@ const supabase = createClient(
 
 type PlaceType = "birds" | "hikes" | "camps";
 
+// --- CUSTOMIZE YOUR CAMP ICONS HERE ---
+const CAMP_THEMES: Record<string, string> = {
+  "state park": "🏞️",
+  "national park": "⛰️",
+  "national forest": "🌲",
+  "coe": "⚓",        // Army Corps of Engineers
+  "blm": "🏜️",        // Bureau of Land Management
+  "military": "🎖️",   // FamCamps
+  "county": "🏡",
+  "city": "🏘️",
+  "private": "⛺",
+  "default": "🏕️"
+};
+
 export default function Home() {
   // --- UI state (toggles) ---
   const [states, setStates] = useState<string[]>(["NC", "VA", "WV"]);
@@ -38,10 +52,21 @@ export default function Home() {
   const placeMarkersRef = useRef<any[]>([]);
 
   // ---------- marker icon helpers ----------
-  const emojiForType = (t: PlaceType) => {
-    if (t === "birds") return "🦅";
-    if (t === "hikes") return "🚶";
-    return "💤";
+  
+  // Updated to handle subtype-specific icons for camps
+  const emojiForType = (t: PlaceType, subtype: string = "") => {
+    const main = t.toLowerCase();
+    const sub = (subtype || "").toLowerCase();
+
+    if (main === "birds") return "🦅";
+    if (main === "hikes") return "🥾";
+
+    if (main === "camps") {
+      // Find a match in our CAMP_THEMES object based on the subtype string
+      const themeKey = Object.keys(CAMP_THEMES).find(key => sub.includes(key));
+      return themeKey ? CAMP_THEMES[themeKey] : CAMP_THEMES["default"];
+    }
+    return "📍";
   };
 
   const makeIcon = (google: any, scale: number) => ({
@@ -133,8 +158,6 @@ export default function Home() {
             designats: r.designats,
             state: r.state,
             source: r.source,
-
-            // optional nav points if you later add them to the RPC/table
             start_lat: r.start_lat,
             start_lng: r.start_lng,
             mid1_lat: r.mid1_lat,
@@ -161,11 +184,9 @@ export default function Home() {
     const typesArr = Array.from(filtersRef.current.types);
 
     if (!statesArr.length || !typesArr.length) {
-      return; // nothing selected => nothing shown (and we already cleared markers)
+      return; 
     }
 
-    // NOTE: keep this select list to columns you KNOW exist in Supabase.
-    // If you later add nav_lat/nav_lon, add them here then prefer them.
     const { data, error } = await supabase
       .from("places")
       .select("id,name,state,place_type,subtype,website,notes,lat,lon")
@@ -191,21 +212,24 @@ export default function Home() {
       if (typeof lat !== "number" || typeof lon !== "number") continue;
 
       const t = r.place_type as PlaceType;
+      // Pass the subtype to get the specific emoji
+      const emoji = emojiForType(t, r.subtype);
 
       const marker = new google.maps.Marker({
         position: { lat, lng: lon },
         map,
         title: r.name ?? "",
         icon: makeIcon(google, scale),
-        label: { text: emojiForType(t), fontSize },
+        label: { text: emoji, fontSize },
+        zIndex: 1000
       });
 
       // store emoji so zoom resizing keeps the right icon
-      (marker as any).__emoji = emojiForType(t);
+      (marker as any).__emoji = emoji;
 
       marker.addListener("click", () => {
         const name = r.name ?? "(No name)";
-        const subtype = r.subtype ? ` • ${r.subtype}` : "";
+        const subtypeStr = r.subtype ? ` • ${r.subtype}` : "";
         const notes = r.notes ? `<div style="margin-top:6px;">${r.notes}</div>` : "";
         const website = r.website
           ? `<div style="margin-top:6px;"><a href="${r.website}" target="_blank" rel="noreferrer">Website</a></div>`
@@ -214,7 +238,7 @@ export default function Home() {
         const html = `
           <div style="font-family: Arial, sans-serif; font-size: 14px; max-width: 260px;">
             <div style="font-weight:700;">${name}</div>
-            <div style="opacity:0.85;">${t}${subtype}</div>
+            <div style="opacity:0.85;">${t}${subtypeStr}</div>
             ${website}
             ${notes}
           </div>
@@ -295,13 +319,8 @@ export default function Home() {
         infoWindow.open(map);
       });
 
-      // reload on pan/zoom stop
       map.addListener("idle", scheduleLoad);
-
-      // keep marker sizes matched to zoom
       map.addListener("zoom_changed", () => applyMarkerSizing());
-
-      // initial load
       scheduleLoad();
     };
 
@@ -309,7 +328,6 @@ export default function Home() {
     document.head.appendChild(script);
   }, []);
 
-  // ✅ toggles: update map immediately (no need to pan/zoom)
   useEffect(() => {
     if (!mapRef.current) return;
     refreshMap();
@@ -318,64 +336,68 @@ export default function Home() {
 
   return (
     <div style={{ position: "relative" }}>
-      <h1 style={{ padding: 10 }}>whereto MVP</h1>
+      <h1 style={{ padding: 10, fontSize: "24px", fontWeight: "bold" }}>whereto MVP</h1>
 
       {/* Filters panel */}
       <div
         style={{
           position: "absolute",
           left: 12,
-          top: 60,
+          top: 70,
           zIndex: 10,
           background: "rgba(255,255,255,0.95)",
           border: "1px solid #ddd",
           borderRadius: 10,
-          padding: 12,
-          width: 220,
+          padding: "16px",
+          width: 240,
           fontFamily: "Arial, sans-serif",
           fontSize: 14,
+          boxShadow: "0 4px 12px rgba(0,0,0,0.1)"
         }}
       >
-        <div style={{ fontWeight: 700, marginBottom: 8 }}>Filters</div>
+        <div style={{ fontWeight: 700, marginBottom: 10, borderBottom: "1px solid #eee", paddingBottom: 5 }}>Filters</div>
 
-        <div style={{ fontWeight: 700, marginTop: 6 }}>States</div>
+        <div style={{ fontWeight: 700, marginTop: 10, color: "#666", fontSize: "11px", textTransform: "uppercase" }}>States</div>
         {["NC", "VA", "WV"].map((st) => (
-          <label key={st} style={{ display: "block", marginTop: 6 }}>
-            <input type="checkbox" checked={states.includes(st)} onChange={() => toggleState(st)} />{" "}
+          <label key={st} style={{ display: "flex", alignItems: "center", marginTop: 8, cursor: "pointer" }}>
+            <input type="checkbox" checked={states.includes(st)} onChange={() => toggleState(st)} style={{ marginRight: 8 }} />
             {st}
           </label>
         ))}
 
-        <div style={{ fontWeight: 700, marginTop: 14 }}>Places</div>
+        <div style={{ fontWeight: 700, marginTop: 20, color: "#666", fontSize: "11px", textTransform: "uppercase" }}>Places</div>
 
-        <label style={{ display: "block", marginTop: 6 }}>
+        <label style={{ display: "flex", alignItems: "center", marginTop: 10, cursor: "pointer" }}>
           <input
             type="checkbox"
             checked={placeTypes.includes("birds")}
             onChange={() => togglePlaceType("birds")}
-          />{" "}
+            style={{ marginRight: 8 }}
+          />
           Birds 🦅
         </label>
 
-        <label style={{ display: "block", marginTop: 6 }}>
+        <label style={{ display: "flex", alignItems: "center", marginTop: 10, cursor: "pointer" }}>
           <input
             type="checkbox"
             checked={placeTypes.includes("hikes")}
             onChange={() => togglePlaceType("hikes")}
-          />{" "}
-          Hikes 🚶
+            style={{ marginRight: 8 }}
+          />
+          Hikes 🥾
         </label>
 
-        <label style={{ display: "block", marginTop: 6 }}>
+        <label style={{ display: "flex", alignItems: "center", marginTop: 10, cursor: "pointer" }}>
           <input
             type="checkbox"
             checked={placeTypes.includes("camps")}
             onChange={() => togglePlaceType("camps")}
-          />{" "}
+            style={{ marginRight: 8 }}
+          />
           Camps 🏕️
         </label>
 
-        <div style={{ marginTop: 12, fontSize: 12, opacity: 0.75 }}>
+        <div style={{ marginTop: 20, fontSize: 11, opacity: 0.6, fontStyle: "italic" }}>
           Tip: toggles update immediately; pan/zoom refreshes too.
         </div>
       </div>
