@@ -12,16 +12,16 @@ type PlaceType = "birds" | "hikes" | "camps";
 
 // --- CUSTOMIZE YOUR CAMP ICONS HERE ---
 const CAMP_THEMES: Record<string, string> = {
-  "state park": "🏞️",
-  "national park": "⛰️",
-  "national forest": "🌲",
-  "coe": "⚓",        // Army Corps of Engineers
-  "blm": "🏜️",        // Bureau of Land Management
-  "military": "🎖️",   // FamCamps
-  "county": "🏡",
-  "city": "🏘️",
-  "private": "⛺",
-  "default": "🏕️"
+  "SP": "🏞️",
+  "NP": "⛰️",
+  "NF": "🌳",
+  "SF": "🌲",
+  "COE": "💧",        // Army Corps of Engineers
+  "BLM": "🏜️",        // Bureau of Land Management
+  "MIL": "🎖️",   // FamCamps
+  "CP": "⛺",
+  "RES": "⚓",
+   "default": "🏕️"
 };
 
 export default function Home() {
