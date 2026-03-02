@@ -197,16 +197,15 @@ export default function Home() {
         const name = r.name ?? "(No name)";
         const subtype = r.subtype ? ` • ${r.subtype}` : "";
         
-        // 1. Initial Popup Content
+        // Use a unique ID based container for this marker's specific popup content
         const html = `
-          <div style="font-family: Arial; font-size: 14px; max-width: 240px;">
+          <div style="font-family: Arial; font-size: 14px; max-width: 240px; min-width: 180px;">
             <div style="font-weight:700;">${name}</div>
-            <div style="opacity:0.85; margin-bottom: 4px;">${t}${subtype}</div>
-            <div id="popup-detail-area">
-                ${t === 'camps' ? '<div id="popup-detail-loader" style="font-size: 11px; color: #888;">Loading details...</div>' : ''}
-                <div id="popup-detail-content"></div>
+            <div style="opacity:0.85; margin-bottom: 6px;">${t}${subtype}</div>
+            <div id="dynamic-content-${r.id}">
+                ${t === 'camps' ? '<div id="loading-msg" style="color:#999; font-size:12px;">Loading details...</div>' : ''}
             </div>
-            ${r.website ? `<div style="margin-top:8px;"><a href="${r.website}" target="_blank">Website</a></div>` : ""}
+            ${r.website ? `<div style="margin-top:10px;"><a href="${r.website}" target="_blank">Website</a></div>` : ""}
           </div>
         `;
         
@@ -214,35 +213,39 @@ export default function Home() {
         infoWindowRef.current.setPosition(marker.getPosition());
         infoWindowRef.current.open(map);
 
-        // 2. Wait for the InfoWindow to actually exist in the DOM before updating it
         if (t === "camps") {
+          // STRIP TRAILING ZEROS: Round to exactly 3 decimal places for the lookup
+          const searchLat = parseFloat(r.lat.toFixed(3));
+          const searchLon = parseFloat(r.lon.toFixed(3));
+
           const { data: detail } = await supabase
             .from("v_camps_popup")
             .select("open, sites, elevation")
-            .eq("lat", r.lat)
-            .eq("lon", r.lon)
+            .eq("lat", searchLat)
+            .eq("lon", searchLon)
             .maybeSingle();
 
-          // We use a small listener to ensure the div is ready to be edited
-          const updatePopup = () => {
-            const loader = document.getElementById("popup-detail-loader");
-            const content = document.getElementById("popup-detail-content");
-            
-            if (loader) loader.style.display = "none";
-            if (content && detail) {
-              content.innerHTML = `
-                <div style="margin-top:6px; padding-top:6px; border-top:1px solid #eee; font-size:12px;">
-                  ${detail.open ? `<div><b>Open:</b> ${detail.open}</div>` : ""}
-                  ${detail.sites ? `<div><b>Sites:</b> ${detail.sites}</div>` : ""}
-                  ${detail.elevation ? `<div><b>Elevation:</b> ${detail.elevation}ft</div>` : ""}
-                </div>
-              `;
+          const updateUI = () => {
+            const container = document.getElementById(`dynamic-content-${r.id}`);
+            if (container) {
+              if (detail) {
+                container.innerHTML = `
+                  <div style="margin-top:8px; padding-top:8px; border-top:1px solid #eee; font-size:12px; line-height:1.4;">
+                    ${detail.open ? `<div><b>Open:</b> ${detail.open}</div>` : ""}
+                    ${detail.sites ? `<div><b>Sites:</b> ${detail.sites}</div>` : ""}
+                    ${detail.elevation ? `<div><b>Elevation:</b> ${detail.elevation}ft</div>` : ""}
+                  </div>
+                `;
+              } else {
+                // If it fails, show coordinates for debugging (invisible to user usually)
+                container.innerHTML = `<div style="font-size:11px; color:#ccc; margin-top:4px;">No additional data.</div>`;
+              }
             }
           };
 
-          // Try updating immediately, but also listen for 'domready' in case it's still rendering
-          updatePopup();
-          google.maps.event.addListenerOnce(infoWindowRef.current, 'domready', updatePopup);
+          // Timing safety for Google InfoWindow rendering
+          updateUI();
+          google.maps.event.addListenerOnce(infoWindowRef.current, 'domready', updateUI);
         }
       });
 
@@ -291,8 +294,6 @@ export default function Home() {
 
   return (
     <div style={{ position: "relative", height: "100vh", overflow: "hidden" }}>
-      
-      {/* 2. COLLAPSIBLE FILTERS PANEL */}
       <div
         style={{
           position: "absolute",
