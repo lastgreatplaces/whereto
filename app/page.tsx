@@ -29,7 +29,7 @@ export default function Home() {
   // --- UI state ---
   const [states, setStates] = useState<string[]>(["NC", "VA", "WV"]);
   const [placeTypes, setPlaceTypes] = useState<PlaceType[]>(["birds"]);
-  const [isFilterOpen, setIsFilterOpen] = useState(true); // Toggle for mobile
+  const [isFilterOpen, setIsFilterOpen] = useState(true);
 
   // --- refs ---
   const filtersRef = useRef({
@@ -55,7 +55,6 @@ export default function Home() {
   const emojiForType = (t: PlaceType, subtype: string = "") => {
     if (t === "birds") return "🦅";
     if (t === "hikes") return "🥾";
-
     if (t === "camps") {
       const cleanSub = (subtype || "").trim();
       const themeKey = Object.keys(CAMP_THEMES).find(key => 
@@ -66,11 +65,10 @@ export default function Home() {
     return "📍";
   };
 
-  // 1. DYNAMIC COLOR CIRCLES
   const getColorForType = (t: PlaceType) => {
-    if (t === "birds") return "#f80808"; // Red
-    if (t === "camps") return "#007bff"; // Blue
-    if (t === "hikes") return "#28a745"; // Green
+    if (t === "birds") return "#f80808"; 
+    if (t === "camps") return "#007bff"; 
+    if (t === "hikes") return "#28a745"; 
     return "#666666";
   };
 
@@ -80,14 +78,13 @@ export default function Home() {
     fillColor: "#fafbfb",
     fillOpacity: 1,
     strokeWeight: 2,
-    strokeColor: color, // Set dynamically
+    strokeColor: color,
   });
 
   const applyMarkerSizing = () => {
     const map = mapRef.current;
     if (!map) return;
     const google = (window as any).google;
-
     const z = map.getZoom() ?? 7;
     const scale = z <= 7 ? 10 : z <= 9 ? 12 : z <= 11 ? 15 : 18;
     const fontSize = z <= 7 ? "14px" : z <= 9 ? "16px" : z <= 11 ? "18px" : "22px";
@@ -100,7 +97,6 @@ export default function Home() {
     }
   };
 
-  // ---------- UI helpers ----------
   const toggleState = (st: string) => {
     setStates((prev) => (prev.includes(st) ? prev.filter((x) => x !== st) : [...prev, st]));
   };
@@ -120,7 +116,6 @@ export default function Home() {
     placeMarkersRef.current = [];
   };
 
-  // ---------- loaders ----------
   const loadBywaysInView = async () => {
     const map = mapRef.current;
     if (!map) return;
@@ -197,13 +192,12 @@ export default function Home() {
         const name = r.name ?? "(No name)";
         const subtype = r.subtype ? ` • ${r.subtype}` : "";
         
-        // Use a unique ID based container for this marker's specific popup content
         const html = `
           <div style="font-family: Arial; font-size: 14px; max-width: 240px; min-width: 180px;">
             <div style="font-weight:700;">${name}</div>
             <div style="opacity:0.85; margin-bottom: 6px;">${t}${subtype}</div>
             <div id="dynamic-content-${r.id}">
-                ${t === 'camps' ? '<div id="loading-msg" style="color:#999; font-size:12px;">Loading details...</div>' : ''}
+                ${t === 'camps' ? '<div style="color:#999; font-size:12px;">Loading details...</div>' : ''}
             </div>
             ${r.website ? `<div style="margin-top:10px;"><a href="${r.website}" target="_blank">Website</a></div>` : ""}
           </div>
@@ -214,15 +208,15 @@ export default function Home() {
         infoWindowRef.current.open(map);
 
         if (t === "camps") {
-          // STRIP TRAILING ZEROS: Round to exactly 3 decimal places for the lookup
-          const searchLat = parseFloat(r.lat.toFixed(3));
-          const searchLon = parseFloat(r.lon.toFixed(3));
-
+          // FUZZY LOOKUP: Look for any camp within a tiny radius (0.001 degrees)
+          // This solves the 3-decimal vs 5-decimal trailing zero mismatch.
           const { data: detail } = await supabase
             .from("v_camps_popup")
             .select("open, sites, elevation")
-            .eq("lat", searchLat)
-            .eq("lon", searchLon)
+            .gte("lat", r.lat - 0.001)
+            .lte("lat", r.lat + 0.001)
+            .gte("lon", r.lon - 0.001)
+            .lte("lon", r.lon + 0.001)
             .maybeSingle();
 
           const updateUI = () => {
@@ -237,13 +231,11 @@ export default function Home() {
                   </div>
                 `;
               } else {
-                // If it fails, show coordinates for debugging (invisible to user usually)
                 container.innerHTML = `<div style="font-size:11px; color:#ccc; margin-top:4px;">No additional data.</div>`;
               }
             }
           };
 
-          // Timing safety for Google InfoWindow rendering
           updateUI();
           google.maps.event.addListenerOnce(infoWindowRef.current, 'domready', updateUI);
         }
@@ -296,33 +288,22 @@ export default function Home() {
     <div style={{ position: "relative", height: "100vh", overflow: "hidden" }}>
       <div
         style={{
-          position: "absolute",
-          left: 12,
-          top: 12,
-          zIndex: 10,
-          background: "rgba(255,255,255,0.98)",
-          border: "1px solid #ccc",
-          borderRadius: 12,
-          padding: isFilterOpen ? 16 : 8,
-          width: isFilterOpen ? 220 : "auto",
-          fontFamily: "Arial, sans-serif",
-          boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-          transition: "all 0.2s ease"
+          position: "absolute", left: 12, top: 12, zIndex: 10,
+          background: "rgba(255,255,255,0.98)", border: "1px solid #ccc",
+          borderRadius: 12, padding: isFilterOpen ? 16 : 8,
+          width: isFilterOpen ? 220 : "auto", fontFamily: "Arial, sans-serif",
+          boxShadow: "0 4px 12px rgba(0,0,0,0.15)", transition: "all 0.2s ease"
         }}
       >
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: isFilterOpen ? 12 : 0 }}>
           {isFilterOpen && <span style={{ fontWeight: 800 }}>Filters</span>}
           <button 
             onClick={() => setIsFilterOpen(!isFilterOpen)}
-            style={{ 
-              background: "#eee", border: "none", borderRadius: 6, 
-              padding: "4px 8px", cursor: "pointer", fontSize: 12 
-            }}
+            style={{ background: "#eee", border: "none", borderRadius: 6, padding: "4px 8px", cursor: "pointer", fontSize: 12 }}
           >
             {isFilterOpen ? "Hide" : "Menu ☰"}
           </button>
         </div>
-
         {isFilterOpen && (
           <div style={{ maxHeight: "70vh", overflowY: "auto" }}>
             <div style={{ fontWeight: 700, fontSize: 11, color: "#666", textTransform: "uppercase" }}>States</div>
@@ -331,7 +312,6 @@ export default function Home() {
                 <input type="checkbox" checked={states.includes(st)} onChange={() => toggleState(st)} style={{ marginRight: 8 }} /> {st}
               </label>
             ))}
-
             <div style={{ fontWeight: 700, fontSize: 11, color: "#666", textTransform: "uppercase", marginTop: 16 }}>Places</div>
             <label style={{ display: "flex", alignItems: "center", marginTop: 8 }}>
               <input type="checkbox" checked={placeTypes.includes("birds")} onChange={() => togglePlaceType("birds")} style={{ marginRight: 8 }} />
@@ -348,7 +328,6 @@ export default function Home() {
           </div>
         )}
       </div>
-
       <div id="map" style={{ height: "100%", width: "100%" }} />
     </div>
   );
