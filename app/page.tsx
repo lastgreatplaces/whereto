@@ -152,19 +152,32 @@ export default function Home() {
         (marker as any).__emoji = t === "birds" ? "🦅" : t === "hikes" ? "🥾" : theme.emoji;
 
         marker.addListener("click", () => {
-          let labels = { l1: "Open", l2: "Sites", l3: "Elev" };
-          
-          if (t === "hikes") {
-            labels = { l1: "Length", l2: "Gain", l3: "Difficulty" };
+          let popup = `<div style="padding:5px; font-family:sans-serif; min-width:150px;"><b>${r.name}</b><br/>`;
+
+          if (t === "camps" || t === "hikes") {
+            const labels = t === "camps" 
+                ? { l1: "Open", l2: "Sites", l3: "Elev" } 
+                : { l1: "Length", l2: "Gain", l3: "Difficulty" };
+
+            popup += `<div style="font-size:12px; margin-top:4px; line-height:1.4;">
+                ${labels.l1}: ${r.open_length || "N/A"}<br/>
+                ${labels.l2}: ${r.sites_gain || "N/A"}<br/>
+                ${labels.l3}: ${r.elev_difficulty || "N/A"}<br/>
+                <span style="color:#666; font-size:11px;">${sub}</span>
+              </div>`;
+          } else {
+            // Birds only show the subtype/notes
+            popup += `<div style="font-size:12px; margin-top:4px; color:#666; font-weight:bold;">${sub}</div>`;
           }
 
-          let popup = `<div style="padding:5px; font-family:sans-serif;"><b>${r.name}</b><br/>`;
-          popup += `<div style="font-size:12px; margin-top:4px;">
-              ${labels.l1}: ${r.open_length || "N/A"}<br/>
-              ${labels.l2}: ${r.sites_gain || "N/A"}<br/>
-              ${labels.l3}: ${r.elev_difficulty || "N/A"}<br/>
-              <span style="color:#666; font-size:11px;">${sub}</span>
-            </div></div>`;
+          // Add clickable website link if it exists
+          if (r.website && r.website.startsWith('http')) {
+            popup += `<div style="margin-top:8px; border-top:1px solid #eee; padding-top:6px;">
+                        <a href="${r.website}" target="_blank" rel="noopener noreferrer" style="color:#1a73e8; text-decoration:none; font-size:12px; font-weight:bold;">🌐 Visit Website</a>
+                      </div>`;
+          }
+
+          popup += `</div>`;
             
           infoWindowRef.current.setContent(popup);
           infoWindowRef.current.setPosition(marker.getPosition());
