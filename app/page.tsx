@@ -22,18 +22,20 @@ const CAMP_THEMES: Record<string, Theme> = {
   "SP": { color: "#1976d2", emoji: "🏞️" },      
   "SF": { color: "#388e3c", emoji: "🌳" },      
   "BLM": { color: "#fbc02d", emoji: "🏜️" },     
-  "MIL": { color: "#7b1fa2", emoji: "🎖️" },     
+  "NRA": { color: "#8d6e63", emoji: "🏕️" },     
+  "SRA": { color: "#8d6e63", emoji: "🏕️" },     
   "CP": { color: "#00acc1", emoji: "🏙️" },      
   "default": { color: "#607d8b", emoji: "⛺" }  
 };
 
 const CAMP_SUBTYPE_LABELS: Record<string, string> = {
   "COE": "Army Corps", "NF": "Nat. Forest", "NP": "Nat. Park", "SP": "State Park",
-  "SF": "State Forest", "BLM": "BLM", "MIL": "Military", "CP": "Local Park",
+  "SF": "State Forest", "BLM": "BLM", "NRA": "Rec Area", "SRA": "Rec Area", "CP": "Local Park",
   "SFW": "Fish/Wild", "RES": "Other/Res"
 };
 
-const ALL_CAMP_SUBTYPES = Object.keys(CAMP_SUBTYPE_LABELS);
+// Filter out duplicates for the UI labels (NRA/SRA both map to Rec Area)
+const UI_CAMP_SUBTYPES = ["COE", "NF", "NP", "SP", "SF", "BLM", "NRA", "CP", "SFW", "RES"];
 
 const STATE_GROUPS: Record<string, string[]> = {
   "South": ["AL", "AR", "FL", "GA", "KY", "LA", "MS", "NC", "OK", "SC", "TN", "TX", "VA", "WV"],
@@ -44,9 +46,10 @@ const STATE_GROUPS: Record<string, string[]> = {
 };
 
 export default function Home() {
-  const [states, setStates] = useState<string[]>(["NC", "VA", "WV"]);
-  const [placeTypes, setPlaceTypes] = useState<PlaceType[]>(["birds", "hikes", "camps", "highways"]);
-  const [selectedCampSubtypes, setSelectedCampSubtypes] = useState<string[]>(ALL_CAMP_SUBTYPES);
+  // 1. Initial State: Only NC and Highways toggled for a cleaner start
+  const [states, setStates] = useState<string[]>(["NC"]);
+  const [placeTypes, setPlaceTypes] = useState<PlaceType[]>(["highways"]);
+  const [selectedCampSubtypes, setSelectedCampSubtypes] = useState<string[]>(Object.keys(CAMP_SUBTYPE_LABELS));
   const [isFilterOpen, setIsFilterOpen] = useState(true);
   const [openGroups, setOpenGroups] = useState<string[]>(["South"]);
   const [isCampSubmenuOpen, setIsCampSubmenuOpen] = useState(false);
@@ -59,9 +62,9 @@ export default function Home() {
   const highwayLinesRef = useRef<any[]>([]);
   
   const filtersRef = useRef({
-    states: new Set<string>(["NC", "VA", "WV"]),
-    types: new Set<PlaceType>(["birds", "hikes", "camps", "highways"]),
-    campSubtypes: new Set<string>(ALL_CAMP_SUBTYPES)
+    states: new Set<string>(["NC"]),
+    types: new Set<PlaceType>(["highways"]),
+    campSubtypes: new Set<string>(Object.keys(CAMP_SUBTYPE_LABELS))
   });
 
   useEffect(() => { 
@@ -71,16 +74,29 @@ export default function Home() {
   }, [states, placeTypes, selectedCampSubtypes]);
 
   const getMarkerStyle = (google: any, type: PlaceType, subtype: string, zoom: number) => {
-    const baseSize = zoom <= 7 ? 24 : zoom <= 10 ? 34 : 44;
+    // 3. Adjusted teardrop size (slightly smaller)
+    const baseSize = zoom <= 7 ? 20 : zoom <= 10 ? 30 : 40;
+    
     if (type === "birds") {
       return {
         path: google.maps.SymbolPath.CIRCLE, scale: baseSize / 2, fillColor: "#ffffff", 
         fillOpacity: 1, strokeWeight: 4, strokeColor: "#f80808", labelOrigin: new google.maps.Point(0, 0)
       };
     }
+    
     if (type === "hikes") return { path: "M -10,-10 L 10,-10 L 10,10 L -10,10 Z", scale: baseSize / 20, fillColor: "#28a745", fillOpacity: 1, strokeWeight: 2, strokeColor: "#ffffff" };
+    
     const theme = Object.keys(CAMP_THEMES).find(k => (subtype || "").includes(k)) ? CAMP_THEMES[Object.keys(CAMP_THEMES).find(k => (subtype || "").includes(k))!] : CAMP_THEMES["default"];
-    return { path: "M 0,0 C -2,-20 -10,-22 -10,-30 A 10,10 0 1 1 10,-30 C 10,-22 2,-20 0,0 z", scale: baseSize / 16, fillColor: theme.color, fillOpacity: 1, strokeWeight: 1.5, strokeColor: "#ffffff", labelOrigin: new google.maps.Point(0, -30) };
+    
+    return { 
+      path: "M 0,0 C -2,-20 -10,-22 -10,-30 A 10,10 0 1 1 10,-30 C 10,-22 2,-20 0,0 z", 
+      scale: baseSize / 16, 
+      fillColor: theme.color, 
+      fillOpacity: 1, 
+      strokeWeight: 1.5, 
+      strokeColor: "#ffffff", 
+      labelOrigin: new google.maps.Point(0, -30) 
+    };
   };
 
   const applyMarkerSizing = () => {
@@ -90,10 +106,17 @@ export default function Home() {
     placeMarkersRef.current.forEach(m => {
       const type = (m as any).__type as PlaceType;
       m.setIcon(getMarkerStyle(google, type, (m as any).__subtype, z));
+      
       if (type === "birds") {
-        m.setLabel({ text: "🦅", fontSize: z <= 8 ? "16px" : "24px", color: "black", fontWeight: "700" });
+        m.setLabel({ text: "🦅", fontSize: z <= 8 ? "18px" : "26px", color: "black", fontWeight: "700" });
       } else {
-        m.setLabel(z > 8 ? { text: (m as any).__emoji, fontSize: z <= 11 ? "12px" : "15px", color: "white", fontWeight: "700" } : null);
+        // 3. Larger icons inside the teardrops
+        m.setLabel(z > 7 ? { 
+          text: (m as any).__emoji, 
+          fontSize: z <= 11 ? "14px" : "18px", 
+          color: "white", 
+          fontWeight: "700" 
+        } : null);
       }
     });
   };
@@ -153,32 +176,21 @@ export default function Home() {
 
         marker.addListener("click", () => {
           let popup = `<div style="padding:5px; font-family:sans-serif; min-width:150px;"><b>${r.name}</b><br/>`;
-
           if (t === "camps" || t === "hikes") {
-            const labels = t === "camps" 
-                ? { l1: "Open", l2: "Sites", l3: "Elev" } 
-                : { l1: "Length", l2: "Gain", l3: "Difficulty" };
-
+            const labels = t === "camps" ? { l1: "Open", l2: "Sites", l3: "Elev" } : { l1: "Length", l2: "Gain", l3: "Difficulty" };
             popup += `<div style="font-size:12px; margin-top:4px; line-height:1.4;">
-                ${labels.l1}: ${r.open_length || "N/A"}<br/>
-                ${labels.l2}: ${r.sites_gain || "N/A"}<br/>
-                ${labels.l3}: ${r.elev_difficulty || "N/A"}<br/>
+                ${labels.l1}: ${r.open_length || "N/A"}<br/>${labels.l2}: ${r.sites_gain || "N/A"}<br/>${labels.l3}: ${r.elev_difficulty || "N/A"}<br/>
                 <span style="color:#666; font-size:11px;">${sub}</span>
               </div>`;
           } else {
-            // Birds only show the subtype/notes
             popup += `<div style="font-size:12px; margin-top:4px; color:#666; font-weight:bold;">${sub}</div>`;
           }
-
-          // Add clickable website link if it exists
           if (r.website && r.website.startsWith('http')) {
             popup += `<div style="margin-top:8px; border-top:1px solid #eee; padding-top:6px;">
                         <a href="${r.website}" target="_blank" rel="noopener noreferrer" style="color:#1a73e8; text-decoration:none; font-size:12px; font-weight:bold;">🌐 Visit Website</a>
                       </div>`;
           }
-
           popup += `</div>`;
-            
           infoWindowRef.current.setContent(popup);
           infoWindowRef.current.setPosition(marker.getPosition());
           infoWindowRef.current.open(mapRef.current);
@@ -206,7 +218,10 @@ export default function Home() {
       clusterScript.onload = () => {
         const google = (window as any).google;
         const map = new google.maps.Map(document.getElementById("map") as HTMLElement, { 
-          center: { lat: 35.8, lng: -78.6 }, zoom: 7, mapTypeControl: false, streetViewControl: false
+          center: { lat: 35.5, lng: -79.5 }, // 2. Centered specifically on NC
+          zoom: 7, 
+          mapTypeControl: false, 
+          streetViewControl: false
         });
         mapRef.current = map;
         infoWindowRef.current = new google.maps.InfoWindow();
@@ -242,12 +257,23 @@ export default function Home() {
                 {t === "camps" && isCampSubmenuOpen && (
                   <div style={{ padding: "8px", background: "#f1f3f5", borderRadius: "4px", marginBottom: "10px" }}>
                     <div style={{ display: "flex", gap: "8px", marginBottom: "8px" }}>
-                      <button onClick={() => setSelectedCampSubtypes(ALL_CAMP_SUBTYPES)} style={{ flex: 1, fontSize: "9px", fontWeight: "bold", padding: "2px", cursor: "pointer" }}>ALL</button>
+                      <button onClick={() => setSelectedCampSubtypes(Object.keys(CAMP_SUBTYPE_LABELS))} style={{ flex: 1, fontSize: "9px", fontWeight: "bold", padding: "2px", cursor: "pointer" }}>ALL</button>
                       <button onClick={() => setSelectedCampSubtypes([])} style={{ flex: 1, fontSize: "9px", fontWeight: "bold", padding: "2px", cursor: "pointer" }}>NONE</button>
                     </div>
-                    {ALL_CAMP_SUBTYPES.map(sub => (
+                    {/* 1. Military removed, Rec Area added */}
+                    {UI_CAMP_SUBTYPES.map(sub => (
                       <label key={sub} style={{ fontSize: 11, display: "flex", alignItems: "center", cursor: "pointer", marginBottom: 2 }}>
-                        <input type="checkbox" checked={selectedCampSubtypes.includes(sub)} onChange={() => setSelectedCampSubtypes(prev => prev.includes(sub) ? prev.filter(x => x !== sub) : [...prev, sub])} />
+                        <input 
+                          type="checkbox" 
+                          checked={selectedCampSubtypes.includes(sub) || (sub === "NRA" && selectedCampSubtypes.includes("SRA"))} 
+                          onChange={() => {
+                            setSelectedCampSubtypes(prev => {
+                              const targets = sub === "NRA" ? ["NRA", "SRA"] : [sub];
+                              const isAdding = !prev.includes(sub);
+                              return isAdding ? Array.from(new Set([...prev, ...targets])) : prev.filter(x => !targets.includes(x));
+                            });
+                          }} 
+                        />
                         <span style={{ marginLeft: 6 }}>{CAMP_SUBTYPE_LABELS[sub] || sub}</span>
                       </label>
                     ))}
