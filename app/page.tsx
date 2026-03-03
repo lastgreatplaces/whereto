@@ -15,6 +15,8 @@ const CAMP_THEMES: Record<string, string> = {
   "COE": "💧", "BLM": "🏜️", "MIL": "🎖️", "CP": "⛺", "RES": "⚓", "default": "🏕️"
 };
 
+const ALL_CAMP_SUBTYPES = ["SP", "NP", "NF", "SF", "SFW", "COE", "BLM", "MIL", "CP", "RES"];
+
 const STATE_GROUPS = {
   "South": ["AL", "AR", "FL", "GA", "KY", "LA", "MS", "NC", "OK", "SC", "TN", "TX", "VA", "WV"],
   "East": ["CT", "DE", "ME", "MD", "MA", "NH", "NJ", "NY", "PA", "RI", "VT"],
@@ -26,8 +28,10 @@ const STATE_GROUPS = {
 export default function Home() {
   const [states, setStates] = useState<string[]>(["NC", "VA", "WV"]);
   const [placeTypes, setPlaceTypes] = useState<PlaceType[]>(["birds", "hikes", "camps", "highways"]);
+  const [selectedCampSubtypes, setSelectedCampSubtypes] = useState<string[]>([...ALL_CAMP_SUBTYPES]);
   const [isFilterOpen, setIsFilterOpen] = useState(true);
   const [openGroups, setOpenGroups] = useState<string[]>(["South"]);
+  const [isCampSubmenuOpen, setIsCampSubmenuOpen] = useState(false);
 
   const mapRef = useRef<any>(null);
   const clustererRef = useRef<any>(null);
@@ -38,28 +42,20 @@ export default function Home() {
   const filtersRef = useRef({
     states: new Set<string>(["NC", "VA", "WV"]),
     types: new Set<PlaceType>(["birds", "hikes", "camps", "highways"]),
+    campSubtypes: new Set<string>([...ALL_CAMP_SUBTYPES])
   });
 
   useEffect(() => { 
     filtersRef.current.states = new Set(states); 
     filtersRef.current.types = new Set(placeTypes);
-  }, [states, placeTypes]);
-
-  const toggleGroupVisibility = (group: string) => {
-    setOpenGroups(prev => prev.includes(group) ? prev.filter(g => g !== group) : [...prev, group]);
-  };
+    filtersRef.current.campSubtypes = new Set(selectedCampSubtypes);
+  }, [states, placeTypes, selectedCampSubtypes]);
 
   const toggleGroupSelection = (groupStates: string[]) => {
     if (groupStates.length === 0) return;
     const allSelected = groupStates.every(st => states.includes(st));
-    if (allSelected) {
-      setStates(prev => prev.filter(st => !groupStates.includes(st)));
-    } else {
-      setStates(prev => Array.from(new Set([...prev, ...groupStates])));
-    }
+    setStates(prev => allSelected ? prev.filter(st => !groupStates.includes(st)) : Array.from(new Set([...prev, ...groupStates])));
   };
-
-  const clearAllStates = () => setStates([]);
 
   const emojiForType = (t: PlaceType, subtype: string = "") => {
     if (t === "birds") return "🦅";
@@ -106,27 +102,21 @@ export default function Home() {
 
   const loadBywaysInView = async () => {
     const map = mapRef.current;
-    if (!map) return;
-    if (!filtersRef.current.types.has("highways")) {
-      map.data.forEach((f: any) => map.data.remove(f));
+    if (!map || !filtersRef.current.types.has("highways")) {
+      map?.data?.forEach((f: any) => map.data.remove(f));
       return;
     }
-
     const statesArr = Array.from(filtersRef.current.states);
     const bounds = map.getBounds();
     if (!bounds || !statesArr.length) {
       map.data.forEach((f: any) => map.data.remove(f));
       return;
     }
-
-    const { data, error } = await supabase.rpc("rpc_byways_in_bbox", {
+    const { data } = await supabase.rpc("rpc_byways_in_bbox", {
       min_lng: bounds.getSouthWest().lng(), min_lat: bounds.getSouthWest().lat(),
       max_lng: bounds.getNorthEast().lng(), max_lat: bounds.getNorthEast().lat(),
       states: statesArr,
     });
-
-    if (error) return;
-
     const fc = {
       type: "FeatureCollection",
       features: (data || []).filter((r: any) => r.geom_geojson).map((r: any) => ({
@@ -135,7 +125,6 @@ export default function Home() {
         properties: { name: r.name, designats: r.designats }
       })),
     };
-
     map.data.forEach((f: any) => map.data.remove(f));
     map.data.addGeoJson(fc as any);
   };
@@ -143,62 +132,55 @@ export default function Home() {
   const loadPlaces = async () => {
     const map = mapRef.current;
     if (!map || !clustererRef.current) return;
-
-    // Clear previous
     clustererRef.current.clearMarkers();
     placeMarkersRef.current = [];
 
     const statesArr = Array.from(filtersRef.current.states);
     const typesArr = Array.from(filtersRef.current.types).filter(t => t !== "highways");
-    
     if (!statesArr.length || !typesArr.length) return;
 
-    const { data, error } = await supabase.from("places").select("*").in("state", statesArr).in("place_type", typesArr);
+    let query = supabase.from("places").select("*").in("state", statesArr).in("place_type", typesArr);
+    
+    const { data, error } = await query;
     if (error) return;
 
     const google = (window as any).google;
-    const newMarkers = (data || []).map(r => {
-      const latVal = r.lat ?? r.latitude;
-      const lonVal = r.lon ?? r.longitude;
-      if (latVal === null || lonVal === null) return null;
-
-      const marker = new google.maps.Marker({
-        position: { lat: Number(latVal), lng: Number(lonVal) },
-        optimized: true,
-      });
-
-      const t = r.place_type as PlaceType;
-      (marker as any).__type = t;
-      (marker as any).__emoji = emojiForType(t, r.subtype);
-
-      marker.addListener("click", () => {
-        let extraHtml = "";
-        if (t === "camps") {
-          extraHtml = `<div style="border-top:1px solid #eee; margin-top:6px; padding-top:4px; font-size:12px;">
-            ${r.camp_open ? `<div><b>Open:</b> ${r.camp_open}</div>` : ""}
-            ${r.camp_sites ? `<div><b>Sites:</b> ${r.camp_sites}</div>` : ""}
-            ${r.camp_elevation ? `<div><b>Elevation:</b> ${r.camp_elevation}ft</div>` : ""}
-          </div>`;
-        } else if (t === "hikes") {
-          extraHtml = `<div style="border-top:1px solid #eee; margin-top:6px; padding-top:4px; font-size:12px;">
-            ${r.hike_distance ? `<div><b>Dist:</b> ${r.hike_distance}</div>` : ""}
-            ${r.hike_difficulty ? `<div><b>Diff:</b> ${r.hike_difficulty}</div>` : ""}
-          </div>`;
+    const newMarkers = (data || [])
+      .filter(r => {
+        // Subtype filter for camps
+        if (r.place_type === "camps") {
+          return Array.from(filtersRef.current.campSubtypes).some(sub => (r.subtype || "").includes(sub));
         }
-
-        infoWindowRef.current.setContent(`
-          <div style="font-family: Arial; font-size: 14px; min-width: 150px;">
-            <b>${r.name || "Unnamed"}</b>
-            <div style="font-size:11px; opacity:0.7; margin: 2px 0;">${t} ${r.subtype ? `• ${r.subtype}` : ""}</div>
-            ${extraHtml}
-            ${r.website ? `<div style="margin-top:8px;"><a href="${r.website}" target="_blank" style="color: #007bff; text-decoration: none;">View Website</a></div>` : ""}
-          </div>`);
-        infoWindowRef.current.setPosition(marker.getPosition());
-        infoWindowRef.current.open(map);
-      });
-
-      return marker;
-    }).filter(m => m !== null);
+        return true;
+      })
+      .map(r => {
+        const latVal = r.lat ?? r.latitude;
+        const lonVal = r.lon ?? r.longitude;
+        if (latVal === null || lonVal === null) return null;
+        const marker = new google.maps.Marker({ position: { lat: Number(latVal), lng: Number(lonVal) }, optimized: true });
+        const t = r.place_type as PlaceType;
+        (marker as any).__type = t;
+        (marker as any).__emoji = emojiForType(t, r.subtype);
+        marker.addListener("click", () => {
+          let extraHtml = "";
+          if (t === "camps") {
+            extraHtml = `<div style="border-top:1px solid #eee; margin-top:6px; padding-top:4px; font-size:12px;">
+              ${r.camp_open ? `<div><b>Open:</b> ${r.camp_open}</div>` : ""}
+              ${r.camp_sites ? `<div><b>Sites:</b> ${r.camp_sites}</div>` : ""}
+              ${r.camp_elevation ? `<div><b>Elevation:</b> ${r.camp_elevation}ft</div>` : ""}
+            </div>`;
+          } else if (t === "hikes") {
+            extraHtml = `<div style="border-top:1px solid #eee; margin-top:6px; padding-top:4px; font-size:12px;">
+              ${r.hike_distance ? `<div><b>Dist:</b> ${r.hike_distance}</div>` : ""}
+              ${r.hike_difficulty ? `<div><b>Diff:</b> ${r.hike_difficulty}</div>` : ""}
+            </div>`;
+          }
+          infoWindowRef.current.setContent(`<div style="font-family: Arial; font-size: 14px; min-width: 150px;"><b>${r.name || "Unnamed"}</b><div style="font-size:11px; opacity:0.7; margin: 2px 0;">${t} ${r.subtype ? `• ${r.subtype}` : ""}</div>${extraHtml}${r.website ? `<div style="margin-top:8px;"><a href="${r.website}" target="_blank" style="color: #007bff; text-decoration: none;">View Website</a></div>` : ""}</div>`);
+          infoWindowRef.current.setPosition(marker.getPosition());
+          infoWindowRef.current.open(map);
+        });
+        return marker;
+      }).filter(m => m !== null);
 
     placeMarkersRef.current = newMarkers;
     clustererRef.current.addMarkers(newMarkers);
@@ -216,12 +198,9 @@ export default function Home() {
   useEffect(() => {
     const key = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY;
     if (!key || document.getElementById("gmap-script")) return;
-
-    // Load Maps + Marker Clusterer Library
     const script = document.createElement("script");
     script.id = "gmap-script";
     script.src = `https://maps.googleapis.com/maps/api/js?key=${key}`;
-    
     const clusterScript = document.createElement("script");
     clusterScript.src = "https://unpkg.com/@googlemaps/markerclusterer/dist/index.min.js";
 
@@ -230,34 +209,24 @@ export default function Home() {
       clusterScript.onload = () => {
         const google = (window as any).google;
         const MarkerClusterer = (window as any).markerClusterer.MarkerClusterer;
-        
         const map = new google.maps.Map(document.getElementById("map") as HTMLElement, { 
-          center: { lat: 35.8, lng: -78.6 }, 
-          zoom: 7,
-          maxZoom: 18,
-          minZoom: 3,
-          mapTypeControl: false,
-          streetViewControl: false
+          center: { lat: 35.8, lng: -78.6 }, zoom: 7, maxZoom: 18, minZoom: 3, mapTypeControl: false, streetViewControl: false
         });
-
         mapRef.current = map;
         map.data.setStyle({ strokeColor: "#5a3e2b", strokeWeight: 2 });
         infoWindowRef.current = new google.maps.InfoWindow();
         
-        clustererRef.current = new MarkerClusterer({ map });
+        // HIGHER LEVEL CLUSTERING: GridSize 80 (standard is 40-60)
+        clustererRef.current = new MarkerClusterer({ 
+          map,
+          algorithmOptions: { gridSize: 80, maxZoom: 12 } 
+        });
 
         map.data.addListener("click", (e: any) => {
-          const name = e.feature.getProperty("name");
-          const des = e.feature.getProperty("designats");
-          infoWindowRef.current.setContent(`
-            <div style="font-family: Arial; font-size: 13px; padding: 4px;">
-              <div style="font-weight:700;">${name || "Scenic Road"}</div>
-              <div style="opacity:0.8; font-size:11px; margin-top:2px;">${des || "Scenic Byway"}</div>
-            </div>`);
+          infoWindowRef.current.setContent(`<div style="font-family: Arial; font-size: 13px; padding: 4px;"><div style="font-weight:700;">${e.feature.getProperty("name") || "Scenic Road"}</div><div style="opacity:0.8; font-size:11px; margin-top:2px;">${e.feature.getProperty("designats") || "Scenic Byway"}</div></div>`);
           infoWindowRef.current.setPosition(e.latLng);
           infoWindowRef.current.open(map);
         });
-
         map.addListener("idle", scheduleLoad);
         map.addListener("zoom_changed", applyMarkerSizing);
         scheduleLoad();
@@ -266,70 +235,64 @@ export default function Home() {
     document.head.appendChild(script);
   }, []);
 
-  useEffect(() => { if (mapRef.current) scheduleLoad(); }, [states, placeTypes]);
+  useEffect(() => { if (mapRef.current) scheduleLoad(); }, [states, placeTypes, selectedCampSubtypes]);
 
   return (
     <div style={{ position: "relative", height: "100vh", overflow: "hidden", fontFamily: "sans-serif" }}>
       <div style={{
-        position: "absolute", left: 12, top: 12, zIndex: 10,
-        background: "white", border: "1px solid #ccc", borderRadius: 8,
-        width: isFilterOpen ? 210 : 40, padding: isFilterOpen ? 12 : 4,
-        boxShadow: "0 2px 10px rgba(0,0,0,0.1)", transition: "width 0.2s"
+        position: "absolute", left: 12, top: 12, zIndex: 10, background: "white", border: "1px solid #ccc", borderRadius: 8,
+        width: isFilterOpen ? 210 : 40, padding: isFilterOpen ? 12 : 4, boxShadow: "0 2px 10px rgba(0,0,0,0.1)", transition: "width 0.2s"
       }}>
-        <button onClick={() => setIsFilterOpen(!isFilterOpen)} style={{ width: "100%", cursor: "pointer", padding: "4px", marginBottom: isFilterOpen ? 8 : 0 }}>
-          {isFilterOpen ? "Close Filters" : "☰"}
-        </button>
-
+        <button onClick={() => setIsFilterOpen(!isFilterOpen)} style={{ width: "100%", cursor: "pointer", padding: "4px", marginBottom: isFilterOpen ? 8 : 0 }}>{isFilterOpen ? "Close Filters" : "☰"}</button>
         {isFilterOpen && (
           <div style={{ fontSize: 13 }}>
             <div style={{ fontWeight: 700, color: "#666", marginBottom: 8, borderBottom: "1px solid #eee", paddingBottom: 4 }}>CATEGORIES</div>
             {(["birds", "hikes", "camps", "highways"] as PlaceType[]).map((t) => (
-              <label key={t} style={{ display: "flex", alignItems: "center", marginBottom: 6, cursor: "pointer" }}>
-                <input 
-                  type="checkbox" 
-                  checked={placeTypes.includes(t)} 
-                  onChange={() => setPlaceTypes(prev => prev.includes(t) ? prev.filter(x => x !== t) : [...prev, t])} 
-                />
-                <span style={{ marginLeft: 8, textTransform: "capitalize" }}>{t}</span>
-              </label>
+              <div key={t}>
+                <label style={{ display: "flex", alignItems: "center", marginBottom: 6, cursor: "pointer" }}>
+                  <input type="checkbox" checked={placeTypes.includes(t)} onChange={() => setPlaceTypes(prev => prev.includes(t) ? prev.filter(x => x !== t) : [...prev, t])} />
+                  <span style={{ marginLeft: 8, textTransform: "capitalize", flexGrow: 1 }}>{t}</span>
+                  {t === "camps" && (
+                    <button onClick={(e) => { e.preventDefault(); setIsCampSubmenuOpen(!isCampSubmenuOpen); }} style={{ fontSize: 10, background: "none", border: "none", cursor: "pointer" }}>
+                      {isCampSubmenuOpen ? "▲" : "▼"}
+                    </button>
+                  )}
+                </label>
+                {t === "camps" && isCampSubmenuOpen && (
+                  <div style={{ paddingLeft: 20, marginBottom: 10, display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2px" }}>
+                    {ALL_CAMP_SUBTYPES.map(sub => (
+                      <label key={sub} style={{ fontSize: 10, display: "flex", alignItems: "center", cursor: "pointer" }}>
+                        <input type="checkbox" checked={selectedCampSubtypes.includes(sub)} onChange={() => setSelectedCampSubtypes(prev => prev.includes(sub) ? prev.filter(x => x !== sub) : [...prev, sub])} />
+                        <span style={{ marginLeft: 4 }}>{sub}</span>
+                      </label>
+                    ))}
+                  </div>
+                )}
+              </div>
             ))}
-
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 16, marginBottom: 8, borderBottom: "1px solid #eee", paddingBottom: 4 }}>
               <span style={{ fontWeight: 700, color: "#666" }}>REGIONS</span>
-              <button onClick={clearAllStates} style={{ fontSize: 10, cursor: "pointer", color: "#f44336", background: "none", border: "none", padding: 0, fontWeight: 700 }}>
-                CLEAR ALL
-              </button>
+              <button onClick={() => setStates([])} style={{ fontSize: 9, cursor: "pointer", color: "#f44336", background: "none", border: "none", padding: 0, fontWeight: 700 }}>CLEAR</button>
             </div>
-
-            <div style={{ maxHeight: "60vh", overflowY: "auto", paddingRight: "4px" }}>
+            <div style={{ maxHeight: "50vh", overflowY: "auto", paddingRight: "4px" }}>
               {Object.entries(STATE_GROUPS).map(([groupName, groupStates]) => (
                 <div key={groupName} style={{ marginBottom: 4 }}>
                   <div style={{ display: "flex", alignItems: "center", background: "#f8f9fa", padding: "4px 6px", borderRadius: 4 }}>
-                    <button onClick={() => toggleGroupVisibility(groupName)} style={{ border: "none", background: "none", cursor: "pointer", padding: 0, marginRight: 6, fontSize: 10 }}>
+                    <button onClick={() => setOpenGroups(prev => prev.includes(groupName) ? prev.filter(g => g !== groupName) : [...prev, groupName])} style={{ border: "none", background: "none", cursor: "pointer", padding: 0, marginRight: 6, fontSize: 10 }}>
                       {openGroups.includes(groupName) ? "▼" : "▶"}
                     </button>
-                    <span style={{ flexGrow: 1, fontWeight: 600, fontSize: 12, color: groupStates.length === 0 ? "#999" : "#333" }}>
-                      {groupName} {groupStates.length === 0 && <span style={{ fontSize: 9, fontWeight: 400 }}>(Soon)</span>}
-                    </span>
+                    <span style={{ flexGrow: 1, fontWeight: 600, fontSize: 11 }}>{groupName}</span>
                     {groupStates.length > 0 && (
-                      <button 
-                        onClick={() => toggleGroupSelection(groupStates)}
-                        style={{ fontSize: 9, cursor: "pointer", color: "#007bff", background: "#e7f1ff", border: "none", padding: "2px 4px", borderRadius: 3, fontWeight: 700 }}
-                      >
+                      <button onClick={() => toggleGroupSelection(groupStates)} style={{ fontSize: 9, cursor: "pointer", color: "#007bff", background: "#e7f1ff", border: "none", padding: "2px 4px", borderRadius: 3, fontWeight: 700 }}>
                         {groupStates.every(st => states.includes(st)) ? "NONE" : "ALL"}
                       </button>
                     )}
                   </div>
-
                   {openGroups.includes(groupName) && groupStates.length > 0 && (
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4px", padding: "6px 12px" }}>
                       {groupStates.map((st) => (
                         <label key={st} style={{ display: "flex", alignItems: "center", fontSize: 11, cursor: "pointer" }}>
-                          <input 
-                            type="checkbox" 
-                            checked={states.includes(st)} 
-                            onChange={() => setStates(prev => prev.includes(st) ? prev.filter(x => x !== st) : [...prev, st])} 
-                          />
+                          <input type="checkbox" checked={states.includes(st)} onChange={() => setStates(prev => prev.includes(st) ? prev.filter(x => x !== st) : [...prev, st])} />
                           <span style={{ marginLeft: 4 }}>{st}</span>
                         </label>
                       ))}
