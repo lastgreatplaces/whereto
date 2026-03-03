@@ -83,11 +83,11 @@ export default function Home() {
     if (type === "birds") {
       return {
         path: google.maps.SymbolPath.CIRCLE,
-        scale: baseSize / 2.2,
+        scale: baseSize / 2,
         fillColor: "#ffffff", 
         fillOpacity: 1,
-        strokeWeight: 3,
-        strokeColor: "#f80808" // Red circle
+        strokeWeight: 4,
+        strokeColor: "#f80808" 
       };
     }
     
@@ -109,7 +109,7 @@ export default function Home() {
 
       return {
         path: "M 0,0 C -2,-20 -10,-22 -10,-30 A 10,10 0 1 1 10,-30 C 10,-22 2,-20 0,0 z", 
-        scale: baseSize / 16, // Teardrops slightly larger
+        scale: baseSize / 16, 
         fillColor: theme.color,
         fillOpacity: 1,
         strokeWeight: 1.5,
@@ -135,11 +135,10 @@ export default function Home() {
       
       m.setIcon(getMarkerStyle(google, type, subtype, z));
       
-      // Bird marker eagle always shows if zoomed in
       if (type === "birds") {
         m.setLabel({
           text: "🦅",
-          fontSize: z <= 8 ? "14px" : "18px",
+          fontSize: z <= 8 ? "16px" : "22px",
           color: "black",
           fontWeight: "700"
         });
@@ -157,34 +156,36 @@ export default function Home() {
 
     if (!filtersRef.current.types.has("highways")) return;
 
-    // We fetch ALL columns to ensure we don't miss the coordinate data
+    // Use the exact table/RPC approach mentioned: 'byways'
     const { data, error } = await supabase
-      .from("highways")
-      .select("*")
+      .from("byways") 
+      .select("geom_geojson, state")
       .in("state", Array.from(filtersRef.current.states));
 
     if (error || !data) return;
 
     const google = (window as any).google;
     data.forEach(h => {
-      // Trying multiple common column names for the path
-      const rawPath = h.path || h.coordinates || h.geom;
-      let pathCoords = [];
-      try {
-        pathCoords = typeof rawPath === 'string' ? JSON.parse(rawPath) : rawPath;
-      } catch (e) { return; }
+      const geojson = typeof h.geom_geojson === 'string' ? JSON.parse(h.geom_geojson) : h.geom_geojson;
+      if (!geojson || geojson.type !== "MultiLineString") return;
 
-      if (!Array.isArray(pathCoords)) return;
+      // GeoJSON is [lng, lat], we need {lat, lng}
+      geojson.coordinates.forEach((lineSegment: any[]) => {
+        const path = lineSegment.map(coord => ({
+          lat: coord[1],
+          lng: coord[0]
+        }));
 
-      const poly = new google.maps.Polyline({
-        path: pathCoords.map((p: any) => ({ lat: Number(p.lat), lng: Number(p.lng) })), 
-        geodesic: true,
-        strokeColor: "#4e342e", 
-        strokeOpacity: 0.8,
-        strokeWeight: 3.5,
-        map: mapRef.current
+        const poly = new google.maps.Polyline({
+          path,
+          geodesic: true,
+          strokeColor: "#4e342e", 
+          strokeOpacity: 0.8,
+          strokeWeight: 3.5,
+          map: mapRef.current
+        });
+        highwayLinesRef.current.push(poly);
       });
-      highwayLinesRef.current.push(poly);
     });
   };
 
