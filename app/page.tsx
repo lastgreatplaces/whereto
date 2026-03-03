@@ -140,10 +140,16 @@ export default function Home() {
     const fontSize = z <= 7 ? "14px" : z <= 9 ? "16px" : z <= 11 ? "18px" : "22px";
 
     for (const r of data || []) {
+      const latVal = r.lat;
+      const lonVal = r.lon;
+      const nameVal = r.name;
+
+      if (typeof latVal !== "number" || typeof lonVal !== "number") continue;
+
       const t = r.place_type as PlaceType;
       const emoji = emojiForType(t, r.subtype);
       const marker = new google.maps.Marker({
-        position: { lat: r.lat, lng: r.lon },
+        position: { lat: latVal, lng: lonVal },
         map,
         icon: makeIcon(google, scale, getColorForType(t)),
         label: { text: emoji, fontSize },
@@ -169,7 +175,7 @@ export default function Home() {
         
         infoWindowRef.current.setContent(`
           <div style="font-family: Arial; font-size: 14px; min-width: 160px;">
-            <div style="font-weight:700;">${r.name || "Unnamed"}</div>
+            <div style="font-weight:700;">${nameVal || "Unnamed"}</div>
             <div style="opacity:0.7; font-size:12px;">${t}${r.subtype ? ` • ${r.subtype}` : ""}</div>
             ${extraHtml}
             ${r.website ? `<div style="margin-top:8px;"><a href="${r.website}" target="_blank">Website</a></div>` : ""}
@@ -203,7 +209,6 @@ export default function Home() {
       map.data.setStyle({ strokeColor: "#5a3e2b", strokeWeight: 3 });
       infoWindowRef.current = new google.maps.InfoWindow();
       
-      // ROAD POPUP LISTENER
       map.data.addListener("click", (event: any) => {
         const name = event.feature.getProperty("name");
         const des = event.feature.getProperty("designats");
