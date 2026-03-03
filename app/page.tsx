@@ -84,16 +84,15 @@ export default function Home() {
   };
 
   const getMarkerStyle = (google: any, type: PlaceType, subtype: string, zoom: number) => {
-    // Base scale based on zoom level
     const baseSize = zoom <= 7 ? 24 : zoom <= 10 ? 34 : 44;
     
     if (type === "birds") {
       return {
         path: google.maps.SymbolPath.CIRCLE,
-        scale: baseSize / 2.2, // Larger bird icon
-        fillColor: "#f80808",
+        scale: baseSize / 2.2,
+        fillColor: "#f80808", // Red fill
         fillOpacity: 1,
-        strokeWeight: 3, // Thick white border for the "red circle with white background" look
+        strokeWeight: 4, // Thick white border
         strokeColor: "#ffffff"
       };
     }
@@ -112,9 +111,8 @@ export default function Home() {
     if (type === "camps") {
       const theme = getCampTheme(subtype);
       return {
-        // Teardrop path anchored at (0,0)
         path: "M 0,0 C -2,-20 -10,-22 -10,-30 A 10,10 0 1 1 10,-30 C 10,-22 2,-20 0,0 z", 
-        scale: baseSize / 18, // Slightly larger teardrops
+        scale: baseSize / 18, // Adjust THIS number to change teardrop size
         fillColor: theme.color,
         fillOpacity: 1,
         strokeWeight: 1.5,
@@ -131,7 +129,6 @@ export default function Home() {
     if (!map) return;
     const google = (window as any).google;
     const z = map.getZoom() ?? 7;
-    // Labels only show when zoomed in enough to see details
     const fontSize = z <= 8 ? "0px" : z <= 11 ? "12px" : "15px";
 
     placeMarkersRef.current.forEach(m => {
@@ -155,7 +152,6 @@ export default function Home() {
 
     if (!filtersRef.current.types.has("highways")) return;
 
-    // Fetching from the highways table
     const { data, error } = await supabase
       .from("highways")
       .select("*")
@@ -165,14 +161,17 @@ export default function Home() {
 
     const google = (window as any).google;
     data.forEach(h => {
-      // Logic to handle path as a string or array
-      const rawPath = typeof h.path === 'string' ? JSON.parse(h.path) : h.path;
-      if (!rawPath || !Array.isArray(rawPath)) return;
+      let pathCoords = [];
+      try {
+        pathCoords = typeof h.path === 'string' ? JSON.parse(h.path) : h.path;
+      } catch (e) { return; }
+
+      if (!Array.isArray(pathCoords)) return;
 
       const poly = new google.maps.Polyline({
-        path: rawPath, 
+        path: pathCoords, 
         geodesic: true,
-        strokeColor: "#4e342e", // Dark brown
+        strokeColor: "#4e342e", // Dark brown lines
         strokeOpacity: 0.8,
         strokeWeight: 3.5,
         map: mapRef.current
@@ -184,14 +183,15 @@ export default function Home() {
   const loadPlaces = async () => {
     const map = mapRef.current;
     if (!map || !clustererRef.current) return;
+    
+    // Refresh Highways independently
+    loadHighways();
+
     clustererRef.current.clearMarkers();
     placeMarkersRef.current = [];
 
     const statesArr = Array.from(filtersRef.current.states);
     const typesArr = Array.from(filtersRef.current.types).filter(t => t !== "highways");
-    
-    // Call highway loader
-    loadHighways();
 
     if (!statesArr.length || !typesArr.length) return;
 
@@ -286,11 +286,7 @@ export default function Home() {
             {(["birds", "hikes", "camps", "highways"] as PlaceType[]).map((t) => (
               <div key={t}>
                 <label style={{ display: "flex", alignItems: "center", marginBottom: 6, cursor: "pointer" }}>
-                  <input 
-                    type="checkbox" 
-                    checked={placeTypes.includes(t)} 
-                    onChange={() => setPlaceTypes(prev => prev.includes(t) ? prev.filter(x => x !== t) : [...prev, t])} 
-                  />
+                  <input type="checkbox" checked={placeTypes.includes(t)} onChange={() => setPlaceTypes(prev => prev.includes(t) ? prev.filter(x => x !== t) : [...prev, t])} />
                   <span style={{ marginLeft: 8, textTransform: "capitalize", flexGrow: 1 }}>{t}</span>
                   {t === "camps" && (
                     <button onClick={(e) => { e.preventDefault(); setIsCampSubmenuOpen(!isCampSubmenuOpen); }} style={{ fontSize: 10, background: "none", border: "none", cursor: "pointer" }}>
