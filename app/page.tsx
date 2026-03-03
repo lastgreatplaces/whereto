@@ -15,20 +15,34 @@ interface Theme {
   emoji: string;
 }
 
-// Strictly typed themes to prevent "never" errors
 const CAMP_THEMES: Record<string, Theme> = {
-  "SP": { color: "#007bff", emoji: "🏞️" },      // Blue
-  "NP": { color: "#4e342e", emoji: "⛰️" },      // Brown
-  "NF": { color: "#1b5e20", emoji: "🌲" },      // Dark Green
-  "SF": { color: "#2e7d32", emoji: "🌳" },      // Green
-  "COE": { color: "#d32f2f", emoji: "⚓" },     // Red
-  "BLM": { color: "#f57c00", emoji: "🏜️" },     // Orange
-  "default": { color: "#607d8b", emoji: "⛺" }  // Grey
+  "COE": { color: "#d32f2f", emoji: "⚓" },     // Army Corps - Red
+  "NF": { color: "#1b5e20", emoji: "🌲" },      // National Forest - Dark Green
+  "NP": { color: "#5d4037", emoji: "⛰️" },      // National Park - Brown
+  "SP": { color: "#1976d2", emoji: "🏞️" },      // State Park - Blue
+  "SF": { color: "#388e3c", emoji: "🌳" },      // State Forest - Green
+  "BLM": { color: "#fbc02d", emoji: "🏜️" },     // BLM - Yellow/Gold
+  "MIL": { color: "#7b1fa2", emoji: "🎖️" },     // Military - Purple
+  "CP": { color: "#00acc1", emoji: "🏙️" },      // County Park - Cyan
+  "default": { color: "#607d8b", emoji: "⛺" }  // Other - Grey
 };
 
-const ALL_CAMP_SUBTYPES = ["SP", "NP", "NF", "SF", "COE", "BLM", "SFW", "MIL", "CP", "RES"];
+// Clear labels for the submenu
+const CAMP_SUBTYPE_LABELS: Record<string, string> = {
+  "COE": "Army Corps",
+  "NF": "Nat. Forest",
+  "NP": "Nat. Park",
+  "SP": "State Park",
+  "SF": "State Forest",
+  "BLM": "BLM",
+  "MIL": "Military",
+  "CP": "Local Park",
+  "SFW": "Fish/Wild",
+  "RES": "Other/Res"
+};
 
-// Explicitly typing as string[] to avoid the 'never[]' inference on empty groups
+const ALL_CAMP_SUBTYPES = Object.keys(CAMP_SUBTYPE_LABELS);
+
 const STATE_GROUPS: Record<string, string[]> = {
   "South": ["AL", "AR", "FL", "GA", "KY", "LA", "MS", "NC", "OK", "SC", "TN", "TX", "VA", "WV"],
   "East": ["CT", "DE", "ME", "MD", "MA", "NH", "NJ", "NY", "PA", "RI", "VT"],
@@ -65,17 +79,17 @@ export default function Home() {
 
   const getCampTheme = (subtype: string): Theme => {
     const sub = subtype || "";
-    const key = (Object.keys(CAMP_THEMES) as Array<keyof typeof CAMP_THEMES>).find(k => sub.includes(k as string));
+    const key = Object.keys(CAMP_THEMES).find(k => sub.includes(k));
     return key ? CAMP_THEMES[key] : CAMP_THEMES["default"];
   };
 
   const getMarkerStyle = (google: any, type: PlaceType, subtype: string, zoom: number) => {
-    const baseSize = zoom <= 7 ? 20 : zoom <= 10 ? 30 : 38;
+    const baseSize = zoom <= 7 ? 18 : zoom <= 10 ? 24 : 32;
     
     if (type === "birds") {
       return {
         path: google.maps.SymbolPath.CIRCLE,
-        scale: baseSize / 3,
+        scale: baseSize / 3.5,
         fillColor: "#f80808",
         fillOpacity: 1,
         strokeWeight: 2,
@@ -86,7 +100,7 @@ export default function Home() {
     if (type === "hikes") {
       return {
         path: "M -10,-10 L 10,-10 L 10,10 L -10,10 Z", // Green Square
-        scale: baseSize / 22,
+        scale: baseSize / 26,
         fillColor: "#28a745",
         fillOpacity: 1,
         strokeWeight: 2,
@@ -97,14 +111,14 @@ export default function Home() {
     if (type === "camps") {
       const theme = getCampTheme(subtype);
       return {
-        // High-fidelity Teardrop path
+        // Teardrop path anchored at (0,0) (the tip)
         path: "M 0,0 C -2,-20 -10,-22 -10,-30 A 10,10 0 1 1 10,-30 C 10,-22 2,-20 0,0 z", 
-        scale: baseSize / 14,
+        scale: baseSize / 28, // Significant reduction in size
         fillColor: theme.color,
         fillOpacity: 1,
-        strokeWeight: 1.5,
+        strokeWeight: 1,
         strokeColor: "#ffffff",
-        labelOrigin: new google.maps.Point(0, -30) // Centers label in the circle head
+        labelOrigin: new google.maps.Point(0, -30) // Emoji sits in the circle "head"
       };
     }
 
@@ -116,7 +130,7 @@ export default function Home() {
     if (!map) return;
     const google = (window as any).google;
     const z = map.getZoom() ?? 7;
-    const fontSize = z <= 8 ? "0px" : z <= 11 ? "12px" : "15px";
+    const fontSize = z <= 8 ? "0px" : z <= 11 ? "10px" : "13px";
 
     placeMarkersRef.current.forEach(m => {
       const type = (m as any).__type as PlaceType;
@@ -124,13 +138,10 @@ export default function Home() {
       const emoji = (m as any).__emoji;
       
       m.setIcon(getMarkerStyle(google, type, subtype, z));
-      
       m.setLabel(fontSize === "0px" ? null : { 
         text: emoji, 
         fontSize,
-        color: "white",
-        // The teardrop path has a labelOrigin, but we can also tweak offset here
-        className: type === "camps" ? "camp-label" : ""
+        color: "white"
       });
     });
   };
@@ -217,7 +228,7 @@ export default function Home() {
         
         clustererRef.current = new MarkerClusterer({ 
           map, 
-          algorithmOptions: { maxZoom: 9, gridSize: 70 } // Clusters break at zoom 10+
+          algorithmOptions: { maxZoom: 9, gridSize: 60 } // Unclusters at zoom 10+ so NC icons don't vanish
         });
 
         map.addListener("idle", scheduleLoad);
@@ -231,10 +242,9 @@ export default function Home() {
 
   return (
     <div style={{ position: "relative", height: "100vh", overflow: "hidden", fontFamily: "sans-serif" }}>
-      <style>{`.camp-label { margin-top: -24px !important; }`}</style>
       <div style={{
         position: "absolute", left: 12, top: 12, zIndex: 10, background: "white", border: "1px solid #ccc", borderRadius: 8,
-        width: isFilterOpen ? 210 : 40, padding: isFilterOpen ? 12 : 4, boxShadow: "0 2px 10px rgba(0,0,0,0.1)", transition: "width 0.2s"
+        width: isFilterOpen ? 220 : 40, padding: isFilterOpen ? 12 : 4, boxShadow: "0 2px 10px rgba(0,0,0,0.1)", transition: "width 0.2s"
       }}>
         <button onClick={() => setIsFilterOpen(!isFilterOpen)} style={{ width: "100%", cursor: "pointer", padding: "4px", marginBottom: isFilterOpen ? 8 : 0 }}>{isFilterOpen ? "Close Filters" : "☰"}</button>
         {isFilterOpen && (
@@ -252,11 +262,11 @@ export default function Home() {
                   )}
                 </label>
                 {t === "camps" && isCampSubmenuOpen && (
-                  <div style={{ paddingLeft: 20, marginBottom: 10, display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2px" }}>
+                  <div style={{ paddingLeft: 10, marginBottom: 10, display: "grid", gridTemplateColumns: "1fr", gap: "2px", background: "#f9f9f9", padding: "6px", borderRadius: "4px" }}>
                     {ALL_CAMP_SUBTYPES.map(sub => (
-                      <label key={sub} style={{ fontSize: 10, display: "flex", alignItems: "center", cursor: "pointer" }}>
+                      <label key={sub} style={{ fontSize: 11, display: "flex", alignItems: "center", cursor: "pointer" }}>
                         <input type="checkbox" checked={selectedCampSubtypes.includes(sub)} onChange={() => setSelectedCampSubtypes(prev => prev.includes(sub) ? prev.filter(x => x !== sub) : [...prev, sub])} />
-                        <span style={{ marginLeft: 4 }}>{sub}</span>
+                        <span style={{ marginLeft: 6, color: CAMP_THEMES[sub]?.color || "#333", fontWeight: 600 }}>{CAMP_SUBTYPE_LABELS[sub] || sub}</span>
                       </label>
                     ))}
                   </div>
@@ -267,11 +277,9 @@ export default function Home() {
               <span style={{ fontWeight: 700, color: "#666" }}>REGIONS</span>
               <button onClick={() => setStates([])} style={{ fontSize: 9, cursor: "pointer", color: "#f44336", background: "none", border: "none", padding: 0, fontWeight: 700 }}>CLEAR</button>
             </div>
-            <div style={{ maxHeight: "50vh", overflowY: "auto", paddingRight: "4px" }}>
+            <div style={{ maxHeight: "45vh", overflowY: "auto", paddingRight: "4px" }}>
               {Object.entries(STATE_GROUPS).map(([groupName, groupStates]) => {
-                // Fixed: allSelected is now calculated in render scope
-                const allSelected = groupStates.length > 0 && groupStates.every(st => states.includes(st));
-                
+                const groupSelected = groupStates.length > 0 && groupStates.every(st => states.includes(st));
                 return (
                   <div key={groupName} style={{ marginBottom: 4 }}>
                     <div style={{ display: "flex", alignItems: "center", background: "#f8f9fa", padding: "4px 6px", borderRadius: 4 }}>
@@ -281,9 +289,9 @@ export default function Home() {
                       <span style={{ flexGrow: 1, fontWeight: 600, fontSize: 11 }}>{groupName}</span>
                       {groupStates.length > 0 && (
                         <button onClick={() => {
-                          setStates(prev => allSelected ? prev.filter(st => !groupStates.includes(st)) : Array.from(new Set([...prev, ...groupStates])));
+                          setStates(prev => groupSelected ? prev.filter(st => !groupStates.includes(st)) : Array.from(new Set([...prev, ...groupStates])));
                         }} style={{ fontSize: 9, cursor: "pointer", color: "#007bff", background: "#e7f1ff", border: "none", padding: "2px 4px", borderRadius: 3, fontWeight: 700 }}>
-                          {allSelected ? "NONE" : "ALL"}
+                          {groupSelected ? "NONE" : "ALL"}
                         </button>
                       )}
                     </div>
