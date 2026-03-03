@@ -8,7 +8,6 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? ""
 );
 
-// Added 'highways' to the type
 type PlaceType = "birds" | "hikes" | "camps" | "highways";
 
 const CAMP_THEMES: Record<string, string> = {
@@ -106,8 +105,6 @@ export default function Home() {
   const loadBywaysInView = async () => {
     const map = mapRef.current;
     if (!map) return;
-
-    // Only load if Highways are toggled ON
     if (!filtersRef.current.types.has("highways")) {
       map.data.forEach((f: any) => map.data.remove(f));
       return;
@@ -148,7 +145,6 @@ export default function Home() {
     placeMarkersRef.current = [];
 
     const statesArr = Array.from(filtersRef.current.states);
-    // Filter out 'highways' for the places query as they live in a different table/RPC
     const typesArr = Array.from(filtersRef.current.types).filter(t => t !== "highways");
     
     if (!statesArr.length || !typesArr.length) return;
@@ -168,15 +164,31 @@ export default function Home() {
         optimized: true,
       });
 
-      (marker as any).__type = r.place_type;
-      (marker as any).__emoji = emojiForType(r.place_type as PlaceType, r.subtype);
+      const t = r.place_type as PlaceType;
+      (marker as any).__type = t;
+      (marker as any).__emoji = emojiForType(t, r.subtype);
 
       marker.addListener("click", () => {
+        let extraHtml = "";
+        if (t === "camps") {
+          extraHtml = `<div style="border-top:1px solid #eee; margin-top:6px; padding-top:4px; font-size:12px;">
+            ${r.camp_open ? `<div><b>Open:</b> ${r.camp_open}</div>` : ""}
+            ${r.camp_sites ? `<div><b>Sites:</b> ${r.camp_sites}</div>` : ""}
+            ${r.camp_elevation ? `<div><b>Elevation:</b> ${r.camp_elevation}ft</div>` : ""}
+          </div>`;
+        } else if (t === "hikes") {
+          extraHtml = `<div style="border-top:1px solid #eee; margin-top:6px; padding-top:4px; font-size:12px;">
+            ${r.hike_distance ? `<div><b>Dist:</b> ${r.hike_distance}</div>` : ""}
+            ${r.hike_difficulty ? `<div><b>Diff:</b> ${r.hike_difficulty}</div>` : ""}
+          </div>`;
+        }
+
         infoWindowRef.current.setContent(`
           <div style="font-family: Arial; font-size: 14px; min-width: 150px;">
             <b>${r.name || "Unnamed"}</b>
-            <div style="font-size:11px; opacity:0.7; margin: 4px 0;">${r.place_type} ${r.subtype ? `• ${r.subtype}` : ""}</div>
-            ${r.website ? `<div><a href="${r.website}" target="_blank" style="color: #007bff; text-decoration: none;">View Website</a></div>` : ""}
+            <div style="font-size:11px; opacity:0.7; margin: 2px 0;">${t} ${r.subtype ? `• ${r.subtype}` : ""}</div>
+            ${extraHtml}
+            ${r.website ? `<div style="margin-top:8px;"><a href="${r.website}" target="_blank" style="color: #007bff; text-decoration: none;">View Website</a></div>` : ""}
           </div>`);
         infoWindowRef.current.setPosition(marker.getPosition());
         infoWindowRef.current.open(map);
