@@ -30,6 +30,7 @@ export default function Home() {
   const [openGroups, setOpenGroups] = useState<string[]>(["South"]);
 
   const mapRef = useRef<any>(null);
+  const clustererRef = useRef<any>(null);
   const infoWindowRef = useRef<any>(null);
   const lastFetchTimerRef = useRef<any>(null);
   const placeMarkersRef = useRef<any[]>([]);
@@ -49,6 +50,7 @@ export default function Home() {
   };
 
   const toggleGroupSelection = (groupStates: string[]) => {
+    if (groupStates.length === 0) return;
     const allSelected = groupStates.every(st => states.includes(st));
     if (allSelected) {
       setStates(prev => prev.filter(st => !groupStates.includes(st)));
@@ -140,8 +142,10 @@ export default function Home() {
 
   const loadPlaces = async () => {
     const map = mapRef.current;
-    if (!map) return;
-    placeMarkersRef.current.forEach(m => m.setMap(null));
+    if (!map || !clustererRef.current) return;
+
+    // Clear previous
+    clustererRef.current.clearMarkers();
     placeMarkersRef.current = [];
 
     const statesArr = Array.from(filtersRef.current.states);
@@ -153,14 +157,13 @@ export default function Home() {
     if (error) return;
 
     const google = (window as any).google;
-    (data || []).forEach(r => {
+    const newMarkers = (data || []).map(r => {
       const latVal = r.lat ?? r.latitude;
       const lonVal = r.lon ?? r.longitude;
-      if (latVal === null || lonVal === null) return;
+      if (latVal === null || lonVal === null) return null;
 
       const marker = new google.maps.Marker({
         position: { lat: Number(latVal), lng: Number(lonVal) },
-        map,
         optimized: true,
       });
 
@@ -193,8 +196,12 @@ export default function Home() {
         infoWindowRef.current.setPosition(marker.getPosition());
         infoWindowRef.current.open(map);
       });
-      placeMarkersRef.current.push(marker);
-    });
+
+      return marker;
+    }).filter(m => m !== null);
+
+    placeMarkersRef.current = newMarkers;
+    clustererRef.current.addMarkers(newMarkers);
     applyMarkerSizing();
   };
 
@@ -209,38 +216,52 @@ export default function Home() {
   useEffect(() => {
     const key = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY;
     if (!key || document.getElementById("gmap-script")) return;
+
+    // Load Maps + Marker Clusterer Library
     const script = document.createElement("script");
     script.id = "gmap-script";
     script.src = `https://maps.googleapis.com/maps/api/js?key=${key}`;
+    
+    const clusterScript = document.createElement("script");
+    clusterScript.src = "https://unpkg.com/@googlemaps/markerclusterer/dist/index.min.js";
+
     script.onload = () => {
-      const google = (window as any).google;
-      const map = new google.maps.Map(document.getElementById("map") as HTMLElement, { 
-        center: { lat: 35.8, lng: -78.6 }, 
-        zoom: 7,
-        maxZoom: 18,
-        minZoom: 3,
-        mapTypeControl: false,
-        streetViewControl: false
-      });
-      mapRef.current = map;
-      map.data.setStyle({ strokeColor: "#5a3e2b", strokeWeight: 2 });
-      infoWindowRef.current = new google.maps.InfoWindow();
+      document.head.appendChild(clusterScript);
+      clusterScript.onload = () => {
+        const google = (window as any).google;
+        const MarkerClusterer = (window as any).markerClusterer.MarkerClusterer;
+        
+        const map = new google.maps.Map(document.getElementById("map") as HTMLElement, { 
+          center: { lat: 35.8, lng: -78.6 }, 
+          zoom: 7,
+          maxZoom: 18,
+          minZoom: 3,
+          mapTypeControl: false,
+          streetViewControl: false
+        });
 
-      map.data.addListener("click", (e: any) => {
-        const name = e.feature.getProperty("name");
-        const des = e.feature.getProperty("designats");
-        infoWindowRef.current.setContent(`
-          <div style="font-family: Arial; font-size: 13px; padding: 4px;">
-            <div style="font-weight:700;">${name || "Scenic Road"}</div>
-            <div style="opacity:0.8; font-size:11px; margin-top:2px;">${des || "Scenic Byway"}</div>
-          </div>`);
-        infoWindowRef.current.setPosition(e.latLng);
-        infoWindowRef.current.open(map);
-      });
+        mapRef.current = map;
+        map.data.setStyle({ strokeColor: "#5a3e2b", strokeWeight: 2 });
+        infoWindowRef.current = new google.maps.InfoWindow();
+        
+        clustererRef.current = new MarkerClusterer({ map });
 
-      map.addListener("idle", scheduleLoad);
-      map.addListener("zoom_changed", applyMarkerSizing);
-      scheduleLoad();
+        map.data.addListener("click", (e: any) => {
+          const name = e.feature.getProperty("name");
+          const des = e.feature.getProperty("designats");
+          infoWindowRef.current.setContent(`
+            <div style="font-family: Arial; font-size: 13px; padding: 4px;">
+              <div style="font-weight:700;">${name || "Scenic Road"}</div>
+              <div style="opacity:0.8; font-size:11px; margin-top:2px;">${des || "Scenic Byway"}</div>
+            </div>`);
+          infoWindowRef.current.setPosition(e.latLng);
+          infoWindowRef.current.open(map);
+        });
+
+        map.addListener("idle", scheduleLoad);
+        map.addListener("zoom_changed", applyMarkerSizing);
+        scheduleLoad();
+      };
     };
     document.head.appendChild(script);
   }, []);
@@ -252,7 +273,7 @@ export default function Home() {
       <div style={{
         position: "absolute", left: 12, top: 12, zIndex: 10,
         background: "white", border: "1px solid #ccc", borderRadius: 8,
-        width: isFilterOpen ? 200 : 40, padding: isFilterOpen ? 12 : 4,
+        width: isFilterOpen ? 210 : 40, padding: isFilterOpen ? 12 : 4,
         boxShadow: "0 2px 10px rgba(0,0,0,0.1)", transition: "width 0.2s"
       }}>
         <button onClick={() => setIsFilterOpen(!isFilterOpen)} style={{ width: "100%", cursor: "pointer", padding: "4px", marginBottom: isFilterOpen ? 8 : 0 }}>
@@ -287,12 +308,17 @@ export default function Home() {
                     <button onClick={() => toggleGroupVisibility(groupName)} style={{ border: "none", background: "none", cursor: "pointer", padding: 0, marginRight: 6, fontSize: 10 }}>
                       {openGroups.includes(groupName) ? "▼" : "▶"}
                     </button>
-                    <span 
-                      onClick={() => groupStates.length > 0 && toggleGroupSelection(groupStates)} 
-                      style={{ cursor: groupStates.length > 0 ? "pointer" : "default", flexGrow: 1, fontWeight: 600, fontSize: 12, color: groupStates.length === 0 ? "#999" : "#333" }}
-                    >
+                    <span style={{ flexGrow: 1, fontWeight: 600, fontSize: 12, color: groupStates.length === 0 ? "#999" : "#333" }}>
                       {groupName} {groupStates.length === 0 && <span style={{ fontSize: 9, fontWeight: 400 }}>(Soon)</span>}
                     </span>
+                    {groupStates.length > 0 && (
+                      <button 
+                        onClick={() => toggleGroupSelection(groupStates)}
+                        style={{ fontSize: 9, cursor: "pointer", color: "#007bff", background: "#e7f1ff", border: "none", padding: "2px 4px", borderRadius: 3, fontWeight: 700 }}
+                      >
+                        {groupStates.every(st => states.includes(st)) ? "NONE" : "ALL"}
+                      </button>
+                    )}
                   </div>
 
                   {openGroups.includes(groupName) && groupStates.length > 0 && (
