@@ -53,7 +53,7 @@ const STATE_GROUPS: Record<string, string[]> = {
 export default function Home() {
   const [states, setStates] = useState<string[]>(["NC", "VA", "WV"]);
   const [placeTypes, setPlaceTypes] = useState<PlaceType[]>(["birds", "hikes", "camps", "highways"]);
-  const [selectedCampSubtypes, setSelectedCampSubtypes] = useState<string[]>([...ALL_CAMP_SUBTYPES]);
+  const [selectedCampSubtypes, setSelectedCampSubtypes] = useState<string[]>(ALL_CAMP_SUBTYPES);
   const [isFilterOpen, setIsFilterOpen] = useState(true);
   const [openGroups, setOpenGroups] = useState<string[]>(["South"]);
   const [isCampSubmenuOpen, setIsCampSubmenuOpen] = useState(false);
@@ -68,7 +68,7 @@ export default function Home() {
   const filtersRef = useRef({
     states: new Set<string>(["NC", "VA", "WV"]),
     types: new Set<PlaceType>(["birds", "hikes", "camps", "highways"]),
-    campSubtypes: new Set<string>([...ALL_CAMP_SUBTYPES])
+    campSubtypes: new Set<string>(ALL_CAMP_SUBTYPES)
   });
 
   useEffect(() => { 
@@ -84,10 +84,10 @@ export default function Home() {
       return {
         path: google.maps.SymbolPath.CIRCLE,
         scale: baseSize / 2.2,
-        fillColor: "#ffffff", // White background
+        fillColor: "#ffffff", 
         fillOpacity: 1,
-        strokeWeight: 2.5,
-        strokeColor: "#f80808" // Red circle border
+        strokeWeight: 3,
+        strokeColor: "#f80808" // Red circle
       };
     }
     
@@ -109,7 +109,7 @@ export default function Home() {
 
       return {
         path: "M 0,0 C -2,-20 -10,-22 -10,-30 A 10,10 0 1 1 10,-30 C 10,-22 2,-20 0,0 z", 
-        scale: baseSize / 17, // Teardrop size tweak
+        scale: baseSize / 16, // Teardrops slightly larger
         fillColor: theme.color,
         fillOpacity: 1,
         strokeWeight: 1.5,
@@ -125,7 +125,8 @@ export default function Home() {
     if (!map) return;
     const google = (window as any).google;
     const z = map.getZoom() ?? 7;
-    const fontSize = z <= 8 ? "0px" : z <= 11 ? "12px" : "15px";
+    const showLabel = z > 8;
+    const fontSize = z <= 11 ? "12px" : "15px";
 
     placeMarkersRef.current.forEach(m => {
       const type = (m as any).__type as PlaceType;
@@ -133,9 +134,20 @@ export default function Home() {
       const emoji = (m as any).__emoji;
       
       m.setIcon(getMarkerStyle(google, type, subtype, z));
-      m.setLabel(fontSize === "0px" ? null : { 
-        text: emoji, fontSize, color: type === "birds" ? "black" : "white", fontWeight: "700"
-      });
+      
+      // Bird marker eagle always shows if zoomed in
+      if (type === "birds") {
+        m.setLabel({
+          text: "🦅",
+          fontSize: z <= 8 ? "14px" : "18px",
+          color: "black",
+          fontWeight: "700"
+        });
+      } else {
+        m.setLabel(showLabel ? { 
+          text: emoji, fontSize, color: "white", fontWeight: "700"
+        } : null);
+      }
     });
   };
 
@@ -145,6 +157,7 @@ export default function Home() {
 
     if (!filtersRef.current.types.has("highways")) return;
 
+    // We fetch ALL columns to ensure we don't miss the coordinate data
     const { data, error } = await supabase
       .from("highways")
       .select("*")
@@ -154,17 +167,19 @@ export default function Home() {
 
     const google = (window as any).google;
     data.forEach(h => {
+      // Trying multiple common column names for the path
+      const rawPath = h.path || h.coordinates || h.geom;
       let pathCoords = [];
       try {
-        pathCoords = typeof h.path === 'string' ? JSON.parse(h.path) : h.path;
+        pathCoords = typeof rawPath === 'string' ? JSON.parse(rawPath) : rawPath;
       } catch (e) { return; }
 
       if (!Array.isArray(pathCoords)) return;
 
       const poly = new google.maps.Polyline({
-        path: pathCoords, 
+        path: pathCoords.map((p: any) => ({ lat: Number(p.lat), lng: Number(p.lng) })), 
         geodesic: true,
-        strokeColor: "#4e342e", // Dark brown
+        strokeColor: "#4e342e", 
         strokeOpacity: 0.8,
         strokeWeight: 3.5,
         map: mapRef.current
@@ -177,7 +192,7 @@ export default function Home() {
     const map = mapRef.current;
     if (!map || !clustererRef.current) return;
     
-    loadHighways(); // Ensure highways update with points
+    loadHighways(); 
 
     clustererRef.current.clearMarkers();
     placeMarkersRef.current = [];
