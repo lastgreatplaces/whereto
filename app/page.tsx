@@ -8,29 +8,27 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? ""
 );
 
-type PlaceType = "birds" | "hikes" | "camps";
+// Added 'highways' to the type
+type PlaceType = "birds" | "hikes" | "camps" | "highways";
 
 const CAMP_THEMES: Record<string, string> = {
   "SP": "🏞️", "NP": "⛰️", "NF": "🌳", "SF": "🌲", "SFW": "🦆",
   "COE": "💧", "BLM": "🏜️", "MIL": "🎖️", "CP": "⛺", "RES": "⚓", "default": "🏕️"
 };
 
-// Define State Groups
 const STATE_GROUPS = {
   "South": ["AL", "AR", "FL", "GA", "KY", "LA", "MS", "NC", "OK", "SC", "TN", "TX", "VA", "WV"],
   "East": ["CT", "DE", "ME", "MD", "MA", "NH", "NJ", "NY", "PA", "RI", "VT"],
   "Midwest": ["IL", "IN", "IA", "KS", "MI", "MN", "MO", "NE", "ND", "OH", "SD", "WI"],
   "West": ["AZ", "CA", "CO", "ID", "MT", "NV", "NM", "OR", "UT", "WA", "WY"],
-  "AK/Canada": [] // Coming Soon
+  "AK/Canada": [] 
 };
-
-const ALL_STATES = Object.values(STATE_GROUPS).flat();
 
 export default function Home() {
   const [states, setStates] = useState<string[]>(["NC", "VA", "WV"]);
-  const [placeTypes, setPlaceTypes] = useState<PlaceType[]>(["birds", "hikes", "camps"]);
+  const [placeTypes, setPlaceTypes] = useState<PlaceType[]>(["birds", "hikes", "camps", "highways"]);
   const [isFilterOpen, setIsFilterOpen] = useState(true);
-  const [openGroups, setOpenGroups] = useState<string[]>(["South"]); // Default South open
+  const [openGroups, setOpenGroups] = useState<string[]>(["South"]);
 
   const mapRef = useRef<any>(null);
   const infoWindowRef = useRef<any>(null);
@@ -39,11 +37,13 @@ export default function Home() {
   
   const filtersRef = useRef({
     states: new Set<string>(["NC", "VA", "WV"]),
-    types: new Set<PlaceType>(["birds", "hikes", "camps"]),
+    types: new Set<PlaceType>(["birds", "hikes", "camps", "highways"]),
   });
 
-  useEffect(() => { filtersRef.current.states = new Set(states); }, [states]);
-  useEffect(() => { filtersRef.current.types = new Set(placeTypes); }, [placeTypes]);
+  useEffect(() => { 
+    filtersRef.current.states = new Set(states); 
+    filtersRef.current.types = new Set(placeTypes);
+  }, [states, placeTypes]);
 
   const toggleGroupVisibility = (group: string) => {
     setOpenGroups(prev => prev.includes(group) ? prev.filter(g => g !== group) : [...prev, group]);
@@ -64,9 +64,8 @@ export default function Home() {
     if (t === "birds") return "🦅";
     if (t === "hikes") return "🥾";
     if (t === "camps") {
-      const themeKey = Object.keys(CAMP_THEMES).find(key => 
-        (subtype || "").includes(key)
-      );
+      const cleanSub = (subtype || "").trim();
+      const themeKey = Object.keys(CAMP_THEMES).find(key => cleanSub.includes(key));
       return themeKey ? CAMP_THEMES[themeKey] : CAMP_THEMES["default"];
     }
     return "📍";
@@ -104,23 +103,57 @@ export default function Home() {
     });
   };
 
+  const loadBywaysInView = async () => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    // Only load if Highways are toggled ON
+    if (!filtersRef.current.types.has("highways")) {
+      map.data.forEach((f: any) => map.data.remove(f));
+      return;
+    }
+
+    const statesArr = Array.from(filtersRef.current.states);
+    const bounds = map.getBounds();
+    if (!bounds || !statesArr.length) {
+      map.data.forEach((f: any) => map.data.remove(f));
+      return;
+    }
+
+    const { data, error } = await supabase.rpc("rpc_byways_in_bbox", {
+      min_lng: bounds.getSouthWest().lng(), min_lat: bounds.getSouthWest().lat(),
+      max_lng: bounds.getNorthEast().lng(), max_lat: bounds.getNorthEast().lat(),
+      states: statesArr,
+    });
+
+    if (error) return;
+
+    const fc = {
+      type: "FeatureCollection",
+      features: (data || []).filter((r: any) => r.geom_geojson).map((r: any) => ({
+        type: "Feature",
+        geometry: r.geom_geojson,
+        properties: { name: r.name, designats: r.designats }
+      })),
+    };
+
+    map.data.forEach((f: any) => map.data.remove(f));
+    map.data.addGeoJson(fc as any);
+  };
+
   const loadPlaces = async () => {
     const map = mapRef.current;
     if (!map) return;
-    
     placeMarkersRef.current.forEach(m => m.setMap(null));
     placeMarkersRef.current = [];
 
     const statesArr = Array.from(filtersRef.current.states);
-    const typesArr = Array.from(filtersRef.current.types);
+    // Filter out 'highways' for the places query as they live in a different table/RPC
+    const typesArr = Array.from(filtersRef.current.types).filter(t => t !== "highways");
+    
     if (!statesArr.length || !typesArr.length) return;
 
-    const { data, error } = await supabase
-      .from("places")
-      .select("*")
-      .in("state", statesArr)
-      .in("place_type", typesArr);
-
+    const { data, error } = await supabase.from("places").select("*").in("state", statesArr).in("place_type", typesArr);
     if (error) return;
 
     const google = (window as any).google;
@@ -155,7 +188,10 @@ export default function Home() {
 
   const scheduleLoad = () => {
     if (lastFetchTimerRef.current) clearTimeout(lastFetchTimerRef.current);
-    lastFetchTimerRef.current = setTimeout(loadPlaces, 400); 
+    lastFetchTimerRef.current = setTimeout(async () => {
+      await loadBywaysInView();
+      await loadPlaces();
+    }, 400); 
   };
 
   useEffect(() => {
@@ -167,15 +203,29 @@ export default function Home() {
     script.onload = () => {
       const google = (window as any).google;
       const map = new google.maps.Map(document.getElementById("map") as HTMLElement, { 
-        center: { lat: 38.5, lng: -96.5 }, 
-        zoom: 4,
+        center: { lat: 35.8, lng: -78.6 }, 
+        zoom: 7,
         maxZoom: 18,
         minZoom: 3,
         mapTypeControl: false,
         streetViewControl: false
       });
       mapRef.current = map;
+      map.data.setStyle({ strokeColor: "#5a3e2b", strokeWeight: 2 });
       infoWindowRef.current = new google.maps.InfoWindow();
+
+      map.data.addListener("click", (e: any) => {
+        const name = e.feature.getProperty("name");
+        const des = e.feature.getProperty("designats");
+        infoWindowRef.current.setContent(`
+          <div style="font-family: Arial; font-size: 13px; padding: 4px;">
+            <div style="font-weight:700;">${name || "Scenic Road"}</div>
+            <div style="opacity:0.8; font-size:11px; margin-top:2px;">${des || "Scenic Byway"}</div>
+          </div>`);
+        infoWindowRef.current.setPosition(e.latLng);
+        infoWindowRef.current.open(map);
+      });
+
       map.addListener("idle", scheduleLoad);
       map.addListener("zoom_changed", applyMarkerSizing);
       scheduleLoad();
@@ -200,7 +250,7 @@ export default function Home() {
         {isFilterOpen && (
           <div style={{ fontSize: 13 }}>
             <div style={{ fontWeight: 700, color: "#666", marginBottom: 8, borderBottom: "1px solid #eee", paddingBottom: 4 }}>CATEGORIES</div>
-            {(["birds", "hikes", "camps"] as PlaceType[]).map((t) => (
+            {(["birds", "hikes", "camps", "highways"] as PlaceType[]).map((t) => (
               <label key={t} style={{ display: "flex", alignItems: "center", marginBottom: 6, cursor: "pointer" }}>
                 <input 
                   type="checkbox" 
@@ -222,10 +272,7 @@ export default function Home() {
               {Object.entries(STATE_GROUPS).map(([groupName, groupStates]) => (
                 <div key={groupName} style={{ marginBottom: 4 }}>
                   <div style={{ display: "flex", alignItems: "center", background: "#f8f9fa", padding: "4px 6px", borderRadius: 4 }}>
-                    <button 
-                      onClick={() => toggleGroupVisibility(groupName)} 
-                      style={{ border: "none", background: "none", cursor: "pointer", padding: 0, marginRight: 6, fontSize: 10 }}
-                    >
+                    <button onClick={() => toggleGroupVisibility(groupName)} style={{ border: "none", background: "none", cursor: "pointer", padding: 0, marginRight: 6, fontSize: 10 }}>
                       {openGroups.includes(groupName) ? "▼" : "▶"}
                     </button>
                     <span 
