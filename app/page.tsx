@@ -77,12 +77,6 @@ export default function Home() {
     filtersRef.current.campSubtypes = new Set(selectedCampSubtypes);
   }, [states, placeTypes, selectedCampSubtypes]);
 
-  const getCampTheme = (subtype: string): Theme => {
-    const sub = subtype || "";
-    const key = Object.keys(CAMP_THEMES).find(k => sub.includes(k));
-    return key ? CAMP_THEMES[key] : CAMP_THEMES["default"];
-  };
-
   const getMarkerStyle = (google: any, type: PlaceType, subtype: string, zoom: number) => {
     const baseSize = zoom <= 7 ? 24 : zoom <= 10 ? 34 : 44;
     
@@ -90,10 +84,10 @@ export default function Home() {
       return {
         path: google.maps.SymbolPath.CIRCLE,
         scale: baseSize / 2.2,
-        fillColor: "#f80808", // Red fill
+        fillColor: "#ffffff", // White background
         fillOpacity: 1,
-        strokeWeight: 4, // Thick white border
-        strokeColor: "#ffffff"
+        strokeWeight: 2.5,
+        strokeColor: "#f80808" // Red circle border
       };
     }
     
@@ -109,10 +103,13 @@ export default function Home() {
     }
 
     if (type === "camps") {
-      const theme = getCampTheme(subtype);
+      const theme = Object.keys(CAMP_THEMES).find(k => (subtype || "").includes(k)) 
+        ? CAMP_THEMES[Object.keys(CAMP_THEMES).find(k => (subtype || "").includes(k))!] 
+        : CAMP_THEMES["default"];
+
       return {
         path: "M 0,0 C -2,-20 -10,-22 -10,-30 A 10,10 0 1 1 10,-30 C 10,-22 2,-20 0,0 z", 
-        scale: baseSize / 18, // Adjust THIS number to change teardrop size
+        scale: baseSize / 17, // Teardrop size tweak
         fillColor: theme.color,
         fillOpacity: 1,
         strokeWeight: 1.5,
@@ -120,7 +117,6 @@ export default function Home() {
         labelOrigin: new google.maps.Point(0, -30)
       };
     }
-
     return google.maps.SymbolPath.CIRCLE;
   };
 
@@ -138,10 +134,7 @@ export default function Home() {
       
       m.setIcon(getMarkerStyle(google, type, subtype, z));
       m.setLabel(fontSize === "0px" ? null : { 
-        text: emoji, 
-        fontSize,
-        color: "white",
-        fontWeight: "700"
+        text: emoji, fontSize, color: type === "birds" ? "black" : "white", fontWeight: "700"
       });
     });
   };
@@ -171,7 +164,7 @@ export default function Home() {
       const poly = new google.maps.Polyline({
         path: pathCoords, 
         geodesic: true,
-        strokeColor: "#4e342e", // Dark brown lines
+        strokeColor: "#4e342e", // Dark brown
         strokeOpacity: 0.8,
         strokeWeight: 3.5,
         map: mapRef.current
@@ -184,8 +177,7 @@ export default function Home() {
     const map = mapRef.current;
     if (!map || !clustererRef.current) return;
     
-    // Refresh Highways independently
-    loadHighways();
+    loadHighways(); // Ensure highways update with points
 
     clustererRef.current.clearMarkers();
     placeMarkersRef.current = [];
@@ -214,7 +206,7 @@ export default function Home() {
         const marker = new google.maps.Marker({ position: { lat: Number(latVal), lng: Number(lonVal) }, optimized: true });
         const t = r.place_type as PlaceType;
         const sub = r.subtype || "";
-        const theme = getCampTheme(sub);
+        const theme = Object.keys(CAMP_THEMES).find(k => sub.includes(k)) ? CAMP_THEMES[Object.keys(CAMP_THEMES).find(k => sub.includes(k))!] : CAMP_THEMES["default"];
 
         (marker as any).__type = t;
         (marker as any).__subtype = sub;
@@ -258,12 +250,7 @@ export default function Home() {
         });
         mapRef.current = map;
         infoWindowRef.current = new google.maps.InfoWindow();
-        
-        clustererRef.current = new MarkerClusterer({ 
-          map, 
-          algorithmOptions: { maxZoom: 9, gridSize: 60 } 
-        });
-
+        clustererRef.current = new MarkerClusterer({ map, algorithmOptions: { maxZoom: 9, gridSize: 60 } });
         map.addListener("idle", scheduleLoad);
         map.addListener("zoom_changed", applyMarkerSizing);
       };
@@ -277,7 +264,7 @@ export default function Home() {
     <div style={{ position: "relative", height: "100vh", overflow: "hidden", fontFamily: "sans-serif" }}>
       <div style={{
         position: "absolute", left: 12, top: 12, zIndex: 10, background: "white", border: "1px solid #ccc", borderRadius: 8,
-        width: isFilterOpen ? 220 : 40, padding: isFilterOpen ? 12 : 4, boxShadow: "0 2px 10px rgba(0,0,0,0.1)", transition: "width 0.2s"
+        width: isFilterOpen ? 230 : 40, padding: isFilterOpen ? 12 : 4, boxShadow: "0 2px 10px rgba(0,0,0,0.1)", transition: "width 0.2s"
       }}>
         <button onClick={() => setIsFilterOpen(!isFilterOpen)} style={{ width: "100%", cursor: "pointer", padding: "4px", marginBottom: isFilterOpen ? 8 : 0 }}>{isFilterOpen ? "Close Filters" : "☰"}</button>
         {isFilterOpen && (
@@ -295,13 +282,19 @@ export default function Home() {
                   )}
                 </label>
                 {t === "camps" && isCampSubmenuOpen && (
-                  <div style={{ paddingLeft: 10, marginBottom: 10, display: "grid", gridTemplateColumns: "1fr", gap: "2px", background: "#f9f9f9", padding: "6px", borderRadius: "4px" }}>
-                    {ALL_CAMP_SUBTYPES.map(sub => (
-                      <label key={sub} style={{ fontSize: 11, display: "flex", alignItems: "center", cursor: "pointer" }}>
-                        <input type="checkbox" checked={selectedCampSubtypes.includes(sub)} onChange={() => setSelectedCampSubtypes(prev => prev.includes(sub) ? prev.filter(x => x !== sub) : [...prev, sub])} />
-                        <span style={{ marginLeft: 6, color: CAMP_THEMES[sub]?.color || "#333", fontWeight: 600 }}>{CAMP_SUBTYPE_LABELS[sub] || sub}</span>
-                      </label>
-                    ))}
+                  <div style={{ padding: "8px", background: "#f1f3f5", borderRadius: "4px", marginBottom: "10px" }}>
+                    <div style={{ display: "flex", gap: "8px", marginBottom: "8px" }}>
+                      <button onClick={() => setSelectedCampSubtypes(ALL_CAMP_SUBTYPES)} style={{ flex: 1, fontSize: "9px", fontWeight: "bold", padding: "2px", cursor: "pointer" }}>ALL</button>
+                      <button onClick={() => setSelectedCampSubtypes([])} style={{ flex: 1, fontSize: "9px", fontWeight: "bold", padding: "2px", cursor: "pointer" }}>NONE</button>
+                    </div>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "3px" }}>
+                      {ALL_CAMP_SUBTYPES.map(sub => (
+                        <label key={sub} style={{ fontSize: 11, display: "flex", alignItems: "center", cursor: "pointer" }}>
+                          <input type="checkbox" checked={selectedCampSubtypes.includes(sub)} onChange={() => setSelectedCampSubtypes(prev => prev.includes(sub) ? prev.filter(x => x !== sub) : [...prev, sub])} />
+                          <span style={{ marginLeft: 6 }}>{CAMP_SUBTYPE_LABELS[sub] || sub}</span>
+                        </label>
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>
@@ -310,7 +303,7 @@ export default function Home() {
               <span style={{ fontWeight: 700, color: "#666" }}>REGIONS</span>
               <button onClick={() => setStates([])} style={{ fontSize: 9, cursor: "pointer", color: "#f44336", background: "none", border: "none", padding: 0, fontWeight: 700 }}>CLEAR</button>
             </div>
-            <div style={{ maxHeight: "45vh", overflowY: "auto", paddingRight: "4px" }}>
+            <div style={{ maxHeight: "40vh", overflowY: "auto" }}>
               {Object.entries(STATE_GROUPS).map(([groupName, groupStates]) => {
                 const groupSelected = groupStates.length > 0 && groupStates.every(st => states.includes(st));
                 return (
@@ -321,9 +314,7 @@ export default function Home() {
                       </button>
                       <span style={{ flexGrow: 1, fontWeight: 600, fontSize: 11 }}>{groupName}</span>
                       {groupStates.length > 0 && (
-                        <button onClick={() => {
-                          setStates(prev => groupSelected ? prev.filter(st => !groupStates.includes(st)) : Array.from(new Set([...prev, ...groupStates])));
-                        }} style={{ fontSize: 9, cursor: "pointer", color: "#007bff", background: "#e7f1ff", border: "none", padding: "2px 4px", borderRadius: 3, fontWeight: 700 }}>
+                        <button onClick={() => setStates(prev => groupSelected ? prev.filter(st => !groupStates.includes(st)) : Array.from(new Set([...prev, ...groupStates])))} style={{ fontSize: 9, cursor: "pointer", color: "#007bff", background: "#e7f1ff", border: "none", padding: "2px 4px", borderRadius: 3, fontWeight: 700 }}>
                           {groupSelected ? "NONE" : "ALL"}
                         </button>
                       )}
