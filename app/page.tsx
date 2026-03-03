@@ -28,16 +28,9 @@ const CAMP_THEMES: Record<string, Theme> = {
 };
 
 const CAMP_SUBTYPE_LABELS: Record<string, string> = {
-  "COE": "Army Corps",
-  "NF": "Nat. Forest",
-  "NP": "Nat. Park",
-  "SP": "State Park",
-  "SF": "State Forest",
-  "BLM": "BLM",
-  "MIL": "Military",
-  "CP": "Local Park",
-  "SFW": "Fish/Wild",
-  "RES": "Other/Res"
+  "COE": "Army Corps", "NF": "Nat. Forest", "NP": "Nat. Park", "SP": "State Park",
+  "SF": "State Forest", "BLM": "BLM", "MIL": "Military", "CP": "Local Park",
+  "SFW": "Fish/Wild", "RES": "Other/Res"
 };
 
 const ALL_CAMP_SUBTYPES = Object.keys(CAMP_SUBTYPE_LABELS);
@@ -57,9 +50,6 @@ export default function Home() {
   const [isFilterOpen, setIsFilterOpen] = useState(true);
   const [openGroups, setOpenGroups] = useState<string[]>(["South"]);
   const [isCampSubmenuOpen, setIsCampSubmenuOpen] = useState(false);
-  
-  // Visual Debugger State
-  const [debugInfo, setDebugInfo] = useState("Status: Ready");
 
   const mapRef = useRef<any>(null);
   const clustererRef = useRef<any>(null);
@@ -106,29 +96,25 @@ export default function Home() {
       };
     }
 
-    if (type === "camps") {
-      const theme = Object.keys(CAMP_THEMES).find(k => (subtype || "").includes(k)) 
-        ? CAMP_THEMES[Object.keys(CAMP_THEMES).find(k => (subtype || "").includes(k))!] 
-        : CAMP_THEMES["default"];
+    const theme = Object.keys(CAMP_THEMES).find(k => (subtype || "").includes(k)) 
+      ? CAMP_THEMES[Object.keys(CAMP_THEMES).find(k => (subtype || "").includes(k))!] 
+      : CAMP_THEMES["default"];
 
-      return {
-        path: "M 0,0 C -2,-20 -10,-22 -10,-30 A 10,10 0 1 1 10,-30 C 10,-22 2,-20 0,0 z", 
-        scale: baseSize / 16, 
-        fillColor: theme.color,
-        fillOpacity: 1,
-        strokeWeight: 1.5,
-        strokeColor: "#ffffff",
-        labelOrigin: new google.maps.Point(0, -30)
-      };
-    }
-    return google.maps.SymbolPath.CIRCLE;
+    return {
+      path: "M 0,0 C -2,-20 -10,-22 -10,-30 A 10,10 0 1 1 10,-30 C 10,-22 2,-20 0,0 z", 
+      scale: baseSize / 16, 
+      fillColor: theme.color,
+      fillOpacity: 1,
+      strokeWeight: 1.5,
+      strokeColor: "#ffffff",
+      labelOrigin: new google.maps.Point(0, -30)
+    };
   };
 
   const applyMarkerSizing = () => {
-    const map = mapRef.current;
-    if (!map) return;
+    if (!mapRef.current) return;
     const google = (window as any).google;
-    const z = map.getZoom() ?? 7;
+    const z = mapRef.current.getZoom() ?? 7;
     const fontSize = z <= 11 ? "12px" : "15px";
 
     placeMarkersRef.current.forEach(m => {
@@ -157,91 +143,54 @@ export default function Home() {
     highwayLinesRef.current.forEach(line => line.setMap(null));
     highwayLinesRef.current = [];
 
-    if (!filtersRef.current.types.has("highways")) {
-      setDebugInfo("Highways: Disabled");
-      return;
-    }
+    if (!filtersRef.current.types.has("highways")) return;
 
-    setDebugInfo("Highways: Fetching...");
     const { data, error } = await supabase
-      .from("byways") 
-      .select("*")
+      .from("byways")
+      .select("geom_geojson")
       .in("state", Array.from(filtersRef.current.states));
 
-    if (error) {
-      setDebugInfo(`Highways Error: ${error.message}`);
-      return;
-    }
-
-    if (!data || data.length === 0) {
-      setDebugInfo("Highways: 0 rows returned from DB");
-      return;
-    }
+    if (error || !data) return;
 
     const google = (window as any).google;
-    let linesDrawn = 0;
-
     data.forEach(h => {
-      // Logic to find coordinates regardless of column name
-      const rawGeo = h.geom_geojson || h.geojson || h.geom || h.coordinates || h.path;
-      const geojson = typeof rawGeo === 'string' ? JSON.parse(rawGeo) : rawGeo;
+      const geo = h.geom_geojson;
+      if (!geo) return;
 
-      if (!geojson) return;
-
-      // Handle both LineString and MultiLineString
-      const segments = geojson.type === "MultiLineString" ? geojson.coordinates : [geojson.coordinates];
-
-      segments.forEach((lineSegment: any[]) => {
-        if (!Array.isArray(lineSegment)) return;
-        
-        const path = lineSegment.map(coord => ({
-          lat: Number(coord[1]), 
-          lng: Number(coord[0])
-        }));
-
+      const segments = geo.type === "MultiLineString" ? geo.coordinates : [geo.coordinates];
+      segments.forEach((segment: any[]) => {
+        const path = segment.map(c => ({ lat: c[1], lng: c[0] }));
         const poly = new google.maps.Polyline({
           path,
           geodesic: true,
-          strokeColor: "#4e342e", 
+          strokeColor: "#4e342e",
           strokeOpacity: 0.8,
           strokeWeight: 4,
           map: mapRef.current
         });
         highwayLinesRef.current.push(poly);
-        linesDrawn++;
       });
     });
-
-    setDebugInfo(`Highways: ${linesDrawn} segments drawn`);
   };
 
   const loadPlaces = async () => {
-    const map = mapRef.current;
-    if (!map || !clustererRef.current) return;
-    
+    if (!mapRef.current || !clustererRef.current) return;
     loadHighways(); 
-
     clustererRef.current.clearMarkers();
     placeMarkersRef.current = [];
-
+    
     const statesArr = Array.from(filtersRef.current.states);
     const typesArr = Array.from(filtersRef.current.types).filter(t => t !== "highways");
-
     if (!statesArr.length || !typesArr.length) return;
 
     const { data, error } = await supabase.from("places").select("*").in("state", statesArr).in("place_type", typesArr);
-    if (error) return;
+    if (error || !data) return;
 
     const google = (window as any).google;
-    const newMarkers = (data || [])
-      .filter(r => {
-        if (r.place_type === "camps") {
-          return Array.from(filtersRef.current.campSubtypes).some(sub => (r.subtype || "").includes(sub));
-        }
-        return true;
-      })
+    placeMarkersRef.current = data
+      .filter(r => r.place_type !== "camps" || Array.from(filtersRef.current.campSubtypes).some(sub => (r.subtype || "").includes(sub)))
       .map(r => {
-        const marker = new google.maps.Marker({ position: { lat: Number(r.lat || r.latitude), lng: Number(r.lon || r.longitude) }, optimized: true });
+        const marker = new google.maps.Marker({ position: { lat: Number(r.lat || r.latitude), lng: Number(r.lon || r.longitude) } });
         const t = r.place_type as PlaceType;
         const sub = r.subtype || "";
         const theme = Object.keys(CAMP_THEMES).find(k => sub.includes(k)) ? CAMP_THEMES[Object.keys(CAMP_THEMES).find(k => sub.includes(k))!] : CAMP_THEMES["default"];
@@ -251,14 +200,12 @@ export default function Home() {
         (marker as any).__emoji = t === "birds" ? "🦅" : t === "hikes" ? "🥾" : theme.emoji;
 
         marker.addListener("click", () => {
-          infoWindowRef.current.setContent(`<div style="font-family: Arial; padding: 5px;"><b>${r.name}</b><br/><small>${r.subtype || ""}</small></div>`);
+          infoWindowRef.current.setContent(`<div style="padding:5px"><b>${r.name}</b><br/><small>${r.subtype || ""}</small></div>`);
           infoWindowRef.current.setPosition(marker.getPosition());
-          infoWindowRef.current.open(map);
+          infoWindowRef.current.open(mapRef.current);
         });
         return marker;
-      }).filter(m => m !== null);
-
-    placeMarkersRef.current = newMarkers as any[];
+      });
     clustererRef.current.addMarkers(placeMarkersRef.current);
     applyMarkerSizing();
   };
@@ -280,13 +227,12 @@ export default function Home() {
       document.head.appendChild(clusterScript);
       clusterScript.onload = () => {
         const google = (window as any).google;
-        const MarkerClusterer = (window as any).markerClusterer.MarkerClusterer;
         const map = new google.maps.Map(document.getElementById("map") as HTMLElement, { 
-          center: { lat: 35.8, lng: -78.6 }, zoom: 7, maxZoom: 18, minZoom: 3, mapTypeControl: false, streetViewControl: false
+          center: { lat: 35.8, lng: -78.6 }, zoom: 7, mapTypeControl: false, streetViewControl: false
         });
         mapRef.current = map;
         infoWindowRef.current = new google.maps.InfoWindow();
-        clustererRef.current = new MarkerClusterer({ map, algorithmOptions: { maxZoom: 9, gridSize: 60 } });
+        clustererRef.current = new (window as any).markerClusterer.MarkerClusterer({ map, algorithmOptions: { maxZoom: 9, gridSize: 60 } });
         map.addListener("idle", scheduleLoad);
         map.addListener("zoom_changed", applyMarkerSizing);
       };
@@ -298,11 +244,6 @@ export default function Home() {
 
   return (
     <div style={{ position: "relative", height: "100vh", overflow: "hidden", fontFamily: "sans-serif" }}>
-      {/* Visual Debug Box */}
-      <div style={{ position: "absolute", right: 12, top: 12, zIndex: 100, background: "rgba(0,0,0,0.8)", color: "#00ff00", padding: "6px 10px", borderRadius: 4, fontSize: 11, border: "1px solid #333" }}>
-        {debugInfo}
-      </div>
-
       <div style={{
         position: "absolute", left: 12, top: 12, zIndex: 10, background: "white", border: "1px solid #ccc", borderRadius: 8,
         width: isFilterOpen ? 230 : 40, padding: isFilterOpen ? 12 : 4, boxShadow: "0 2px 10px rgba(0,0,0,0.1)", transition: "width 0.2s"
@@ -317,9 +258,7 @@ export default function Home() {
                   <input type="checkbox" checked={placeTypes.includes(t)} onChange={() => setPlaceTypes(prev => prev.includes(t) ? prev.filter(x => x !== t) : [...prev, t])} />
                   <span style={{ marginLeft: 8, textTransform: "capitalize", flexGrow: 1 }}>{t}</span>
                   {t === "camps" && (
-                    <button onClick={(e) => { e.preventDefault(); setIsCampSubmenuOpen(!isCampSubmenuOpen); }} style={{ fontSize: 10, background: "none", border: "none", cursor: "pointer" }}>
-                      {isCampSubmenuOpen ? "▲" : "▼"}
-                    </button>
+                    <button onClick={(e) => { e.preventDefault(); setIsCampSubmenuOpen(!isCampSubmenuOpen); }} style={{ fontSize: 10, background: "none", border: "none", cursor: "pointer" }}>{isCampSubmenuOpen ? "▲" : "▼"}</button>
                   )}
                 </label>
                 {t === "camps" && isCampSubmenuOpen && (
@@ -328,14 +267,12 @@ export default function Home() {
                       <button onClick={() => setSelectedCampSubtypes(ALL_CAMP_SUBTYPES)} style={{ flex: 1, fontSize: "9px", fontWeight: "bold", padding: "2px", cursor: "pointer" }}>ALL</button>
                       <button onClick={() => setSelectedCampSubtypes([])} style={{ flex: 1, fontSize: "9px", fontWeight: "bold", padding: "2px", cursor: "pointer" }}>NONE</button>
                     </div>
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "3px" }}>
-                      {ALL_CAMP_SUBTYPES.map(sub => (
-                        <label key={sub} style={{ fontSize: 11, display: "flex", alignItems: "center", cursor: "pointer" }}>
-                          <input type="checkbox" checked={selectedCampSubtypes.includes(sub)} onChange={() => setSelectedCampSubtypes(prev => prev.includes(sub) ? prev.filter(x => x !== sub) : [...prev, sub])} />
-                          <span style={{ marginLeft: 6 }}>{CAMP_SUBTYPE_LABELS[sub] || sub}</span>
-                        </label>
-                      ))}
-                    </div>
+                    {ALL_CAMP_SUBTYPES.map(sub => (
+                      <label key={sub} style={{ fontSize: 11, display: "flex", alignItems: "center", cursor: "pointer", marginBottom: 2 }}>
+                        <input type="checkbox" checked={selectedCampSubtypes.includes(sub)} onChange={() => setSelectedCampSubtypes(prev => prev.includes(sub) ? prev.filter(x => x !== sub) : [...prev, sub])} />
+                        <span style={{ marginLeft: 6 }}>{CAMP_SUBTYPE_LABELS[sub] || sub}</span>
+                      </label>
+                    ))}
                   </div>
                 )}
               </div>
@@ -350,14 +287,10 @@ export default function Home() {
                 return (
                   <div key={groupName} style={{ marginBottom: 4 }}>
                     <div style={{ display: "flex", alignItems: "center", background: "#f8f9fa", padding: "4px 6px", borderRadius: 4 }}>
-                      <button onClick={() => setOpenGroups(prev => prev.includes(groupName) ? prev.filter(g => g !== groupName) : [...prev, groupName])} style={{ border: "none", background: "none", cursor: "pointer", padding: 0, marginRight: 6, fontSize: 10 }}>
-                        {openGroups.includes(groupName) ? "▼" : "▶"}
-                      </button>
+                      <button onClick={() => setOpenGroups(prev => prev.includes(groupName) ? prev.filter(g => g !== groupName) : [...prev, groupName])} style={{ border: "none", background: "none", cursor: "pointer", padding: 0, marginRight: 6, fontSize: 10 }}>{openGroups.includes(groupName) ? "▼" : "▶"}</button>
                       <span style={{ flexGrow: 1, fontWeight: 600, fontSize: 11 }}>{groupName}</span>
                       {groupStates.length > 0 && (
-                        <button onClick={() => setStates(prev => groupSelected ? prev.filter(st => !groupStates.includes(st)) : Array.from(new Set([...prev, ...groupStates])))} style={{ fontSize: 9, cursor: "pointer", color: "#007bff", background: "#e7f1ff", border: "none", padding: "2px 4px", borderRadius: 3, fontWeight: 700 }}>
-                          {groupSelected ? "NONE" : "ALL"}
-                        </button>
+                        <button onClick={() => setStates(prev => groupSelected ? prev.filter(st => !groupStates.includes(st)) : Array.from(new Set([...prev, ...groupStates])))} style={{ fontSize: 9, cursor: "pointer", color: "#007bff", background: "#e7f1ff", border: "none", padding: "2px 4px", borderRadius: 3, fontWeight: 700 }}>{groupSelected ? "NONE" : "ALL"}</button>
                       )}
                     </div>
                     {openGroups.includes(groupName) && (
