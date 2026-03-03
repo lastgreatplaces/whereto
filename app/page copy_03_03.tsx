@@ -72,6 +72,7 @@ export default function Home() {
 
   const getMarkerStyle = (google: any, type: PlaceType, subtype: string, zoom: number) => {
     const baseSize = zoom <= 7 ? 24 : zoom <= 10 ? 34 : 44;
+    
     if (type === "birds") {
       return {
         path: google.maps.SymbolPath.CIRCLE,
@@ -83,9 +84,31 @@ export default function Home() {
         labelOrigin: new google.maps.Point(0, 0)
       };
     }
-    if (type === "hikes") return { path: "M -10,-10 L 10,-10 L 10,10 L -10,10 Z", scale: baseSize / 20, fillColor: "#28a745", fillOpacity: 1, strokeWeight: 2, strokeColor: "#ffffff" };
-    const theme = Object.keys(CAMP_THEMES).find(k => (subtype || "").includes(k)) ? CAMP_THEMES[Object.keys(CAMP_THEMES).find(k => (subtype || "").includes(k))!] : CAMP_THEMES["default"];
-    return { path: "M 0,0 C -2,-20 -10,-22 -10,-30 A 10,10 0 1 1 10,-30 C 10,-22 2,-20 0,0 z", scale: baseSize / 16, fillColor: theme.color, fillOpacity: 1, strokeWeight: 1.5, strokeColor: "#ffffff", labelOrigin: new google.maps.Point(0, -30) };
+    
+    if (type === "hikes") {
+      return {
+        path: "M -10,-10 L 10,-10 L 10,10 L -10,10 Z", 
+        scale: baseSize / 20,
+        fillColor: "#28a745",
+        fillOpacity: 1,
+        strokeWeight: 2,
+        strokeColor: "#ffffff"
+      };
+    }
+
+    const theme = Object.keys(CAMP_THEMES).find(k => (subtype || "").includes(k)) 
+      ? CAMP_THEMES[Object.keys(CAMP_THEMES).find(k => (subtype || "").includes(k))!] 
+      : CAMP_THEMES["default"];
+
+    return {
+      path: "M 0,0 C -2,-20 -10,-22 -10,-30 A 10,10 0 1 1 10,-30 C 10,-22 2,-20 0,0 z", 
+      scale: baseSize / 16, 
+      fillColor: theme.color,
+      fillOpacity: 1,
+      strokeWeight: 1.5,
+      strokeColor: "#ffffff",
+      labelOrigin: new google.maps.Point(0, -30)
+    };
   };
 
   const applyMarkerSizing = () => {
@@ -98,11 +121,20 @@ export default function Home() {
       const type = (m as any).__type as PlaceType;
       const subtype = (m as any).__subtype || "";
       const emoji = (m as any).__emoji;
+      
       m.setIcon(getMarkerStyle(google, type, subtype, z));
+      
       if (type === "birds") {
-        m.setLabel({ text: "🦅", fontSize: z <= 8 ? "16px" : "24px", color: "black", fontWeight: "700" });
+        m.setLabel({
+          text: "🦅",
+          fontSize: z <= 8 ? "16px" : "24px",
+          color: "black",
+          fontWeight: "700"
+        });
       } else {
-        m.setLabel(z > 8 ? { text: emoji, fontSize, color: "white", fontWeight: "700" } : null);
+        m.setLabel(z > 8 ? { 
+          text: emoji, fontSize, color: "white", fontWeight: "700"
+        } : null);
       }
     });
   };
@@ -113,10 +145,9 @@ export default function Home() {
 
     if (!filtersRef.current.types.has("highways")) return;
 
-    // Fetching geom_geojson and name/designats for the popup
     const { data, error } = await supabase
       .from("byways")
-      .select("geom_geojson, name, designats")
+      .select("geom_geojson")
       .in("state", Array.from(filtersRef.current.states));
 
     if (error || !data) return;
@@ -137,19 +168,6 @@ export default function Home() {
           strokeWeight: 4,
           map: mapRef.current
         });
-
-        // Add Click listener for Highway Popups
-        poly.addListener("click", (e: any) => {
-          infoWindowRef.current.setContent(`
-            <div style="padding:8px; font-family:sans-serif;">
-              <b style="color:#4e342e;">${h.name || "Scenic Highway"}</b><br/>
-              <small>${h.designats || ""}</small>
-            </div>
-          `);
-          infoWindowRef.current.setPosition(e.latLng);
-          infoWindowRef.current.open(mapRef.current);
-        });
-
         highwayLinesRef.current.push(poly);
       });
     });
@@ -165,7 +183,6 @@ export default function Home() {
     const typesArr = Array.from(filtersRef.current.types).filter(t => t !== "highways");
     if (!statesArr.length || !typesArr.length) return;
 
-    // Note: Ensure your 'places' table has columns named 'open', 'sites', and 'elev'
     const { data, error } = await supabase.from("places").select("*").in("state", statesArr).in("place_type", typesArr);
     if (error || !data) return;
 
@@ -183,22 +200,7 @@ export default function Home() {
         (marker as any).__emoji = t === "birds" ? "🦅" : t === "hikes" ? "🥾" : theme.emoji;
 
         marker.addListener("click", () => {
-          let popupContent = `<div style="padding:5px; font-family:sans-serif;"><b>${r.name}</b><br/>`;
-          
-          if (t === "camps") {
-            popupContent += `
-              <div style="margin-top:5px; font-size:12px;">
-                <div><b>Open:</b> ${r.open || "N/A"}</div>
-                <div><b>Sites:</b> ${r.sites || "N/A"}</div>
-                <div><b>Elev:</b> ${r.elev ? r.elev + "'" : "N/A"}</div>
-                <div style="color:#666; font-size:10px; margin-top:4px;">${sub}</div>
-              </div>`;
-          } else {
-            popupContent += `<small>${sub}</small>`;
-          }
-          popupContent += `</div>`;
-
-          infoWindowRef.current.setContent(popupContent);
+          infoWindowRef.current.setContent(`<div style="padding:5px"><b>${r.name}</b><br/><small>${r.subtype || ""}</small></div>`);
           infoWindowRef.current.setPosition(marker.getPosition());
           infoWindowRef.current.open(mapRef.current);
         });
