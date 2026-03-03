@@ -27,7 +27,6 @@ const CAMP_THEMES: Record<string, Theme> = {
   "default": { color: "#607d8b", emoji: "⛺" }  // Other - Grey
 };
 
-// Clear labels for the submenu
 const CAMP_SUBTYPE_LABELS: Record<string, string> = {
   "COE": "Army Corps",
   "NF": "Nat. Forest",
@@ -64,6 +63,7 @@ export default function Home() {
   const infoWindowRef = useRef<any>(null);
   const lastFetchTimerRef = useRef<any>(null);
   const placeMarkersRef = useRef<any[]>([]);
+  const highwayLinesRef = useRef<any[]>([]);
   
   const filtersRef = useRef({
     states: new Set<string>(["NC", "VA", "WV"]),
@@ -79,17 +79,17 @@ export default function Home() {
 
   const getCampTheme = (subtype: string): Theme => {
     const sub = subtype || "";
-    const key = Object.keys(CAMP_THEMES).find(k => sub.includes(k));
+    const key = (Object.keys(CAMP_THEMES) as Array<keyof typeof CAMP_THEMES>).find(k => sub.includes(k as string));
     return key ? CAMP_THEMES[key] : CAMP_THEMES["default"];
   };
 
   const getMarkerStyle = (google: any, type: PlaceType, subtype: string, zoom: number) => {
-    const baseSize = zoom <= 7 ? 18 : zoom <= 10 ? 24 : 32;
+    const baseSize = zoom <= 7 ? 22 : zoom <= 10 ? 30 : 40;
     
     if (type === "birds") {
       return {
         path: google.maps.SymbolPath.CIRCLE,
-        scale: baseSize / 3.5,
+        scale: baseSize / 2.8, // Restored size
         fillColor: "#f80808",
         fillOpacity: 1,
         strokeWeight: 2,
@@ -99,8 +99,8 @@ export default function Home() {
     
     if (type === "hikes") {
       return {
-        path: "M -10,-10 L 10,-10 L 10,10 L -10,10 Z", // Green Square
-        scale: baseSize / 26,
+        path: "M -10,-10 L 10,-10 L 10,10 L -10,10 Z", 
+        scale: baseSize / 22,
         fillColor: "#28a745",
         fillOpacity: 1,
         strokeWeight: 2,
@@ -111,14 +111,13 @@ export default function Home() {
     if (type === "camps") {
       const theme = getCampTheme(subtype);
       return {
-        // Teardrop path anchored at (0,0) (the tip)
         path: "M 0,0 C -2,-20 -10,-22 -10,-30 A 10,10 0 1 1 10,-30 C 10,-22 2,-20 0,0 z", 
-        scale: baseSize / 28, // Significant reduction in size
+        scale: baseSize / 22, // Tad larger than before
         fillColor: theme.color,
         fillOpacity: 1,
-        strokeWeight: 1,
+        strokeWeight: 1.2,
         strokeColor: "#ffffff",
-        labelOrigin: new google.maps.Point(0, -30) // Emoji sits in the circle "head"
+        labelOrigin: new google.maps.Point(0, -30)
       };
     }
 
@@ -130,7 +129,7 @@ export default function Home() {
     if (!map) return;
     const google = (window as any).google;
     const z = map.getZoom() ?? 7;
-    const fontSize = z <= 8 ? "0px" : z <= 11 ? "10px" : "13px";
+    const fontSize = z <= 8 ? "0px" : z <= 11 ? "11px" : "14px";
 
     placeMarkersRef.current.forEach(m => {
       const type = (m as any).__type as PlaceType;
@@ -146,6 +145,35 @@ export default function Home() {
     });
   };
 
+  const loadHighways = async () => {
+    // Clear old lines
+    highwayLinesRef.current.forEach(line => line.setMap(null));
+    highwayLinesRef.current = [];
+
+    if (!filtersRef.current.types.has("highways")) return;
+
+    const { data, error } = await supabase
+      .from("highways")
+      .select("*")
+      .in("state", Array.from(filtersRef.current.states));
+
+    if (error || !data) return;
+
+    const google = (window as any).google;
+    data.forEach(h => {
+      if (!h.path) return;
+      const poly = new google.maps.Polyline({
+        path: h.path, // Assumes path is [{lat, lng}, ...]
+        geodesic: true,
+        strokeColor: "#4e342e", // Dark brown from your screenshot
+        strokeOpacity: 0.8,
+        strokeWeight: 3,
+        map: mapRef.current
+      });
+      highwayLinesRef.current.push(poly);
+    });
+  };
+
   const loadPlaces = async () => {
     const map = mapRef.current;
     if (!map || !clustererRef.current) return;
@@ -154,6 +182,10 @@ export default function Home() {
 
     const statesArr = Array.from(filtersRef.current.states);
     const typesArr = Array.from(filtersRef.current.types).filter(t => t !== "highways");
+    
+    // Always call highways separately
+    loadHighways();
+
     if (!statesArr.length || !typesArr.length) return;
 
     const { data, error } = await supabase.from("places").select("*").in("state", statesArr).in("place_type", typesArr);
@@ -182,13 +214,7 @@ export default function Home() {
         (marker as any).__emoji = t === "birds" ? "🦅" : t === "hikes" ? "🥾" : theme.emoji;
 
         marker.addListener("click", () => {
-          let extraHtml = r.place_type === "camps" ? 
-            `<div style="border-top:1px solid #eee; margin-top:6px; padding-top:4px; font-size:12px;">
-              ${r.camp_open ? `<div><b>Open:</b> ${r.camp_open}</div>` : ""}
-              ${r.camp_sites ? `<div><b>Sites:</b> ${r.camp_sites}</div>` : ""}
-            </div>` : "";
-
-          infoWindowRef.current.setContent(`<div style="font-family: Arial; padding: 5px;"><b>${r.name}</b><br/><small>${r.subtype || ""}</small>${extraHtml}</div>`);
+          infoWindowRef.current.setContent(`<div style="font-family: Arial; padding: 5px;"><b>${r.name}</b><br/><small>${r.subtype || ""}</small></div>`);
           infoWindowRef.current.setPosition(marker.getPosition());
           infoWindowRef.current.open(map);
         });
@@ -228,7 +254,7 @@ export default function Home() {
         
         clustererRef.current = new MarkerClusterer({ 
           map, 
-          algorithmOptions: { maxZoom: 9, gridSize: 60 } // Unclusters at zoom 10+ so NC icons don't vanish
+          algorithmOptions: { maxZoom: 9, gridSize: 60 } 
         });
 
         map.addListener("idle", scheduleLoad);
