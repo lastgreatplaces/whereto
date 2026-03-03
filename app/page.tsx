@@ -157,9 +157,10 @@ export default function Home() {
     const typesArr = Array.from(filtersRef.current.types);
     if (!statesArr.length || !typesArr.length) return;
 
+    // We select * to ensure we get camp_open, camp_sites, hike_distance, etc.
     const { data, error } = await supabase
       .from("places")
-      .select("id,name,state,place_type,subtype,website,notes,lat,lon")
+      .select("*")
       .in("state", statesArr)
       .in("place_type", typesArr);
 
@@ -188,17 +189,38 @@ export default function Home() {
       (marker as any).__emoji = emoji;
       (marker as any).__type = t;
 
-      marker.addListener("click", async () => {
+      marker.addListener("click", () => {
         const name = r.name ?? "(No name)";
         const subtype = r.subtype ? ` • ${r.subtype}` : "";
+
+        // Build extra info section instantly from data already in 'r'
+        let extraHtml = "";
+        if (t === "camps") {
+          if (r.camp_open || r.camp_sites || r.camp_elevation) {
+            extraHtml = `
+              <div style="margin-top:8px; padding-top:8px; border-top:1px solid #eee; font-size:12px; line-height:1.4;">
+                ${r.camp_open ? `<div><b>Open:</b> ${r.camp_open}</div>` : ""}
+                ${r.camp_sites ? `<div><b>Sites:</b> ${r.camp_sites}</div>` : ""}
+                ${r.camp_elevation ? `<div><b>Elevation:</b> ${r.camp_elevation}ft</div>` : ""}
+              </div>
+            `;
+          }
+        } else if (t === "hikes") {
+          if (r.hike_distance || r.hike_difficulty) {
+            extraHtml = `
+              <div style="margin-top:8px; padding-top:8px; border-top:1px solid #eee; font-size:12px; line-height:1.4;">
+                ${r.hike_distance ? `<div><b>Distance:</b> ${r.hike_distance}</div>` : ""}
+                ${r.hike_difficulty ? `<div><b>Difficulty:</b> ${r.hike_difficulty}</div>` : ""}
+              </div>
+            `;
+          }
+        }
         
         const html = `
           <div style="font-family: Arial; font-size: 14px; max-width: 240px; min-width: 180px;">
             <div style="font-weight:700;">${name}</div>
             <div style="opacity:0.85; margin-bottom: 6px;">${t}${subtype}</div>
-            <div id="dynamic-content-${r.id}">
-                ${t === 'camps' ? '<div style="color:#999; font-size:12px;">Loading details...</div>' : ''}
-            </div>
+            ${extraHtml}
             ${r.website ? `<div style="margin-top:10px;"><a href="${r.website}" target="_blank">Website</a></div>` : ""}
           </div>
         `;
@@ -206,39 +228,6 @@ export default function Home() {
         infoWindowRef.current.setContent(html);
         infoWindowRef.current.setPosition(marker.getPosition());
         infoWindowRef.current.open(map);
-
-        if (t === "camps") {
-          // FUZZY LOOKUP: Look for any camp within a tiny radius (0.001 degrees)
-          // This solves the 3-decimal vs 5-decimal trailing zero mismatch.
-          const { data: detail } = await supabase
-            .from("v_camps_popup")
-            .select("open, sites, elevation")
-            .gte("lat", r.lat - 0.001)
-            .lte("lat", r.lat + 0.001)
-            .gte("lon", r.lon - 0.001)
-            .lte("lon", r.lon + 0.001)
-            .maybeSingle();
-
-          const updateUI = () => {
-            const container = document.getElementById(`dynamic-content-${r.id}`);
-            if (container) {
-              if (detail) {
-                container.innerHTML = `
-                  <div style="margin-top:8px; padding-top:8px; border-top:1px solid #eee; font-size:12px; line-height:1.4;">
-                    ${detail.open ? `<div><b>Open:</b> ${detail.open}</div>` : ""}
-                    ${detail.sites ? `<div><b>Sites:</b> ${detail.sites}</div>` : ""}
-                    ${detail.elevation ? `<div><b>Elevation:</b> ${detail.elevation}ft</div>` : ""}
-                  </div>
-                `;
-              } else {
-                container.innerHTML = `<div style="font-size:11px; color:#ccc; margin-top:4px;">No additional data.</div>`;
-              }
-            }
-          };
-
-          updateUI();
-          google.maps.event.addListenerOnce(infoWindowRef.current, 'domready', updateUI);
-        }
       });
 
       placeMarkersRef.current.push(marker);
