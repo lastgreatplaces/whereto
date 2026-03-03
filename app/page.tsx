@@ -34,7 +34,6 @@ const CAMP_SUBTYPE_LABELS: Record<string, string> = {
   "SFW": "Fish/Wild", "RES": "Other/Res"
 };
 
-// Filter out duplicates for the UI labels (NRA/SRA both map to Rec Area)
 const UI_CAMP_SUBTYPES = ["COE", "NF", "NP", "SP", "SF", "BLM", "NRA", "CP", "SFW", "RES"];
 
 const STATE_GROUPS: Record<string, string[]> = {
@@ -46,7 +45,6 @@ const STATE_GROUPS: Record<string, string[]> = {
 };
 
 export default function Home() {
-  // 1. Initial State: Only NC and Highways toggled for a cleaner start
   const [states, setStates] = useState<string[]>(["NC"]);
   const [placeTypes, setPlaceTypes] = useState<PlaceType[]>(["highways"]);
   const [selectedCampSubtypes, setSelectedCampSubtypes] = useState<string[]>(Object.keys(CAMP_SUBTYPE_LABELS));
@@ -74,28 +72,18 @@ export default function Home() {
   }, [states, placeTypes, selectedCampSubtypes]);
 
   const getMarkerStyle = (google: any, type: PlaceType, subtype: string, zoom: number) => {
-    // 3. Adjusted teardrop size (slightly smaller)
     const baseSize = zoom <= 7 ? 20 : zoom <= 10 ? 30 : 40;
-    
     if (type === "birds") {
       return {
         path: google.maps.SymbolPath.CIRCLE, scale: baseSize / 2, fillColor: "#ffffff", 
         fillOpacity: 1, strokeWeight: 4, strokeColor: "#f80808", labelOrigin: new google.maps.Point(0, 0)
       };
     }
-    
     if (type === "hikes") return { path: "M -10,-10 L 10,-10 L 10,10 L -10,10 Z", scale: baseSize / 20, fillColor: "#28a745", fillOpacity: 1, strokeWeight: 2, strokeColor: "#ffffff" };
-    
     const theme = Object.keys(CAMP_THEMES).find(k => (subtype || "").includes(k)) ? CAMP_THEMES[Object.keys(CAMP_THEMES).find(k => (subtype || "").includes(k))!] : CAMP_THEMES["default"];
-    
     return { 
       path: "M 0,0 C -2,-20 -10,-22 -10,-30 A 10,10 0 1 1 10,-30 C 10,-22 2,-20 0,0 z", 
-      scale: baseSize / 16, 
-      fillColor: theme.color, 
-      fillOpacity: 1, 
-      strokeWeight: 1.5, 
-      strokeColor: "#ffffff", 
-      labelOrigin: new google.maps.Point(0, -30) 
+      scale: baseSize / 16, fillColor: theme.color, fillOpacity: 1, strokeWeight: 1.5, strokeColor: "#ffffff", labelOrigin: new google.maps.Point(0, -30) 
     };
   };
 
@@ -106,17 +94,10 @@ export default function Home() {
     placeMarkersRef.current.forEach(m => {
       const type = (m as any).__type as PlaceType;
       m.setIcon(getMarkerStyle(google, type, (m as any).__subtype, z));
-      
       if (type === "birds") {
         m.setLabel({ text: "🦅", fontSize: z <= 8 ? "18px" : "26px", color: "black", fontWeight: "700" });
       } else {
-        // 3. Larger icons inside the teardrops
-        m.setLabel(z > 7 ? { 
-          text: (m as any).__emoji, 
-          fontSize: z <= 11 ? "14px" : "18px", 
-          color: "white", 
-          fontWeight: "700" 
-        } : null);
+        m.setLabel(z > 7 ? { text: (m as any).__emoji, fontSize: z <= 11 ? "14px" : "18px", color: "white", fontWeight: "700" } : null);
       }
     });
   };
@@ -175,16 +156,24 @@ export default function Home() {
         (marker as any).__emoji = t === "birds" ? "🦅" : t === "hikes" ? "🥾" : theme.emoji;
 
         marker.addListener("click", () => {
-          let popup = `<div style="padding:5px; font-family:sans-serif; min-width:150px;"><b>${r.name}</b><br/>`;
+          // 1. & 2. Polishing: Subtype moved up, "unavailable" added for blanks
+          let popup = `<div style="padding:5px; font-family:sans-serif; min-width:160px;">
+                        <b>${r.name}</b><br/>
+                        <span style="color:#666; font-size:11px; font-weight:bold;">${sub || "N/A"}</span>`;
+
           if (t === "camps" || t === "hikes") {
             const labels = t === "camps" ? { l1: "Open", l2: "Sites", l3: "Elev" } : { l1: "Length", l2: "Gain", l3: "Difficulty" };
-            popup += `<div style="font-size:12px; margin-top:4px; line-height:1.4;">
-                ${labels.l1}: ${r.open_length || "N/A"}<br/>${labels.l2}: ${r.sites_gain || "N/A"}<br/>${labels.l3}: ${r.elev_difficulty || "N/A"}<br/>
-                <span style="color:#666; font-size:11px;">${sub}</span>
+            
+            // Function to check for empty strings or nulls
+            const val = (str: any) => (str && str.trim() !== "") ? str : "unavailable";
+
+            popup += `<div style="font-size:12px; margin-top:6px; line-height:1.5; border-top: 1px solid #f0f0f0; padding-top:4px;">
+                ${labels.l1}: ${val(r.open_length)}<br/>
+                ${labels.l2}: ${val(r.sites_gain)}<br/>
+                ${labels.l3}: ${val(r.elev_difficulty)}
               </div>`;
-          } else {
-            popup += `<div style="font-size:12px; margin-top:4px; color:#666; font-weight:bold;">${sub}</div>`;
           }
+
           if (r.website && r.website.startsWith('http')) {
             popup += `<div style="margin-top:8px; border-top:1px solid #eee; padding-top:6px;">
                         <a href="${r.website}" target="_blank" rel="noopener noreferrer" style="color:#1a73e8; text-decoration:none; font-size:12px; font-weight:bold;">🌐 Visit Website</a>
@@ -218,7 +207,7 @@ export default function Home() {
       clusterScript.onload = () => {
         const google = (window as any).google;
         const map = new google.maps.Map(document.getElementById("map") as HTMLElement, { 
-          center: { lat: 35.5, lng: -79.5 }, // 2. Centered specifically on NC
+          center: { lat: 35.5, lng: -79.5 }, 
           zoom: 7, 
           mapTypeControl: false, 
           streetViewControl: false
@@ -260,7 +249,6 @@ export default function Home() {
                       <button onClick={() => setSelectedCampSubtypes(Object.keys(CAMP_SUBTYPE_LABELS))} style={{ flex: 1, fontSize: "9px", fontWeight: "bold", padding: "2px", cursor: "pointer" }}>ALL</button>
                       <button onClick={() => setSelectedCampSubtypes([])} style={{ flex: 1, fontSize: "9px", fontWeight: "bold", padding: "2px", cursor: "pointer" }}>NONE</button>
                     </div>
-                    {/* 1. Military removed, Rec Area added */}
                     {UI_CAMP_SUBTYPES.map(sub => (
                       <label key={sub} style={{ fontSize: 11, display: "flex", alignItems: "center", cursor: "pointer", marginBottom: 2 }}>
                         <input 
