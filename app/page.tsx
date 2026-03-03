@@ -74,13 +74,8 @@ export default function Home() {
     const baseSize = zoom <= 7 ? 24 : zoom <= 10 ? 34 : 44;
     if (type === "birds") {
       return {
-        path: google.maps.SymbolPath.CIRCLE,
-        scale: baseSize / 2,
-        fillColor: "#ffffff", 
-        fillOpacity: 1,
-        strokeWeight: 4,
-        strokeColor: "#f80808",
-        labelOrigin: new google.maps.Point(0, 0)
+        path: google.maps.SymbolPath.CIRCLE, scale: baseSize / 2, fillColor: "#ffffff", 
+        fillOpacity: 1, strokeWeight: 4, strokeColor: "#f80808", labelOrigin: new google.maps.Point(0, 0)
       };
     }
     if (type === "hikes") return { path: "M -10,-10 L 10,-10 L 10,10 L -10,10 Z", scale: baseSize / 20, fillColor: "#28a745", fillOpacity: 1, strokeWeight: 2, strokeColor: "#ffffff" };
@@ -92,17 +87,13 @@ export default function Home() {
     if (!mapRef.current) return;
     const google = (window as any).google;
     const z = mapRef.current.getZoom() ?? 7;
-    const fontSize = z <= 11 ? "12px" : "15px";
-
     placeMarkersRef.current.forEach(m => {
       const type = (m as any).__type as PlaceType;
-      const subtype = (m as any).__subtype || "";
-      const emoji = (m as any).__emoji;
-      m.setIcon(getMarkerStyle(google, type, subtype, z));
+      m.setIcon(getMarkerStyle(google, type, (m as any).__subtype, z));
       if (type === "birds") {
         m.setLabel({ text: "🦅", fontSize: z <= 8 ? "16px" : "24px", color: "black", fontWeight: "700" });
       } else {
-        m.setLabel(z > 8 ? { text: emoji, fontSize, color: "white", fontWeight: "700" } : null);
+        m.setLabel(z > 8 ? { text: (m as any).__emoji, fontSize: z <= 11 ? "12px" : "15px", color: "white", fontWeight: "700" } : null);
       }
     });
   };
@@ -110,46 +101,26 @@ export default function Home() {
   const loadHighways = async () => {
     highwayLinesRef.current.forEach(line => line.setMap(null));
     highwayLinesRef.current = [];
-
     if (!filtersRef.current.types.has("highways")) return;
 
-    // Fetching geom_geojson and name/designats for the popup
-    const { data, error } = await supabase
-      .from("byways")
-      .select("geom_geojson, name, designats")
-      .in("state", Array.from(filtersRef.current.states));
-
+    const { data, error } = await supabase.from("byways").select("geom_geojson, name, designats").in("state", Array.from(filtersRef.current.states));
     if (error || !data) return;
 
     const google = (window as any).google;
     data.forEach(h => {
       const geo = h.geom_geojson;
-      if (!geo) return;
-
+      if (!geo || !geo.coordinates) return;
       const segments = geo.type === "MultiLineString" ? geo.coordinates : [geo.coordinates];
       segments.forEach((segment: any[]) => {
         const path = segment.map(c => ({ lat: c[1], lng: c[0] }));
         const poly = new google.maps.Polyline({
-          path,
-          geodesic: true,
-          strokeColor: "#4e342e",
-          strokeOpacity: 0.8,
-          strokeWeight: 4,
-          map: mapRef.current
+          path, geodesic: true, strokeColor: "#4e342e", strokeOpacity: 0.8, strokeWeight: 4, map: mapRef.current
         });
-
-        // Add Click listener for Highway Popups
         poly.addListener("click", (e: any) => {
-          infoWindowRef.current.setContent(`
-            <div style="padding:8px; font-family:sans-serif;">
-              <b style="color:#4e342e;">${h.name || "Scenic Highway"}</b><br/>
-              <small>${h.designats || ""}</small>
-            </div>
-          `);
+          infoWindowRef.current.setContent(`<div style="padding:10px; font-family:sans-serif;"><b>${h.name || "Scenic Byway"}</b><br/><span style="font-size:12px; color:#555;">${h.designats || ""}</span></div>`);
           infoWindowRef.current.setPosition(e.latLng);
           infoWindowRef.current.open(mapRef.current);
         });
-
         highwayLinesRef.current.push(poly);
       });
     });
@@ -160,12 +131,10 @@ export default function Home() {
     loadHighways(); 
     clustererRef.current.clearMarkers();
     placeMarkersRef.current = [];
-    
     const statesArr = Array.from(filtersRef.current.states);
     const typesArr = Array.from(filtersRef.current.types).filter(t => t !== "highways");
     if (!statesArr.length || !typesArr.length) return;
 
-    // Note: Ensure your 'places' table has columns named 'open', 'sites', and 'elev'
     const { data, error } = await supabase.from("places").select("*").in("state", statesArr).in("place_type", typesArr);
     if (error || !data) return;
 
@@ -173,7 +142,7 @@ export default function Home() {
     placeMarkersRef.current = data
       .filter(r => r.place_type !== "camps" || Array.from(filtersRef.current.campSubtypes).some(sub => (r.subtype || "").includes(sub)))
       .map(r => {
-        const marker = new google.maps.Marker({ position: { lat: Number(r.lat || r.latitude), lng: Number(r.lon || r.longitude) } });
+        const marker = new google.maps.Marker({ position: { lat: Number(r.lat), lng: Number(r.lon) } });
         const t = r.place_type as PlaceType;
         const sub = r.subtype || "";
         const theme = Object.keys(CAMP_THEMES).find(k => sub.includes(k)) ? CAMP_THEMES[Object.keys(CAMP_THEMES).find(k => sub.includes(k))!] : CAMP_THEMES["default"];
@@ -183,22 +152,21 @@ export default function Home() {
         (marker as any).__emoji = t === "birds" ? "🦅" : t === "hikes" ? "🥾" : theme.emoji;
 
         marker.addListener("click", () => {
-          let popupContent = `<div style="padding:5px; font-family:sans-serif;"><b>${r.name}</b><br/>`;
+          let labels = { l1: "Open", l2: "Sites", l3: "Elev" };
           
-          if (t === "camps") {
-            popupContent += `
-              <div style="margin-top:5px; font-size:12px;">
-                <div><b>Open:</b> ${r.open || "N/A"}</div>
-                <div><b>Sites:</b> ${r.sites || "N/A"}</div>
-                <div><b>Elev:</b> ${r.elev ? r.elev + "'" : "N/A"}</div>
-                <div style="color:#666; font-size:10px; margin-top:4px;">${sub}</div>
-              </div>`;
-          } else {
-            popupContent += `<small>${sub}</small>`;
+          if (t === "hikes") {
+            labels = { l1: "Length", l2: "Gain", l3: "Difficulty" };
           }
-          popupContent += `</div>`;
 
-          infoWindowRef.current.setContent(popupContent);
+          let popup = `<div style="padding:5px; font-family:sans-serif;"><b>${r.name}</b><br/>`;
+          popup += `<div style="font-size:12px; margin-top:4px;">
+              ${labels.l1}: ${r.open_length || "N/A"}<br/>
+              ${labels.l2}: ${r.sites_gain || "N/A"}<br/>
+              ${labels.l3}: ${r.elev_difficulty || "N/A"}<br/>
+              <span style="color:#666; font-size:11px;">${sub}</span>
+            </div></div>`;
+            
+          infoWindowRef.current.setContent(popup);
           infoWindowRef.current.setPosition(marker.getPosition());
           infoWindowRef.current.open(mapRef.current);
         });
@@ -220,7 +188,6 @@ export default function Home() {
     script.src = `https://maps.googleapis.com/maps/api/js?key=${key}`;
     const clusterScript = document.createElement("script");
     clusterScript.src = "https://unpkg.com/@googlemaps/markerclusterer/dist/index.min.js";
-
     script.onload = () => {
       document.head.appendChild(clusterScript);
       clusterScript.onload = () => {
