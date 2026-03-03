@@ -57,6 +57,9 @@ export default function Home() {
   const [isFilterOpen, setIsFilterOpen] = useState(true);
   const [openGroups, setOpenGroups] = useState<string[]>(["South"]);
   const [isCampSubmenuOpen, setIsCampSubmenuOpen] = useState(false);
+  
+  // Visual Debugger State
+  const [debugInfo, setDebugInfo] = useState("Status: Ready");
 
   const mapRef = useRef<any>(null);
   const clustererRef = useRef<any>(null);
@@ -87,7 +90,8 @@ export default function Home() {
         fillColor: "#ffffff", 
         fillOpacity: 1,
         strokeWeight: 4,
-        strokeColor: "#f80808" 
+        strokeColor: "#f80808",
+        labelOrigin: new google.maps.Point(0, 0)
       };
     }
     
@@ -125,7 +129,6 @@ export default function Home() {
     if (!map) return;
     const google = (window as any).google;
     const z = map.getZoom() ?? 7;
-    const showLabel = z > 8;
     const fontSize = z <= 11 ? "12px" : "15px";
 
     placeMarkersRef.current.forEach(m => {
@@ -138,12 +141,12 @@ export default function Home() {
       if (type === "birds") {
         m.setLabel({
           text: "🦅",
-          fontSize: z <= 8 ? "16px" : "22px",
+          fontSize: z <= 8 ? "16px" : "24px",
           color: "black",
           fontWeight: "700"
         });
       } else {
-        m.setLabel(showLabel ? { 
+        m.setLabel(z > 8 ? { 
           text: emoji, fontSize, color: "white", fontWeight: "700"
         } : null);
       }
@@ -154,26 +157,46 @@ export default function Home() {
     highwayLinesRef.current.forEach(line => line.setMap(null));
     highwayLinesRef.current = [];
 
-    if (!filtersRef.current.types.has("highways")) return;
+    if (!filtersRef.current.types.has("highways")) {
+      setDebugInfo("Highways: Disabled");
+      return;
+    }
 
-    // Use the exact table/RPC approach mentioned: 'byways'
+    setDebugInfo("Highways: Fetching...");
     const { data, error } = await supabase
       .from("byways") 
-      .select("geom_geojson, state")
+      .select("*")
       .in("state", Array.from(filtersRef.current.states));
 
-    if (error || !data) return;
+    if (error) {
+      setDebugInfo(`Highways Error: ${error.message}`);
+      return;
+    }
+
+    if (!data || data.length === 0) {
+      setDebugInfo("Highways: 0 rows returned from DB");
+      return;
+    }
 
     const google = (window as any).google;
-    data.forEach(h => {
-      const geojson = typeof h.geom_geojson === 'string' ? JSON.parse(h.geom_geojson) : h.geom_geojson;
-      if (!geojson || geojson.type !== "MultiLineString") return;
+    let linesDrawn = 0;
 
-      // GeoJSON is [lng, lat], we need {lat, lng}
-      geojson.coordinates.forEach((lineSegment: any[]) => {
+    data.forEach(h => {
+      // Logic to find coordinates regardless of column name
+      const rawGeo = h.geom_geojson || h.geojson || h.geom || h.coordinates || h.path;
+      const geojson = typeof rawGeo === 'string' ? JSON.parse(rawGeo) : rawGeo;
+
+      if (!geojson) return;
+
+      // Handle both LineString and MultiLineString
+      const segments = geojson.type === "MultiLineString" ? geojson.coordinates : [geojson.coordinates];
+
+      segments.forEach((lineSegment: any[]) => {
+        if (!Array.isArray(lineSegment)) return;
+        
         const path = lineSegment.map(coord => ({
-          lat: coord[1],
-          lng: coord[0]
+          lat: Number(coord[1]), 
+          lng: Number(coord[0])
         }));
 
         const poly = new google.maps.Polyline({
@@ -181,12 +204,15 @@ export default function Home() {
           geodesic: true,
           strokeColor: "#4e342e", 
           strokeOpacity: 0.8,
-          strokeWeight: 3.5,
+          strokeWeight: 4,
           map: mapRef.current
         });
         highwayLinesRef.current.push(poly);
+        linesDrawn++;
       });
     });
+
+    setDebugInfo(`Highways: ${linesDrawn} segments drawn`);
   };
 
   const loadPlaces = async () => {
@@ -215,11 +241,7 @@ export default function Home() {
         return true;
       })
       .map(r => {
-        const latVal = r.lat ?? r.latitude;
-        const lonVal = r.lon ?? r.longitude;
-        if (latVal === null || lonVal === null) return null;
-        
-        const marker = new google.maps.Marker({ position: { lat: Number(latVal), lng: Number(lonVal) }, optimized: true });
+        const marker = new google.maps.Marker({ position: { lat: Number(r.lat || r.latitude), lng: Number(r.lon || r.longitude) }, optimized: true });
         const t = r.place_type as PlaceType;
         const sub = r.subtype || "";
         const theme = Object.keys(CAMP_THEMES).find(k => sub.includes(k)) ? CAMP_THEMES[Object.keys(CAMP_THEMES).find(k => sub.includes(k))!] : CAMP_THEMES["default"];
@@ -243,9 +265,7 @@ export default function Home() {
 
   const scheduleLoad = () => {
     if (lastFetchTimerRef.current) clearTimeout(lastFetchTimerRef.current);
-    lastFetchTimerRef.current = setTimeout(async () => {
-      await loadPlaces();
-    }, 400); 
+    lastFetchTimerRef.current = setTimeout(() => loadPlaces(), 400); 
   };
 
   useEffect(() => {
@@ -278,6 +298,11 @@ export default function Home() {
 
   return (
     <div style={{ position: "relative", height: "100vh", overflow: "hidden", fontFamily: "sans-serif" }}>
+      {/* Visual Debug Box */}
+      <div style={{ position: "absolute", right: 12, top: 12, zIndex: 100, background: "rgba(0,0,0,0.8)", color: "#00ff00", padding: "6px 10px", borderRadius: 4, fontSize: 11, border: "1px solid #333" }}>
+        {debugInfo}
+      </div>
+
       <div style={{
         position: "absolute", left: 12, top: 12, zIndex: 10, background: "white", border: "1px solid #ccc", borderRadius: 8,
         width: isFilterOpen ? 230 : 40, padding: isFilterOpen ? 12 : 4, boxShadow: "0 2px 10px rgba(0,0,0,0.1)", transition: "width 0.2s"
