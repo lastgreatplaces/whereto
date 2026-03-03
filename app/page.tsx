@@ -16,15 +16,15 @@ interface Theme {
 }
 
 const CAMP_THEMES: Record<string, Theme> = {
-  "COE": { color: "#d32f2f", emoji: "⚓" },     // Army Corps - Red
-  "NF": { color: "#1b5e20", emoji: "🌲" },      // National Forest - Dark Green
-  "NP": { color: "#5d4037", emoji: "⛰️" },      // National Park - Brown
-  "SP": { color: "#1976d2", emoji: "🏞️" },      // State Park - Blue
-  "SF": { color: "#388e3c", emoji: "🌳" },      // State Forest - Green
-  "BLM": { color: "#fbc02d", emoji: "🏜️" },     // BLM - Yellow/Gold
-  "MIL": { color: "#7b1fa2", emoji: "🎖️" },     // Military - Purple
-  "CP": { color: "#00acc1", emoji: "🏙️" },      // County Park - Cyan
-  "default": { color: "#607d8b", emoji: "⛺" }  // Other - Grey
+  "COE": { color: "#d32f2f", emoji: "⚓" },     
+  "NF": { color: "#1b5e20", emoji: "🌲" },      
+  "NP": { color: "#5d4037", emoji: "⛰️" },      
+  "SP": { color: "#1976d2", emoji: "🏞️" },      
+  "SF": { color: "#388e3c", emoji: "🌳" },      
+  "BLM": { color: "#fbc02d", emoji: "🏜️" },     
+  "MIL": { color: "#7b1fa2", emoji: "🎖️" },     
+  "CP": { color: "#00acc1", emoji: "🏙️" },      
+  "default": { color: "#607d8b", emoji: "⛺" }  
 };
 
 const CAMP_SUBTYPE_LABELS: Record<string, string> = {
@@ -79,20 +79,21 @@ export default function Home() {
 
   const getCampTheme = (subtype: string): Theme => {
     const sub = subtype || "";
-    const key = (Object.keys(CAMP_THEMES) as Array<keyof typeof CAMP_THEMES>).find(k => sub.includes(k as string));
+    const key = Object.keys(CAMP_THEMES).find(k => sub.includes(k));
     return key ? CAMP_THEMES[key] : CAMP_THEMES["default"];
   };
 
   const getMarkerStyle = (google: any, type: PlaceType, subtype: string, zoom: number) => {
-    const baseSize = zoom <= 7 ? 22 : zoom <= 10 ? 30 : 40;
+    // Base scale based on zoom level
+    const baseSize = zoom <= 7 ? 24 : zoom <= 10 ? 34 : 44;
     
     if (type === "birds") {
       return {
         path: google.maps.SymbolPath.CIRCLE,
-        scale: baseSize / 2.8, // Restored size
+        scale: baseSize / 2.2, // Larger bird icon
         fillColor: "#f80808",
         fillOpacity: 1,
-        strokeWeight: 2,
+        strokeWeight: 3, // Thick white border for the "red circle with white background" look
         strokeColor: "#ffffff"
       };
     }
@@ -100,7 +101,7 @@ export default function Home() {
     if (type === "hikes") {
       return {
         path: "M -10,-10 L 10,-10 L 10,10 L -10,10 Z", 
-        scale: baseSize / 22,
+        scale: baseSize / 20,
         fillColor: "#28a745",
         fillOpacity: 1,
         strokeWeight: 2,
@@ -111,11 +112,12 @@ export default function Home() {
     if (type === "camps") {
       const theme = getCampTheme(subtype);
       return {
+        // Teardrop path anchored at (0,0)
         path: "M 0,0 C -2,-20 -10,-22 -10,-30 A 10,10 0 1 1 10,-30 C 10,-22 2,-20 0,0 z", 
-        scale: baseSize / 22, // Tad larger than before
+        scale: baseSize / 18, // Slightly larger teardrops
         fillColor: theme.color,
         fillOpacity: 1,
-        strokeWeight: 1.2,
+        strokeWeight: 1.5,
         strokeColor: "#ffffff",
         labelOrigin: new google.maps.Point(0, -30)
       };
@@ -129,7 +131,8 @@ export default function Home() {
     if (!map) return;
     const google = (window as any).google;
     const z = map.getZoom() ?? 7;
-    const fontSize = z <= 8 ? "0px" : z <= 11 ? "11px" : "14px";
+    // Labels only show when zoomed in enough to see details
+    const fontSize = z <= 8 ? "0px" : z <= 11 ? "12px" : "15px";
 
     placeMarkersRef.current.forEach(m => {
       const type = (m as any).__type as PlaceType;
@@ -140,18 +143,19 @@ export default function Home() {
       m.setLabel(fontSize === "0px" ? null : { 
         text: emoji, 
         fontSize,
-        color: "white"
+        color: "white",
+        fontWeight: "700"
       });
     });
   };
 
   const loadHighways = async () => {
-    // Clear old lines
     highwayLinesRef.current.forEach(line => line.setMap(null));
     highwayLinesRef.current = [];
 
     if (!filtersRef.current.types.has("highways")) return;
 
+    // Fetching from the highways table
     const { data, error } = await supabase
       .from("highways")
       .select("*")
@@ -161,13 +165,16 @@ export default function Home() {
 
     const google = (window as any).google;
     data.forEach(h => {
-      if (!h.path) return;
+      // Logic to handle path as a string or array
+      const rawPath = typeof h.path === 'string' ? JSON.parse(h.path) : h.path;
+      if (!rawPath || !Array.isArray(rawPath)) return;
+
       const poly = new google.maps.Polyline({
-        path: h.path, // Assumes path is [{lat, lng}, ...]
+        path: rawPath, 
         geodesic: true,
-        strokeColor: "#4e342e", // Dark brown from your screenshot
+        strokeColor: "#4e342e", // Dark brown
         strokeOpacity: 0.8,
-        strokeWeight: 3,
+        strokeWeight: 3.5,
         map: mapRef.current
       });
       highwayLinesRef.current.push(poly);
@@ -183,7 +190,7 @@ export default function Home() {
     const statesArr = Array.from(filtersRef.current.states);
     const typesArr = Array.from(filtersRef.current.types).filter(t => t !== "highways");
     
-    // Always call highways separately
+    // Call highway loader
     loadHighways();
 
     if (!statesArr.length || !typesArr.length) return;
@@ -279,7 +286,11 @@ export default function Home() {
             {(["birds", "hikes", "camps", "highways"] as PlaceType[]).map((t) => (
               <div key={t}>
                 <label style={{ display: "flex", alignItems: "center", marginBottom: 6, cursor: "pointer" }}>
-                  <input type="checkbox" checked={placeTypes.includes(t)} onChange={() => setPlaceTypes(prev => prev.includes(t) ? prev.filter(x => x !== t) : [...prev, t])} />
+                  <input 
+                    type="checkbox" 
+                    checked={placeTypes.includes(t)} 
+                    onChange={() => setPlaceTypes(prev => prev.includes(t) ? prev.filter(x => x !== t) : [...prev, t])} 
+                  />
                   <span style={{ marginLeft: 8, textTransform: "capitalize", flexGrow: 1 }}>{t}</span>
                   {t === "camps" && (
                     <button onClick={(e) => { e.preventDefault(); setIsCampSubmenuOpen(!isCampSubmenuOpen); }} style={{ fontSize: 10, background: "none", border: "none", cursor: "pointer" }}>
