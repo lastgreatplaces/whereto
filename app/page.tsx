@@ -143,8 +143,15 @@ export default function Home() {
     const t = place.place_type as PlaceType;
     const sub = place.subtype || "";
     
-    let popup = `<div style="padding:5px; font-family:sans-serif; min-width:160px;">
-                  <b>${place.name}</b><br/>
+    // Generate Navigation Link
+    const navUrl = (typeof window !== "undefined" && /iPhone|iPad|iPod/i.test(navigator.userAgent))
+      ? `maps://?q=${place.lat},${place.lon}`
+      : `https://www.google.com/maps/search/?api=1&query=${place.lat},${place.lon}`;
+
+    let popup = `<div style="padding:5px; font-family:sans-serif; min-width:180px;">
+                  <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                    <b>${place.name}</b>
+                  </div>
                   <span style="color:#666; font-size:11px; font-weight:bold;">${sub || "N/A"}</span>`;
 
     if (t === "camps" || t === "hikes") {
@@ -157,12 +164,14 @@ export default function Home() {
         </div>`;
     }
 
+    popup += `<div style="margin-top:10px; border-top:1px solid #eee; padding-top:8px; display:flex; gap:10px;">
+                <a href="${navUrl}" target="_blank" style="flex:1; background:#1a73e8; color:white; text-decoration:none; font-size:11px; font-weight:bold; padding:6px; border-radius:4px; text-align:center;">🚗 Directions</a>`;
+    
     if (place.website && place.website.startsWith('http')) {
-      popup += `<div style="margin-top:8px; border-top:1px solid #eee; padding-top:6px;">
-                  <a href="${place.website}" target="_blank" rel="noopener noreferrer" style="color:#1a73e8; text-decoration:none; font-size:12px; font-weight:bold;">🌐 Visit Website</a>
-                </div>`;
+      popup += `<a href="${place.website}" target="_blank" style="flex:1; background:#f1f3f4; color:#3c4043; text-decoration:none; font-size:11px; font-weight:bold; padding:6px; border-radius:4px; text-align:center;">🌐 Website</a>`;
     }
-    popup += `</div>`;
+    
+    popup += `</div></div>`;
 
     mapRef.current.setZoom(12);
     mapRef.current.panTo(marker.getPosition());
@@ -234,7 +243,6 @@ export default function Home() {
         mapRef.current = map;
         infoWindowRef.current = new google.maps.InfoWindow();
         
-        // Reset the "isPopupOpen" flag when info window is closed
         google.maps.event.addListener(infoWindowRef.current, 'closeclick', () => {
           isPopupOpenRef.current = false;
         });
@@ -242,7 +250,6 @@ export default function Home() {
         clustererRef.current = new (window as any).markerClusterer.MarkerClusterer({ map, algorithmOptions: { maxZoom: 9, gridSize: 60 } });
         map.addListener("idle", scheduleLoad);
         map.addListener("zoom_changed", applyMarkerSizing);
-        // Also reset flag if user clicks map background
         map.addListener("click", () => { isPopupOpenRef.current = false; infoWindowRef.current.close(); });
       };
     };
@@ -250,7 +257,7 @@ export default function Home() {
   }, []);
 
   useEffect(() => { 
-    isPopupOpenRef.current = false; // Reset if filters change
+    isPopupOpenRef.current = false; 
     if (mapRef.current) scheduleLoad(); 
   }, [states, placeTypes, selectedCampSubtypes]);
 
