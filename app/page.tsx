@@ -25,7 +25,7 @@ const CAMP_THEMES: Record<string, Theme> = {
   "NRA": { color: "#8d6e63", emoji: "🏕️" },     
   "SRA": { color: "#8d6e63", emoji: "🏕️" },     
   "CP": { color: "#00acc1", emoji: "🏙️" },
-  "BD": { color: "#6a1b9a", emoji: "🚐" }, // Boondocking/Scales Campground
+  "BD": { color: "#585659", emoji: "🚐" }, // Boondocking/Scales Campground
   "default": { color: "#607d8b", emoji: "⛺" }  
 };
 
