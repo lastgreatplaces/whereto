@@ -45,11 +45,11 @@ const STATE_GROUPS: Record<string, string[]> = {
 };
 
 export default function Home() {
-  const [states, setStates] = useState<string[]>(["NC"]);
-  const [placeTypes, setPlaceTypes] = useState<PlaceType[]>(["highways"]);
+  const [states, setStates] = useState<string[]>(["NC", "FL", "AB"]);
+  const [placeTypes, setPlaceTypes] = useState<PlaceType[]>(["hikes", "highways"]);
   const [selectedCampSubtypes, setSelectedCampSubtypes] = useState<string[]>(Object.keys(CAMP_SUBTYPE_LABELS));
   const [isFilterOpen, setIsFilterOpen] = useState(true);
-  const [openGroups, setOpenGroups] = useState<string[]>(["South"]);
+  const [openGroups, setOpenGroups] = useState<string[]>(["South", "West", "Canada"]);
   const [isCampSubmenuOpen, setIsCampSubmenuOpen] = useState(false);
   
   const [searchQuery, setSearchQuery] = useState("");
@@ -59,14 +59,15 @@ export default function Home() {
   const clustererRef = useRef<any>(null);
   const infoWindowRef = useRef<any>(null);
   const lastFetchTimerRef = useRef<any>(null);
+  const isPopupOpenRef = useRef<boolean>(false);
   
   const markersMapRef = useRef<Map<string, any>>(new Map());
   const highwayLinesRef = useRef<any[]>([]);
   
   const filtersRef = useRef({
-    states: new Set<string>(["NC"]),
-    types: new Set<PlaceType>(["highways"]),
-    campSubtypes: new Set<string>(Object.keys(CAMP_SUBTYPE_LABELS))
+    states: new Set<string>(states),
+    types: new Set<PlaceType>(placeTypes),
+    campSubtypes: new Set<string>(selectedCampSubtypes)
   });
 
   useEffect(() => { 
@@ -138,6 +139,7 @@ export default function Home() {
     const marker = markersMapRef.current.get(place.id);
     if (!marker || !mapRef.current) return;
 
+    isPopupOpenRef.current = true;
     const t = place.place_type as PlaceType;
     const sub = place.subtype || "";
     
@@ -147,7 +149,7 @@ export default function Home() {
 
     if (t === "camps" || t === "hikes") {
       const labels = t === "camps" ? { l1: "Open", l2: "Sites", l3: "Elev" } : { l1: "Length", l2: "Gain", l3: "Difficulty" };
-      const val = (str: any) => (str && str.trim() !== "") ? str : "unavailable";
+      const val = (str: any) => (str && str.toString().trim() !== "") ? str : "N/A";
       popup += `<div style="font-size:12px; margin-top:6px; line-height:1.5; border-top: 1px solid #f0f0f0; padding-top:4px;">
           ${labels.l1}: ${val(place.open_length)}<br/>
           ${labels.l2}: ${val(place.sites_gain)}<br/>
@@ -169,7 +171,7 @@ export default function Home() {
   };
 
   const loadPlaces = async () => {
-    if (!mapRef.current || !clustererRef.current) return;
+    if (!mapRef.current || !clustererRef.current || isPopupOpenRef.current) return;
     loadHighways(); 
     clustererRef.current.clearMarkers();
     markersMapRef.current.clear();
@@ -231,15 +233,26 @@ export default function Home() {
         });
         mapRef.current = map;
         infoWindowRef.current = new google.maps.InfoWindow();
+        
+        // Reset the "isPopupOpen" flag when info window is closed
+        google.maps.event.addListener(infoWindowRef.current, 'closeclick', () => {
+          isPopupOpenRef.current = false;
+        });
+
         clustererRef.current = new (window as any).markerClusterer.MarkerClusterer({ map, algorithmOptions: { maxZoom: 9, gridSize: 60 } });
         map.addListener("idle", scheduleLoad);
         map.addListener("zoom_changed", applyMarkerSizing);
+        // Also reset flag if user clicks map background
+        map.addListener("click", () => { isPopupOpenRef.current = false; infoWindowRef.current.close(); });
       };
     };
     document.head.appendChild(script);
   }, []);
 
-  useEffect(() => { if (mapRef.current) scheduleLoad(); }, [states, placeTypes, selectedCampSubtypes]);
+  useEffect(() => { 
+    isPopupOpenRef.current = false; // Reset if filters change
+    if (mapRef.current) scheduleLoad(); 
+  }, [states, placeTypes, selectedCampSubtypes]);
 
   const searchResults = searchQuery.length > 1 
     ? loadedPlaces.filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase())).slice(0, 6)
