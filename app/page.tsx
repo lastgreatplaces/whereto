@@ -25,7 +25,7 @@ const CAMP_THEMES: Record<string, Theme> = {
   "NRA": { color: "#8d6e63", emoji: "🏕️" },     
   "SRA": { color: "#8d6e63", emoji: "🏕️" },     
   "CP": { color: "#00acc1", emoji: "🏙️" },
-  "BD": { color: "#6a1b9a", emoji: "🚐" }, // Purple for Boondocking
+  "BD": { color: "#6a1b9a", emoji: "🚐" }, // Boondocking/Scales Campground
   "default": { color: "#607d8b", emoji: "⛺" }  
 };
 
@@ -46,8 +46,8 @@ const STATE_GROUPS: Record<string, string[]> = {
 };
 
 export default function Home() {
-  const [states, setStates] = useState<string[]>(["NC", "FL", "AB"]);
-  const [placeTypes, setPlaceTypes] = useState<PlaceType[]>(["hikes", "highways"]);
+  const [states, setStates] = useState<string[]>(["NC", "FL", "AB", "VA"]);
+  const [placeTypes, setPlaceTypes] = useState<PlaceType[]>(["hikes", "camps", "highways"]);
   const [selectedCampSubtypes, setSelectedCampSubtypes] = useState<string[]>(Object.keys(CAMP_SUBTYPE_LABELS));
   const [isFilterOpen, setIsFilterOpen] = useState(true);
   const [openGroups, setOpenGroups] = useState<string[]>(["South", "West", "Canada"]);
@@ -86,6 +86,8 @@ export default function Home() {
       };
     }
     if (type === "hikes") return { path: "M -10,-10 L 10,-10 L 10,10 L -10,10 Z", scale: baseSize / 20, fillColor: "#28a745", fillOpacity: 1, strokeWeight: 2, strokeColor: "#ffffff" };
+    
+    // Exact match for the subtype (e.g., BD)
     const theme = CAMP_THEMES[subtype] || CAMP_THEMES["default"];
     return { 
       path: "M 0,0 C -2,-20 -10,-22 -10,-30 A 10,10 0 1 1 10,-30 C 10,-22 2,-20 0,0 z", 
@@ -144,9 +146,10 @@ export default function Home() {
     const t = place.place_type as PlaceType;
     const sub = place.subtype || "";
     
+    // Fix: Fixed Template Literal for Lat/Lon
     const navUrl = (typeof window !== "undefined" && /iPhone|iPad|iPod/i.test(navigator.userAgent))
       ? `maps://?q=${place.lat},${place.lon}`
-      : `https://www.google.com/maps/dir/?api=1&destination=${place.lat},${place.lon}`;
+      : `https://www.google.com/maps/search/?api=1&query=${place.lat},${place.lon}`;
 
     let popup = `<div style="padding:5px; font-family:sans-serif; min-width:180px;">
                   <b>${place.name}</b><br/>
@@ -193,7 +196,8 @@ export default function Home() {
     const { data, error } = await supabase.from("places").select("*").in("state", statesArr).in("place_type", typesArr);
     if (error || !data) return;
 
-    const filteredData = data.filter(r => r.place_type !== "camps" || Array.from(filtersRef.current.campSubtypes).some(sub => (r.subtype || "").includes(sub)));
+    // Filter by camp subtype if applicable
+    const filteredData = data.filter(r => r.place_type !== "camps" || Array.from(filtersRef.current.campSubtypes).includes(r.subtype));
     setLoadedPlaces(filteredData);
 
     const google = (window as any).google;
