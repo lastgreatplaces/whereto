@@ -24,17 +24,18 @@ const CAMP_THEMES: Record<string, Theme> = {
   "BLM": { color: "#fbc02d", emoji: "🏜️" },     
   "NRA": { color: "#8d6e63", emoji: "🏕️" },     
   "SRA": { color: "#8d6e63", emoji: "🏕️" },     
-  "CP": { color: "#00acc1", emoji: "🏙️" },      
+  "CP": { color: "#00acc1", emoji: "🏙️" },
+  "BD": { color: "#6a1b9a", emoji: "🚐" }, // Purple for Boondocking
   "default": { color: "#607d8b", emoji: "⛺" }  
 };
 
 const CAMP_SUBTYPE_LABELS: Record<string, string> = {
   "COE": "Army Corps", "NF": "Nat. Forest", "NP": "Nat. Park", "SP": "State Park",
   "SF": "State Forest", "BLM": "BLM", "NRA": "Rec Area", "SRA": "Rec Area", "CP": "Local Park",
-  "SFW": "Fish/Wild", "RES": "Other/Res"
+  "BD": "Boondock", "SFW": "Fish/Wild", "RES": "Other/Res"
 };
 
-const UI_CAMP_SUBTYPES = ["COE", "NF", "NP", "SP", "SF", "BLM", "NRA", "CP", "SFW", "RES"];
+const UI_CAMP_SUBTYPES = ["COE", "NF", "NP", "SP", "SF", "BLM", "BD", "NRA", "CP", "SFW", "RES"];
 
 const STATE_GROUPS: Record<string, string[]> = {
   "South": ["AL", "AR", "FL", "GA", "KY", "LA", "MS", "NC", "OK", "SC", "TN", "TX", "VA", "WV"],
@@ -85,7 +86,7 @@ export default function Home() {
       };
     }
     if (type === "hikes") return { path: "M -10,-10 L 10,-10 L 10,10 L -10,10 Z", scale: baseSize / 20, fillColor: "#28a745", fillOpacity: 1, strokeWeight: 2, strokeColor: "#ffffff" };
-    const theme = Object.keys(CAMP_THEMES).find(k => (subtype || "").includes(k)) ? CAMP_THEMES[Object.keys(CAMP_THEMES).find(k => (subtype || "").includes(k))!] : CAMP_THEMES["default"];
+    const theme = CAMP_THEMES[subtype] || CAMP_THEMES["default"];
     return { 
       path: "M 0,0 C -2,-20 -10,-22 -10,-30 A 10,10 0 1 1 10,-30 C 10,-22 2,-20 0,0 z", 
       scale: baseSize / 16, fillColor: theme.color, fillOpacity: 1, strokeWeight: 1.5, strokeColor: "#ffffff", labelOrigin: new google.maps.Point(0, -30) 
@@ -143,16 +144,13 @@ export default function Home() {
     const t = place.place_type as PlaceType;
     const sub = place.subtype || "";
     
-    // Generate Navigation Link
     const navUrl = (typeof window !== "undefined" && /iPhone|iPad|iPod/i.test(navigator.userAgent))
       ? `maps://?q=${place.lat},${place.lon}`
-      : `https://www.google.com/maps/search/?api=1&query=${place.lat},${place.lon}`;
+      : `https://www.google.com/maps/dir/?api=1&destination=${place.lat},${place.lon}`;
 
     let popup = `<div style="padding:5px; font-family:sans-serif; min-width:180px;">
-                  <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-                    <b>${place.name}</b>
-                  </div>
-                  <span style="color:#666; font-size:11px; font-weight:bold;">${sub || "N/A"}</span>`;
+                  <b>${place.name}</b><br/>
+                  <span style="color:#666; font-size:11px; font-weight:bold;">${CAMP_SUBTYPE_LABELS[sub] || sub || "N/A"}</span>`;
 
     if (t === "camps" || t === "hikes") {
       const labels = t === "camps" ? { l1: "Open", l2: "Sites", l3: "Elev" } : { l1: "Length", l2: "Gain", l3: "Difficulty" };
@@ -203,7 +201,7 @@ export default function Home() {
       const marker = new google.maps.Marker({ position: { lat: Number(r.lat), lng: Number(r.lon) } });
       const t = r.place_type as PlaceType;
       const sub = r.subtype || "";
-      const theme = Object.keys(CAMP_THEMES).find(k => sub.includes(k)) ? CAMP_THEMES[Object.keys(CAMP_THEMES).find(k => sub.includes(k))!] : CAMP_THEMES["default"];
+      const theme = CAMP_THEMES[sub] || CAMP_THEMES["default"];
 
       (marker as any).__type = t;
       (marker as any).__subtype = sub;
