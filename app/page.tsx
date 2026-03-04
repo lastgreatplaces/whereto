@@ -25,7 +25,7 @@ const CAMP_THEMES: Record<string, Theme> = {
   "NRA": { color: "#8d6e63", emoji: "🏕️" },     
   "SRA": { color: "#8d6e63", emoji: "🏕️" },     
   "CP": { color: "#00acc1", emoji: "🏙️" },
-  "BD": { color: "#585659", emoji: "🚐" }, // Boondocking/Scales Campground
+  "BD": { color: "#6a1b9a", emoji: "🚐" }, 
   "default": { color: "#607d8b", emoji: "⛺" }  
 };
 
@@ -77,21 +77,42 @@ export default function Home() {
     filtersRef.current.campSubtypes = new Set(selectedCampSubtypes);
   }, [states, placeTypes, selectedCampSubtypes]);
 
-  const getMarkerStyle = (google: any, type: PlaceType, subtype: string, zoom: number) => {
+  const getMarkerStyle = (google: any, type: PlaceType, subtype: string, zoom: number, isFavorite: boolean) => {
     const baseSize = zoom <= 7 ? 20 : zoom <= 10 ? 30 : 40;
+    const strokeColor = isFavorite ? "#FFD700" : "#ffffff"; // Gold for favorites
+    const strokeWeight = isFavorite ? 5 : 2; // Thicker border for favorites
+
     if (type === "birds") {
       return {
-        path: google.maps.SymbolPath.CIRCLE, scale: baseSize / 2, fillColor: "#ffffff", 
-        fillOpacity: 1, strokeWeight: 4, strokeColor: "#f80808", labelOrigin: new google.maps.Point(0, 0)
+        path: google.maps.SymbolPath.CIRCLE, 
+        scale: baseSize / 2, 
+        fillColor: "#ffffff", 
+        fillOpacity: 1, 
+        strokeWeight: isFavorite ? 6 : 4, 
+        strokeColor: isFavorite ? "#FFD700" : "#f80808", 
+        labelOrigin: new google.maps.Point(0, 0)
       };
     }
-    if (type === "hikes") return { path: "M -10,-10 L 10,-10 L 10,10 L -10,10 Z", scale: baseSize / 20, fillColor: "#28a745", fillOpacity: 1, strokeWeight: 2, strokeColor: "#ffffff" };
+    if (type === "hikes") {
+        return { 
+            path: "M -10,-10 L 10,-10 L 10,10 L -10,10 Z", 
+            scale: baseSize / 20, 
+            fillColor: "#28a745", 
+            fillOpacity: 1, 
+            strokeWeight: strokeWeight, 
+            strokeColor: strokeColor 
+        };
+    }
     
-    // Exact match for the subtype (e.g., BD)
     const theme = CAMP_THEMES[subtype] || CAMP_THEMES["default"];
     return { 
       path: "M 0,0 C -2,-20 -10,-22 -10,-30 A 10,10 0 1 1 10,-30 C 10,-22 2,-20 0,0 z", 
-      scale: baseSize / 16, fillColor: theme.color, fillOpacity: 1, strokeWeight: 1.5, strokeColor: "#ffffff", labelOrigin: new google.maps.Point(0, -30) 
+      scale: baseSize / 16, 
+      fillColor: theme.color, 
+      fillOpacity: 1, 
+      strokeWeight: strokeWeight, 
+      strokeColor: strokeColor, 
+      labelOrigin: new google.maps.Point(0, -30) 
     };
   };
 
@@ -101,7 +122,9 @@ export default function Home() {
     const z = mapRef.current.getZoom() ?? 7;
     markersMapRef.current.forEach(m => {
       const type = (m as any).__type as PlaceType;
-      m.setIcon(getMarkerStyle(google, type, (m as any).__subtype, z));
+      const isFav = (m as any).__isFavorite;
+      m.setIcon(getMarkerStyle(google, type, (m as any).__subtype, z, isFav));
+      
       if (type === "birds") {
         m.setLabel({ text: "🦅", fontSize: z <= 8 ? "18px" : "26px", color: "black", fontWeight: "700" });
       } else {
@@ -146,13 +169,15 @@ export default function Home() {
     const t = place.place_type as PlaceType;
     const sub = place.subtype || "";
     
-    // Fix: Fixed Template Literal for Lat/Lon
     const navUrl = (typeof window !== "undefined" && /iPhone|iPad|iPod/i.test(navigator.userAgent))
       ? `maps://?q=${place.lat},${place.lon}`
-      : `https://www.google.com/maps/search/?api=1&query=${place.lat},${place.lon}`;
+      : `https://www.google.com/maps/dir/?api=1&destination=${place.lat},${place.lon}`;
 
     let popup = `<div style="padding:5px; font-family:sans-serif; min-width:180px;">
-                  <b>${place.name}</b><br/>
+                  <div style="display:flex; align-items:center; gap:5px;">
+                    <b>${place.name}</b>
+                    ${place.favorite ? '⭐' : ''}
+                  </div>
                   <span style="color:#666; font-size:11px; font-weight:bold;">${CAMP_SUBTYPE_LABELS[sub] || sub || "N/A"}</span>`;
 
     if (t === "camps" || t === "hikes") {
@@ -196,19 +221,22 @@ export default function Home() {
     const { data, error } = await supabase.from("places").select("*").in("state", statesArr).in("place_type", typesArr);
     if (error || !data) return;
 
-    // Filter by camp subtype if applicable
     const filteredData = data.filter(r => r.place_type !== "camps" || Array.from(filtersRef.current.campSubtypes).includes(r.subtype));
     setLoadedPlaces(filteredData);
 
     const google = (window as any).google;
     const markers = filteredData.map(r => {
-      const marker = new google.maps.Marker({ position: { lat: Number(r.lat), lng: Number(r.lon) } });
+      const marker = new google.maps.Marker({ 
+          position: { lat: Number(r.lat), lng: Number(r.lon) },
+          zIndex: r.favorite ? 1000 : 1 // Ensure favorites stay on top
+      });
       const t = r.place_type as PlaceType;
       const sub = r.subtype || "";
       const theme = CAMP_THEMES[sub] || CAMP_THEMES["default"];
 
       (marker as any).__type = t;
       (marker as any).__subtype = sub;
+      (marker as any).__isFavorite = r.favorite === true || r.favorite === "true";
       (marker as any).__emoji = t === "birds" ? "🦅" : t === "hikes" ? "🥾" : theme.emoji;
 
       marker.addListener("click", () => triggerPlacePopup(r));
