@@ -41,7 +41,7 @@ const STATE_GROUPS: Record<string, string[]> = {
   "East": ["CT", "DE", "ME", "MD", "MA", "NH", "NJ", "NY", "PA", "RI", "VT"],
   "Midwest": ["IL", "IN", "IA", "KS", "MI", "MN", "MO", "NE", "ND", "OH", "SD", "WI"],
   "West": ["AZ", "CA", "CO", "ID", "MT", "NV", "NM", "OR", "UT", "WA", "WY"],
-  "AK/Canada": [] 
+  "AK/Canada": ["AB", "BC", "ON", "QC"] 
 };
 
 export default function Home() {
@@ -51,12 +51,18 @@ export default function Home() {
   const [isFilterOpen, setIsFilterOpen] = useState(true);
   const [openGroups, setOpenGroups] = useState<string[]>(["South"]);
   const [isCampSubmenuOpen, setIsCampSubmenuOpen] = useState(false);
+  
+  // Search States
+  const [searchQuery, setSearchQuery] = useState("");
+  const [loadedPlaces, setLoadedPlaces] = useState<any[]>([]);
 
   const mapRef = useRef<any>(null);
   const clustererRef = useRef<any>(null);
   const infoWindowRef = useRef<any>(null);
   const lastFetchTimerRef = useRef<any>(null);
-  const placeMarkersRef = useRef<any[]>([]);
+  
+  // Using a Map to track markers by ID for the search "fly-to" feature
+  const markersMapRef = useRef<Map<string, any>>(new Map());
   const highwayLinesRef = useRef<any[]>([]);
   
   const filtersRef = useRef({
@@ -91,7 +97,7 @@ export default function Home() {
     if (!mapRef.current) return;
     const google = (window as any).google;
     const z = mapRef.current.getZoom() ?? 7;
-    placeMarkersRef.current.forEach(m => {
+    markersMapRef.current.forEach(m => {
       const type = (m as any).__type as PlaceType;
       m.setIcon(getMarkerStyle(google, type, (m as any).__subtype, z));
       if (type === "birds") {
@@ -130,63 +136,77 @@ export default function Home() {
     });
   };
 
+  // Helper to open popup for a place
+  const triggerPlacePopup = (place: any) => {
+    const marker = markersMapRef.current.get(place.id);
+    if (!marker || !mapRef.current) return;
+
+    const t = place.place_type as PlaceType;
+    const sub = place.subtype || "";
+    
+    let popup = `<div style="padding:5px; font-family:sans-serif; min-width:160px;">
+                  <b>${place.name}</b><br/>
+                  <span style="color:#666; font-size:11px; font-weight:bold;">${sub || "N/A"}</span>`;
+
+    if (t === "camps" || t === "hikes") {
+      const labels = t === "camps" ? { l1: "Open", l2: "Sites", l3: "Elev" } : { l1: "Length", l2: "Gain", l3: "Difficulty" };
+      const val = (str: any) => (str && str.trim() !== "") ? str : "unavailable";
+      popup += `<div style="font-size:12px; margin-top:6px; line-height:1.5; border-top: 1px solid #f0f0f0; padding-top:4px;">
+          ${labels.l1}: ${val(place.open_length)}<br/>
+          ${labels.l2}: ${val(place.sites_gain)}<br/>
+          ${labels.l3}: ${val(place.elev_difficulty)}
+        </div>`;
+    }
+
+    if (place.website && place.website.startsWith('http')) {
+      popup += `<div style="margin-top:8px; border-top:1px solid #eee; padding-top:6px;">
+                  <a href="${place.website}" target="_blank" rel="noopener noreferrer" style="color:#1a73e8; text-decoration:none; font-size:12px; font-weight:bold;">🌐 Visit Website</a>
+                </div>`;
+    }
+    popup += `</div>`;
+
+    mapRef.current.setZoom(12);
+    mapRef.current.panTo(marker.getPosition());
+    infoWindowRef.current.setContent(popup);
+    infoWindowRef.current.open(mapRef.current, marker);
+  };
+
   const loadPlaces = async () => {
     if (!mapRef.current || !clustererRef.current) return;
     loadHighways(); 
     clustererRef.current.clearMarkers();
-    placeMarkersRef.current = [];
+    markersMapRef.current.clear();
+    
     const statesArr = Array.from(filtersRef.current.states);
     const typesArr = Array.from(filtersRef.current.types).filter(t => t !== "highways");
-    if (!statesArr.length || !typesArr.length) return;
+    if (!statesArr.length || !typesArr.length) {
+      setLoadedPlaces([]);
+      return;
+    };
 
     const { data, error } = await supabase.from("places").select("*").in("state", statesArr).in("place_type", typesArr);
     if (error || !data) return;
 
+    const filteredData = data.filter(r => r.place_type !== "camps" || Array.from(filtersRef.current.campSubtypes).some(sub => (r.subtype || "").includes(sub)));
+    setLoadedPlaces(filteredData);
+
     const google = (window as any).google;
-    placeMarkersRef.current = data
-      .filter(r => r.place_type !== "camps" || Array.from(filtersRef.current.campSubtypes).some(sub => (r.subtype || "").includes(sub)))
-      .map(r => {
-        const marker = new google.maps.Marker({ position: { lat: Number(r.lat), lng: Number(r.lon) } });
-        const t = r.place_type as PlaceType;
-        const sub = r.subtype || "";
-        const theme = Object.keys(CAMP_THEMES).find(k => sub.includes(k)) ? CAMP_THEMES[Object.keys(CAMP_THEMES).find(k => sub.includes(k))!] : CAMP_THEMES["default"];
+    const markers = filteredData.map(r => {
+      const marker = new google.maps.Marker({ position: { lat: Number(r.lat), lng: Number(r.lon) } });
+      const t = r.place_type as PlaceType;
+      const sub = r.subtype || "";
+      const theme = Object.keys(CAMP_THEMES).find(k => sub.includes(k)) ? CAMP_THEMES[Object.keys(CAMP_THEMES).find(k => sub.includes(k))!] : CAMP_THEMES["default"];
 
-        (marker as any).__type = t;
-        (marker as any).__subtype = sub;
-        (marker as any).__emoji = t === "birds" ? "🦅" : t === "hikes" ? "🥾" : theme.emoji;
+      (marker as any).__type = t;
+      (marker as any).__subtype = sub;
+      (marker as any).__emoji = t === "birds" ? "🦅" : t === "hikes" ? "🥾" : theme.emoji;
 
-        marker.addListener("click", () => {
-          // 1. & 2. Polishing: Subtype moved up, "unavailable" added for blanks
-          let popup = `<div style="padding:5px; font-family:sans-serif; min-width:160px;">
-                        <b>${r.name}</b><br/>
-                        <span style="color:#666; font-size:11px; font-weight:bold;">${sub || "N/A"}</span>`;
+      marker.addListener("click", () => triggerPlacePopup(r));
+      markersMapRef.current.set(r.id, marker);
+      return marker;
+    });
 
-          if (t === "camps" || t === "hikes") {
-            const labels = t === "camps" ? { l1: "Open", l2: "Sites", l3: "Elev" } : { l1: "Length", l2: "Gain", l3: "Difficulty" };
-            
-            // Function to check for empty strings or nulls
-            const val = (str: any) => (str && str.trim() !== "") ? str : "unavailable";
-
-            popup += `<div style="font-size:12px; margin-top:6px; line-height:1.5; border-top: 1px solid #f0f0f0; padding-top:4px;">
-                ${labels.l1}: ${val(r.open_length)}<br/>
-                ${labels.l2}: ${val(r.sites_gain)}<br/>
-                ${labels.l3}: ${val(r.elev_difficulty)}
-              </div>`;
-          }
-
-          if (r.website && r.website.startsWith('http')) {
-            popup += `<div style="margin-top:8px; border-top:1px solid #eee; padding-top:6px;">
-                        <a href="${r.website}" target="_blank" rel="noopener noreferrer" style="color:#1a73e8; text-decoration:none; font-size:12px; font-weight:bold;">🌐 Visit Website</a>
-                      </div>`;
-          }
-          popup += `</div>`;
-          infoWindowRef.current.setContent(popup);
-          infoWindowRef.current.setPosition(marker.getPosition());
-          infoWindowRef.current.open(mapRef.current);
-        });
-        return marker;
-      });
-    clustererRef.current.addMarkers(placeMarkersRef.current);
+    clustererRef.current.addMarkers(markers);
     applyMarkerSizing();
   };
 
@@ -224,15 +244,45 @@ export default function Home() {
 
   useEffect(() => { if (mapRef.current) scheduleLoad(); }, [states, placeTypes, selectedCampSubtypes]);
 
+  // Handle Search Filtering
+  const searchResults = searchQuery.length > 1 
+    ? loadedPlaces.filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase())).slice(0, 6)
+    : [];
+
   return (
     <div style={{ position: "relative", height: "100vh", overflow: "hidden", fontFamily: "sans-serif" }}>
       <div style={{
         position: "absolute", left: 12, top: 12, zIndex: 10, background: "white", border: "1px solid #ccc", borderRadius: 8,
-        width: isFilterOpen ? 230 : 40, padding: isFilterOpen ? 12 : 4, boxShadow: "0 2px 10px rgba(0,0,0,0.1)", transition: "width 0.2s"
+        width: isFilterOpen ? 240 : 40, padding: isFilterOpen ? 12 : 4, boxShadow: "0 2px 10px rgba(0,0,0,0.1)", transition: "width 0.2s"
       }}>
         <button onClick={() => setIsFilterOpen(!isFilterOpen)} style={{ width: "100%", cursor: "pointer", padding: "4px", marginBottom: isFilterOpen ? 8 : 0 }}>{isFilterOpen ? "Close Filters" : "☰"}</button>
         {isFilterOpen && (
           <div style={{ fontSize: 13 }}>
+            
+            {/* SEARCH BAR SECTION */}
+            <div style={{ marginBottom: 15, position: "relative" }}>
+              <input 
+                type="text" 
+                placeholder="Find a place..." 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #ddd", fontSize: "12px", outline: "none" }}
+              />
+              {searchResults.length > 0 && (
+                <div style={{ position: "absolute", top: "100%", left: 0, right: 0, background: "white", border: "1px solid #ddd", borderRadius: "0 0 4px 4px", zIndex: 20, boxShadow: "0 4px 6px rgba(0,0,0,0.1)" }}>
+                  {searchResults.map(p => (
+                    <div 
+                      key={p.id} 
+                      onClick={() => { triggerPlacePopup(p); setSearchQuery(""); }}
+                      style={{ padding: "8px", cursor: "pointer", borderBottom: "1px solid #eee", fontSize: "11px" }}
+                    >
+                      <b>{p.name}</b> <span style={{ color: "#888", fontSize: "10px" }}>{p.state}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
             <div style={{ fontWeight: 700, color: "#666", marginBottom: 8, borderBottom: "1px solid #eee", paddingBottom: 4 }}>CATEGORIES</div>
             {(["birds", "hikes", "camps", "highways"] as PlaceType[]).map((t) => (
               <div key={t}>
