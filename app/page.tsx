@@ -40,8 +40,8 @@ const STATE_GROUPS: Record<string, string[]> = {
   "South": ["AL", "AR", "FL", "GA", "KY", "LA", "MS", "NC", "OK", "SC", "TN", "TX", "VA", "WV"],
   "East": ["CT", "DE", "ME", "MD", "MA", "NH", "NJ", "NY", "PA", "RI", "VT"],
   "Midwest": ["IL", "IN", "IA", "KS", "MI", "MN", "MO", "NE", "ND", "OH", "SD", "WI"],
-  "West": ["AZ", "CA", "CO", "ID", "MT", "NV", "NM", "OR", "UT", "WA", "WY"],
-  "AK/Canada": ["AB", "BC", "ON", "QC"] 
+  "West": ["AK", "AZ", "CA", "CO", "ID", "MT", "NV", "NM", "OR", "UT", "WA", "WY"],
+  "Canada": ["AB", "BC", "MB", "NB", "NL", "NS", "ON", "PE", "QC", "SK"] 
 };
 
 export default function Home() {
@@ -52,7 +52,6 @@ export default function Home() {
   const [openGroups, setOpenGroups] = useState<string[]>(["South"]);
   const [isCampSubmenuOpen, setIsCampSubmenuOpen] = useState(false);
   
-  // Search States
   const [searchQuery, setSearchQuery] = useState("");
   const [loadedPlaces, setLoadedPlaces] = useState<any[]>([]);
 
@@ -61,7 +60,6 @@ export default function Home() {
   const infoWindowRef = useRef<any>(null);
   const lastFetchTimerRef = useRef<any>(null);
   
-  // Using a Map to track markers by ID for the search "fly-to" feature
   const markersMapRef = useRef<Map<string, any>>(new Map());
   const highwayLinesRef = useRef<any[]>([]);
   
@@ -136,7 +134,6 @@ export default function Home() {
     });
   };
 
-  // Helper to open popup for a place
   const triggerPlacePopup = (place: any) => {
     const marker = markersMapRef.current.get(place.id);
     if (!marker || !mapRef.current) return;
@@ -244,7 +241,6 @@ export default function Home() {
 
   useEffect(() => { if (mapRef.current) scheduleLoad(); }, [states, placeTypes, selectedCampSubtypes]);
 
-  // Handle Search Filtering
   const searchResults = searchQuery.length > 1 
     ? loadedPlaces.filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase())).slice(0, 6)
     : [];
@@ -259,7 +255,6 @@ export default function Home() {
         {isFilterOpen && (
           <div style={{ fontSize: 13 }}>
             
-            {/* SEARCH BAR SECTION */}
             <div style={{ marginBottom: 15, position: "relative" }}>
               <input 
                 type="text" 
