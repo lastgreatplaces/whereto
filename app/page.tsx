@@ -81,18 +81,6 @@ export default function Home() {
     filtersRef.current.onlyFavorites = showOnlyFavorites;
   }, [states, placeTypes, selectedCampSubtypes, showOnlyFavorites]);
 
-  // Global Bridge for Favorite Toggle
-  useEffect(() => {
-    (window as any).toggleFav = async (id: string, table: string, current: boolean) => {
-      const { error } = await supabase.from(table).update({ favorite: !current }).eq('id', id);
-      if (!error) {
-        if (infoWindowRef.current) infoWindowRef.current.close();
-        isPopupOpenRef.current = false;
-        loadPlaces(); // Full refresh
-      }
-    };
-  }, []);
-
   const getMarkerStyle = (google: any, type: PlaceType, subtype: string, zoom: number, isFavorite: boolean) => {
     const baseSize = zoom <= 7 ? 20 : zoom <= 10 ? 30 : 40;
     const strokeColor = isFavorite ? "#FFD700" : "#ffffff"; 
@@ -154,8 +142,13 @@ export default function Home() {
     highwayLinesRef.current = [];
     if (!filtersRef.current.types.has("highways")) return;
 
-    let query = supabase.from("byways").select("id, geom_geojson, name, designats, favorite").in("state", Array.from(filtersRef.current.states));
-    if (filtersRef.current.onlyFavorites) query = query.eq("favorite", true);
+    // Use the reliable query approach
+    let query = supabase.from("byways").select("geom_geojson, name, designats, favorite").in("state", Array.from(filtersRef.current.states));
+    
+    // Add favorite filter if toggled
+    if (filtersRef.current.onlyFavorites) {
+        query = query.eq("favorite", true);
+    }
 
     const { data, error } = await query;
     if (error || !data) return;
@@ -178,18 +171,7 @@ export default function Home() {
           zIndex: h.favorite ? 50 : 5
         });
         poly.addListener("click", (e: any) => {
-          const favLabel = h.favorite ? 'Remove ⭐' : 'Add ⭐';
-          const content = `
-            <div style="padding:10px; font-family:sans-serif; min-width:150px;">
-              <b>${h.name || "Scenic Byway"}</b>${h.favorite ? ' ⭐' : ''}<br/>
-              <span style="font-size:12px; color:#555;">${h.designats || ""}</span>
-              <div style="margin-top:10px; border-top:1px solid #eee; padding-top:8px;">
-                <button onclick="window.toggleFav('${h.id}', 'byways', ${h.favorite})" style="width:100%; padding:6px; cursor:pointer; background:#f8f9fa; border:1px solid #ccc; border-radius:4px; font-size:11px; font-weight:bold;">
-                  ${favLabel}
-                </button>
-              </div>
-            </div>`;
-          infoWindowRef.current.setContent(content);
+          infoWindowRef.current.setContent(`<div style="padding:10px; font-family:sans-serif;"><b>${h.name || "Scenic Byway"}</b>${h.favorite ? ' ⭐' : ''}<br/><span style="font-size:12px; color:#555;">${h.designats || ""}</span></div>`);
           infoWindowRef.current.setPosition(e.latLng);
           infoWindowRef.current.open(mapRef.current);
         });
@@ -205,8 +187,8 @@ export default function Home() {
     isPopupOpenRef.current = true;
     const t = place.place_type as PlaceType;
     const sub = place.subtype || "";
+    
     const navUrl = `https://www.google.com/maps/dir/?api=1&destination=${place.lat},${place.lon}`;
-    const favLabel = place.favorite ? 'Remove ⭐' : 'Add ⭐';
 
     let popup = `<div style="padding:5px; font-family:sans-serif; min-width:180px;">
                   <div style="display:flex; align-items:center; gap:5px;">
@@ -226,9 +208,6 @@ export default function Home() {
     }
 
     popup += `<div style="margin-top:10px; border-top:1px solid #eee; padding-top:8px; display:flex; flex-direction:column; gap:6px;">
-                <button onclick="window.toggleFav('${place.id}', 'places', ${place.favorite})" style="padding:8px; font-size:11px; cursor:pointer; background:#f8f9fa; border:1px solid #ccc; border-radius:4px; font-weight:bold;">
-                  ${favLabel}
-                </button>
                 <a href="${navUrl}" target="_blank" style="background:#1a73e8; color:white; text-decoration:none; font-size:11px; font-weight:bold; padding:8px; border-radius:4px; text-align:center;">🚗 Directions</a>`;
     
     if (place.website && place.website.startsWith('http')) {
@@ -343,6 +322,7 @@ export default function Home() {
         <button onClick={() => setIsFilterOpen(!isFilterOpen)} style={{ width: "100%", cursor: "pointer", padding: "4px", marginBottom: isFilterOpen ? 8 : 0 }}>{isFilterOpen ? "Close Filters" : "☰"}</button>
         {isFilterOpen && (
           <div style={{ fontSize: 13 }}>
+            
             <div style={{ marginBottom: 15, position: "relative" }}>
               <input 
                 type="text" 
