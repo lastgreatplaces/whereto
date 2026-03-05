@@ -137,23 +137,15 @@ export default function Home() {
     });
   };
 
-  const toggleFavorite = async (id: string, table: 'places' | 'byways', currentVal: boolean) => {
-    const { error } = await supabase.from(table).update({ favorite: !currentVal }).eq('id', id);
-    if (!error) scheduleLoad();
-  };
-
   const loadHighways = async () => {
     highwayLinesRef.current.forEach(line => line.setMap(null));
     highwayLinesRef.current = [];
-    
-    // Check if highways are enabled in types
-    if (!filtersRef.current.types.has("highways")) {
-      setLoadedHighways([]);
-      return;
-    }
+    if (!filtersRef.current.types.has("highways")) return;
 
-    let query = supabase.from("byways").select("id, geom_geojson, name, designats, favorite, state").in("state", Array.from(filtersRef.current.states));
+    // Use the reliable query approach
+    let query = supabase.from("byways").select("geom_geojson, name, designats, favorite").in("state", Array.from(filtersRef.current.states));
     
+    // Add favorite filter if toggled
     if (filtersRef.current.onlyFavorites) {
         query = query.eq("favorite", true);
     }
@@ -163,7 +155,6 @@ export default function Home() {
 
     setLoadedHighways(data);
     const google = (window as any).google;
-    
     data.forEach(h => {
       const geo = h.geom_geojson;
       if (!geo || !geo.coordinates) return;
@@ -175,26 +166,12 @@ export default function Home() {
           geodesic: true, 
           strokeColor: h.favorite ? "#FFD700" : "#4e342e", 
           strokeOpacity: 0.8, 
-          strokeWeight: h.favorite ? 7 : 4, 
+          strokeWeight: h.favorite ? 6 : 4, 
           map: mapRef.current,
-          zIndex: h.favorite ? 50 : 10
+          zIndex: h.favorite ? 50 : 5
         });
-
         poly.addListener("click", (e: any) => {
-          const navUrl = `https://www.google.com/maps/dir/?api=1&destination=${e.latLng.lat()},${e.latLng.lng()}`;
-          const popupContent = `
-            <div style="padding:10px; font-family:sans-serif; min-width:150px;">
-              <div style="display:flex; align-items:center; gap:5px; margin-bottom:5px;">
-                <b>${h.name || "Scenic Byway"}</b>
-                ${h.favorite ? '⭐' : ''}
-              </div>
-              <div style="font-size:12px; color:#555; margin-bottom:10px;">${h.designats || ""}</div>
-              <div style="display:flex; flex-direction:column; gap:6px;">
-                 <a href="${navUrl}" target="_blank" style="background:#1a73e8; color:white; text-decoration:none; font-size:11px; font-weight:bold; padding:8px; border-radius:4px; text-align:center;">🚗 Directions</a>
-              </div>
-            </div>
-          `;
-          infoWindowRef.current.setContent(popupContent);
+          infoWindowRef.current.setContent(`<div style="padding:10px; font-family:sans-serif;"><b>${h.name || "Scenic Byway"}</b>${h.favorite ? ' ⭐' : ''}<br/><span style="font-size:12px; color:#555;">${h.designats || ""}</span></div>`);
           infoWindowRef.current.setPosition(e.latLng);
           infoWindowRef.current.open(mapRef.current);
         });
@@ -211,38 +188,37 @@ export default function Home() {
     const t = place.place_type as PlaceType;
     const sub = place.subtype || "";
     
-    const navUrl = (typeof window !== "undefined" && /iPhone|iPad|iPod/i.test(navigator.userAgent))
-      ? `maps://?q=${place.lat},${place.lon}`
-      : `https://www.google.com/maps/dir/?api=1&destination=${place.lat},${place.lon}`;
+    const navUrl = `https://www.google.com/maps/dir/?api=1&destination=${place.lat},${place.lon}`;
 
-    let stats = "";
+    let popup = `<div style="padding:5px; font-family:sans-serif; min-width:180px;">
+                  <div style="display:flex; align-items:center; gap:5px;">
+                    <b>${place.name}</b>
+                    ${place.favorite ? '⭐' : ''}
+                  </div>
+                  <span style="color:#666; font-size:11px; font-weight:bold;">${CAMP_SUBTYPE_LABELS[sub] || sub || "N/A"}</span>`;
+
     if (t === "camps" || t === "hikes") {
-        const labels = t === "camps" ? { l1: "Open", l2: "Sites", l3: "Elev" } : { l1: "Length", l2: "Gain", l3: "Difficulty" };
-        const val = (str: any) => (str && str.toString().trim() !== "") ? str : "N/A";
-        stats = `<div style="font-size:12px; margin-top:6px; line-height:1.5; border-top: 1px solid #f0f0f0; padding-top:4px;">
-            ${labels.l1}: ${val(place.open_length)}<br/>
-            ${labels.l2}: ${val(place.sites_gain)}<br/>
-            ${labels.l3}: ${val(place.elev_difficulty)}
+      const labels = t === "camps" ? { l1: "Open", l2: "Sites", l3: "Elev" } : { l1: "Length", l2: "Gain", l3: "Difficulty" };
+      const val = (str: any) => (str && str.toString().trim() !== "") ? str : "N/A";
+      popup += `<div style="font-size:12px; margin-top:6px; line-height:1.5; border-top: 1px solid #f0f0f0; padding-top:4px;">
+          ${labels.l1}: ${val(place.open_length)}<br/>
+          ${labels.l2}: ${val(place.sites_gain)}<br/>
+          ${labels.l3}: ${val(place.elev_difficulty)}
         </div>`;
     }
 
-    const popupContent = `
-        <div style="padding:5px; font-family:sans-serif; min-width:180px;">
-            <div style="display:flex; align-items:center; gap:5px;">
-                <b>${place.name}</b>
-                ${place.favorite ? '⭐' : ''}
-            </div>
-            <span style="color:#666; font-size:11px; font-weight:bold;">${CAMP_SUBTYPE_LABELS[sub] || sub || "N/A"}</span>
-            ${stats}
-            <div style="margin-top:10px; border-top:1px solid #eee; padding-top:8px; display:flex; flex-direction:column; gap:6px;">
-                <a href="${navUrl}" target="_blank" style="background:#1a73e8; color:white; text-decoration:none; font-size:11px; font-weight:bold; padding:8px; border-radius:4px; text-align:center;">🚗 Directions</a>
-                ${place.website && place.website.startsWith('http') ? `<a href="${place.website}" target="_blank" style="background:#f1f3f4; color:#3c4043; text-decoration:none; font-size:11px; font-weight:bold; padding:8px; border-radius:4px; text-align:center;">🌐 Website</a>` : ''}
-            </div>
-        </div>`;
+    popup += `<div style="margin-top:10px; border-top:1px solid #eee; padding-top:8px; display:flex; flex-direction:column; gap:6px;">
+                <a href="${navUrl}" target="_blank" style="background:#1a73e8; color:white; text-decoration:none; font-size:11px; font-weight:bold; padding:8px; border-radius:4px; text-align:center;">🚗 Directions</a>`;
+    
+    if (place.website && place.website.startsWith('http')) {
+      popup += `<a href="${place.website}" target="_blank" style="background:#f1f3f4; color:#3c4043; text-decoration:none; font-size:11px; font-weight:bold; padding:8px; border-radius:4px; text-align:center;">🌐 Website</a>`;
+    }
+    
+    popup += `</div></div>`;
 
     mapRef.current.setZoom(12);
     mapRef.current.panTo(marker.getPosition());
-    infoWindowRef.current.setContent(popupContent);
+    infoWindowRef.current.setContent(popup);
     infoWindowRef.current.open(mapRef.current, marker);
   };
 
@@ -254,7 +230,7 @@ export default function Home() {
     
     const statesArr = Array.from(filtersRef.current.states);
     const typesArr = Array.from(filtersRef.current.types).filter(t => t !== "highways");
-    if (!statesArr.length || !typesArr.length) {
+    if (!statesArr.length || (!typesArr.length && !filtersRef.current.types.has("highways"))) {
       setLoadedPlaces([]);
       return;
     };
@@ -330,11 +306,11 @@ export default function Home() {
   }, [states, placeTypes, selectedCampSubtypes, showOnlyFavorites]);
 
   const placeResults = searchQuery.length > 1 
-    ? loadedPlaces.filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase())).slice(0, 4)
+    ? loadedPlaces.filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase())).slice(0, 5)
     : [];
-
+    
   const highwayResults = searchQuery.length > 1
-    ? loadedHighways.filter(h => h.name.toLowerCase().includes(searchQuery.toLowerCase())).slice(0, 4)
+    ? loadedHighways.filter(h => h.name.toLowerCase().includes(searchQuery.toLowerCase())).slice(0, 5)
     : [];
 
   return (
@@ -362,15 +338,14 @@ export default function Home() {
                       <b>📍 {p.name}</b> <span style={{ color: "#888", fontSize: "10px" }}>{p.state}</span>
                     </div>
                   ))}
-                  {highwayResults.map(h => (
-                    <div key={h.id} onClick={() => { 
-                        const geo = h.geom_geojson;
-                        const firstCoord = geo.type === "MultiLineString" ? geo.coordinates[0][0] : geo.coordinates[0];
+                  {highwayResults.map((h, i) => (
+                    <div key={i} onClick={() => { 
+                        const firstCoord = h.geom_geojson.type === "MultiLineString" ? h.geom_geojson.coordinates[0][0] : h.geom_geojson.coordinates[0];
                         mapRef.current.setZoom(10);
                         mapRef.current.panTo({ lat: firstCoord[1], lng: firstCoord[0] });
                         setSearchQuery("");
                     }} style={{ padding: "8px", cursor: "pointer", borderBottom: "1px solid #eee", fontSize: "11px" }}>
-                      <b>🛣️ {h.name}</b> <span style={{ color: "#888", fontSize: "10px" }}>{h.state}</span>
+                      <b>🛣️ {h.name}</b>
                     </div>
                   ))}
                 </div>
