@@ -56,6 +56,7 @@ export default function Home() {
   
   const [searchQuery, setSearchQuery] = useState("");
   const [loadedPlaces, setLoadedPlaces] = useState<any[]>([]);
+  const [loadedHighways, setLoadedHighways] = useState<any[]>([]);
 
   const mapRef = useRef<any>(null);
   const clustererRef = useRef<any>(null);
@@ -136,14 +137,26 @@ export default function Home() {
     });
   };
 
+  const toggleFavorite = async (id: string, table: 'places' | 'byways', currentVal: boolean) => {
+    const { error } = await supabase.from(table).update({ favorite: !currentVal }).eq('id', id);
+    if (!error) scheduleLoad();
+  };
+
   const loadHighways = async () => {
     highwayLinesRef.current.forEach(line => line.setMap(null));
     highwayLinesRef.current = [];
     if (!filtersRef.current.types.has("highways")) return;
 
-    const { data, error } = await supabase.from("byways").select("geom_geojson, name, designats").in("state", Array.from(filtersRef.current.states));
+    let query = supabase.from("byways").select("id, geom_geojson, name, designats, favorite, state").in("state", Array.from(filtersRef.current.states));
+    
+    if (filtersRef.current.onlyFavorites) {
+        query = query.eq("favorite", true);
+    }
+
+    const { data, error } = await query;
     if (error || !data) return;
 
+    setLoadedHighways(data);
     const google = (window as any).google;
     data.forEach(h => {
       const geo = h.geom_geojson;
@@ -152,10 +165,30 @@ export default function Home() {
       segments.forEach((segment: any[]) => {
         const path = segment.map(c => ({ lat: c[1], lng: c[0] }));
         const poly = new google.maps.Polyline({
-          path, geodesic: true, strokeColor: "#4e342e", strokeOpacity: 0.8, strokeWeight: 4, map: mapRef.current
+          path, geodesic: true, 
+          strokeColor: h.favorite ? "#FFD700" : "#4e342e", 
+          strokeOpacity: 0.8, 
+          strokeWeight: h.favorite ? 6 : 4, 
+          map: mapRef.current
         });
         poly.addListener("click", (e: any) => {
-          infoWindowRef.current.setContent(`<div style="padding:10px; font-family:sans-serif;"><b>${h.name || "Scenic Byway"}</b><br/><span style="font-size:12px; color:#555;">${h.designats || ""}</span></div>`);
+          const content = document.createElement("div");
+          content.style.padding = "10px";
+          content.style.fontFamily = "sans-serif";
+          content.innerHTML = `
+            <b>${h.name || "Scenic Byway"}</b> ${h.favorite ? '⭐' : ''}<br/>
+            <span style="font-size:12px; color:#555;">${h.designats || ""}</span>
+            <div style="margin-top:8px;">
+                <button id="fav-btn" style="padding:4px 8px; font-size:10px; cursor:pointer;">
+                    ${h.favorite ? 'Remove Favorite' : 'Add Favorite'}
+                </button>
+            </div>
+          `;
+          content.querySelector("#fav-btn")?.addEventListener("click", () => {
+            toggleFavorite(h.id, 'byways', h.favorite);
+            infoWindowRef.current.close();
+          });
+          infoWindowRef.current.setContent(content);
           infoWindowRef.current.setPosition(e.latLng);
           infoWindowRef.current.open(mapRef.current);
         });
@@ -176,35 +209,43 @@ export default function Home() {
       ? `maps://?q=${place.lat},${place.lon}`
       : `https://www.google.com/maps/dir/?api=1&destination=${place.lat},${place.lon}`;
 
-    let popup = `<div style="padding:5px; font-family:sans-serif; min-width:180px;">
-                  <div style="display:flex; align-items:center; gap:5px;">
-                    <b>${place.name}</b>
-                    ${place.favorite ? '⭐' : ''}
-                  </div>
-                  <span style="color:#666; font-size:11px; font-weight:bold;">${CAMP_SUBTYPE_LABELS[sub] || sub || "N/A"}</span>`;
-
+    const content = document.createElement("div");
+    content.style.padding = "5px";
+    content.style.fontFamily = "sans-serif";
+    content.style.minWidth = "180px";
+    
+    let stats = "";
     if (t === "camps" || t === "hikes") {
-      const labels = t === "camps" ? { l1: "Open", l2: "Sites", l3: "Elev" } : { l1: "Length", l2: "Gain", l3: "Difficulty" };
-      const val = (str: any) => (str && str.toString().trim() !== "") ? str : "N/A";
-      popup += `<div style="font-size:12px; margin-top:6px; line-height:1.5; border-top: 1px solid #f0f0f0; padding-top:4px;">
-          ${labels.l1}: ${val(place.open_length)}<br/>
-          ${labels.l2}: ${val(place.sites_gain)}<br/>
-          ${labels.l3}: ${val(place.elev_difficulty)}
+        const labels = t === "camps" ? { l1: "Open", l2: "Sites", l3: "Elev" } : { l1: "Length", l2: "Gain", l3: "Difficulty" };
+        const val = (str: any) => (str && str.toString().trim() !== "") ? str : "N/A";
+        stats = `<div style="font-size:12px; margin-top:6px; line-height:1.5; border-top: 1px solid #f0f0f0; padding-top:4px;">
+            ${labels.l1}: ${val(place.open_length)}<br/>
+            ${labels.l2}: ${val(place.sites_gain)}<br/>
+            ${labels.l3}: ${val(place.elev_difficulty)}
         </div>`;
     }
 
-    popup += `<div style="margin-top:10px; border-top:1px solid #eee; padding-top:8px; display:flex; flex-direction:column; gap:6px;">
-                <a href="${navUrl}" target="_blank" style="background:#1a73e8; color:white; text-decoration:none; font-size:11px; font-weight:bold; padding:8px; border-radius:4px; text-align:center;">🚗 Directions from Current Location</a>`;
-    
-    if (place.website && place.website.startsWith('http')) {
-      popup += `<a href="${place.website}" target="_blank" style="background:#f1f3f4; color:#3c4043; text-decoration:none; font-size:11px; font-weight:bold; padding:8px; border-radius:4px; text-align:center;">🌐 Visit Website</a>`;
-    }
-    
-    popup += `</div></div>`;
+    content.innerHTML = `
+        <div style="display:flex; align-items:center; gap:5px;">
+            <b>${place.name}</b>
+            ${place.favorite ? '⭐' : ''}
+        </div>
+        <span style="color:#666; font-size:11px; font-weight:bold;">${CAMP_SUBTYPE_LABELS[sub] || sub || "N/A"}</span>
+        ${stats}
+        <div style="margin-top:10px; border-top:1px solid #eee; padding-top:8px; display:flex; flex-direction:column; gap:6px;">
+            <button id="place-fav-btn" style="padding:6px; font-size:11px; cursor:pointer;">${place.favorite ? 'Remove ⭐' : 'Add ⭐'}</button>
+            <a href="${navUrl}" target="_blank" style="background:#1a73e8; color:white; text-decoration:none; font-size:11px; font-weight:bold; padding:8px; border-radius:4px; text-align:center;">🚗 Directions</a>
+            ${place.website && place.website.startsWith('http') ? `<a href="${place.website}" target="_blank" style="background:#f1f3f4; color:#3c4043; text-decoration:none; font-size:11px; font-weight:bold; padding:8px; border-radius:4px; text-align:center;">🌐 Website</a>` : ''}
+        </div>`;
+
+    content.querySelector("#place-fav-btn")?.addEventListener("click", () => {
+        toggleFavorite(place.id, 'places', place.favorite);
+        infoWindowRef.current.close();
+    });
 
     mapRef.current.setZoom(12);
     mapRef.current.panTo(marker.getPosition());
-    infoWindowRef.current.setContent(popup);
+    infoWindowRef.current.setContent(content);
     infoWindowRef.current.open(mapRef.current, marker);
   };
 
@@ -222,10 +263,7 @@ export default function Home() {
     };
 
     let query = supabase.from("places").select("*").in("state", statesArr).in("place_type", typesArr);
-    
-    if (filtersRef.current.onlyFavorites) {
-      query = query.eq("favorite", true);
-    }
+    if (filtersRef.current.onlyFavorites) query = query.eq("favorite", true);
 
     const { data, error } = await query;
     if (error || !data) return;
@@ -245,7 +283,7 @@ export default function Home() {
 
       (marker as any).__type = t;
       (marker as any).__subtype = sub;
-      (marker as any).__isFavorite = r.favorite === true || r.favorite === "true";
+      (marker as any).__isFavorite = r.favorite === true;
       (marker as any).__emoji = t === "birds" ? "🦅" : t === "hikes" ? "🥾" : theme.emoji;
 
       marker.addListener("click", () => triggerPlacePopup(r));
@@ -274,18 +312,12 @@ export default function Home() {
       clusterScript.onload = () => {
         const google = (window as any).google;
         const map = new google.maps.Map(document.getElementById("map") as HTMLElement, { 
-          center: { lat: 35.5, lng: -79.5 }, 
-          zoom: 7, 
-          mapTypeControl: false, 
-          streetViewControl: false
+          center: { lat: 35.5, lng: -79.5 }, zoom: 7, 
+          mapTypeControl: false, streetViewControl: false
         });
         mapRef.current = map;
         infoWindowRef.current = new google.maps.InfoWindow();
-        
-        google.maps.event.addListener(infoWindowRef.current, 'closeclick', () => {
-          isPopupOpenRef.current = false;
-        });
-
+        google.maps.event.addListener(infoWindowRef.current, 'closeclick', () => { isPopupOpenRef.current = false; });
         clustererRef.current = new (window as any).markerClusterer.MarkerClusterer({ map, algorithmOptions: { maxZoom: 9, gridSize: 60 } });
         map.addListener("idle", scheduleLoad);
         map.addListener("zoom_changed", applyMarkerSizing);
@@ -300,8 +332,12 @@ export default function Home() {
     if (mapRef.current) scheduleLoad(); 
   }, [states, placeTypes, selectedCampSubtypes, showOnlyFavorites]);
 
-  const searchResults = searchQuery.length > 1 
-    ? loadedPlaces.filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase())).slice(0, 6)
+  const placeResults = searchQuery.length > 1 
+    ? loadedPlaces.filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase())).slice(0, 4)
+    : [];
+
+  const highwayResults = searchQuery.length > 1
+    ? loadedHighways.filter(h => h.name.toLowerCase().includes(searchQuery.toLowerCase())).slice(0, 4)
     : [];
 
   return (
@@ -317,20 +353,27 @@ export default function Home() {
             <div style={{ marginBottom: 15, position: "relative" }}>
               <input 
                 type="text" 
-                placeholder="Find a place..." 
+                placeholder="Find a place or highway..." 
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #ddd", fontSize: "12px", outline: "none" }}
               />
-              {searchResults.length > 0 && (
-                <div style={{ position: "absolute", top: "100%", left: 0, right: 0, background: "white", border: "1px solid #ddd", borderRadius: "0 0 4px 4px", zIndex: 20, boxShadow: "0 4px 6px rgba(0,0,0,0.1)" }}>
-                  {searchResults.map(p => (
-                    <div 
-                      key={p.id} 
-                      onClick={() => { triggerPlacePopup(p); setSearchQuery(""); }}
-                      style={{ padding: "8px", cursor: "pointer", borderBottom: "1px solid #eee", fontSize: "11px" }}
-                    >
-                      <b>{p.name}</b> <span style={{ color: "#888", fontSize: "10px" }}>{p.state}</span>
+              {(placeResults.length > 0 || highwayResults.length > 0) && (
+                <div style={{ position: "absolute", top: "100%", left: 0, right: 0, background: "white", border: "1px solid #ddd", borderRadius: "0 0 4px 4px", zIndex: 20, boxShadow: "0 4px 6px rgba(0,0,0,0.1)", maxHeight: "250px", overflowY: "auto" }}>
+                  {placeResults.map(p => (
+                    <div key={p.id} onClick={() => { triggerPlacePopup(p); setSearchQuery(""); }} style={{ padding: "8px", cursor: "pointer", borderBottom: "1px solid #eee", fontSize: "11px" }}>
+                      <b>📍 {p.name}</b> <span style={{ color: "#888", fontSize: "10px" }}>{p.state}</span>
+                    </div>
+                  ))}
+                  {highwayResults.map(h => (
+                    <div key={h.id} onClick={() => { 
+                        const geo = h.geom_geojson;
+                        const firstCoord = geo.type === "MultiLineString" ? geo.coordinates[0][0] : geo.coordinates[0];
+                        mapRef.current.setZoom(10);
+                        mapRef.current.panTo({ lat: firstCoord[1], lng: firstCoord[0] });
+                        setSearchQuery("");
+                    }} style={{ padding: "8px", cursor: "pointer", borderBottom: "1px solid #eee", fontSize: "11px" }}>
+                      <b>🛣️ {h.name}</b> <span style={{ color: "#888", fontSize: "10px" }}>{h.state}</span>
                     </div>
                   ))}
                 </div>
@@ -361,9 +404,7 @@ export default function Home() {
                     </div>
                     {UI_CAMP_SUBTYPES.map(sub => (
                       <label key={sub} style={{ fontSize: 11, display: "flex", alignItems: "center", cursor: "pointer", marginBottom: 2 }}>
-                        <input 
-                          type="checkbox" 
-                          checked={selectedCampSubtypes.includes(sub) || (sub === "NRA" && selectedCampSubtypes.includes("SRA"))} 
+                        <input type="checkbox" checked={selectedCampSubtypes.includes(sub) || (sub === "NRA" && selectedCampSubtypes.includes("SRA"))} 
                           onChange={() => {
                             setSelectedCampSubtypes(prev => {
                               const targets = sub === "NRA" ? ["NRA", "SRA"] : [sub];
