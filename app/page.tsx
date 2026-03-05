@@ -145,7 +145,12 @@ export default function Home() {
   const loadHighways = async () => {
     highwayLinesRef.current.forEach(line => line.setMap(null));
     highwayLinesRef.current = [];
-    if (!filtersRef.current.types.has("highways")) return;
+    
+    // Check if highways are enabled in types
+    if (!filtersRef.current.types.has("highways")) {
+      setLoadedHighways([]);
+      return;
+    }
 
     let query = supabase.from("byways").select("id, geom_geojson, name, designats, favorite, state").in("state", Array.from(filtersRef.current.states));
     
@@ -158,6 +163,7 @@ export default function Home() {
 
     setLoadedHighways(data);
     const google = (window as any).google;
+    
     data.forEach(h => {
       const geo = h.geom_geojson;
       if (!geo || !geo.coordinates) return;
@@ -165,30 +171,30 @@ export default function Home() {
       segments.forEach((segment: any[]) => {
         const path = segment.map(c => ({ lat: c[1], lng: c[0] }));
         const poly = new google.maps.Polyline({
-          path, geodesic: true, 
+          path, 
+          geodesic: true, 
           strokeColor: h.favorite ? "#FFD700" : "#4e342e", 
           strokeOpacity: 0.8, 
-          strokeWeight: h.favorite ? 6 : 4, 
-          map: mapRef.current
+          strokeWeight: h.favorite ? 7 : 4, 
+          map: mapRef.current,
+          zIndex: h.favorite ? 50 : 10
         });
+
         poly.addListener("click", (e: any) => {
-          const content = document.createElement("div");
-          content.style.padding = "10px";
-          content.style.fontFamily = "sans-serif";
-          content.innerHTML = `
-            <b>${h.name || "Scenic Byway"}</b> ${h.favorite ? '⭐' : ''}<br/>
-            <span style="font-size:12px; color:#555;">${h.designats || ""}</span>
-            <div style="margin-top:8px;">
-                <button id="fav-btn" style="padding:4px 8px; font-size:10px; cursor:pointer;">
-                    ${h.favorite ? 'Remove Favorite' : 'Add Favorite'}
-                </button>
+          const navUrl = `https://www.google.com/maps/dir/?api=1&destination=${e.latLng.lat()},${e.latLng.lng()}`;
+          const popupContent = `
+            <div style="padding:10px; font-family:sans-serif; min-width:150px;">
+              <div style="display:flex; align-items:center; gap:5px; margin-bottom:5px;">
+                <b>${h.name || "Scenic Byway"}</b>
+                ${h.favorite ? '⭐' : ''}
+              </div>
+              <div style="font-size:12px; color:#555; margin-bottom:10px;">${h.designats || ""}</div>
+              <div style="display:flex; flex-direction:column; gap:6px;">
+                 <a href="${navUrl}" target="_blank" style="background:#1a73e8; color:white; text-decoration:none; font-size:11px; font-weight:bold; padding:8px; border-radius:4px; text-align:center;">🚗 Directions</a>
+              </div>
             </div>
           `;
-          content.querySelector("#fav-btn")?.addEventListener("click", () => {
-            toggleFavorite(h.id, 'byways', h.favorite);
-            infoWindowRef.current.close();
-          });
-          infoWindowRef.current.setContent(content);
+          infoWindowRef.current.setContent(popupContent);
           infoWindowRef.current.setPosition(e.latLng);
           infoWindowRef.current.open(mapRef.current);
         });
@@ -209,11 +215,6 @@ export default function Home() {
       ? `maps://?q=${place.lat},${place.lon}`
       : `https://www.google.com/maps/dir/?api=1&destination=${place.lat},${place.lon}`;
 
-    const content = document.createElement("div");
-    content.style.padding = "5px";
-    content.style.fontFamily = "sans-serif";
-    content.style.minWidth = "180px";
-    
     let stats = "";
     if (t === "camps" || t === "hikes") {
         const labels = t === "camps" ? { l1: "Open", l2: "Sites", l3: "Elev" } : { l1: "Length", l2: "Gain", l3: "Difficulty" };
@@ -225,27 +226,23 @@ export default function Home() {
         </div>`;
     }
 
-    content.innerHTML = `
-        <div style="display:flex; align-items:center; gap:5px;">
-            <b>${place.name}</b>
-            ${place.favorite ? '⭐' : ''}
-        </div>
-        <span style="color:#666; font-size:11px; font-weight:bold;">${CAMP_SUBTYPE_LABELS[sub] || sub || "N/A"}</span>
-        ${stats}
-        <div style="margin-top:10px; border-top:1px solid #eee; padding-top:8px; display:flex; flex-direction:column; gap:6px;">
-            <button id="place-fav-btn" style="padding:6px; font-size:11px; cursor:pointer;">${place.favorite ? 'Remove ⭐' : 'Add ⭐'}</button>
-            <a href="${navUrl}" target="_blank" style="background:#1a73e8; color:white; text-decoration:none; font-size:11px; font-weight:bold; padding:8px; border-radius:4px; text-align:center;">🚗 Directions</a>
-            ${place.website && place.website.startsWith('http') ? `<a href="${place.website}" target="_blank" style="background:#f1f3f4; color:#3c4043; text-decoration:none; font-size:11px; font-weight:bold; padding:8px; border-radius:4px; text-align:center;">🌐 Website</a>` : ''}
+    const popupContent = `
+        <div style="padding:5px; font-family:sans-serif; min-width:180px;">
+            <div style="display:flex; align-items:center; gap:5px;">
+                <b>${place.name}</b>
+                ${place.favorite ? '⭐' : ''}
+            </div>
+            <span style="color:#666; font-size:11px; font-weight:bold;">${CAMP_SUBTYPE_LABELS[sub] || sub || "N/A"}</span>
+            ${stats}
+            <div style="margin-top:10px; border-top:1px solid #eee; padding-top:8px; display:flex; flex-direction:column; gap:6px;">
+                <a href="${navUrl}" target="_blank" style="background:#1a73e8; color:white; text-decoration:none; font-size:11px; font-weight:bold; padding:8px; border-radius:4px; text-align:center;">🚗 Directions</a>
+                ${place.website && place.website.startsWith('http') ? `<a href="${place.website}" target="_blank" style="background:#f1f3f4; color:#3c4043; text-decoration:none; font-size:11px; font-weight:bold; padding:8px; border-radius:4px; text-align:center;">🌐 Website</a>` : ''}
+            </div>
         </div>`;
-
-    content.querySelector("#place-fav-btn")?.addEventListener("click", () => {
-        toggleFavorite(place.id, 'places', place.favorite);
-        infoWindowRef.current.close();
-    });
 
     mapRef.current.setZoom(12);
     mapRef.current.panTo(marker.getPosition());
-    infoWindowRef.current.setContent(content);
+    infoWindowRef.current.setContent(popupContent);
     infoWindowRef.current.open(mapRef.current, marker);
   };
 
@@ -353,7 +350,7 @@ export default function Home() {
             <div style={{ marginBottom: 15, position: "relative" }}>
               <input 
                 type="text" 
-                placeholder="Find a place or highway..." 
+                placeholder="Search..." 
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #ddd", fontSize: "12px", outline: "none" }}
