@@ -36,7 +36,6 @@ const CAMP_SUBTYPE_LABELS: Record<string, string> = {
 };
 
 const UI_CAMP_SUBTYPES = ["COE", "NF", "NP", "SP", "SF", "BLM", "BD", "NRA", "CP", "SFW", "RES"];
-// New highway subtypes
 const UI_HIGHWAY_SUBTYPES = ["Scenic", "Backcountry"];
 
 const STATE_GROUPS: Record<string, string[]> = {
@@ -51,13 +50,14 @@ export default function Home() {
   const [states, setStates] = useState<string[]>(["NC", "FL", "AB", "VA"]);
   const [placeTypes, setPlaceTypes] = useState<PlaceType[]>(["hikes", "camps", "highways"]);
   const [selectedCampSubtypes, setSelectedCampSubtypes] = useState<string[]>(Object.keys(CAMP_SUBTYPE_LABELS));
-  // State for highway subtypes
   const [selectedHighwaySubtypes, setSelectedHighwaySubtypes] = useState<string[]>(["Scenic", "Backcountry"]);
-  const [showOnlyFavorites, setShowOnlyFavorites] = useState(false);
+  
+  // Replaced single boolean with a list of categories that are "Fav Only"
+  const [favOnlyCategories, setFavOnlyCategories] = useState<PlaceType[]>([]);
+  
   const [isFilterOpen, setIsFilterOpen] = useState(true);
   const [openGroups, setOpenGroups] = useState<string[]>(["South", "West", "Canada"]);
   const [isCampSubmenuOpen, setIsCampSubmenuOpen] = useState(false);
-  // State for highway submenu visibility
   const [isHighwaySubmenuOpen, setIsHighwaySubmenuOpen] = useState(false);
   
   const [searchQuery, setSearchQuery] = useState("");
@@ -78,7 +78,7 @@ export default function Home() {
     types: new Set<PlaceType>(placeTypes),
     campSubtypes: new Set<string>(selectedCampSubtypes),
     highwaySubtypes: new Set<string>(selectedHighwaySubtypes),
-    onlyFavorites: showOnlyFavorites
+    favOnlyCategories: new Set<PlaceType>(favOnlyCategories)
   });
 
   useEffect(() => { 
@@ -86,8 +86,8 @@ export default function Home() {
     filtersRef.current.types = new Set(placeTypes);
     filtersRef.current.campSubtypes = new Set(selectedCampSubtypes);
     filtersRef.current.highwaySubtypes = new Set(selectedHighwaySubtypes);
-    filtersRef.current.onlyFavorites = showOnlyFavorites;
-  }, [states, placeTypes, selectedCampSubtypes, selectedHighwaySubtypes, showOnlyFavorites]);
+    filtersRef.current.favOnlyCategories = new Set(favOnlyCategories);
+  }, [states, placeTypes, selectedCampSubtypes, selectedHighwaySubtypes, favOnlyCategories]);
 
   const getMarkerStyle = (google: any, type: PlaceType, subtype: string, zoom: number, isFavorite: boolean) => {
     const baseSize = zoom <= 7 ? 20 : zoom <= 10 ? 30 : 40;
@@ -116,12 +116,8 @@ export default function Home() {
       const type = (m as any).__type as PlaceType;
       const isFav = (m as any).__isFavorite;
       m.setIcon(getMarkerStyle(google, type, (m as any).__subtype, z, isFav));
-      
-      if (type === "birds") {
-        m.setLabel({ text: "🦅", fontSize: z <= 8 ? "18px" : "26px", color: "black", fontWeight: "700" });
-      } else {
-        m.setLabel(z > 7 ? { text: (m as any).__emoji, fontSize: z <= 11 ? "14px" : "18px", color: "white", fontWeight: "700" } : null);
-      }
+      if (type === "birds") { m.setLabel({ text: "🦅", fontSize: z <= 8 ? "18px" : "26px", color: "black", fontWeight: "700" }); }
+      else { m.setLabel(z > 7 ? { text: (m as any).__emoji, fontSize: z <= 11 ? "14px" : "18px", color: "white", fontWeight: "700" } : null); }
     });
   };
 
@@ -130,40 +126,33 @@ export default function Home() {
     highwayLinesRef.current = [];
     if (!filtersRef.current.types.has("highways")) return;
 
-    // Fetch includes 'subtype' column
     let query = supabase.from("byways").select("geom_geojson, name, designats, favorite, subtype").in("state", Array.from(filtersRef.current.states));
     
-    if (filtersRef.current.onlyFavorites) {
+    // Check if Highways category specifically has favorites toggled
+    if (filtersRef.current.favOnlyCategories.has("highways")) {
         query = query.eq("favorite", true);
     }
 
     const { data, error } = await query;
     if (error || !data) return;
 
-    // Filter results based on the toggle state
     const filteredHighways = data.filter(h => filtersRef.current.highwaySubtypes.has(h.subtype || "Scenic"));
-
+    
     setLoadedHighways(filteredHighways);
     const google = (window as any).google;
     filteredHighways.forEach(h => {
       const geo = h.geom_geojson;
       if (!geo || !geo.coordinates) return;
-      
-      // COLOR LOGIC: Gold if favorite, Burnt Orange if Backcountry, else Brown
-      let pathColor = "#4e342e"; 
-      if (h.favorite) pathColor = "#FFD700";
-      else if (h.subtype === "Backcountry") pathColor = "#CC5500"; 
+      let lineColor = "#4e342e"; 
+      if (h.favorite) lineColor = "#FFD700";
+      else if (h.subtype === "Backcountry") lineColor = "#CC5500"; 
 
       const segments = geo.type === "MultiLineString" ? geo.coordinates : [geo.coordinates];
       segments.forEach((segment: any[]) => {
         const path = segment.map(c => ({ lat: c[1], lng: c[0] }));
         const poly = new google.maps.Polyline({
-          path, 
-          geodesic: true, 
-          strokeColor: pathColor, 
-          strokeOpacity: 0.8, 
-          strokeWeight: h.favorite ? 6 : 4, 
-          map: mapRef.current,
+          path, geodesic: true, strokeColor: lineColor, strokeOpacity: 0.8, 
+          strokeWeight: h.favorite ? 6 : 4, map: mapRef.current,
           zIndex: h.favorite ? 50 : (h.subtype === "Backcountry" ? 10 : 5)
         });
         poly.addListener("click", (e: any) => {
@@ -179,32 +168,21 @@ export default function Home() {
   const triggerPlacePopup = (place: any) => {
     const marker = markersMapRef.current.get(place.id);
     if (!marker || !mapRef.current) return;
-
     isPopupOpenRef.current = true;
     const t = place.place_type as PlaceType;
     const sub = place.subtype || "";
     const navUrl = `https://www.google.com/maps/dir/?api=1&destination=${place.lat},${place.lon}`;
-
     let popup = `<div style="padding:5px; font-family:sans-serif; min-width:180px;">
                   <div style="display:flex; align-items:center; gap:5px;"><b>${place.name}</b>${place.favorite ? '⭐' : ''}</div>
                   <span style="color:#666; font-size:11px; font-weight:bold;">${CAMP_SUBTYPE_LABELS[sub] || sub || "N/A"}</span>`;
-
     if (t === "camps" || t === "hikes") {
       const labels = t === "camps" ? { l1: "Open", l2: "Sites", l3: "Elev" } : { l1: "Length", l2: "Gain", l3: "Difficulty" };
       const val = (str: any) => (str && str.toString().trim() !== "") ? str : "N/A";
-      popup += `<div style="font-size:12px; margin-top:6px; line-height:1.5; border-top: 1px solid #f0f0f0; padding-top:4px;">
-          ${labels.l1}: ${val(place.open_length)}<br/>${labels.l2}: ${val(place.sites_gain)}<br/>${labels.l3}: ${val(place.elev_difficulty)}
-        </div>`;
+      popup += `<div style="font-size:12px; margin-top:6px; line-height:1.5; border-top: 1px solid #f0f0f0; padding-top:4px;">${labels.l1}: ${val(place.open_length)}<br/>${labels.l2}: ${val(place.sites_gain)}<br/>${labels.l3}: ${val(place.elev_difficulty)}</div>`;
     }
-
-    popup += `<div style="margin-top:10px; border-top:1px solid #eee; padding-top:8px; display:flex; flex-direction:column; gap:6px;">
-                <a href="${navUrl}" target="_blank" style="background:#1a73e8; color:white; text-decoration:none; font-size:11px; font-weight:bold; padding:8px; border-radius:4px; text-align:center;">🚗 Directions</a>`;
-    
-    if (place.website && place.website.startsWith('http')) {
-      popup += `<a href="${place.website}" target="_blank" style="background:#f1f3f4; color:#3c4043; text-decoration:none; font-size:11px; font-weight:bold; padding:8px; border-radius:4px; text-align:center;">🌐 Website</a>`;
-    }
+    popup += `<div style="margin-top:10px; border-top:1px solid #eee; padding-top:8px; display:flex; flex-direction:column; gap:6px;"><a href="${navUrl}" target="_blank" style="background:#1a73e8; color:white; text-decoration:none; font-size:11px; font-weight:bold; padding:8px; border-radius:4px; text-align:center;">🚗 Directions</a>`;
+    if (place.website && place.website.startsWith('http')) { popup += `<a href="${place.website}" target="_blank" style="background:#f1f3f4; color:#3c4043; text-decoration:none; font-size:11px; font-weight:bold; padding:8px; border-radius:4px; text-align:center;">🌐 Website</a>`; }
     popup += `</div></div>`;
-
     mapRef.current.setZoom(12);
     mapRef.current.panTo(marker.getPosition());
     infoWindowRef.current.setContent(popup);
@@ -224,32 +202,34 @@ export default function Home() {
       return;
     };
 
+    // We fetch all records for the types, then filter favorite logic in JS to keep categories independent
     let query = supabase.from("places").select("*").in("state", statesArr).in("place_type", typesArr);
-    if (filtersRef.current.onlyFavorites) query = query.eq("favorite", true);
-
+    
     const { data, error } = await query;
     if (error || !data) return;
 
-    const filteredData = data.filter(r => r.place_type !== "camps" || Array.from(filtersRef.current.campSubtypes).includes(r.subtype));
-    setLoadedPlaces(filteredData);
+    const filteredData = data.filter(r => {
+      const type = r.place_type as PlaceType;
+      // Filter 1: Favorite toggle for this specific category
+      if (filtersRef.current.favOnlyCategories.has(type) && !r.favorite) return false;
+      // Filter 2: Camp Subtypes
+      if (type === "camps" && !filtersRef.current.campSubtypes.has(r.subtype)) return false;
+      return true;
+    });
 
+    setLoadedPlaces(filteredData);
     const google = (window as any).google;
     const markers = filteredData.map(r => {
       const marker = new google.maps.Marker({ position: { lat: Number(r.lat), lng: Number(r.lon) }, zIndex: r.favorite ? 1000 : 1 });
       const t = r.place_type as PlaceType;
       const sub = r.subtype || "";
       const theme = CAMP_THEMES[sub] || CAMP_THEMES["default"];
-
-      (marker as any).__type = t;
-      (marker as any).__subtype = sub;
-      (marker as any).__isFavorite = r.favorite === true;
+      (marker as any).__type = t; (marker as any).__subtype = sub; (marker as any).__isFavorite = r.favorite === true;
       (marker as any).__emoji = t === "birds" ? "🦅" : t === "hikes" ? "🥾" : theme.emoji;
-
       marker.addListener("click", () => triggerPlacePopup(r));
       markersMapRef.current.set(r.id, marker);
       return marker;
     });
-
     clustererRef.current.addMarkers(markers);
     applyMarkerSizing();
   };
@@ -283,10 +263,7 @@ export default function Home() {
     document.head.appendChild(script);
   }, []);
 
-  useEffect(() => { 
-    isPopupOpenRef.current = false; 
-    if (mapRef.current) scheduleLoad(); 
-  }, [states, placeTypes, selectedCampSubtypes, selectedHighwaySubtypes, showOnlyFavorites]);
+  useEffect(() => { isPopupOpenRef.current = false; if (mapRef.current) scheduleLoad(); }, [states, placeTypes, selectedCampSubtypes, selectedHighwaySubtypes, favOnlyCategories]);
 
   const placeResults = searchQuery.length > 1 ? loadedPlaces.filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase())).slice(0, 5) : [];
   const highwayResults = searchQuery.length > 1 ? loadedHighways.filter(h => h.name.toLowerCase().includes(searchQuery.toLowerCase())).slice(0, 5) : [];
@@ -307,20 +284,30 @@ export default function Home() {
               )}
             </div>
 
-            <div style={{ fontWeight: 700, color: "#666", marginBottom: 8, borderBottom: "1px solid #eee", paddingBottom: 4, display: "flex", justifyContent: "space-between", alignItems: "center" }}><span>CATEGORIES</span><label style={{ display: "flex", alignItems: "center", fontSize: "10px", cursor: "pointer", color: showOnlyFavorites ? "#d4af37" : "#666" }}><input type="checkbox" checked={showOnlyFavorites} onChange={() => setShowOnlyFavorites(!showOnlyFavorites)} style={{ marginRight: "4px" }} />⭐ ONLY</label></div>
+            <div style={{ fontWeight: 700, color: "#666", marginBottom: 8, borderBottom: "1px solid #eee", paddingBottom: 4 }}>CATEGORIES</div>
             
             {(["birds", "hikes", "camps", "highways"] as PlaceType[]).map((t) => (
               <div key={t}>
-                <label style={{ display: "flex", alignItems: "center", marginBottom: 6, cursor: "pointer" }}>
+                <div style={{ display: "flex", alignItems: "center", marginBottom: 6 }}>
                   <input type="checkbox" checked={placeTypes.includes(t)} onChange={() => setPlaceTypes(prev => prev.includes(t) ? prev.filter(x => x !== t) : [...prev, t])} />
                   <span style={{ marginLeft: 8, textTransform: "capitalize", flexGrow: 1 }}>{t}</span>
-                  {/* Added toggle arrow for highways */}
+                  
+                  {/* Individual Favorite Toggle per category */}
+                  <button 
+                    onClick={() => setFavOnlyCategories(prev => prev.includes(t) ? prev.filter(x => x !== t) : [...prev, t])}
+                    style={{ background: "none", border: "none", cursor: "pointer", fontSize: "14px", padding: "0 5px", color: favOnlyCategories.includes(t) ? "#d4af37" : "#ccc" }}
+                    title="Favorites only"
+                  >
+                    ⭐
+                  </button>
+
                   {(t === "camps" || t === "highways") && (
                     <button onClick={(e) => { e.preventDefault(); t === "camps" ? setIsCampSubmenuOpen(!isCampSubmenuOpen) : setIsHighwaySubmenuOpen(!isHighwaySubmenuOpen); }} style={{ fontSize: 10, background: "none", border: "none", cursor: "pointer" }}>{(t === "camps" ? isCampSubmenuOpen : isHighwaySubmenuOpen) ? "▲" : "▼"}</button>
                   )}
-                </label>
+                </div>
+                
                 {t === "camps" && isCampSubmenuOpen && (
-                  <div style={{ padding: "8px", background: "#f1f3f5", borderRadius: "4px", marginBottom: "10px" }}>
+                  <div style={{ padding: "8px", background: "#f1f3f5", borderRadius: "4px", marginBottom: "10px", marginLeft: 15 }}>
                     <div style={{ display: "flex", gap: "8px", marginBottom: "8px" }}><button onClick={() => setSelectedCampSubtypes(Object.keys(CAMP_SUBTYPE_LABELS))} style={{ flex: 1, fontSize: "9px", fontWeight: "bold", padding: "2px", cursor: "pointer" }}>ALL</button><button onClick={() => setSelectedCampSubtypes([])} style={{ flex: 1, fontSize: "9px", fontWeight: "bold", padding: "2px", cursor: "pointer" }}>NONE</button></div>
                     {UI_CAMP_SUBTYPES.map(sub => (
                       <label key={sub} style={{ fontSize: 11, display: "flex", alignItems: "center", cursor: "pointer", marginBottom: 2 }}>
@@ -330,9 +317,8 @@ export default function Home() {
                     ))}
                   </div>
                 )}
-                {/* NEW HIGHWAY SUBMENU */}
                 {t === "highways" && isHighwaySubmenuOpen && (
-                  <div style={{ padding: "8px", background: "#f1f3f5", borderRadius: "4px", marginBottom: "10px" }}>
+                  <div style={{ padding: "8px", background: "#f1f3f5", borderRadius: "4px", marginBottom: "10px", marginLeft: 15 }}>
                     {UI_HIGHWAY_SUBTYPES.map(sub => (
                       <label key={sub} style={{ fontSize: 11, display: "flex", alignItems: "center", cursor: "pointer", marginBottom: 2 }}>
                         <input type="checkbox" checked={selectedHighwaySubtypes.includes(sub)} onChange={() => { setSelectedHighwaySubtypes(prev => prev.includes(sub) ? prev.filter(x => x !== sub) : [...prev, sub]); }} />
