@@ -51,8 +51,6 @@ export default function Home() {
   const [placeTypes, setPlaceTypes] = useState<PlaceType[]>(["hikes", "camps", "highways"]);
   const [selectedCampSubtypes, setSelectedCampSubtypes] = useState<string[]>(Object.keys(CAMP_SUBTYPE_LABELS));
   const [selectedHighwaySubtypes, setSelectedHighwaySubtypes] = useState<string[]>(["Scenic", "Backcountry"]);
-  
-  // Replaced single boolean with a list of categories that are "Fav Only"
   const [favOnlyCategories, setFavOnlyCategories] = useState<PlaceType[]>([]);
   
   const [isFilterOpen, setIsFilterOpen] = useState(true);
@@ -127,8 +125,6 @@ export default function Home() {
     if (!filtersRef.current.types.has("highways")) return;
 
     let query = supabase.from("byways").select("geom_geojson, name, designats, favorite, subtype").in("state", Array.from(filtersRef.current.states));
-    
-    // Check if Highways category specifically has favorites toggled
     if (filtersRef.current.favOnlyCategories.has("highways")) {
         query = query.eq("favorite", true);
     }
@@ -137,7 +133,6 @@ export default function Home() {
     if (error || !data) return;
 
     const filteredHighways = data.filter(h => filtersRef.current.highwaySubtypes.has(h.subtype || "Scenic"));
-    
     setLoadedHighways(filteredHighways);
     const google = (window as any).google;
     filteredHighways.forEach(h => {
@@ -194,29 +189,18 @@ export default function Home() {
     loadHighways(); 
     clustererRef.current.clearMarkers();
     markersMapRef.current.clear();
-    
     const statesArr = Array.from(filtersRef.current.states);
     const typesArr = Array.from(filtersRef.current.types).filter(t => t !== "highways");
-    if (!statesArr.length || (!typesArr.length && !filtersRef.current.types.has("highways"))) {
-      setLoadedPlaces([]);
-      return;
-    };
-
-    // We fetch all records for the types, then filter favorite logic in JS to keep categories independent
+    if (!statesArr.length || (!typesArr.length && !filtersRef.current.types.has("highways"))) { setLoadedPlaces([]); return; };
     let query = supabase.from("places").select("*").in("state", statesArr).in("place_type", typesArr);
-    
     const { data, error } = await query;
     if (error || !data) return;
-
     const filteredData = data.filter(r => {
       const type = r.place_type as PlaceType;
-      // Filter 1: Favorite toggle for this specific category
       if (filtersRef.current.favOnlyCategories.has(type) && !r.favorite) return false;
-      // Filter 2: Camp Subtypes
       if (type === "camps" && !filtersRef.current.campSubtypes.has(r.subtype)) return false;
       return true;
     });
-
     setLoadedPlaces(filteredData);
     const google = (window as any).google;
     const markers = filteredData.map(r => {
@@ -290,20 +274,27 @@ export default function Home() {
               <div key={t}>
                 <div style={{ display: "flex", alignItems: "center", marginBottom: 6 }}>
                   <input type="checkbox" checked={placeTypes.includes(t)} onChange={() => setPlaceTypes(prev => prev.includes(t) ? prev.filter(x => x !== t) : [...prev, t])} />
+                  {/* flexGrow pushes everything after the name to the right */}
                   <span style={{ marginLeft: 8, textTransform: "capitalize", flexGrow: 1 }}>{t}</span>
                   
-                  {/* Individual Favorite Toggle per category */}
+                  {/* Dropdown arrow now to the LEFT of the star */}
+                  {(t === "camps" || t === "highways") && (
+                    <button 
+                      onClick={(e) => { e.preventDefault(); t === "camps" ? setIsCampSubmenuOpen(!isCampSubmenuOpen) : setIsHighwaySubmenuOpen(!isHighwaySubmenuOpen); }} 
+                      style={{ fontSize: 10, background: "none", border: "none", cursor: "pointer", padding: "0 5px" }}
+                    >
+                      {(t === "camps" ? isCampSubmenuOpen : isHighwaySubmenuOpen) ? "▲" : "▼"}
+                    </button>
+                  )}
+
+                  {/* Individual Favorite Toggle - Flush Right */}
                   <button 
                     onClick={() => setFavOnlyCategories(prev => prev.includes(t) ? prev.filter(x => x !== t) : [...prev, t])}
-                    style={{ background: "none", border: "none", cursor: "pointer", fontSize: "14px", padding: "0 5px", color: favOnlyCategories.includes(t) ? "#d4af37" : "#ccc" }}
+                    style={{ background: "none", border: "none", cursor: "pointer", fontSize: "14px", padding: "0 0 0 5px", color: favOnlyCategories.includes(t) ? "#d4af37" : "#ccc" }}
                     title="Favorites only"
                   >
                     ⭐
                   </button>
-
-                  {(t === "camps" || t === "highways") && (
-                    <button onClick={(e) => { e.preventDefault(); t === "camps" ? setIsCampSubmenuOpen(!isCampSubmenuOpen) : setIsHighwaySubmenuOpen(!isHighwaySubmenuOpen); }} style={{ fontSize: 10, background: "none", border: "none", cursor: "pointer" }}>{(t === "camps" ? isCampSubmenuOpen : isHighwaySubmenuOpen) ? "▲" : "▼"}</button>
-                  )}
                 </div>
                 
                 {t === "camps" && isCampSubmenuOpen && (
