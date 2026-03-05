@@ -81,14 +81,15 @@ export default function Home() {
     filtersRef.current.onlyFavorites = showOnlyFavorites;
   }, [states, placeTypes, selectedCampSubtypes, showOnlyFavorites]);
 
-  // NEW: Favorite Toggle Listener (Non-invasive Bridge)
+  // BRIDGE: Allows the HTML strings in popups to trigger a DB update
   useEffect(() => {
-    (window as any).toggleFav = async (id: string, table: string, current: boolean) => {
+    (window as any).handleFavToggle = async (id: string, table: string, current: boolean) => {
       const { error } = await supabase.from(table).update({ favorite: !current }).eq('id', id);
       if (!error) {
         if (infoWindowRef.current) infoWindowRef.current.close();
-        isPopupOpenRef.current = false; // Critical: allow scheduleLoad to actually run
-        scheduleLoad();
+        isPopupOpenRef.current = false; 
+        loadHighways(); // Refresh highways immediately
+        loadPlaces();   // Refresh places immediately
       }
     };
   }, []);
@@ -149,29 +150,36 @@ export default function Home() {
     });
   };
 
+  // CORE HIGHWAY LOGIC - Restored and isolated
   const loadHighways = async () => {
+    if (!mapRef.current) return;
+    
+    // Clear existing lines
     highwayLinesRef.current.forEach(line => line.setMap(null));
     highwayLinesRef.current = [];
-    if (!filtersRef.current.types.has("highways")) return;
 
-    // Added 'id' to the select so we can update it
-    let query = supabase.from("byways").select("id, geom_geojson, name, designats, favorite").in("state", Array.from(filtersRef.current.states));
-    
-    if (filtersRef.current.onlyFavorites) {
-        query = query.eq("favorite", true);
+    if (!filtersRef.current.types.has("highways")) {
+      setLoadedHighways([]);
+      return;
     }
+
+    let query = supabase.from("byways").select("id, geom_geojson, name, designats, favorite").in("state", Array.from(filtersRef.current.states));
+    if (filtersRef.current.onlyFavorites) query = query.eq("favorite", true);
 
     const { data, error } = await query;
     if (error || !data) return;
 
     setLoadedHighways(data);
     const google = (window as any).google;
+
     data.forEach(h => {
       const geo = h.geom_geojson;
       if (!geo || !geo.coordinates) return;
+      
       const segments = geo.type === "MultiLineString" ? geo.coordinates : [geo.coordinates];
+      
       segments.forEach((segment: any[]) => {
-        const path = segment.map(c => ({ lat: c[1], lng: c[0] }));
+        const path = segment.map(c => ({ lat: Number(c[1]), lng: Number(c[0]) }));
         const poly = new google.maps.Polyline({
           path, 
           geodesic: true, 
@@ -181,22 +189,23 @@ export default function Home() {
           map: mapRef.current,
           zIndex: h.favorite ? 50 : 5
         });
+
         poly.addListener("click", (e: any) => {
-          const favText = h.favorite ? 'Remove ⭐' : 'Add ⭐';
-          const popupContent = `
-            <div style="padding:10px; font-family:sans-serif;">
+          const favLabel = h.favorite ? 'Remove ⭐' : 'Add ⭐';
+          const content = `
+            <div style="padding:10px; font-family:sans-serif; min-width:160px;">
               <b>${h.name || "Scenic Byway"}</b>${h.favorite ? ' ⭐' : ''}<br/>
               <span style="font-size:12px; color:#555;">${h.designats || ""}</span>
-              <div style="margin-top:10px; border-top:1px solid #eee; padding-top:8px;">
-                <button onclick="window.toggleFav('${h.id}', 'byways', ${h.favorite})" style="width:100%; padding:6px; cursor:pointer; background:#f8f9fa; border:1px solid #ccc; border-radius:4px; font-size:11px; font-weight:bold;">
-                  ${favText}
-                </button>
-              </div>
+              <hr style="margin:8px 0; border:0; border-top:1px solid #eee;" />
+              <button onclick="window.handleFavToggle('${h.id}', 'byways', ${h.favorite})" style="width:100%; padding:6px; cursor:pointer; background:#f8f9fa; border:1px solid #ccc; border-radius:4px; font-size:11px; font-weight:bold;">
+                ${favLabel}
+              </button>
             </div>`;
-          infoWindowRef.current.setContent(popupContent);
+          infoWindowRef.current.setContent(content);
           infoWindowRef.current.setPosition(e.latLng);
           infoWindowRef.current.open(mapRef.current);
         });
+
         highwayLinesRef.current.push(poly);
       });
     });
@@ -209,10 +218,8 @@ export default function Home() {
     isPopupOpenRef.current = true;
     const t = place.place_type as PlaceType;
     const sub = place.subtype || "";
-    const favText = place.favorite ? 'Remove ⭐' : 'Add ⭐';
-    
-    // Fixed typo in navUrl to ensure directions work
     const navUrl = `https://www.google.com/maps/dir/?api=1&destination=${place.lat},${place.lon}`;
+    const favLabel = place.favorite ? 'Remove ⭐' : 'Add ⭐';
 
     let popup = `<div style="padding:5px; font-family:sans-serif; min-width:180px;">
                   <div style="display:flex; align-items:center; gap:5px;">
@@ -232,8 +239,8 @@ export default function Home() {
     }
 
     popup += `<div style="margin-top:10px; border-top:1px solid #eee; padding-top:8px; display:flex; flex-direction:column; gap:6px;">
-                <button onclick="window.toggleFav('${place.id}', 'places', ${place.favorite})" style="padding:8px; font-size:11px; font-weight:bold; cursor:pointer; background:#f8f9fa; border:1px solid #ccc; border-radius:4px;">
-                  ${favText}
+                <button onclick="window.handleFavToggle('${place.id}', 'places', ${place.favorite})" style="padding:8px; font-size:11px; cursor:pointer; background:#f8f9fa; border:1px solid #ccc; border-radius:4px; font-weight:bold;">
+                  ${favLabel}
                 </button>
                 <a href="${navUrl}" target="_blank" style="background:#1a73e8; color:white; text-decoration:none; font-size:11px; font-weight:bold; padding:8px; border-radius:4px; text-align:center;">🚗 Directions</a>`;
     
@@ -251,7 +258,7 @@ export default function Home() {
 
   const loadPlaces = async () => {
     if (!mapRef.current || !clustererRef.current || isPopupOpenRef.current) return;
-    loadHighways(); 
+    
     clustererRef.current.clearMarkers();
     markersMapRef.current.clear();
     
@@ -297,7 +304,10 @@ export default function Home() {
 
   const scheduleLoad = () => {
     if (lastFetchTimerRef.current) clearTimeout(lastFetchTimerRef.current);
-    lastFetchTimerRef.current = setTimeout(() => loadPlaces(), 400); 
+    lastFetchTimerRef.current = setTimeout(() => {
+        loadPlaces();
+        loadHighways(); // Run highways alongside places
+    }, 400); 
   };
 
   useEffect(() => {
@@ -349,7 +359,6 @@ export default function Home() {
         <button onClick={() => setIsFilterOpen(!isFilterOpen)} style={{ width: "100%", cursor: "pointer", padding: "4px", marginBottom: isFilterOpen ? 8 : 0 }}>{isFilterOpen ? "Close Filters" : "☰"}</button>
         {isFilterOpen && (
           <div style={{ fontSize: 13 }}>
-            
             <div style={{ marginBottom: 15, position: "relative" }}>
               <input 
                 type="text" 
