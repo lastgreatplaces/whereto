@@ -145,13 +145,13 @@ export default function Home() {
   const loadHighways = async () => {
     highwayLinesRef.current.forEach(line => line.setMap(null));
     highwayLinesRef.current = [];
-    if (!filtersRef.current.types.has("highways")) return;
+    if (!filtersRef.current.types.has("highways")) {
+        setLoadedHighways([]);
+        return;
+    }
 
     let query = supabase.from("byways").select("id, geom_geojson, name, designats, favorite, state").in("state", Array.from(filtersRef.current.states));
-    
-    if (filtersRef.current.onlyFavorites) {
-        query = query.eq("favorite", true);
-    }
+    if (filtersRef.current.onlyFavorites) query = query.eq("favorite", true);
 
     const { data, error } = await query;
     if (error || !data) return;
@@ -174,26 +174,18 @@ export default function Home() {
           zIndex: h.favorite ? 50 : 5
         });
 
+        // Use standard content assignment for stability
         poly.addListener("click", (e: any) => {
-          const content = document.createElement("div");
-          content.style.padding = "10px";
-          content.style.fontFamily = "sans-serif";
-          content.innerHTML = `
-            <div style="margin-bottom: 8px;">
+          const popupContent = `
+            <div style="padding:10px; font-family:sans-serif; min-width:150px;">
               <b>${h.name || "Scenic Byway"}</b> ${h.favorite ? '⭐' : ''}
-              <div style="font-size:12px; color:#666; margin-top: 4px;">${h.designats || ""}</div>
+              <div style="font-size:12px; color:#666; margin: 5px 0 10px 0;">${h.designats || ""}</div>
+              <button onclick="window.toggleBywayFavorite('${h.id}', ${h.favorite})" style="width:100%; padding:8px; cursor:pointer; background:#f8f9fa; border:1px solid #ccc; border-radius:4px; font-size:11px;">
+                ${h.favorite ? 'Remove Favorite' : 'Mark as Favorite'}
+              </button>
             </div>
-            <button id="hw-fav-btn" style="width:100%; padding:6px; cursor:pointer; font-size:11px; background:#f8f9fa; border:1px solid #ccc; border-radius:4px;">
-              ${h.favorite ? 'Remove Favorite' : 'Mark as Favorite'}
-            </button>
           `;
-          
-          content.querySelector("#hw-fav-btn")?.addEventListener("click", () => {
-            toggleFavorite(h.id, 'byways', h.favorite);
-            infoWindowRef.current.close();
-          });
-
-          infoWindowRef.current.setContent(content);
+          infoWindowRef.current.setContent(popupContent);
           infoWindowRef.current.setPosition(e.latLng);
           infoWindowRef.current.open(mapRef.current);
         });
@@ -201,6 +193,18 @@ export default function Home() {
       });
     });
   };
+
+  // Expose toggle to window so HTML string buttons can call it
+  useEffect(() => {
+    (window as any).toggleBywayFavorite = (id: string, current: boolean) => {
+        toggleFavorite(id, 'byways', current);
+        infoWindowRef.current.close();
+    };
+    (window as any).togglePlaceFavorite = (id: string, current: boolean) => {
+        toggleFavorite(id, 'places', current);
+        infoWindowRef.current.close();
+    };
+  }, []);
 
   const triggerPlacePopup = (place: any) => {
     const marker = markersMapRef.current.get(place.id);
@@ -210,11 +214,6 @@ export default function Home() {
     const t = place.place_type as PlaceType;
     const sub = place.subtype || "";
     const navUrl = `https://www.google.com/maps/dir/?api=1&destination=${place.lat},${place.lon}`;
-
-    const content = document.createElement("div");
-    content.style.padding = "5px";
-    content.style.fontFamily = "sans-serif";
-    content.style.minWidth = "180px";
 
     let stats = "";
     if (t === "camps" || t === "hikes") {
@@ -227,27 +226,25 @@ export default function Home() {
         </div>`;
     }
 
-    content.innerHTML = `
-        <div style="display:flex; align-items:center; gap:5px;">
-            <b>${place.name}</b> ${place.favorite ? '⭐' : ''}
-        </div>
-        <span style="color:#666; font-size:11px; font-weight:bold;">${CAMP_SUBTYPE_LABELS[sub] || sub || "N/A"}</span>
-        ${stats}
-        <div style="margin-top:10px; border-top:1px solid #eee; padding-top:8px; display:flex; flex-direction:column; gap:6px;">
-            <button id="pl-fav-btn" style="padding:6px; font-size:11px; cursor:pointer; background:#f8f9fa; border:1px solid #ccc; border-radius:4px;">
-              ${place.favorite ? 'Remove ⭐' : 'Add ⭐'}
-            </button>
-            <a href="${navUrl}" target="_blank" style="background:#1a73e8; color:white; text-decoration:none; font-size:11px; font-weight:bold; padding:8px; border-radius:4px; text-align:center;">🚗 Directions</a>
+    const popupContent = `
+        <div style="padding:5px; font-family:sans-serif; min-width:180px;">
+            <div style="display:flex; align-items:center; gap:5px;">
+                <b>${place.name}</b> ${place.favorite ? '⭐' : ''}
+            </div>
+            <span style="color:#666; font-size:11px; font-weight:bold;">${CAMP_SUBTYPE_LABELS[sub] || sub || "N/A"}</span>
+            ${stats}
+            <div style="margin-top:10px; border-top:1px solid #eee; padding-top:8px; display:flex; flex-direction:column; gap:6px;">
+                <button onclick="window.togglePlaceFavorite('${place.id}', ${place.favorite})" style="padding:8px; font-size:11px; cursor:pointer; background:#f8f9fa; border:1px solid #ccc; border-radius:4px;">
+                  ${place.favorite ? 'Remove ⭐' : 'Add ⭐'}
+                </button>
+                <a href="${navUrl}" target="_blank" style="background:#1a73e8; color:white; text-decoration:none; font-size:11px; font-weight:bold; padding:8px; border-radius:4px; text-align:center;">🚗 Directions</a>
+                ${place.website ? `<a href="${place.website}" target="_blank" style="background:#f1f3f4; color:#3c4043; text-decoration:none; font-size:11px; font-weight:bold; padding:8px; border-radius:4px; text-align:center;">🌐 Website</a>` : ''}
+            </div>
         </div>`;
-
-    content.querySelector("#pl-fav-btn")?.addEventListener("click", () => {
-      toggleFavorite(place.id, 'places', place.favorite);
-      infoWindowRef.current.close();
-    });
 
     mapRef.current.setZoom(12);
     mapRef.current.panTo(marker.getPosition());
-    infoWindowRef.current.setContent(content);
+    infoWindowRef.current.setContent(popupContent);
     infoWindowRef.current.open(mapRef.current, marker);
   };
 
