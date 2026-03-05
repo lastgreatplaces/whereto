@@ -49,6 +49,7 @@ export default function Home() {
   const [states, setStates] = useState<string[]>(["NC", "FL", "AB", "VA"]);
   const [placeTypes, setPlaceTypes] = useState<PlaceType[]>(["hikes", "camps", "highways"]);
   const [selectedCampSubtypes, setSelectedCampSubtypes] = useState<string[]>(Object.keys(CAMP_SUBTYPE_LABELS));
+  const [showOnlyFavorites, setShowOnlyFavorites] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(true);
   const [openGroups, setOpenGroups] = useState<string[]>(["South", "West", "Canada"]);
   const [isCampSubmenuOpen, setIsCampSubmenuOpen] = useState(false);
@@ -68,19 +69,21 @@ export default function Home() {
   const filtersRef = useRef({
     states: new Set<string>(states),
     types: new Set<PlaceType>(placeTypes),
-    campSubtypes: new Set<string>(selectedCampSubtypes)
+    campSubtypes: new Set<string>(selectedCampSubtypes),
+    onlyFavorites: showOnlyFavorites
   });
 
   useEffect(() => { 
     filtersRef.current.states = new Set(states); 
     filtersRef.current.types = new Set(placeTypes);
     filtersRef.current.campSubtypes = new Set(selectedCampSubtypes);
-  }, [states, placeTypes, selectedCampSubtypes]);
+    filtersRef.current.onlyFavorites = showOnlyFavorites;
+  }, [states, placeTypes, selectedCampSubtypes, showOnlyFavorites]);
 
   const getMarkerStyle = (google: any, type: PlaceType, subtype: string, zoom: number, isFavorite: boolean) => {
     const baseSize = zoom <= 7 ? 20 : zoom <= 10 ? 30 : 40;
-    const strokeColor = isFavorite ? "#FFD700" : "#ffffff"; // Gold for favorites
-    const strokeWeight = isFavorite ? 5 : 2; // Thicker border for favorites
+    const strokeColor = isFavorite ? "#FFD700" : "#ffffff"; 
+    const strokeWeight = isFavorite ? 5 : 2; 
 
     if (type === "birds") {
       return {
@@ -190,11 +193,11 @@ export default function Home() {
         </div>`;
     }
 
-    popup += `<div style="margin-top:10px; border-top:1px solid #eee; padding-top:8px; display:flex; gap:10px;">
-                <a href="${navUrl}" target="_blank" style="flex:1; background:#1a73e8; color:white; text-decoration:none; font-size:11px; font-weight:bold; padding:6px; border-radius:4px; text-align:center;">🚗 Directions</a>`;
+    popup += `<div style="margin-top:10px; border-top:1px solid #eee; padding-top:8px; display:flex; flex-direction:column; gap:6px;">
+                <a href="${navUrl}" target="_blank" style="background:#1a73e8; color:white; text-decoration:none; font-size:11px; font-weight:bold; padding:8px; border-radius:4px; text-align:center;">🚗 Directions from Current Location</a>`;
     
     if (place.website && place.website.startsWith('http')) {
-      popup += `<a href="${place.website}" target="_blank" style="flex:1; background:#f1f3f4; color:#3c4043; text-decoration:none; font-size:11px; font-weight:bold; padding:6px; border-radius:4px; text-align:center;">🌐 Website</a>`;
+      popup += `<a href="${place.website}" target="_blank" style="background:#f1f3f4; color:#3c4043; text-decoration:none; font-size:11px; font-weight:bold; padding:8px; border-radius:4px; text-align:center;">🌐 Visit Website</a>`;
     }
     
     popup += `</div></div>`;
@@ -218,7 +221,13 @@ export default function Home() {
       return;
     };
 
-    const { data, error } = await supabase.from("places").select("*").in("state", statesArr).in("place_type", typesArr);
+    let query = supabase.from("places").select("*").in("state", statesArr).in("place_type", typesArr);
+    
+    if (filtersRef.current.onlyFavorites) {
+      query = query.eq("favorite", true);
+    }
+
+    const { data, error } = await query;
     if (error || !data) return;
 
     const filteredData = data.filter(r => r.place_type !== "camps" || Array.from(filtersRef.current.campSubtypes).includes(r.subtype));
@@ -228,7 +237,7 @@ export default function Home() {
     const markers = filteredData.map(r => {
       const marker = new google.maps.Marker({ 
           position: { lat: Number(r.lat), lng: Number(r.lon) },
-          zIndex: r.favorite ? 1000 : 1 // Ensure favorites stay on top
+          zIndex: r.favorite ? 1000 : 1 
       });
       const t = r.place_type as PlaceType;
       const sub = r.subtype || "";
@@ -289,7 +298,7 @@ export default function Home() {
   useEffect(() => { 
     isPopupOpenRef.current = false; 
     if (mapRef.current) scheduleLoad(); 
-  }, [states, placeTypes, selectedCampSubtypes]);
+  }, [states, placeTypes, selectedCampSubtypes, showOnlyFavorites]);
 
   const searchResults = searchQuery.length > 1 
     ? loadedPlaces.filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase())).slice(0, 6)
@@ -328,7 +337,13 @@ export default function Home() {
               )}
             </div>
 
-            <div style={{ fontWeight: 700, color: "#666", marginBottom: 8, borderBottom: "1px solid #eee", paddingBottom: 4 }}>CATEGORIES</div>
+            <div style={{ fontWeight: 700, color: "#666", marginBottom: 8, borderBottom: "1px solid #eee", paddingBottom: 4, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <span>CATEGORIES</span>
+              <label style={{ display: "flex", alignItems: "center", fontSize: "10px", cursor: "pointer", color: showOnlyFavorites ? "#d4af37" : "#666" }}>
+                <input type="checkbox" checked={showOnlyFavorites} onChange={() => setShowOnlyFavorites(!showOnlyFavorites)} style={{ marginRight: "4px" }} />
+                ⭐ ONLY
+              </label>
+            </div>
             {(["birds", "hikes", "camps", "highways"] as PlaceType[]).map((t) => (
               <div key={t}>
                 <label style={{ display: "flex", alignItems: "center", marginBottom: 6, cursor: "pointer" }}>
