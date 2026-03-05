@@ -47,14 +47,14 @@ const STATE_GROUPS: Record<string, string[]> = {
 };
 
 export default function Home() {
-  const [states, setStates] = useState<string[]>(["NC", "FL", "AB", "VA"]);
-  const [placeTypes, setPlaceTypes] = useState<PlaceType[]>(["hikes", "camps", "highways"]);
-  const [selectedCampSubtypes, setSelectedCampSubtypes] = useState<string[]>(Object.keys(CAMP_SUBTYPE_LABELS));
-  const [selectedHighwaySubtypes, setSelectedHighwaySubtypes] = useState<string[]>(["Scenic", "Backcountry"]);
+  const [states, setStates] = useState<string[]>([]);
+  const [placeTypes, setPlaceTypes] = useState<PlaceType[]>([]);
+  const [selectedCampSubtypes, setSelectedCampSubtypes] = useState<string[]>([]);
+  const [selectedHighwaySubtypes, setSelectedHighwaySubtypes] = useState<string[]>([]);
   const [favOnlyCategories, setFavOnlyCategories] = useState<PlaceType[]>([]);
   
   const [isFilterOpen, setIsFilterOpen] = useState(true);
-  const [openGroups, setOpenGroups] = useState<string[]>(["South", "West", "Canada"]);
+  const [openGroups, setOpenGroups] = useState<string[]>([]); 
   const [isCampSubmenuOpen, setIsCampSubmenuOpen] = useState(false);
   const [isHighwaySubmenuOpen, setIsHighwaySubmenuOpen] = useState(false);
   
@@ -109,7 +109,7 @@ export default function Home() {
   const applyMarkerSizing = () => {
     if (!mapRef.current) return;
     const google = (window as any).google;
-    const z = mapRef.current.getZoom() ?? 7;
+    const z = mapRef.current.getZoom() ?? 4;
     markersMapRef.current.forEach(m => {
       const type = (m as any).__type as PlaceType;
       const isFav = (m as any).__isFavorite;
@@ -122,7 +122,7 @@ export default function Home() {
   const loadHighways = async () => {
     highwayLinesRef.current.forEach(line => line.setMap(null));
     highwayLinesRef.current = [];
-    if (!filtersRef.current.types.has("highways")) return;
+    if (!filtersRef.current.types.has("highways") || filtersRef.current.states.size === 0) return;
 
     let query = supabase.from("byways").select("geom_geojson, name, designats, favorite, subtype").in("state", Array.from(filtersRef.current.states));
     if (filtersRef.current.favOnlyCategories.has("highways")) {
@@ -191,7 +191,12 @@ export default function Home() {
     markersMapRef.current.clear();
     const statesArr = Array.from(filtersRef.current.states);
     const typesArr = Array.from(filtersRef.current.types).filter(t => t !== "highways");
-    if (!statesArr.length || (!typesArr.length && !filtersRef.current.types.has("highways"))) { setLoadedPlaces([]); return; };
+    
+    if (!statesArr.length || (!typesArr.length && !filtersRef.current.types.has("highways"))) { 
+        setLoadedPlaces([]); 
+        return; 
+    };
+
     let query = supabase.from("places").select("*").in("state", statesArr).in("place_type", typesArr);
     const { data, error } = await query;
     if (error || !data) return;
@@ -234,7 +239,13 @@ export default function Home() {
       document.head.appendChild(clusterScript);
       clusterScript.onload = () => {
         const google = (window as any).google;
-        const map = new google.maps.Map(document.getElementById("map") as HTMLElement, { center: { lat: 35.5, lng: -79.5 }, zoom: 7, mapTypeControl: false, streetViewControl: false });
+        const map = new google.maps.Map(document.getElementById("map") as HTMLElement, { 
+          // UPDATED: Centered on Kansas at a lower zoom to show the lower 48 states
+          center: { lat: 39.5, lng: -98.35 }, 
+          zoom: 4, 
+          mapTypeControl: false, 
+          streetViewControl: false 
+        });
         mapRef.current = map;
         infoWindowRef.current = new google.maps.InfoWindow();
         google.maps.event.addListener(infoWindowRef.current, 'closeclick', () => { isPopupOpenRef.current = false; });
@@ -274,10 +285,8 @@ export default function Home() {
               <div key={t}>
                 <div style={{ display: "flex", alignItems: "center", marginBottom: 6 }}>
                   <input type="checkbox" checked={placeTypes.includes(t)} onChange={() => setPlaceTypes(prev => prev.includes(t) ? prev.filter(x => x !== t) : [...prev, t])} />
-                  {/* flexGrow pushes everything after the name to the right */}
                   <span style={{ marginLeft: 8, textTransform: "capitalize", flexGrow: 1 }}>{t}</span>
                   
-                  {/* Dropdown arrow now to the LEFT of the star */}
                   {(t === "camps" || t === "highways") && (
                     <button 
                       onClick={(e) => { e.preventDefault(); t === "camps" ? setIsCampSubmenuOpen(!isCampSubmenuOpen) : setIsHighwaySubmenuOpen(!isHighwaySubmenuOpen); }} 
@@ -287,7 +296,6 @@ export default function Home() {
                     </button>
                   )}
 
-                  {/* Individual Favorite Toggle - Flush Right */}
                   <button 
                     onClick={() => setFavOnlyCategories(prev => prev.includes(t) ? prev.filter(x => x !== t) : [...prev, t])}
                     style={{ background: "none", border: "none", cursor: "pointer", fontSize: "14px", padding: "0 0 0 5px", color: favOnlyCategories.includes(t) ? "#d4af37" : "#ccc" }}
