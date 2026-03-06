@@ -39,9 +39,14 @@ export default function ClimatePage() {
   const [errorMsg, setErrorMsg] = useState("");
   const [clickedLatLng, setClickedLatLng] = useState<{ lat: number; lng: number } | null>(null);
 
+  const selectedMonthsRef = useRef<number[]>([3, 4, 5]);
   const mapRef = useRef<any>(null);
   const markerRef = useRef<any>(null);
   const infoWindowRef = useRef<any>(null);
+
+  useEffect(() => {
+    selectedMonthsRef.current = selectedMonths;
+  }, [selectedMonths]);
 
   const toggleMonth = (monthNum: number) => {
     setSelectedMonths((prev) =>
@@ -68,9 +73,9 @@ export default function ClimatePage() {
     });
 
     console.log("RPC months sent:", months);
-console.log("RPC lat/lon:", lat, lng);
-console.log("RPC result:", data);
-console.log("RPC error:", error);
+    console.log("RPC lat/lon:", lat, lng);
+    console.log("RPC result:", data);
+    console.log("RPC error:", error);
 
     if (error) {
       console.error(error);
@@ -166,7 +171,7 @@ console.log("RPC error:", error);
           markerRef.current.setPosition({ lat, lng });
         }
 
-        await fetchClimate(lat, lng, selectedMonths);
+        await fetchClimate(lat, lng, selectedMonthsRef.current);
       });
     }
   }, []);
