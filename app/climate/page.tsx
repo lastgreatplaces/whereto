@@ -98,22 +98,18 @@ export default function ClimatePage() {
         return;
       }
 
-      const header = `<div style="font-weight:700; margin-bottom:8px;">${rows[0].state_abbr} — ${rows[0].division_name}</div>`;
-
+      const header = `<div style="font-weight:700; margin-bottom:6px;">${rows[0].state_abbr} — ${rows[0].division_name}</div>`;
       const body = rows
         .map(
           (r) =>
-            `<div style="font-size:12px; line-height:1.5; margin-bottom:8px;">
-              <div style="font-weight:700;">${r.month_name}</div>
-              <div>Early: ${r.tmax_f - 6}° / ${r.tmin_f - 6}°</div>
-              <div>Mid: ${r.tmax_f}° / ${r.tmin_f}°</div>
-              <div>Late: ${r.tmax_f + 6}° / ${r.tmin_f + 6}°</div>
+            `<div style="font-size:12px; line-height:1.5;">
+              ${r.month_name}: ${r.tmax_f}° / ${r.tmin_f}°
             </div>`
         )
         .join("");
 
       infoWindowRef.current.setContent(`
-        <div style="padding:10px; font-family:sans-serif; min-width:190px;">
+        <div style="padding:10px; font-family:sans-serif; min-width:170px;">
           ${header}
           ${body}
         </div>
@@ -284,20 +280,22 @@ export default function ClimatePage() {
             <div style={{ fontWeight: 700, marginBottom: 6 }}>
               {results[0].state_abbr} — {results[0].division_name}
             </div>
-            <div style={{ display: "grid", gap: 8 }}>
+            <div style={{ display: "grid", gap: 4 }}>
               {results.map((r) => (
                 <div
                   key={r.month_name}
                   style={{
+                    display: "grid",
+                    gridTemplateColumns: "40px 1fr",
                     fontSize: 12,
-                    padding: "6px 0",
+                    padding: "4px 0",
                     borderBottom: "1px solid #f3f3f3",
                   }}
                 >
-                  <div style={{ fontWeight: 700, marginBottom: 4 }}>{r.month_name}</div>
-                  <div>Early&nbsp;&nbsp; High {r.tmax_f - 6}° &nbsp;&nbsp; Low {r.tmin_f - 6}°</div>
-                  <div>Mid&nbsp;&nbsp;&nbsp;&nbsp; High {r.tmax_f}° &nbsp;&nbsp; Low {r.tmin_f}°</div>
-                  <div>Late&nbsp;&nbsp;&nbsp; High {r.tmax_f + 6}° &nbsp;&nbsp; Low {r.tmin_f + 6}°</div>
+                  <div style={{ fontWeight: 700 }}>{r.month_name}</div>
+                  <div>
+                    High {r.tmax_f}° &nbsp;&nbsp; Low {r.tmin_f}°
+                  </div>
                 </div>
               ))}
             </div>
