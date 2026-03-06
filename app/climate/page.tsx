@@ -67,6 +67,11 @@ export default function ClimatePage() {
       p_months: months,
     });
 
+    console.log("RPC months sent:", months);
+console.log("RPC lat/lon:", lat, lng);
+console.log("RPC result:", data);
+console.log("RPC error:", error);
+
     if (error) {
       console.error(error);
       setErrorMsg(error.message || "Failed to fetch climate data.");
