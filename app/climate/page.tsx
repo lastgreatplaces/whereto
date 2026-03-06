@@ -60,6 +60,7 @@ export default function ClimatePage() {
     if (!months.length) {
       setErrorMsg("Select at least one month.");
       setResults([]);
+      if (infoWindowRef.current) infoWindowRef.current.close();
       return;
     }
 
@@ -71,11 +72,6 @@ export default function ClimatePage() {
       p_lon: lng,
       p_months: months,
     });
-
-    console.log("RPC months sent:", months);
-    console.log("RPC lat/lon:", lat, lng);
-    console.log("RPC result:", data);
-    console.log("RPC error:", error);
 
     if (error) {
       console.error(error);
@@ -177,8 +173,11 @@ export default function ClimatePage() {
   }, []);
 
   useEffect(() => {
-    if (clickedLatLng) {
+    if (clickedLatLng && selectedMonths.length) {
       fetchClimate(clickedLatLng.lat, clickedLatLng.lng, selectedMonths);
+    } else if (!selectedMonths.length) {
+      setResults([]);
+      if (infoWindowRef.current) infoWindowRef.current.close();
     }
   }, [selectedMonths]);
 
@@ -217,6 +216,23 @@ export default function ClimatePage() {
 
         <div style={{ fontSize: 12, color: "#555", marginBottom: 8 }}>
           Select month(s), then click the map.
+        </div>
+
+        <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 8 }}>
+          <button
+            onClick={() => setSelectedMonths([])}
+            style={{
+              border: "1px solid #ccc",
+              borderRadius: 6,
+              padding: "6px 10px",
+              fontSize: 12,
+              cursor: "pointer",
+              background: "#f5f5f5",
+              color: "#333",
+            }}
+          >
+            Clear
+          </button>
         </div>
 
         <div
