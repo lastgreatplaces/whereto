@@ -15,6 +15,7 @@ type ClimateRow = {
   month_name: string;
   tmax_f: number;
   tmin_f: number;
+  mosquito_score: number;
 };
 
 const MONTHS = [
@@ -31,6 +32,14 @@ const MONTHS = [
   { num: 11, label: "Nov" },
   { num: 12, label: "Dec" },
 ];
+
+function getMosquitoCategory(score: number) {
+  if (score <= 2.4) return { label: "Very Low", color: "#2e7d32" };
+  if (score <= 4.4) return { label: "Low", color: "#558b2f" };
+  if (score <= 6.4) return { label: "Moderate", color: "#f9a825" };
+  if (score <= 8.4) return { label: "High", color: "#ef6c00" };
+  return { label: "Very High", color: "#c62828" };
+}
 
 export default function ClimatePage() {
   const [selectedMonths, setSelectedMonths] = useState<number[]>([3, 4, 5]);
@@ -67,11 +76,14 @@ export default function ClimatePage() {
     setLoading(true);
     setErrorMsg("");
 
-    const { data, error } = await supabase.rpc("get_climate_at_point_months", {
-      p_lat: lat,
-      p_lon: lng,
-      p_months: months,
-    });
+    const { data, error } = await supabase.rpc(
+      "get_climate_and_mosquito_at_point_months",
+      {
+        p_lat: lat,
+        p_lon: lng,
+        p_months: months,
+      }
+    );
 
     if (error) {
       console.error(error);
@@ -98,18 +110,27 @@ export default function ClimatePage() {
         return;
       }
 
-      const header = `<div style="font-weight:700; margin-bottom:6px;">${rows[0].state_abbr} — ${rows[0].division_name}</div>`;
+      const header = `<div style="font-weight:700; margin-bottom:8px;">${rows[0].state_abbr} — ${rows[0].division_name}</div>`;
+
       const body = rows
-        .map(
-          (r) =>
-            `<div style="font-size:12px; line-height:1.5;">
-              ${r.month_name}: ${r.tmax_f}° / ${r.tmin_f}°
-            </div>`
-        )
+        .map((r) => {
+          const mosq = getMosquitoCategory(Number(r.mosquito_score));
+          return `
+            <div style="font-size:12px; line-height:1.5; margin-bottom:10px;">
+              <div style="font-weight:700;">${r.month_name}</div>
+              <div>Early: ${r.tmax_f - 6}° / ${r.tmin_f - 6}°</div>
+              <div>Mid: ${r.tmax_f}° / ${r.tmin_f}°</div>
+              <div>Late: ${r.tmax_f + 6}° / ${r.tmin_f + 6}°</div>
+              <div style="margin-top:4px; font-weight:700; color:${mosq.color};">
+                Mosquito Pressure: ${mosq.label}
+              </div>
+            </div>
+          `;
+        })
         .join("");
 
       infoWindowRef.current.setContent(`
-        <div style="padding:10px; font-family:sans-serif; min-width:170px;">
+        <div style="padding:10px; font-family:sans-serif; min-width:210px;">
           ${header}
           ${body}
         </div>
@@ -123,7 +144,9 @@ export default function ClimatePage() {
     const key = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY;
     if (!key) return;
 
-    const existingScript = document.querySelector(`script[data-gmaps="climate-page"]`);
+    const existingScript = document.querySelector(
+      `script[data-gmaps="climate-page"]`
+    );
     if (existingScript) {
       initMap();
       return;
@@ -141,13 +164,16 @@ export default function ClimatePage() {
       const google = (window as any).google;
       if (!google || mapRef.current) return;
 
-      const map = new google.maps.Map(document.getElementById("climate-map") as HTMLElement, {
-        center: { lat: 39.5, lng: -98.35 },
-        zoom: 4,
-        mapTypeControl: false,
-        streetViewControl: false,
-        fullscreenControl: false,
-      });
+      const map = new google.maps.Map(
+        document.getElementById("climate-map") as HTMLElement,
+        {
+          center: { lat: 39.5, lng: -98.35 },
+          zoom: 4,
+          mapTypeControl: false,
+          streetViewControl: false,
+          fullscreenControl: false,
+        }
+      );
 
       mapRef.current = map;
       infoWindowRef.current = new google.maps.InfoWindow();
@@ -182,14 +208,21 @@ export default function ClimatePage() {
   }, [selectedMonths]);
 
   return (
-    <div style={{ height: "100vh", width: "100%", position: "relative", fontFamily: "sans-serif" }}>
+    <div
+      style={{
+        height: "100vh",
+        width: "100%",
+        position: "relative",
+        fontFamily: "sans-serif",
+      }}
+    >
       <div
         style={{
           position: "absolute",
           left: 12,
           top: 12,
           zIndex: 10,
-          width: 300,
+          width: 320,
           background: "white",
           border: "1px solid #ccc",
           borderRadius: 8,
@@ -197,7 +230,14 @@ export default function ClimatePage() {
           boxShadow: "0 2px 10px rgba(0,0,0,0.12)",
         }}
       >
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: 10,
+          }}
+        >
           <div style={{ fontWeight: 700, fontSize: 16 }}>Climate Map</div>
           <a
             href="/"
@@ -218,7 +258,9 @@ export default function ClimatePage() {
           Select month(s), then click the map.
         </div>
 
-        <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 8 }}>
+        <div
+          style={{ display: "flex", justifyContent: "flex-end", marginBottom: 8 }}
+        >
           <button
             onClick={() => setSelectedMonths([])}
             style={{
@@ -266,12 +308,19 @@ export default function ClimatePage() {
           })}
         </div>
 
-        {loading && <div style={{ fontSize: 12, marginBottom: 8 }}>Loading...</div>}
-        {errorMsg && <div style={{ fontSize: 12, color: "#c62828", marginBottom: 8 }}>{errorMsg}</div>}
+        {loading && (
+          <div style={{ fontSize: 12, marginBottom: 8 }}>Loading...</div>
+        )}
+        {errorMsg && (
+          <div style={{ fontSize: 12, color: "#c62828", marginBottom: 8 }}>
+            {errorMsg}
+          </div>
+        )}
 
         {clickedLatLng && (
           <div style={{ fontSize: 12, color: "#555", marginBottom: 10 }}>
-            Clicked: {clickedLatLng.lat.toFixed(3)}, {clickedLatLng.lng.toFixed(3)}
+            Clicked: {clickedLatLng.lat.toFixed(3)},{" "}
+            {clickedLatLng.lng.toFixed(3)}
           </div>
         )}
 
@@ -280,27 +329,61 @@ export default function ClimatePage() {
             <div style={{ fontWeight: 700, marginBottom: 6 }}>
               {results[0].state_abbr} — {results[0].division_name}
             </div>
-            <div style={{ display: "grid", gap: 4 }}>
-              {results.map((r) => (
-                <div
-                  key={r.month_name}
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "40px 1fr",
-                    fontSize: 12,
-                    padding: "4px 0",
-                    borderBottom: "1px solid #f3f3f3",
-                  }}
-                >
-                  <div style={{ fontWeight: 700 }}>{r.month_name}</div>
-                  <div>
-                    High {r.tmax_f}° &nbsp;&nbsp; Low {r.tmin_f}°
+            <div style={{ display: "grid", gap: 8 }}>
+              {results.map((r) => {
+                const mosq = getMosquitoCategory(Number(r.mosquito_score));
+                return (
+                  <div
+                    key={r.month_name}
+                    style={{
+                      fontSize: 12,
+                      padding: "6px 0",
+                      borderBottom: "1px solid #f3f3f3",
+                    }}
+                  >
+                    <div style={{ fontWeight: 700, marginBottom: 4 }}>
+                      {r.month_name}
+                    </div>
+                    <div>
+                      Early&nbsp;&nbsp; High {r.tmax_f - 6}° &nbsp;&nbsp; Low{" "}
+                      {r.tmin_f - 6}°
+                    </div>
+                    <div>
+                      Mid&nbsp;&nbsp;&nbsp;&nbsp; High {r.tmax_f}° &nbsp;&nbsp;
+                      Low {r.tmin_f}°
+                    </div>
+                    <div>
+                      Late&nbsp;&nbsp;&nbsp; High {r.tmax_f + 6}° &nbsp;&nbsp;
+                      Low {r.tmin_f + 6}°
+                    </div>
+                    <div
+                      style={{
+                        marginTop: 4,
+                        fontWeight: 700,
+                        color: mosq.color,
+                      }}
+                    >
+                      Mosquito Pressure: {mosq.label}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}
+
+        <div
+          style={{
+            marginTop: 10,
+            paddingTop: 8,
+            borderTop: "1px solid #eee",
+            fontSize: 11,
+            color: "#666",
+          }}
+        >
+          Mosquito pressure is a climate-based monthly suitability estimate, not
+          a real-time forecast.
+        </div>
       </div>
 
       <div id="climate-map" style={{ height: "100%", width: "100%" }} />
