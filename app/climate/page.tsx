@@ -47,6 +47,7 @@ export default function ClimatePage() {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [clickedLatLng, setClickedLatLng] = useState<{ lat: number; lng: number } | null>(null);
+  const [panelOpen, setPanelOpen] = useState(true);
 
   const selectedMonthsRef = useRef<number[]>([3, 4, 5]);
   const mapRef = useRef<any>(null);
@@ -63,6 +64,23 @@ export default function ClimatePage() {
         ? prev.filter((m) => m !== monthNum)
         : [...prev, monthNum].sort((a, b) => a - b)
     );
+  };
+
+  const clearAll = () => {
+    setSelectedMonths([]);
+    setResults([]);
+    setClickedLatLng(null);
+    setErrorMsg("");
+    setLoading(false);
+
+    if (markerRef.current) {
+      markerRef.current.setMap(null);
+      markerRef.current = null;
+    }
+
+    if (infoWindowRef.current) {
+      infoWindowRef.current.close();
+    }
   };
 
   const fetchClimate = async (lat: number, lng: number, months: number[]) => {
@@ -216,175 +234,234 @@ export default function ClimatePage() {
         fontFamily: "sans-serif",
       }}
     >
-      <div
-        style={{
-          position: "absolute",
-          left: 12,
-          top: 12,
-          zIndex: 10,
-          width: 320,
-          background: "white",
-          border: "1px solid #ccc",
-          borderRadius: 8,
-          padding: 12,
-          boxShadow: "0 2px 10px rgba(0,0,0,0.12)",
-        }}
-      >
+      {panelOpen ? (
         <div
           style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginBottom: 10,
+            position: "absolute",
+            left: 12,
+            top: 12,
+            zIndex: 10,
+            width: 320,
+            maxWidth: "calc(100vw - 24px)",
+            background: "white",
+            border: "1px solid #ccc",
+            borderRadius: 8,
+            padding: 12,
+            boxShadow: "0 2px 10px rgba(0,0,0,0.12)",
           }}
         >
-          <div style={{ fontWeight: 700, fontSize: 16 }}>Climate Map</div>
-          <a
-            href="/"
+          <div
             style={{
-              fontSize: 12,
-              textDecoration: "none",
-              background: "#f1f3f5",
-              color: "#333",
-              padding: "6px 8px",
-              borderRadius: 6,
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: 10,
             }}
           >
-            Back
-          </a>
-        </div>
+            <div style={{ fontWeight: 700, fontSize: 16 }}>Climate Map</div>
 
-        <div style={{ fontSize: 12, color: "#555", marginBottom: 8 }}>
-          Select month(s), then click the map.
-        </div>
+            <div style={{ display: "flex", gap: 8 }}>
+              <button
+                onClick={() => setPanelOpen(false)}
+                style={{
+                  fontSize: 12,
+                  border: "1px solid #ccc",
+                  borderRadius: 6,
+                  padding: "6px 10px",
+                  background: "#f5f5f5",
+                  cursor: "pointer",
+                  color: "#333",
+                }}
+              >
+                Hide
+              </button>
 
-        <div
-          style={{ display: "flex", justifyContent: "flex-end", marginBottom: 8 }}
-        >
-          <button
-            onClick={() => setSelectedMonths([])}
+              <a
+                href="/"
+                style={{
+                  fontSize: 12,
+                  textDecoration: "none",
+                  background: "#f1f3f5",
+                  color: "#333",
+                  padding: "6px 8px",
+                  borderRadius: 6,
+                }}
+              >
+                Back
+              </a>
+            </div>
+          </div>
+
+          <div style={{ fontSize: 12, color: "#555", marginBottom: 8 }}>
+            Select month(s), then click the map.
+          </div>
+
+          <div
             style={{
+              display: "flex",
+              justifyContent: "flex-end",
+              marginBottom: 8,
+            }}
+          >
+            <button
+              onClick={clearAll}
+              style={{
+                border: "1px solid #ccc",
+                borderRadius: 6,
+                padding: "6px 10px",
+                fontSize: 12,
+                cursor: "pointer",
+                background: "#f5f5f5",
+                color: "#333",
+              }}
+            >
+              Clear
+            </button>
+          </div>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(4, 1fr)",
+              gap: 6,
+              marginBottom: 12,
+            }}
+          >
+            {MONTHS.map((m) => {
+              const selected = selectedMonths.includes(m.num);
+              return (
+                <button
+                  key={m.num}
+                  onClick={() => toggleMonth(m.num)}
+                  style={{
+                    border: "1px solid #ccc",
+                    borderRadius: 6,
+                    padding: "6px 0",
+                    fontSize: 12,
+                    cursor: "pointer",
+                    background: selected ? "#1a73e8" : "white",
+                    color: selected ? "white" : "#333",
+                    fontWeight: selected ? 700 : 400,
+                  }}
+                >
+                  {m.label}
+                </button>
+              );
+            })}
+          </div>
+
+          {loading && (
+            <div style={{ fontSize: 12, marginBottom: 8 }}>Loading...</div>
+          )}
+
+          {errorMsg && (
+            <div style={{ fontSize: 12, color: "#c62828", marginBottom: 8 }}>
+              {errorMsg}
+            </div>
+          )}
+
+          {clickedLatLng && (
+            <div style={{ fontSize: 12, color: "#555", marginBottom: 10 }}>
+              Clicked: {clickedLatLng.lat.toFixed(3)},{" "}
+              {clickedLatLng.lng.toFixed(3)}
+            </div>
+          )}
+
+          {results.length > 0 && (
+            <div style={{ borderTop: "1px solid #eee", paddingTop: 10 }}>
+              <div style={{ fontWeight: 700, marginBottom: 6 }}>
+                {results[0].state_abbr} — {results[0].division_name}
+              </div>
+              <div style={{ display: "grid", gap: 8 }}>
+                {results.map((r) => {
+                  const mosq = getMosquitoCategory(Number(r.mosquito_score));
+                  return (
+                    <div
+                      key={r.month_name}
+                      style={{
+                        fontSize: 12,
+                        padding: "6px 0",
+                        borderBottom: "1px solid #f3f3f3",
+                      }}
+                    >
+                      <div style={{ fontWeight: 700, marginBottom: 4 }}>
+                        {r.month_name}
+                      </div>
+                      <div>
+                        Early&nbsp;&nbsp; High {r.tmax_f - 6}° &nbsp;&nbsp; Low{" "}
+                        {r.tmin_f - 6}°
+                      </div>
+                      <div>
+                        Mid&nbsp;&nbsp;&nbsp;&nbsp; High {r.tmax_f}° &nbsp;&nbsp;
+                        Low {r.tmin_f}°
+                      </div>
+                      <div>
+                        Late&nbsp;&nbsp;&nbsp; High {r.tmax_f + 6}° &nbsp;&nbsp;
+                        Low {r.tmin_f + 6}°
+                      </div>
+                      <div
+                        style={{
+                          marginTop: 4,
+                          fontWeight: 700,
+                          color: mosq.color,
+                        }}
+                      >
+                        Mosquito Pressure: {mosq.label}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          <div
+            style={{
+              marginTop: 10,
+              paddingTop: 8,
+              borderTop: "1px solid #eee",
+              fontSize: 11,
+              color: "#666",
+            }}
+          >
+            Mosquito risk is a climate-based monthly estimate, not a real-time
+            forecast.
+          </div>
+        </div>
+      ) : (
+        <div
+          style={{
+            position: "absolute",
+            left: 12,
+            top: 12,
+            zIndex: 10,
+            background: "white",
+            border: "1px solid #ccc",
+            borderRadius: 8,
+            padding: "10px 12px",
+            boxShadow: "0 2px 10px rgba(0,0,0,0.12)",
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+          }}
+        >
+          <div style={{ fontWeight: 700, fontSize: 14 }}>Climate Map</div>
+          <button
+            onClick={() => setPanelOpen(true)}
+            style={{
+              fontSize: 12,
               border: "1px solid #ccc",
               borderRadius: 6,
               padding: "6px 10px",
-              fontSize: 12,
-              cursor: "pointer",
               background: "#f5f5f5",
+              cursor: "pointer",
               color: "#333",
             }}
           >
-            Clear
+            Show
           </button>
         </div>
-
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(4, 1fr)",
-            gap: 6,
-            marginBottom: 12,
-          }}
-        >
-          {MONTHS.map((m) => {
-            const selected = selectedMonths.includes(m.num);
-            return (
-              <button
-                key={m.num}
-                onClick={() => toggleMonth(m.num)}
-                style={{
-                  border: "1px solid #ccc",
-                  borderRadius: 6,
-                  padding: "6px 0",
-                  fontSize: 12,
-                  cursor: "pointer",
-                  background: selected ? "#1a73e8" : "white",
-                  color: selected ? "white" : "#333",
-                  fontWeight: selected ? 700 : 400,
-                }}
-              >
-                {m.label}
-              </button>
-            );
-          })}
-        </div>
-
-        {loading && (
-          <div style={{ fontSize: 12, marginBottom: 8 }}>Loading...</div>
-        )}
-        {errorMsg && (
-          <div style={{ fontSize: 12, color: "#c62828", marginBottom: 8 }}>
-            {errorMsg}
-          </div>
-        )}
-
-        {clickedLatLng && (
-          <div style={{ fontSize: 12, color: "#555", marginBottom: 10 }}>
-            Clicked: {clickedLatLng.lat.toFixed(3)},{" "}
-            {clickedLatLng.lng.toFixed(3)}
-          </div>
-        )}
-
-        {results.length > 0 && (
-          <div style={{ borderTop: "1px solid #eee", paddingTop: 10 }}>
-            <div style={{ fontWeight: 700, marginBottom: 6 }}>
-              {results[0].state_abbr} — {results[0].division_name}
-            </div>
-            <div style={{ display: "grid", gap: 8 }}>
-              {results.map((r) => {
-                const mosq = getMosquitoCategory(Number(r.mosquito_score));
-                return (
-                  <div
-                    key={r.month_name}
-                    style={{
-                      fontSize: 12,
-                      padding: "6px 0",
-                      borderBottom: "1px solid #f3f3f3",
-                    }}
-                  >
-                    <div style={{ fontWeight: 700, marginBottom: 4 }}>
-                      {r.month_name}
-                    </div>
-                    <div>
-                      Early&nbsp;&nbsp; High {r.tmax_f - 6}° &nbsp;&nbsp; Low{" "}
-                      {r.tmin_f - 6}°
-                    </div>
-                    <div>
-                      Mid&nbsp;&nbsp;&nbsp;&nbsp; High {r.tmax_f}° &nbsp;&nbsp;
-                      Low {r.tmin_f}°
-                    </div>
-                    <div>
-                      Late&nbsp;&nbsp;&nbsp; High {r.tmax_f + 6}° &nbsp;&nbsp;
-                      Low {r.tmin_f + 6}°
-                    </div>
-                    <div
-                      style={{
-                        marginTop: 4,
-                        fontWeight: 700,
-                        color: mosq.color,
-                      }}
-                    >
-                      Mosquito Risk: {mosq.label}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        <div
-          style={{
-            marginTop: 10,
-            paddingTop: 8,
-            borderTop: "1px solid #eee",
-            fontSize: 11,
-            color: "#666",
-          }}
-        >
-          Mosquito risk is a climate-based monthly estimate, not
-          a real-time forecast.
-        </div>
-      </div>
+      )}
 
       <div id="climate-map" style={{ height: "100%", width: "100%" }} />
     </div>
