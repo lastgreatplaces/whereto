@@ -18,6 +18,17 @@ type ClimateRow = {
   mosquito_score: number;
 };
 
+type TravelLabel =
+  | "Desirable"
+  | "Acceptable"
+  | "Undesirable"
+  | "Unacceptable";
+
+type TravelComponent = {
+  label: TravelLabel;
+  score: number;
+};
+
 const MONTHS = [
   { num: 1, label: "Jan" },
   { num: 2, label: "Feb" },
@@ -39,6 +50,102 @@ function getMosquitoCategory(score: number) {
   if (score <= 6.4) return { label: "Moderate", color: "#f9a825" };
   if (score <= 8.4) return { label: "High", color: "#ef6c00" };
   return { label: "Very High", color: "#c62828" };
+}
+
+function getTravelColor(label: TravelLabel) {
+  switch (label) {
+    case "Desirable":
+      return "#2e7d32";
+    case "Acceptable":
+      return "#1565c0";
+    case "Undesirable":
+      return "#ef6c00";
+    case "Unacceptable":
+      return "#c62828";
+    default:
+      return "#333";
+  }
+}
+
+function formatTravelScore(score: number) {
+  return Math.max(0, Math.min(10, score)).toFixed(1);
+}
+
+// Daytime ratings based on your refined bands
+function getDayRating(temp: number): TravelComponent {
+  if (temp < 25) return { label: "Unacceptable", score: 0 };
+  if (temp <= 34) return { label: "Undesirable", score: 1 };
+  if (temp <= 44) return { label: "Acceptable", score: 2 };
+  if (temp <= 54) return { label: "Acceptable", score: 2 };
+  if (temp <= 64) return { label: "Desirable", score: 3 };
+  if (temp <= 69) return { label: "Desirable", score: 3 };
+  if (temp <= 74) return { label: "Acceptable", score: 2 };
+  if (temp <= 79) return { label: "Acceptable", score: 2 };
+  if (temp <= 84) return { label: "Undesirable", score: 1 };
+  return { label: "Unacceptable", score: 0 };
+}
+
+// Nighttime ratings based on your refined bands
+function getNightRating(temp: number): TravelComponent {
+  if (temp < 25) return { label: "Unacceptable", score: 0 };
+  if (temp <= 34) return { label: "Undesirable", score: 1 };
+  if (temp <= 44) return { label: "Acceptable", score: 2 };
+  if (temp <= 54) return { label: "Acceptable", score: 2 };
+  if (temp <= 64) return { label: "Desirable", score: 3 };
+  if (temp <= 69) return { label: "Acceptable", score: 2 };
+  if (temp <= 74) return { label: "Undesirable", score: 1 };
+  return { label: "Unacceptable", score: 0 };
+}
+
+// High mosquito sensitivity mapping
+function getMosquitoTravelRating(mosquitoScore: number): TravelComponent {
+  const mosq = getMosquitoCategory(mosquitoScore);
+
+  switch (mosq.label) {
+    case "Very Low":
+      return { label: "Desirable", score: 3 };
+    case "Low":
+      return { label: "Desirable", score: 3 };
+    case "Moderate":
+      return { label: "Acceptable", score: 2 };
+    case "High":
+      return { label: "Undesirable", score: 1 };
+    case "Very High":
+      return { label: "Unacceptable", score: 0 };
+    default:
+      return { label: "Acceptable", score: 2 };
+  }
+}
+
+function computeTravelScore(r: ClimateRow) {
+  const day = getDayRating(Number(r.tmax_f));
+  const night = getNightRating(Number(r.tmin_f));
+  const mosquito = getMosquitoTravelRating(Number(r.mosquito_score));
+
+  const rawTotal = day.score + night.score + mosquito.score;
+  let travelScore = (rawTotal * 10) / 9;
+
+  const unacceptableCount = [day, night, mosquito].filter(
+    (x) => x.label === "Unacceptable"
+  ).length;
+
+  if (unacceptableCount === 1) {
+    travelScore -= 1.5;
+  } else if (unacceptableCount === 2) {
+    travelScore -= 3.0;
+  } else if (unacceptableCount === 3) {
+    travelScore = 0;
+  }
+
+  travelScore = Math.max(0, Math.min(10, travelScore));
+
+  return {
+    day,
+    night,
+    mosquito,
+    rawTotal,
+    travelScore,
+  };
 }
 
 export default function ClimatePage() {
@@ -133,14 +240,43 @@ export default function ClimatePage() {
       const body = rows
         .map((r) => {
           const mosq = getMosquitoCategory(Number(r.mosquito_score));
+          const travel = computeTravelScore(r);
+
           return `
-            <div style="font-size:12px; line-height:1.5; margin-bottom:10px;">
+            <div style="font-size:12px; line-height:1.5; margin-bottom:12px; padding-bottom:10px; border-bottom:1px solid #f0f0f0;">
               <div style="font-weight:700;">${r.month_name}</div>
+
               <div>Early: ${r.tmax_f - 6}° / ${r.tmin_f - 6}°</div>
               <div>Mid: ${r.tmax_f}° / ${r.tmin_f}°</div>
               <div>Late: ${r.tmax_f + 6}° / ${r.tmin_f + 6}°</div>
+
               <div style="margin-top:4px; font-weight:700; color:${mosq.color};">
                 Mosquito Risk: ${mosq.label}
+              </div>
+
+              <div style="margin-top:6px; padding-top:6px; border-top:1px solid #f6f6f6;">
+                <div>
+                  Day:
+                  <span style="font-weight:700; color:${getTravelColor(travel.day.label)};">
+                    ${travel.day.label}
+                  </span>
+                </div>
+                <div>
+                  Night:
+                  <span style="font-weight:700; color:${getTravelColor(travel.night.label)};">
+                    ${travel.night.label}
+                  </span>
+                </div>
+                <div>
+                  Mosquito:
+                  <span style="font-weight:700; color:${getTravelColor(travel.mosquito.label)};">
+                    ${travel.mosquito.label}
+                  </span>
+                </div>
+                <div style="margin-top:4px; font-size:13px;">
+                  <span style="font-weight:700;">Travel Score:</span>
+                  <span style="font-weight:700; color:#1565c0;"> ${formatTravelScore(travel.travelScore)} / 10</span>
+                </div>
               </div>
             </div>
           `;
@@ -148,7 +284,7 @@ export default function ClimatePage() {
         .join("");
 
       infoWindowRef.current.setContent(`
-        <div style="padding:10px; font-family:sans-serif; min-width:210px;">
+        <div style="padding:10px; font-family:sans-serif; min-width:240px; max-width:280px;">
           ${header}
           ${body}
         </div>
@@ -235,7 +371,6 @@ export default function ClimatePage() {
         fontFamily: "sans-serif",
       }}
     >
-      {/* Top-right floating link back to Places Map */}
       <a
         href="/"
         style={{
@@ -264,7 +399,7 @@ export default function ClimatePage() {
             left: 12,
             top: 12,
             zIndex: 11,
-            width: 320,
+            width: 340,
             maxWidth: "calc(100vw - 24px)",
             background: "white",
             border: "1px solid #ccc",
@@ -281,7 +416,7 @@ export default function ClimatePage() {
               marginBottom: 10,
             }}
           >
-            <div style={{ fontWeight: 700, fontSize: 16 }}>Climate Map</div>
+            <div style={{ fontWeight: 700, fontSize: 16 }}>Climate Test Map</div>
 
             <div style={{ display: "flex", gap: 8 }}>
               <button
@@ -381,9 +516,12 @@ export default function ClimatePage() {
               <div style={{ fontWeight: 700, marginBottom: 6 }}>
                 {results[0].state_abbr} — {results[0].division_name}
               </div>
+
               <div style={{ display: "grid", gap: 8 }}>
                 {results.map((r) => {
                   const mosq = getMosquitoCategory(Number(r.mosquito_score));
+                  const travel = computeTravelScore(r);
+
                   return (
                     <div
                       key={r.month_name}
@@ -396,6 +534,7 @@ export default function ClimatePage() {
                       <div style={{ fontWeight: 700, marginBottom: 4 }}>
                         {r.month_name}
                       </div>
+
                       <div>
                         Early&nbsp;&nbsp; High {r.tmax_f - 6}° &nbsp;&nbsp; Low{" "}
                         {r.tmin_f - 6}°
@@ -408,6 +547,7 @@ export default function ClimatePage() {
                         Late&nbsp;&nbsp;&nbsp; High {r.tmax_f + 6}° &nbsp;&nbsp;
                         Low {r.tmin_f + 6}°
                       </div>
+
                       <div
                         style={{
                           marginTop: 4,
@@ -416,6 +556,48 @@ export default function ClimatePage() {
                         }}
                       >
                         Mosquito Risk: {mosq.label}
+                      </div>
+
+                      <div style={{ marginTop: 6, paddingTop: 6, borderTop: "1px solid #f7f7f7" }}>
+                        <div>
+                          Day:{" "}
+                          <span
+                            style={{
+                              fontWeight: 700,
+                              color: getTravelColor(travel.day.label),
+                            }}
+                          >
+                            {travel.day.label}
+                          </span>
+                        </div>
+                        <div>
+                          Night:{" "}
+                          <span
+                            style={{
+                              fontWeight: 700,
+                              color: getTravelColor(travel.night.label),
+                            }}
+                          >
+                            {travel.night.label}
+                          </span>
+                        </div>
+                        <div>
+                          Mosquito:{" "}
+                          <span
+                            style={{
+                              fontWeight: 700,
+                              color: getTravelColor(travel.mosquito.label),
+                            }}
+                          >
+                            {travel.mosquito.label}
+                          </span>
+                        </div>
+                        <div style={{ marginTop: 4 }}>
+                          <span style={{ fontWeight: 700 }}>Travel Score:</span>{" "}
+                          <span style={{ fontWeight: 700, color: "#1565c0" }}>
+                            {formatTravelScore(travel.travelScore)} / 10
+                          </span>
+                        </div>
                       </div>
                     </div>
                   );
@@ -434,7 +616,7 @@ export default function ClimatePage() {
             }}
           >
             Mosquito risk is a climate-based monthly estimate, not a real-time
-            forecast based on local conditions and habitats.
+            forecast based on local conditions and habitats.  Average temperatures do not reflect elevation differences in western states. Travel score ratings are experimental.
           </div>
         </div>
       ) : (
@@ -491,7 +673,7 @@ export default function ClimatePage() {
               color: "#333",
             }}
           >
-            Climate Map
+            Climate Test Map
           </div>
         </>
       )}
