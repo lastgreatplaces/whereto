@@ -65,8 +65,8 @@ const STATE_GROUPS: Record<string, string[]> = {
 export default function Home() {
   const [states, setStates] = useState<string[]>([]);
   const [placeTypes, setPlaceTypes] = useState<PlaceType[]>([]);
-  const [selectedCampSubtypes, setSelectedCampSubtypes] = useState<string[]>([]);
-  const [selectedHighwaySubtypes, setSelectedHighwaySubtypes] = useState<string[]>([]);
+  const [selectedCampSubtypes, setSelectedCampSubtypes] = useState<string[]>(UI_CAMP_SUBTYPES);
+  const [selectedHighwaySubtypes, setSelectedHighwaySubtypes] = useState<string[]>(UI_HIGHWAY_SUBTYPES);
   const [favOnlyCategories, setFavOnlyCategories] = useState<PlaceType[]>([]);
 
   const [isFilterOpen, setIsFilterOpen] = useState(true);
@@ -124,7 +124,7 @@ export default function Home() {
   const getMarkerStyle = (google: any, type: PlaceType, subtype: string, zoom: number, isFavorite: boolean) => {
     const baseSize = zoom <= 7 ? 20 : zoom <= 10 ? 30 : 40;
     const strokeColor = isFavorite ? "#FFD700" : "#ffffff";
-    const strokeWeight = isFavorite ? 5 : 2;
+    const strokeWeight = isFavorite ? 6 : 2;
 
     if (type === "birds") {
       return {
@@ -132,7 +132,7 @@ export default function Home() {
         scale: baseSize / 2,
         fillColor: "#ffffff",
         fillOpacity: 1,
-        strokeWeight: isFavorite ? 6 : 4,
+        strokeWeight: isFavorite ? 7 : 4,
         strokeColor: isFavorite ? "#FFD700" : "#f80808",
         labelOrigin: new google.maps.Point(0, 0)
       };
@@ -234,8 +234,8 @@ export default function Home() {
           path,
           geodesic: true,
           strokeColor: lineColor,
-          strokeOpacity: 0.8,
-          strokeWeight: h.favorite ? 6 : 4,
+          strokeOpacity: 0.9,
+          strokeWeight: h.favorite ? 7 : 4,
           map: mapRef.current,
           zIndex: h.favorite ? 50 : h.subtype === "Backcountry" ? 10 : 5
         });
@@ -653,29 +653,6 @@ export default function Home() {
             >
               Clear Route
             </button>
-
-            <button
-              onClick={() => {
-                setIsRouteMode(false);
-                setRouteMessage("Route mode off");
-                if (infoWindowRef.current) {
-                  infoWindowRef.current.close();
-                  isPopupOpenRef.current = false;
-                }
-              }}
-              style={{
-                background: "#f1f3f4",
-                color: "#333",
-                border: "1px solid #ddd",
-                borderRadius: 6,
-                padding: "9px 10px",
-                fontWeight: 700,
-                fontSize: 12,
-                cursor: "pointer"
-              }}
-            >
-              Done
-            </button>
           </div>
         </div>
       )}
@@ -821,16 +798,18 @@ export default function Home() {
                       )
                     }
                     style={{
-                      background: "none",
-                      border: "none",
+                      background: favOnlyCategories.includes(t) ? "#fff8dc" : "transparent",
+                      border: favOnlyCategories.includes(t) ? "1px solid #d4af37" : "1px solid transparent",
+                      borderRadius: 4,
                       cursor: "pointer",
-                      fontSize: "14px",
-                      padding: "0 0 0 5px",
-                      color: favOnlyCategories.includes(t) ? "#d4af37" : "#ccc"
+                      fontSize: "16px",
+                      lineHeight: 1,
+                      padding: "2px 4px",
+                      color: favOnlyCategories.includes(t) ? "#b8860b" : "#999"
                     }}
                     title="Favorites only"
                   >
-                    ⭐
+                    ★
                   </button>
                 </div>
 
@@ -846,7 +825,7 @@ export default function Home() {
                   >
                     <div style={{ display: "flex", gap: "8px", marginBottom: "8px" }}>
                       <button
-                        onClick={() => setSelectedCampSubtypes(Object.keys(CAMP_SUBTYPE_LABELS))}
+                        onClick={() => setSelectedCampSubtypes(UI_CAMP_SUBTYPES)}
                         style={{ flex: 1, fontSize: "9px", fontWeight: "bold", padding: "2px", cursor: "pointer" }}
                       >
                         ALL
@@ -902,6 +881,21 @@ export default function Home() {
                       marginLeft: 15
                     }}
                   >
+                    <div style={{ display: "flex", gap: "8px", marginBottom: "8px" }}>
+                      <button
+                        onClick={() => setSelectedHighwaySubtypes(UI_HIGHWAY_SUBTYPES)}
+                        style={{ flex: 1, fontSize: "9px", fontWeight: "bold", padding: "2px", cursor: "pointer" }}
+                      >
+                        ALL
+                      </button>
+                      <button
+                        onClick={() => setSelectedHighwaySubtypes([])}
+                        style={{ flex: 1, fontSize: "9px", fontWeight: "bold", padding: "2px", cursor: "pointer" }}
+                      >
+                        NONE
+                      </button>
+                    </div>
+
                     {UI_HIGHWAY_SUBTYPES.map((sub) => (
                       <label
                         key={sub}
@@ -1044,6 +1038,19 @@ export default function Home() {
                   </div>
                 );
               })}
+            </div>
+
+            <div
+              style={{
+                marginTop: 12,
+                paddingTop: 8,
+                borderTop: "1px solid #eee",
+                fontSize: 11,
+                color: "#666",
+                lineHeight: 1.35
+              }}
+            >
+              Select categories and sub-categories to display on the map.
             </div>
           </div>
         )}
