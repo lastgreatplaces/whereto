@@ -140,7 +140,7 @@ export default function ClimatePage() {
               <div>Mid: ${r.tmax_f}° / ${r.tmin_f}°</div>
               <div>Late: ${r.tmax_f + 6}° / ${r.tmin_f + 6}°</div>
               <div style="margin-top:4px; font-weight:700; color:${mosq.color};">
-                Mosquito Pressure: ${mosq.label}
+                Mosquito Risk: ${mosq.label}
               </div>
             </div>
           `;
