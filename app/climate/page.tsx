@@ -42,14 +42,14 @@ function getMosquitoCategory(score: number) {
 }
 
 export default function ClimatePage() {
-  const [selectedMonths, setSelectedMonths] = useState<number[]>([3, 4, 5]);
+  const [selectedMonths, setSelectedMonths] = useState<number[]>([]);
   const [results, setResults] = useState<ClimateRow[]>([]);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [clickedLatLng, setClickedLatLng] = useState<{ lat: number; lng: number } | null>(null);
   const [panelOpen, setPanelOpen] = useState(true);
 
-  const selectedMonthsRef = useRef<number[]>([3, 4, 5]);
+  const selectedMonthsRef = useRef<number[]>([]);
   const mapRef = useRef<any>(null);
   const markerRef = useRef<any>(null);
   const infoWindowRef = useRef<any>(null);
@@ -221,6 +221,7 @@ export default function ClimatePage() {
       fetchClimate(clickedLatLng.lat, clickedLatLng.lng, selectedMonths);
     } else if (!selectedMonths.length) {
       setResults([]);
+      setErrorMsg("");
       if (infoWindowRef.current) infoWindowRef.current.close();
     }
   }, [selectedMonths]);
@@ -234,13 +235,35 @@ export default function ClimatePage() {
         fontFamily: "sans-serif",
       }}
     >
+      {/* Top-right floating link back to Places Map */}
+      <a
+        href="/"
+        style={{
+          position: "absolute",
+          right: 12,
+          top: 12,
+          zIndex: 12,
+          background: "white",
+          border: "1px solid #ccc",
+          borderRadius: 8,
+          padding: "12px 16px",
+          textDecoration: "none",
+          color: "#333",
+          fontWeight: 700,
+          fontSize: 14,
+          boxShadow: "0 2px 10px rgba(0,0,0,0.12)",
+        }}
+      >
+        Places Map
+      </a>
+
       {panelOpen ? (
         <div
           style={{
             position: "absolute",
             left: 12,
             top: 12,
-            zIndex: 10,
+            zIndex: 11,
             width: 320,
             maxWidth: "calc(100vw - 24px)",
             background: "white",
@@ -275,20 +298,6 @@ export default function ClimatePage() {
               >
                 Hide
               </button>
-
-              <a
-                href="/"
-                style={{
-                  fontSize: 12,
-                  textDecoration: "none",
-                  background: "#f1f3f5",
-                  color: "#333",
-                  padding: "6px 8px",
-                  borderRadius: 6,
-                }}
-              >
-                Back
-              </a>
             </div>
           </div>
 
@@ -429,38 +438,62 @@ export default function ClimatePage() {
           </div>
         </div>
       ) : (
-        <div
-          style={{
-            position: "absolute",
-            left: 12,
-            top: 12,
-            zIndex: 10,
-            background: "white",
-            border: "1px solid #ccc",
-            borderRadius: 8,
-            padding: "10px 12px",
-            boxShadow: "0 2px 10px rgba(0,0,0,0.12)",
-            display: "flex",
-            alignItems: "center",
-            gap: 10,
-          }}
-        >
-          <div style={{ fontWeight: 700, fontSize: 14 }}>Climate Map</div>
-          <button
-            onClick={() => setPanelOpen(true)}
+        <>
+          <div
             style={{
-              fontSize: 12,
+              position: "absolute",
+              left: 12,
+              top: 12,
+              zIndex: 11,
+              background: "white",
               border: "1px solid #ccc",
-              borderRadius: 6,
-              padding: "6px 10px",
-              background: "#f5f5f5",
-              cursor: "pointer",
+              borderRadius: 8,
+              padding: "10px 12px",
+              boxShadow: "0 2px 10px rgba(0,0,0,0.12)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: 56,
+              height: 56,
+            }}
+          >
+            <button
+              onClick={() => setPanelOpen(true)}
+              style={{
+                fontSize: 22,
+                lineHeight: 1,
+                border: "none",
+                background: "transparent",
+                cursor: "pointer",
+                color: "#333",
+                padding: 0,
+              }}
+              aria-label="Show climate menu"
+              title="Show climate menu"
+            >
+              ☰
+            </button>
+          </div>
+
+          <div
+            style={{
+              position: "absolute",
+              left: 84,
+              top: 12,
+              zIndex: 11,
+              background: "white",
+              border: "1px solid #ccc",
+              borderRadius: 8,
+              padding: "12px 18px",
+              boxShadow: "0 2px 10px rgba(0,0,0,0.12)",
+              fontWeight: 700,
+              fontSize: 16,
               color: "#333",
             }}
           >
-            Show
-          </button>
-        </div>
+            Climate Map
+          </div>
+        </>
       )}
 
       <div id="climate-map" style={{ height: "100%", width: "100%" }} />
