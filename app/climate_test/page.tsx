@@ -616,7 +616,7 @@ export default function ClimatePage() {
             }}
           >
             Mosquito risk is a climate-based monthly estimate, not a real-time
-            forecast based on local conditions and habitats.
+            forecast based on local conditions and habitats.  Average temperatures do not reflect elevation differences in western states. Travel score ratings are experimental.
           </div>
         </div>
       ) : (
