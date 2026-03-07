@@ -363,7 +363,7 @@ export default function ClimatePage() {
                         color: mosq.color,
                       }}
                     >
-                      Mosquito Pressure: {mosq.label}
+                      Mosquito Risk: {mosq.label}
                     </div>
                   </div>
                 );
@@ -381,7 +381,7 @@ export default function ClimatePage() {
             color: "#666",
           }}
         >
-          Mosquito pressure is a climate-based monthly suitability estimate, not
+          Mosquito risk is a climate-based monthly estimate, not
           a real-time forecast.
         </div>
       </div>
