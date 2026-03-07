@@ -302,7 +302,7 @@ export default function ClimatePage() {
           </div>
 
           <div style={{ fontSize: 12, color: "#555", marginBottom: 8 }}>
-            Select month(s), then click the map.
+            Select month(s), then move map to desired location and click.
           </div>
 
           <div
@@ -415,7 +415,7 @@ export default function ClimatePage() {
                           color: mosq.color,
                         }}
                       >
-                        Mosquito Pressure: {mosq.label}
+                        Mosquito Risk: {mosq.label}
                       </div>
                     </div>
                   );
@@ -434,7 +434,7 @@ export default function ClimatePage() {
             }}
           >
             Mosquito risk is a climate-based monthly estimate, not a real-time
-            forecast.
+            forecast based on recent local conditions.
           </div>
         </div>
       ) : (
