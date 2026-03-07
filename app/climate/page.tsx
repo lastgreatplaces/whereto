@@ -434,7 +434,7 @@ export default function ClimatePage() {
             }}
           >
             Mosquito risk is a climate-based monthly estimate, not a real-time
-            forecast based on recent local conditions.
+            forecast based on local conditions and habitats.
           </div>
         </div>
       ) : (
