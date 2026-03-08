@@ -1,29 +1,43 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="100" fill="#ffffff"/>
+  
+  <rect width="512" height="512" rx="100" fill="url(#bg_grad)" opacity="0.05"/>
+  
+  <defs>
+    <linearGradient id="bg_grad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#000"/>
+      <stop offset="100%" stop-color="#fff"/>
+    </linearGradient>
+  </defs>
 
-  <!-- background -->
-  <rect width="64" height="64" rx="14" fill="white"/>
-
-  <!-- road -->
   <path
-    d="M20 58
-       C18 44, 30 38, 34 30
-       C38 22, 28 16, 44 8"
+    d="M 0 430 
+       C 150 380, 150 350, 250 300
+       S 350 200, 400 130"
     fill="none"
     stroke="#2c3e50"
-    stroke-width="12"
-    stroke-linecap="round"
+    stroke-width="90"
+    stroke-linecap="butt"
   />
 
-  <!-- dashed center line -->
   <path
-    d="M20 58
-       C18 44, 30 38, 34 30
-       C38 22, 28 16, 44 8"
+    d="M 0 430 
+       C 150 380, 150 350, 250 300
+       S 350 200, 400 130"
     fill="none"
     stroke="white"
-    stroke-width="3"
-    stroke-dasharray="1 8"
+    stroke-width="8"
+    stroke-dasharray="30 25"
     stroke-linecap="round"
   />
 
+  <g transform="translate(380, 120)">
+    <circle cx="0" cy="0" r="45" fill="#ef4444" />
+    <path d="M -45 0 C -45 30, 0 60, 0 60 C 0 60, 45 30, 45 0 Z" fill="#ef4444" />
+    
+    <path 
+      d="M 0 -22 L 6 -8 H 21 L 9 2 L 14 16 L 0 7 L -14 16 L -9 2 L -21 -8 H -6 Z" 
+      fill="white" 
+    />
+  </g>
 </svg>
