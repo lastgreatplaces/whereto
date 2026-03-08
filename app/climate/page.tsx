@@ -442,7 +442,7 @@ export default function ClimatePage() {
           </div>
 
           <div style={{ fontSize: 12, color: "#555", marginBottom: 8, lineHeight: 1.4 }}>
-            Select month(s), then move map to desired location and click.
+            Select month(s), then move map to desired location and click. Close menu on phone to see full map.
           </div>
 
           <div
