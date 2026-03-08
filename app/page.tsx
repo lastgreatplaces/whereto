@@ -121,7 +121,13 @@ export default function Home() {
       .replace(/"/g, "&quot;")
       .replace(/'/g, "&#39;");
 
-  const getMarkerStyle = (google: any, type: PlaceType, subtype: string, zoom: number, isFavorite: boolean) => {
+  const getMarkerStyle = (
+    google: any,
+    type: PlaceType,
+    subtype: string,
+    zoom: number,
+    isFavorite: boolean
+  ) => {
     const baseSize = zoom <= 7 ? 20 : zoom <= 10 ? 30 : 40;
     const strokeColor = isFavorite ? "#FFD700" : "#ffffff";
     const strokeWeight = isFavorite ? 6 : 2;
@@ -230,10 +236,11 @@ export default function Home() {
     highway: any,
     which: "start" | "end",
     lat: number,
-    lon: number
+    lon: number,
+    stopId: string
   ) => {
     const stop: RouteStop = {
-      id: `highway-${highway.id ?? highway.name ?? "byway"}-${which}-${lat}-${lon}`,
+      id: stopId,
       name: `${highway.name || "Scenic Highway"} (${which === "start" ? "Start" : "End"})`,
       lat,
       lon
@@ -274,9 +281,9 @@ export default function Home() {
       .map((s) => `${s.lat},${s.lon}`)
       .join("|");
 
-    let url = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(
-      destination
-    )}&travelmode=driving`;
+    let url = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(
+      origin
+    )}&destination=${encodeURIComponent(destination)}&travelmode=driving`;
 
     if (waypoints) {
       url += `&waypoints=${encodeURIComponent(waypoints)}`;
@@ -374,7 +381,7 @@ export default function Home() {
 
     let query = supabase
       .from("byways")
-      .select("id, geom_geojson, name, designats, favorite, subtype")
+      .select("geom_geojson, name, designats, favorite, subtype")
       .in("state", Array.from(filtersRef.current.states));
 
     if (filtersRef.current.favOnlyCategories.has("highways")) {
@@ -382,7 +389,10 @@ export default function Home() {
     }
 
     const { data, error } = await query;
-    if (error || !data) return;
+    if (error || !data) {
+      console.error("Highway load error:", error);
+      return;
+    }
 
     const filteredHighways = data.filter((h) =>
       filtersRef.current.highwaySubtypes.has(h.subtype || "Scenic")
@@ -413,9 +423,12 @@ export default function Home() {
       const endLat = endCoord[1];
       const endLon = endCoord[0];
 
-      const baseId = String(h.id ?? h.name ?? "byway");
-      const startId = `highway-${baseId}-start-${startLat}-${startLon}`;
-      const endId = `highway-${baseId}-end-${endLat}-${endLon}`;
+      const baseId = `${h.name || "byway"}-${startLat}-${startLon}-${endLat}-${endLon}`
+        .replace(/\s+/g, "-")
+        .replace(/[^a-zA-Z0-9-_]/g, "");
+
+      const startId = `highway-${baseId}-start`;
+      const endId = `highway-${baseId}-end`;
       const startAlready = routeStops.some((s) => s.id === startId);
       const endAlready = routeStops.some((s) => s.id === endId);
       const canAddMore = routeStops.length < 8;
@@ -497,7 +510,7 @@ export default function Home() {
             if (startBtn && canAddMore && !startAlready) {
               startBtn.addEventListener(
                 "click",
-                () => addHighwayEndpointToRoute(h, "start", startLat, startLon),
+                () => addHighwayEndpointToRoute(h, "start", startLat, startLon, startId),
                 { once: true }
               );
             }
@@ -505,7 +518,7 @@ export default function Home() {
             if (endBtn && canAddMore && !endAlready) {
               endBtn.addEventListener(
                 "click",
-                () => addHighwayEndpointToRoute(h, "end", endLat, endLon),
+                () => addHighwayEndpointToRoute(h, "end", endLat, endLon, endId),
                 { once: true }
               );
             }
