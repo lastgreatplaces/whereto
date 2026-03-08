@@ -394,7 +394,7 @@ export default function ClimatePage() {
           style={{
             position: "absolute",
             left: 12,
-            top: 12,
+            top: 72,
             zIndex: 11,
             width: 340,
             maxWidth: "calc(100vw - 24px)",
@@ -412,6 +412,7 @@ export default function ClimatePage() {
               alignItems: "flex-start",
               marginBottom: 10,
               gap: 10,
+              paddingRight: 4,
             }}
           >
             <div style={{ fontWeight: 700, fontSize: 16, color: "#222" }}>
@@ -621,7 +622,7 @@ export default function ClimatePage() {
             }}
           >
             Mosquito risk is a climate-based monthly estimate, not a real-time
-            forecast based on local conditions and habitats. Average temperatures
+            forecast based on local conditions & habitats. Average temperatures
             do not reflect elevation differences in western states. Travel score
             ratings are experimental.
           </div>
@@ -632,7 +633,7 @@ export default function ClimatePage() {
           style={{
             position: "absolute",
             left: 12,
-            top: 12,
+            top: 72,
             zIndex: 11,
             background: "white",
             border: "1px solid #ccc",
