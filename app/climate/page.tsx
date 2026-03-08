@@ -415,7 +415,7 @@ export default function ClimatePage() {
             }}
           >
             <div style={{ fontWeight: 700, fontSize: 16, color: "#222" }}>
-              Climate Test Map
+              Climate Map
             </div>
 
             <button
