@@ -1050,7 +1050,7 @@ export default function Home() {
                 lineHeight: 1.35
               }}
             >
-              Select categories, sub-categories state(s) to display on the map.  Clicor on any icon or scenic road for info. Close top menu for full map view.
+              Select categories, sub-categories, & state(s) to display on the map.  Click on icons or scenic road for info. Close menu for full map view.
             </div>
           </div>
         )}
