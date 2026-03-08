@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+
+  <!-- background -->
+  <rect width="64" height="64" rx="14" fill="white"/>
+
+  <!-- road -->
+  <path
+    d="M20 58
+       C18 44, 30 38, 34 30
+       C38 22, 28 16, 44 8"
+    fill="none"
+    stroke="#2c3e50"
+    stroke-width="12"
+    stroke-linecap="round"
+  />
+
+  <!-- dashed center line -->
+  <path
+    d="M20 58
+       C18 44, 30 38, 34 30
+       C38 22, 28 16, 44 8"
+    fill="none"
+    stroke="white"
+    stroke-width="3"
+    stroke-dasharray="1 8"
+    stroke-linecap="round"
+  />
+
+</svg>
