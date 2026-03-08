@@ -193,50 +193,76 @@ export default function Home() {
     });
   };
 
+  const loadHighways = async () => {
+    highwayLinesRef.current.forEach((line) => line.setMap(null));
+    highwayLinesRef.current = [];
+
+    if (!filtersRef.current.types.has("highways") || filtersRef.current.states.size === 0) return;
+
+    let query = supabase
+      .from("byways")
+      .select("geom_geojson, name, designats, favorite, subtype")
+      .in("state", Array.from(filtersRef.current.states));
+
+    if (filtersRef.current.favOnlyCategories.has("highways")) {
+      query = query.eq("favorite", true);
+    }
+
+    const { data, error } = await query;
+    if (error || !data) return;
+
+    const filteredHighways = data.filter((h) =>
+      filtersRef.current.highwaySubtypes.has(h.subtype || "Scenic")
+    );
+
+    setLoadedHighways(filteredHighways);
+    const google = (window as any).google;
+
+    filteredHighways.forEach((h) => {
+      const geo = h.geom_geojson;
+      if (!geo || !geo.coordinates) return;
+
+      let lineColor = "#4e342e";
+      if (h.favorite) lineColor = "#FFD700";
+      else if (h.subtype === "Backcountry") lineColor = "#CC5500";
+
+      const segments = geo.type === "MultiLineString" ? geo.coordinates : [geo.coordinates];
+
+      segments.forEach((segment: any[]) => {
+        const path = segment.map((c) => ({ lat: c[1], lng: c[0] }));
+        const poly = new google.maps.Polyline({
+          path,
+          geodesic: true,
+          strokeColor: lineColor,
+          strokeOpacity: 0.9,
+          strokeWeight: h.favorite ? 7 : 4,
+          map: mapRef.current,
+          zIndex: h.favorite ? 50 : h.subtype === "Backcountry" ? 10 : 5
+        });
+
+        poly.addListener("click", (e: any) => {
+          infoWindowRef.current.setContent(
+            `<div style="padding:10px; font-family:sans-serif;">
+              <b>${escapeHtml(h.name || "Scenic Byway")}</b>${h.favorite ? " ⭐" : ""}
+              <br/>
+              <span style="font-size:12px; color:#555;">${escapeHtml(h.designats || "")}</span>
+            </div>`
+          );
+          infoWindowRef.current.setPosition(e.latLng);
+          infoWindowRef.current.open(mapRef.current);
+        });
+
+        highwayLinesRef.current.push(poly);
+      });
+    });
+  };
+
   const addStopToRoute = (place: any) => {
     const stop: RouteStop = {
       id: String(place.id),
       name: place.name,
       lat: Number(place.lat),
       lon: Number(place.lon)
-    };
-
-    let added = false;
-
-    setRouteStops((prev) => {
-      if (prev.some((s) => s.id === stop.id)) {
-        setRouteMessage("That stop is already in the route");
-        return prev;
-      }
-      if (prev.length >= 8) {
-        setRouteMessage("Maximum 8 stops allowed");
-        return prev;
-      }
-      added = true;
-      return [...prev, stop];
-    });
-
-    if (added) {
-      setRouteMessage(`Stop ${routeStops.length + 1} added`);
-    }
-
-    if (infoWindowRef.current) {
-      infoWindowRef.current.close();
-      isPopupOpenRef.current = false;
-    }
-  };
-
-  const addHighwayEndpointToRoute = (
-    highway: any,
-    which: "start" | "end",
-    lat: number,
-    lon: number
-  ) => {
-    const stop: RouteStop = {
-      id: `highway-${highway.id ?? highway.name ?? "byway"}-${which}-${lat}-${lon}`,
-      name: `${highway.name || "Scenic Highway"} (${which === "start" ? "Start" : "End"})`,
-      lat,
-      lon
     };
 
     let added = false;
@@ -366,157 +392,6 @@ export default function Home() {
     });
   };
 
-  const loadHighways = async () => {
-    highwayLinesRef.current.forEach((line) => line.setMap(null));
-    highwayLinesRef.current = [];
-
-    if (!filtersRef.current.types.has("highways") || filtersRef.current.states.size === 0) return;
-
-    let query = supabase
-      .from("byways")
-      .select("id, geom_geojson, name, designats, favorite, subtype")
-      .in("state", Array.from(filtersRef.current.states));
-
-    if (filtersRef.current.favOnlyCategories.has("highways")) {
-      query = query.eq("favorite", true);
-    }
-
-    const { data, error } = await query;
-    if (error || !data) return;
-
-    const filteredHighways = data.filter((h) =>
-      filtersRef.current.highwaySubtypes.has(h.subtype || "Scenic")
-    );
-
-    setLoadedHighways(filteredHighways);
-    const google = (window as any).google;
-
-    filteredHighways.forEach((h) => {
-      const geo = h.geom_geojson;
-      if (!geo || !geo.coordinates) return;
-
-      let lineColor = "#4e342e";
-      if (h.favorite) lineColor = "#FFD700";
-      else if (h.subtype === "Backcountry") lineColor = "#CC5500";
-
-      const segments = geo.type === "MultiLineString" ? geo.coordinates : [geo.coordinates];
-      if (!segments.length || !segments[0]?.length) return;
-
-      const firstSegment = segments[0];
-      const lastSegment = segments[segments.length - 1];
-      const startCoord = firstSegment[0];
-      const endCoord = lastSegment[lastSegment.length - 1];
-      if (!startCoord || !endCoord) return;
-
-      const startLat = startCoord[1];
-      const startLon = startCoord[0];
-      const endLat = endCoord[1];
-      const endLon = endCoord[0];
-
-      const baseId = String(h.id ?? h.name ?? "byway");
-      const startId = `highway-${baseId}-start-${startLat}-${startLon}`;
-      const endId = `highway-${baseId}-end-${endLat}-${endLon}`;
-      const startAlready = routeStops.some((s) => s.id === startId);
-      const endAlready = routeStops.some((s) => s.id === endId);
-      const canAddMore = routeStops.length < 8;
-
-      segments.forEach((segment: any[]) => {
-        const path = segment.map((c) => ({ lat: c[1], lng: c[0] }));
-        const poly = new google.maps.Polyline({
-          path,
-          geodesic: true,
-          strokeColor: lineColor,
-          strokeOpacity: 0.9,
-          strokeWeight: h.favorite ? 7 : 4,
-          map: mapRef.current,
-          zIndex: h.favorite ? 50 : h.subtype === "Backcountry" ? 10 : 5
-        });
-
-        poly.addListener("click", (e: any) => {
-          isPopupOpenRef.current = true;
-
-          const popup = `
-            <div style="padding:10px; font-family:sans-serif; min-width:220px;">
-              <div style="font-weight:700; margin-bottom:4px;">
-                ${escapeHtml(h.name || "Scenic Byway")}${h.favorite ? " ⭐" : ""}
-              </div>
-              <div style="font-size:12px; color:#555; margin-bottom:6px;">
-                ${escapeHtml(h.designats || "")}
-              </div>
-              <div style="font-size:11px; color:#666; margin-bottom:8px;">
-                Add both ends in sequence to route the scenic drive.
-              </div>
-              <div style="display:flex; flex-direction:column; gap:6px;">
-                <button
-                  id="add-highway-start-${baseId}"
-                  ${!canAddMore || startAlready ? "disabled" : ""}
-                  style="
-                    background:${!canAddMore || startAlready ? "#bdbdbd" : "#188038"};
-                    color:white;
-                    border:none;
-                    font-size:11px;
-                    font-weight:bold;
-                    padding:8px;
-                    border-radius:4px;
-                    text-align:center;
-                    cursor:${!canAddMore || startAlready ? "default" : "pointer"};
-                  "
-                >
-                  ${startAlready ? "✓ Start Already in Route" : "➕ Add Start to Route"}
-                </button>
-
-                <button
-                  id="add-highway-end-${baseId}"
-                  ${!canAddMore || endAlready ? "disabled" : ""}
-                  style="
-                    background:${!canAddMore || endAlready ? "#bdbdbd" : "#188038"};
-                    color:white;
-                    border:none;
-                    font-size:11px;
-                    font-weight:bold;
-                    padding:8px;
-                    border-radius:4px;
-                    text-align:center;
-                    cursor:${!canAddMore || endAlready ? "default" : "pointer"};
-                  "
-                >
-                  ${endAlready ? "✓ End Already in Route" : "➕ Add End to Route"}
-                </button>
-              </div>
-            </div>
-          `;
-
-          infoWindowRef.current.setContent(popup);
-          infoWindowRef.current.setPosition(e.latLng);
-          infoWindowRef.current.open(mapRef.current);
-
-          google.maps.event.addListenerOnce(infoWindowRef.current, "domready", () => {
-            const startBtn = document.getElementById(`add-highway-start-${baseId}`);
-            const endBtn = document.getElementById(`add-highway-end-${baseId}`);
-
-            if (startBtn && canAddMore && !startAlready) {
-              startBtn.addEventListener(
-                "click",
-                () => addHighwayEndpointToRoute(h, "start", startLat, startLon),
-                { once: true }
-              );
-            }
-
-            if (endBtn && canAddMore && !endAlready) {
-              endBtn.addEventListener(
-                "click",
-                () => addHighwayEndpointToRoute(h, "end", endLat, endLon),
-                { once: true }
-              );
-            }
-          });
-        });
-
-        highwayLinesRef.current.push(poly);
-      });
-    });
-  };
-
   const loadPlaces = async () => {
     if (!mapRef.current || !clustererRef.current || isPopupOpenRef.current) return;
 
@@ -623,7 +498,7 @@ export default function Home() {
   useEffect(() => {
     isPopupOpenRef.current = false;
     if (mapRef.current) scheduleLoad();
-  }, [states, placeTypes, selectedCampSubtypes, selectedHighwaySubtypes, favOnlyCategories, routeStops]);
+  }, [states, placeTypes, selectedCampSubtypes, selectedHighwaySubtypes, favOnlyCategories]);
 
   const placeResults =
     searchQuery.length > 1
@@ -801,7 +676,7 @@ export default function Home() {
           onClick={() => setIsFilterOpen(!isFilterOpen)}
           style={{ width: "100%", cursor: "pointer", padding: "4px", marginBottom: isFilterOpen ? 8 : 0 }}
         >
-          {isFilterOpen ? "Close Filters" : "☰"}
+          {isFilterOpen ? "Close Menu" : "☰"}
         </button>
 
         {isFilterOpen && (
@@ -1175,7 +1050,7 @@ export default function Home() {
                 lineHeight: 1.35
               }}
             >
-              Select categories and sub-categories to display on the map.
+              Select categories, sub-categories, & state(s) to display on the map.  Click on icons or scenic road for info. Close menu for full map view.
             </div>
           </div>
         )}
