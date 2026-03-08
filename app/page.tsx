@@ -676,7 +676,7 @@ export default function Home() {
           onClick={() => setIsFilterOpen(!isFilterOpen)}
           style={{ width: "100%", cursor: "pointer", padding: "4px", marginBottom: isFilterOpen ? 8 : 0 }}
         >
-          {isFilterOpen ? "Close Filters" : "☰"}
+          {isFilterOpen ? "Close Menu" : "☰"}
         </button>
 
         {isFilterOpen && (
@@ -1050,7 +1050,7 @@ export default function Home() {
                 lineHeight: 1.35
               }}
             >
-              Select categories and sub-categories to display on the map.
+              Select categories, sub-categories state(s) to display on the map.  Clicor on any icon or scenic road for info. Close top menu for full map view.
             </div>
           </div>
         )}
