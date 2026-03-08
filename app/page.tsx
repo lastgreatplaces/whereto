@@ -22,12 +22,6 @@ type RouteStop = {
   lon: number;
 };
 
-type PendingHighwayPick = {
-  baseId: string;
-  highwayName: string;
-  mode: "entry" | "exit";
-};
-
 const CAMP_THEMES: Record<string, Theme> = {
   COE: { color: "#d32f2f", emoji: "⚓" },
   NF: { color: "#1b5e20", emoji: "🌲" },
@@ -87,7 +81,6 @@ export default function Home() {
   const [isRouteMode, setIsRouteMode] = useState(false);
   const [routeStops, setRouteStops] = useState<RouteStop[]>([]);
   const [routeMessage, setRouteMessage] = useState("");
-  const [pendingHighwayPick, setPendingHighwayPick] = useState<PendingHighwayPick | null>(null);
 
   const mapRef = useRef<any>(null);
   const clustererRef = useRef<any>(null);
@@ -116,7 +109,7 @@ export default function Home() {
 
   useEffect(() => {
     if (!routeMessage) return;
-    const timer = setTimeout(() => setRouteMessage(""), 2600);
+    const timer = setTimeout(() => setRouteMessage(""), 2200);
     return () => clearTimeout(timer);
   }, [routeMessage]);
 
@@ -128,13 +121,7 @@ export default function Home() {
       .replace(/"/g, "&quot;")
       .replace(/'/g, "&#39;");
 
-  const getMarkerStyle = (
-    google: any,
-    type: PlaceType,
-    subtype: string,
-    zoom: number,
-    isFavorite: boolean
-  ) => {
+  const getMarkerStyle = (google: any, type: PlaceType, subtype: string, zoom: number, isFavorite: boolean) => {
     const baseSize = zoom <= 7 ? 20 : zoom <= 10 ? 30 : 40;
     const strokeColor = isFavorite ? "#FFD700" : "#ffffff";
     const strokeWeight = isFavorite ? 6 : 2;
@@ -206,6 +193,70 @@ export default function Home() {
     });
   };
 
+  const loadHighways = async () => {
+    highwayLinesRef.current.forEach((line) => line.setMap(null));
+    highwayLinesRef.current = [];
+
+    if (!filtersRef.current.types.has("highways") || filtersRef.current.states.size === 0) return;
+
+    let query = supabase
+      .from("byways")
+      .select("geom_geojson, name, designats, favorite, subtype")
+      .in("state", Array.from(filtersRef.current.states));
+
+    if (filtersRef.current.favOnlyCategories.has("highways")) {
+      query = query.eq("favorite", true);
+    }
+
+    const { data, error } = await query;
+    if (error || !data) return;
+
+    const filteredHighways = data.filter((h) =>
+      filtersRef.current.highwaySubtypes.has(h.subtype || "Scenic")
+    );
+
+    setLoadedHighways(filteredHighways);
+    const google = (window as any).google;
+
+    filteredHighways.forEach((h) => {
+      const geo = h.geom_geojson;
+      if (!geo || !geo.coordinates) return;
+
+      let lineColor = "#4e342e";
+      if (h.favorite) lineColor = "#FFD700";
+      else if (h.subtype === "Backcountry") lineColor = "#CC5500";
+
+      const segments = geo.type === "MultiLineString" ? geo.coordinates : [geo.coordinates];
+
+      segments.forEach((segment: any[]) => {
+        const path = segment.map((c) => ({ lat: c[1], lng: c[0] }));
+        const poly = new google.maps.Polyline({
+          path,
+          geodesic: true,
+          strokeColor: lineColor,
+          strokeOpacity: 0.9,
+          strokeWeight: h.favorite ? 7 : 4,
+          map: mapRef.current,
+          zIndex: h.favorite ? 50 : h.subtype === "Backcountry" ? 10 : 5
+        });
+
+        poly.addListener("click", (e: any) => {
+          infoWindowRef.current.setContent(
+            `<div style="padding:10px; font-family:sans-serif;">
+              <b>${escapeHtml(h.name || "Scenic Byway")}</b>${h.favorite ? " ⭐" : ""}
+              <br/>
+              <span style="font-size:12px; color:#555;">${escapeHtml(h.designats || "")}</span>
+            </div>`
+          );
+          infoWindowRef.current.setPosition(e.latLng);
+          infoWindowRef.current.open(mapRef.current);
+        });
+
+        highwayLinesRef.current.push(poly);
+      });
+    });
+  };
+
   const addStopToRoute = (place: any) => {
     const stop: RouteStop = {
       id: String(place.id),
@@ -239,88 +290,6 @@ export default function Home() {
     }
   };
 
-  const addHighwayEndpointToRoute = (
-    highway: any,
-    which: "start" | "end",
-    lat: number,
-    lon: number,
-    stopId: string
-  ) => {
-    const stop: RouteStop = {
-      id: stopId,
-      name: `${highway.name || "Scenic Highway"} (${which === "start" ? "Start" : "End"})`,
-      lat,
-      lon
-    };
-
-    let added = false;
-
-    setRouteStops((prev) => {
-      if (prev.some((s) => s.id === stop.id)) {
-        setRouteMessage("That stop is already in the route");
-        return prev;
-      }
-      if (prev.length >= 8) {
-        setRouteMessage("Maximum 8 stops allowed");
-        return prev;
-      }
-      added = true;
-      return [...prev, stop];
-    });
-
-    if (added) {
-      setRouteMessage(`Stop ${routeStops.length + 1} added`);
-    }
-
-    setPendingHighwayPick(null);
-
-    if (infoWindowRef.current) {
-      infoWindowRef.current.close();
-      isPopupOpenRef.current = false;
-    }
-  };
-
-  const addHighwayClickedPointToRoute = (
-    highwayName: string,
-    mode: "entry" | "exit",
-    lat: number,
-    lon: number,
-    stopId: string
-  ) => {
-    const stop: RouteStop = {
-      id: stopId,
-      name: `${highwayName} (${mode === "entry" ? "Entry" : "Exit"})`,
-      lat,
-      lon
-    };
-
-    let added = false;
-
-    setRouteStops((prev) => {
-      if (prev.some((s) => s.id === stop.id)) {
-        setRouteMessage("That stop is already in the route");
-        return prev;
-      }
-      if (prev.length >= 8) {
-        setRouteMessage("Maximum 8 stops allowed");
-        return prev;
-      }
-      added = true;
-      return [...prev, stop];
-    });
-
-    if (added) {
-      setRouteMessage(`${mode === "entry" ? "Entry" : "Exit"} point added`);
-    }
-
-    setPendingHighwayPick(null);
-
-    if (infoWindowRef.current) {
-      infoWindowRef.current.close();
-      isPopupOpenRef.current = false;
-    }
-  };
-
   const buildGoogleRouteUrl = () => {
     if (routeStops.length < 2) return "";
 
@@ -331,9 +300,9 @@ export default function Home() {
       .map((s) => `${s.lat},${s.lon}`)
       .join("|");
 
-    let url = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(
-      origin
-    )}&destination=${encodeURIComponent(destination)}&travelmode=driving`;
+    let url = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(
+      destination
+    )}&travelmode=driving`;
 
     if (waypoints) {
       url += `&waypoints=${encodeURIComponent(waypoints)}`;
@@ -349,19 +318,6 @@ export default function Home() {
     }
     const url = buildGoogleRouteUrl();
     window.open(url, "_blank");
-  };
-
-  const beginHighwayPickMode = (
-    baseId: string,
-    highwayName: string,
-    mode: "entry" | "exit"
-  ) => {
-    setPendingHighwayPick({ baseId, highwayName, mode });
-    setRouteMessage(`Click ${highwayName} where you want to set the ${mode} point`);
-    if (infoWindowRef.current) {
-      infoWindowRef.current.close();
-      isPopupOpenRef.current = false;
-    }
   };
 
   const triggerPlacePopup = (place: any) => {
@@ -433,232 +389,6 @@ export default function Home() {
       if (addBtn && canAddStop) {
         addBtn.addEventListener("click", () => addStopToRoute(place), { once: true });
       }
-    });
-  };
-
-  const loadHighways = async () => {
-    highwayLinesRef.current.forEach((line) => line.setMap(null));
-    highwayLinesRef.current = [];
-
-    if (!filtersRef.current.types.has("highways") || filtersRef.current.states.size === 0) return;
-
-    let query = supabase
-      .from("byways")
-      .select("geom_geojson, name, designats, favorite, subtype")
-      .in("state", Array.from(filtersRef.current.states));
-
-    if (filtersRef.current.favOnlyCategories.has("highways")) {
-      query = query.eq("favorite", true);
-    }
-
-    const { data, error } = await query;
-    if (error || !data) {
-      console.error("Highway load error:", error);
-      return;
-    }
-
-    const filteredHighways = data.filter((h) =>
-      filtersRef.current.highwaySubtypes.has(h.subtype || "Scenic")
-    );
-
-    setLoadedHighways(filteredHighways);
-    const google = (window as any).google;
-
-    filteredHighways.forEach((h) => {
-      const geo = h.geom_geojson;
-      if (!geo || !geo.coordinates) return;
-
-      let lineColor = "#4e342e";
-      if (h.favorite) lineColor = "#FFD700";
-      else if (h.subtype === "Backcountry") lineColor = "#CC5500";
-
-      const segments = geo.type === "MultiLineString" ? geo.coordinates : [geo.coordinates];
-      if (!segments.length || !segments[0]?.length) return;
-
-      const firstSegment = segments[0];
-      const lastSegment = segments[segments.length - 1];
-      const startCoord = firstSegment[0];
-      const endCoord = lastSegment[lastSegment.length - 1];
-      if (!startCoord || !endCoord) return;
-
-      const startLat = startCoord[1];
-      const startLon = startCoord[0];
-      const endLat = endCoord[1];
-      const endLon = endCoord[0];
-
-      const baseId = `${h.name || "byway"}-${startLat}-${startLon}-${endLat}-${endLon}`
-        .replace(/\s+/g, "-")
-        .replace(/[^a-zA-Z0-9-_]/g, "");
-
-      const startId = `highway-${baseId}-start`;
-      const endId = `highway-${baseId}-end`;
-      const startAlready = routeStops.some((s) => s.id === startId);
-      const endAlready = routeStops.some((s) => s.id === endId);
-      const canAddMore = routeStops.length < 8;
-
-      segments.forEach((segment: any[]) => {
-        const path = segment.map((c) => ({ lat: c[1], lng: c[0] }));
-        const poly = new google.maps.Polyline({
-          path,
-          geodesic: true,
-          strokeColor: lineColor,
-          strokeOpacity: 0.9,
-          strokeWeight: h.favorite ? 7 : 4,
-          map: mapRef.current,
-          zIndex: h.favorite ? 50 : h.subtype === "Backcountry" ? 10 : 5
-        });
-
-        poly.addListener("click", (e: any) => {
-          const clickLat = e.latLng.lat();
-          const clickLon = e.latLng.lng();
-
-          if (pendingHighwayPick && pendingHighwayPick.baseId === baseId) {
-            const clickedStopId = `highway-${baseId}-${pendingHighwayPick.mode}-${clickLat.toFixed(6)}-${clickLon.toFixed(6)}`;
-            addHighwayClickedPointToRoute(
-              pendingHighwayPick.highwayName,
-              pendingHighwayPick.mode,
-              clickLat,
-              clickLon,
-              clickedStopId
-            );
-            return;
-          }
-
-          isPopupOpenRef.current = true;
-
-          const popup = `
-            <div style="padding:10px; font-family:sans-serif; min-width:220px;">
-              <div style="font-weight:700; margin-bottom:4px;">
-                ${escapeHtml(h.name || "Scenic Byway")}${h.favorite ? " ⭐" : ""}
-              </div>
-              <div style="font-size:12px; color:#555; margin-bottom:6px;">
-                ${escapeHtml(h.designats || "")}
-              </div>
-              <div style="font-size:11px; color:#666; margin-bottom:8px;">
-                Use start/end for the full road, or pick an exact entry/exit point.
-              </div>
-              <div style="display:flex; flex-direction:column; gap:6px;">
-                <button
-                  id="add-highway-start-${baseId}"
-                  ${!canAddMore || startAlready ? "disabled" : ""}
-                  style="
-                    background:${!canAddMore || startAlready ? "#bdbdbd" : "#188038"};
-                    color:white;
-                    border:none;
-                    font-size:11px;
-                    font-weight:bold;
-                    padding:8px;
-                    border-radius:4px;
-                    text-align:center;
-                    cursor:${!canAddMore || startAlready ? "default" : "pointer"};
-                  "
-                >
-                  ${startAlready ? "✓ Start Already in Route" : "➕ Add Start to Route"}
-                </button>
-
-                <button
-                  id="add-highway-end-${baseId}"
-                  ${!canAddMore || endAlready ? "disabled" : ""}
-                  style="
-                    background:${!canAddMore || endAlready ? "#bdbdbd" : "#188038"};
-                    color:white;
-                    border:none;
-                    font-size:11px;
-                    font-weight:bold;
-                    padding:8px;
-                    border-radius:4px;
-                    text-align:center;
-                    cursor:${!canAddMore || endAlready ? "default" : "pointer"};
-                  "
-                >
-                  ${endAlready ? "✓ End Already in Route" : "➕ Add End to Route"}
-                </button>
-
-                <button
-                  id="pick-highway-entry-${baseId}"
-                  ${!canAddMore ? "disabled" : ""}
-                  style="
-                    background:${!canAddMore ? "#bdbdbd" : "#1a73e8"};
-                    color:white;
-                    border:none;
-                    font-size:11px;
-                    font-weight:bold;
-                    padding:8px;
-                    border-radius:4px;
-                    text-align:center;
-                    cursor:${!canAddMore ? "default" : "pointer"};
-                  "
-                >
-                  📍 Pick Entry Point
-                </button>
-
-                <button
-                  id="pick-highway-exit-${baseId}"
-                  ${!canAddMore ? "disabled" : ""}
-                  style="
-                    background:${!canAddMore ? "#bdbdbd" : "#1a73e8"};
-                    color:white;
-                    border:none;
-                    font-size:11px;
-                    font-weight:bold;
-                    padding:8px;
-                    border-radius:4px;
-                    text-align:center;
-                    cursor:${!canAddMore ? "default" : "pointer"};
-                  "
-                >
-                  📍 Pick Exit Point
-                </button>
-              </div>
-            </div>
-          `;
-
-          infoWindowRef.current.setContent(popup);
-          infoWindowRef.current.setPosition(e.latLng);
-          infoWindowRef.current.open(mapRef.current);
-
-          google.maps.event.addListenerOnce(infoWindowRef.current, "domready", () => {
-            const startBtn = document.getElementById(`add-highway-start-${baseId}`);
-            const endBtn = document.getElementById(`add-highway-end-${baseId}`);
-            const entryBtn = document.getElementById(`pick-highway-entry-${baseId}`);
-            const exitBtn = document.getElementById(`pick-highway-exit-${baseId}`);
-
-            if (startBtn && canAddMore && !startAlready) {
-              startBtn.addEventListener(
-                "click",
-                () => addHighwayEndpointToRoute(h, "start", startLat, startLon, startId),
-                { once: true }
-              );
-            }
-
-            if (endBtn && canAddMore && !endAlready) {
-              endBtn.addEventListener(
-                "click",
-                () => addHighwayEndpointToRoute(h, "end", endLat, endLon, endId),
-                { once: true }
-              );
-            }
-
-            if (entryBtn && canAddMore) {
-              entryBtn.addEventListener(
-                "click",
-                () => beginHighwayPickMode(baseId, h.name || "Scenic Highway", "entry"),
-                { once: true }
-              );
-            }
-
-            if (exitBtn && canAddMore) {
-              exitBtn.addEventListener(
-                "click",
-                () => beginHighwayPickMode(baseId, h.name || "Scenic Highway", "exit"),
-                { once: true }
-              );
-            }
-          });
-        });
-
-        highwayLinesRef.current.push(poly);
-      });
     });
   };
 
@@ -756,21 +486,19 @@ export default function Home() {
         map.addListener("idle", scheduleLoad);
         map.addListener("zoom_changed", applyMarkerSizing);
         map.addListener("click", () => {
-          if (!pendingHighwayPick) {
-            isPopupOpenRef.current = false;
-            infoWindowRef.current.close();
-          }
+          isPopupOpenRef.current = false;
+          infoWindowRef.current.close();
         });
       };
     };
 
     document.head.appendChild(script);
-  }, [pendingHighwayPick]);
+  }, []);
 
   useEffect(() => {
     isPopupOpenRef.current = false;
     if (mapRef.current) scheduleLoad();
-  }, [states, placeTypes, selectedCampSubtypes, selectedHighwaySubtypes, favOnlyCategories, routeStops]);
+  }, [states, placeTypes, selectedCampSubtypes, selectedHighwaySubtypes, favOnlyCategories]);
 
   const placeResults =
     searchQuery.length > 1
@@ -807,7 +535,6 @@ export default function Home() {
       <button
         onClick={() => {
           setIsRouteMode((prev) => !prev);
-          setPendingHighwayPick(null);
           setRouteMessage(!isRouteMode ? "Route mode on" : "Route mode off");
           if (infoWindowRef.current) {
             infoWindowRef.current.close();
@@ -844,8 +571,7 @@ export default function Home() {
             padding: "8px 10px",
             borderRadius: 8,
             fontSize: 12,
-            boxShadow: "0 2px 8px rgba(0,0,0,0.25)",
-            maxWidth: 260
+            boxShadow: "0 2px 8px rgba(0,0,0,0.25)"
           }}
         >
           {routeMessage}
@@ -868,24 +594,6 @@ export default function Home() {
           }}
         >
           <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 8 }}>Route Builder</div>
-
-          {pendingHighwayPick && (
-            <div
-              style={{
-                fontSize: 11,
-                color: "#1a73e8",
-                background: "#eef4ff",
-                border: "1px solid #d6e4ff",
-                borderRadius: 6,
-                padding: "8px 10px",
-                marginBottom: 10,
-                lineHeight: 1.35
-              }}
-            >
-              Picking {pendingHighwayPick.mode} point on <b>{pendingHighwayPick.highwayName}</b>.
-              Click the highway line where you want it.
-            </div>
-          )}
 
           {routeStops.length === 0 ? (
             <div style={{ fontSize: 12, color: "#666", lineHeight: 1.4 }}>
@@ -930,7 +638,6 @@ export default function Home() {
             <button
               onClick={() => {
                 setRouteStops([]);
-                setPendingHighwayPick(null);
                 setRouteMessage("Route cleared");
               }}
               style={{
@@ -969,7 +676,7 @@ export default function Home() {
           onClick={() => setIsFilterOpen(!isFilterOpen)}
           style={{ width: "100%", cursor: "pointer", padding: "4px", marginBottom: isFilterOpen ? 8 : 0 }}
         >
-          {isFilterOpen ? "Close Filters" : "☰"}
+          {isFilterOpen ? "Close Menu" : "☰"}
         </button>
 
         {isFilterOpen && (
@@ -1343,7 +1050,7 @@ export default function Home() {
                 lineHeight: 1.35
               }}
             >
-              Select categories and sub-categories to display on the map.
+              Select categories, sub-categories, & state(s) to display on the map.  Click on icons or scenic road for info. Close menu for full map view.
             </div>
           </div>
         )}
