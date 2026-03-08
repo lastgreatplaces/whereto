@@ -71,7 +71,6 @@ function formatTravelScore(score: number) {
   return Math.max(0, Math.min(10, score)).toFixed(1);
 }
 
-// Daytime ratings based on your refined bands
 function getDayRating(temp: number): TravelComponent {
   if (temp < 25) return { label: "Unacceptable", score: 0 };
   if (temp <= 34) return { label: "Undesirable", score: 1 };
@@ -85,7 +84,6 @@ function getDayRating(temp: number): TravelComponent {
   return { label: "Unacceptable", score: 0 };
 }
 
-// Nighttime ratings based on your refined bands
 function getNightRating(temp: number): TravelComponent {
   if (temp < 25) return { label: "Unacceptable", score: 0 };
   if (temp <= 34) return { label: "Undesirable", score: 1 };
@@ -97,7 +95,6 @@ function getNightRating(temp: number): TravelComponent {
   return { label: "Unacceptable", score: 0 };
 }
 
-// High mosquito sensitivity mapping
 function getMosquitoTravelRating(mosquitoScore: number): TravelComponent {
   const mosq = getMosquitoCategory(mosquitoScore);
 
@@ -381,7 +378,7 @@ export default function ClimatePage() {
           background: "white",
           border: "1px solid #ccc",
           borderRadius: 8,
-          padding: "12px 16px",
+          padding: "10px 14px",
           textDecoration: "none",
           color: "#333",
           fontWeight: 700,
@@ -412,31 +409,38 @@ export default function ClimatePage() {
             style={{
               display: "flex",
               justifyContent: "space-between",
-              alignItems: "center",
+              alignItems: "flex-start",
               marginBottom: 10,
+              gap: 10,
             }}
           >
-            <div style={{ fontWeight: 700, fontSize: 16 }}>Climate Test Map</div>
-
-            <div style={{ display: "flex", gap: 8 }}>
-              <button
-                onClick={() => setPanelOpen(false)}
-                style={{
-                  fontSize: 12,
-                  border: "1px solid #ccc",
-                  borderRadius: 6,
-                  padding: "6px 10px",
-                  background: "#f5f5f5",
-                  cursor: "pointer",
-                  color: "#333",
-                }}
-              >
-                Hide
-              </button>
+            <div style={{ fontWeight: 700, fontSize: 16, color: "#222" }}>
+              Climate Test Map
             </div>
+
+            <button
+              onClick={() => setPanelOpen(false)}
+              style={{
+                border: "1px solid #ccc",
+                borderRadius: 6,
+                width: 32,
+                height: 32,
+                background: "#f5f5f5",
+                cursor: "pointer",
+                color: "#333",
+                fontSize: 18,
+                lineHeight: 1,
+                fontWeight: 700,
+                flexShrink: 0,
+              }}
+              aria-label="Close climate menu"
+              title="Close climate menu"
+            >
+              ×
+            </button>
           </div>
 
-          <div style={{ fontSize: 12, color: "#555", marginBottom: 8 }}>
+          <div style={{ fontSize: 12, color: "#555", marginBottom: 8, lineHeight: 1.4 }}>
             Select month(s), then move map to desired location and click.
           </div>
 
@@ -480,7 +484,7 @@ export default function ClimatePage() {
                   style={{
                     border: "1px solid #ccc",
                     borderRadius: 6,
-                    padding: "6px 0",
+                    padding: "8px 0",
                     fontSize: 12,
                     cursor: "pointer",
                     background: selected ? "#1a73e8" : "white",
@@ -517,7 +521,7 @@ export default function ClimatePage() {
                 {results[0].state_abbr} — {results[0].division_name}
               </div>
 
-              <div style={{ display: "grid", gap: 8 }}>
+              <div style={{ display: "grid", gap: 8, maxHeight: "34vh", overflowY: "auto", paddingRight: 4 }}>
                 {results.map((r) => {
                   const mosq = getMosquitoCategory(Number(r.mosquito_score));
                   const travel = computeTravelScore(r);
@@ -613,69 +617,38 @@ export default function ClimatePage() {
               borderTop: "1px solid #eee",
               fontSize: 11,
               color: "#666",
+              lineHeight: 1.4,
             }}
           >
             Mosquito risk is a climate-based monthly estimate, not a real-time
-            forecast based on local conditions and habitats.  Average temperatures do not reflect elevation differences in western states. Travel score ratings are experimental.
+            forecast based on local conditions and habitats. Average temperatures
+            do not reflect elevation differences in western states. Travel score
+            ratings are experimental.
           </div>
         </div>
       ) : (
-        <>
-          <div
-            style={{
-              position: "absolute",
-              left: 12,
-              top: 12,
-              zIndex: 11,
-              background: "white",
-              border: "1px solid #ccc",
-              borderRadius: 8,
-              padding: "10px 12px",
-              boxShadow: "0 2px 10px rgba(0,0,0,0.12)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              width: 56,
-              height: 56,
-            }}
-          >
-            <button
-              onClick={() => setPanelOpen(true)}
-              style={{
-                fontSize: 22,
-                lineHeight: 1,
-                border: "none",
-                background: "transparent",
-                cursor: "pointer",
-                color: "#333",
-                padding: 0,
-              }}
-              aria-label="Show climate menu"
-              title="Show climate menu"
-            >
-              ☰
-            </button>
-          </div>
-
-          <div
-            style={{
-              position: "absolute",
-              left: 84,
-              top: 12,
-              zIndex: 11,
-              background: "white",
-              border: "1px solid #ccc",
-              borderRadius: 8,
-              padding: "12px 18px",
-              boxShadow: "0 2px 10px rgba(0,0,0,0.12)",
-              fontWeight: 700,
-              fontSize: 16,
-              color: "#333",
-            }}
-          >
-            Climate Test Map
-          </div>
-        </>
+        <button
+          onClick={() => setPanelOpen(true)}
+          style={{
+            position: "absolute",
+            left: 12,
+            top: 12,
+            zIndex: 11,
+            background: "white",
+            border: "1px solid #ccc",
+            borderRadius: 8,
+            padding: "10px 14px",
+            boxShadow: "0 2px 10px rgba(0,0,0,0.12)",
+            fontWeight: 700,
+            fontSize: 14,
+            color: "#333",
+            cursor: "pointer",
+          }}
+          aria-label="Show climate menu"
+          title="Show climate menu"
+        >
+          Climate
+        </button>
       )}
 
       <div id="climate-map" style={{ height: "100%", width: "100%" }} />
