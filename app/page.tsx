@@ -480,7 +480,7 @@ export default function Home() {
 
         clustererRef.current = new (window as any).markerClusterer.MarkerClusterer({
           map,
-          algorithmOptions: { maxZoom: 9, gridSize: 60 }
+          algorithmOptions: { maxZoom: 11, gridSize: 40 }
         });
 
         map.addListener("idle", scheduleLoad);
