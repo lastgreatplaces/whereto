@@ -123,7 +123,7 @@ export default function Home() {
 
   const getMarkerStyle = (google: any, type: PlaceType, subtype: string, zoom: number, isFavorite: boolean) => {
     const baseSize = zoom <= 7 ? 20 : zoom <= 10 ? 30 : 40;
-    const strokeColor = isFavorite ? "#FFD700" : "#ffffff";
+    const strokeColor = isFavorite ? "#FFD700" : "#ffffff"; baseSize
     const strokeWeight = isFavorite ? 6 : 2;
 
     if (type === "birds") {
@@ -152,7 +152,7 @@ export default function Home() {
     const theme = CAMP_THEMES[subtype] || CAMP_THEMES.default;
     return {
       path: "M 0,0 C -2,-20 -10,-22 -10,-30 A 10,10 0 1 1 10,-30 C 10,-22 2,-20 0,0 z",
-      scale: baseSize / 16,
+      scale: baseSize / 26,
       fillColor: theme.color,
       fillOpacity: 1,
       strokeWeight,
