@@ -24,15 +24,15 @@ type RouteStop = {
 
 const CAMP_THEMES: Record<string, Theme> = {
   COE: { color: "#d32f2f", emoji: "⚓" },
-  NF: { color: "#1b5e20", emoji: "🌲" },
+  NF: { color: "#1b5e20", emoji: "🌕" },
   NP: { color: "#5d4037", emoji: "⛰️" },
   SP: { color: "#1976d2", emoji: "🏞️" },
   SF: { color: "#388e3c", emoji: "🌳" },
   BLM: { color: "#fbc02d", emoji: "🏜️" },
   NRA: { color: "#8d6e63", emoji: "🏕️" },
   SRA: { color: "#8d6e63", emoji: "🏕️" },
-  CP: { color: "#00acc1", emoji: "🏙️" },
-  BD: { color: "#6a1b9a", emoji: "🚐" },
+  CP: { color: "#f57bf1", emoji: "🏙️" },
+  BD: { color: "#1a0328", emoji: "✴️" },
   default: { color: "#607d8b", emoji: "⛺" }
 };
 
