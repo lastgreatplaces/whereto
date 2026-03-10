@@ -26,12 +26,12 @@ const CAMP_THEMES: Record<string, Theme> = {
   COE: { color: "#d32f2f", emoji: "⚓" },
   NF: { color: "#1b5e20", emoji: "🌕" },
   NP: { color: "#5d4037", emoji: "⛰️" },
-  SP: { color: "#1976d2", emoji: "🏞️" },
+  SP: { color: "#7eb6ed", emoji: "🏞️" },
   SF: { color: "#388e3c", emoji: "🌳" },
   BLM: { color: "#fbc02d", emoji: "🏜️" },
   NRA: { color: "#8d6e63", emoji: "🏕️" },
   SRA: { color: "#8d6e63", emoji: "🏕️" },
-  CP: { color: "#f57bf1", emoji: "🏙️" },
+  CP: { color: "#f5bcf3", emoji: "🏙️" },
   BD: { color: "#1a0328", emoji: "✴️" },
   default: { color: "#607d8b", emoji: "⛺" }
 };
