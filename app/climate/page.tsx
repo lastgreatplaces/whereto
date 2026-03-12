@@ -18,6 +18,17 @@ type ClimateRow = {
   mosquito_score: number;
 };
 
+type TravelLayerRow = {
+  climdiv_id: string;
+  state_abbr: string;
+  division_name: string;
+  month: number;
+  travel_score: number;
+  score_band: string;
+  fill_color: string;
+  geom_geojson: any;
+};
+
 type TravelLabel =
   | "Desirable"
   | "Acceptable"
@@ -42,6 +53,12 @@ const MONTHS = [
   { num: 10, label: "Oct" },
   { num: 11, label: "Nov" },
   { num: 12, label: "Dec" },
+];
+
+const CONUS_STATES = [
+  "AL","AZ","AR","CA","CO","CT","DE","FL","GA","ID","IL","IN","IA","KS","KY","LA",
+  "ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND",
+  "OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"
 ];
 
 function getMosquitoCategory(score: number) {
@@ -153,10 +170,15 @@ export default function ClimatePage() {
   const [clickedLatLng, setClickedLatLng] = useState<{ lat: number; lng: number } | null>(null);
   const [panelOpen, setPanelOpen] = useState(true);
 
+  const [showTravelLayer, setShowTravelLayer] = useState(false);
+  const [layerState, setLayerState] = useState<string>("");
+  const [layerMonth, setLayerMonth] = useState<number | "">("");
+
   const selectedMonthsRef = useRef<number[]>([]);
   const mapRef = useRef<any>(null);
   const markerRef = useRef<any>(null);
   const infoWindowRef = useRef<any>(null);
+  const travelPolygonsRef = useRef<any[]>([]);
 
   useEffect(() => {
     selectedMonthsRef.current = selectedMonths;
@@ -170,12 +192,22 @@ export default function ClimatePage() {
     );
   };
 
+  const clearTravelLayer = () => {
+    travelPolygonsRef.current.forEach((p) => p.setMap(null));
+    travelPolygonsRef.current = [];
+  };
+
   const clearAll = () => {
     setSelectedMonths([]);
     setResults([]);
     setClickedLatLng(null);
     setErrorMsg("");
     setLoading(false);
+
+    setShowTravelLayer(false);
+    setLayerState("");
+    setLayerMonth("");
+    clearTravelLayer();
 
     if (markerRef.current) {
       markerRef.current.setMap(null);
@@ -290,6 +322,85 @@ export default function ClimatePage() {
       infoWindowRef.current.open(mapRef.current);
     }
   };
+
+  const addPolygonFeature = (
+    google: any,
+    map: any,
+    geometry: any,
+    row: TravelLayerRow
+  ) => {
+    const createPolygon = (paths: any[]) => {
+      const poly = new google.maps.Polygon({
+        paths,
+        strokeColor: "#555",
+        strokeOpacity: 0.8,
+        strokeWeight: 1,
+        fillColor: row.fill_color,
+        fillOpacity: 0.45,
+        map,
+        zIndex: 1,
+      });
+
+      poly.addListener("click", (e: any) => {
+        if (!infoWindowRef.current) return;
+        infoWindowRef.current.setContent(`
+          <div style="padding:10px; font-family:sans-serif; min-width:180px;">
+            <div style="font-weight:700; margin-bottom:4px;">${row.state_abbr} — ${row.division_name}</div>
+            <div style="font-size:12px;">Travel Score: <b>${Number(row.travel_score).toFixed(1)} / 10</b></div>
+            <div style="font-size:12px; margin-top:2px;">Band: <b>${row.score_band}</b></div>
+          </div>
+        `);
+        infoWindowRef.current.setPosition(e.latLng);
+        infoWindowRef.current.open(map);
+      });
+
+      travelPolygonsRef.current.push(poly);
+    };
+
+    if (!geometry) return;
+
+    if (geometry.type === "Polygon") {
+      const paths = geometry.coordinates.map((ring: number[][]) =>
+        ring.map(([lng, lat]) => ({ lat, lng }))
+      );
+      createPolygon(paths);
+    } else if (geometry.type === "MultiPolygon") {
+      geometry.coordinates.forEach((polygon: number[][][]) => {
+        const paths = polygon.map((ring: number[][]) =>
+          ring.map(([lng, lat]) => ({ lat, lng }))
+        );
+        createPolygon(paths);
+      });
+    }
+  };
+
+  const loadTravelLayer = async () => {
+    clearTravelLayer();
+
+    if (!showTravelLayer || !layerState || !layerMonth || !mapRef.current) return;
+
+    const google = (window as any).google;
+    if (!google) return;
+
+    const { data, error } = await supabase.rpc("get_state_travel_score_layer", {
+      p_state: layerState,
+      p_month: layerMonth,
+    });
+
+    if (error) {
+      console.error("Travel layer error:", error);
+      return;
+    }
+
+    const rows = (data ?? []) as TravelLayerRow[];
+    rows.forEach((row) => {
+      addPolygonFeature(google, mapRef.current, row.geom_geojson, row);
+    });
+  };
+
+  useEffect(() => {
+    loadTravelLayer();
+  }, [showTravelLayer, layerState, layerMonth]);
 
   useEffect(() => {
     const key = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY;
@@ -497,6 +608,109 @@ export default function ClimatePage() {
                 </button>
               );
             })}
+          </div>
+
+          {/* Travel Score Layer Enhancements */}
+          <div
+            style={{
+              borderTop: "1px solid #eee",
+              paddingTop: 10,
+              marginTop: 4,
+              marginBottom: 12,
+            }}
+          >
+            <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 8, color: "#333" }}>
+              Travel Score Layer
+            </div>
+
+            <label
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                fontSize: 12,
+                marginBottom: 10,
+                cursor: "pointer",
+              }}
+            >
+              <input
+                type="checkbox"
+                checked={showTravelLayer}
+                onChange={(e) => setShowTravelLayer(e.target.checked)}
+              />
+              Show state travel score shading
+            </label>
+
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: 8,
+              }}
+            >
+              <div>
+                <div style={{ fontSize: 11, color: "#555", marginBottom: 4 }}>
+                  State
+                </div>
+                <select
+                  value={layerState}
+                  onChange={(e) => setLayerState(e.target.value)}
+                  style={{
+                    width: "100%",
+                    padding: "8px",
+                    borderRadius: 6,
+                    border: "1px solid #ccc",
+                    fontSize: 12,
+                    background: "white",
+                  }}
+                >
+                  <option value="">Select state</option>
+                  {CONUS_STATES.map((st) => (
+                    <option key={st} value={st}>
+                      {st}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <div style={{ fontSize: 11, color: "#555", marginBottom: 4 }}>
+                  Month
+                </div>
+                <select
+                  value={layerMonth}
+                  onChange={(e) =>
+                    setLayerMonth(e.target.value ? Number(e.target.value) : "")
+                  }
+                  style={{
+                    width: "100%",
+                    padding: "8px",
+                    borderRadius: 6,
+                    border: "1px solid #ccc",
+                    fontSize: 12,
+                    background: "white",
+                  }}
+                >
+                  <option value="">Select month</option>
+                  {MONTHS.map((m) => (
+                    <option key={m.num} value={m.num}>
+                      {m.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div
+              style={{
+                marginTop: 8,
+                fontSize: 11,
+                color: "#666",
+                lineHeight: 1.4,
+              }}
+            >
+              Map colors: 8–10 dark green, 6–8 light green, 4–6 yellow, 2–4 orange, 0–2 red.
+            </div>
           </div>
 
           {loading && (
