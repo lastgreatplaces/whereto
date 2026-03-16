@@ -1,0 +1,1019 @@
+"rank_top500","rank_top1000","place_id","name","owner","owner_name","designation","acres","eco_id","eco_name","states","facets","veg","footprint","landscape_score","national_rank","ecoregion_rank"
+"1","1","900404","Olympic National Park","NPS","National Park Service","National Park","896742","17041","Pacific Northwest Coast","WA","173","32","0.009","87.89",1,1
+"2","2","2621","Glacier Peak Wilderness - Mt. Baker National Forest","UFS","US Forest Service","National Forest","274961","17039","North Cascades","WA","72","33","0.004","85.58",2,1
+"3","3","40","Anza-Borrego Desert State Park","SPR","California Department of Parks and Recreation","State Park","608024","17095","Sonoran Desert","CA","106","35","0.025","80.85",4,1
+"4","4","900155","Desolation Canyon - Price Field Office","BLM","Bureau of Land Management","National Public Lands
+ / Wilderness Study Area","226146","17047","Utah High Plateaus","UT","132","34","0.005","76.05",5,1
+"5","5","900221","Grand Canyon National Park","NPS","National Park Service","National Park / Wilderness Study Area","1157563","17091","Colorado Plateau","AZ","101","59","0.006","74.89",6,1
+"6","6","900597","Ventana Wilderness - Los Padres National Forest","UFS","US Forest Service","National Forest / Wild and Scenic River","209884","17085","California Central Coast","CA","85","27","0.016","74.50",7,1
+"7","7","900034","Berryessa Snow Mountain - Mendocino National Forest","UFS","US Forest Service","National Forest","172709","17029","California North Coast","CA","71","36","0.015","73.01",9,1
+"8","8","900216","Golden Trout Wilderness - Inyo National Forest","UFS","US Forest Service","National Forest / Wild and Scenic River","191653","17043","Sierra Nevada","CA","110","35","0.002","72.73",10,1
+"9","9","60","Painted Bluffs - Apache National Forest","UFS","US Forest Service","Inventoried Roadless Area","43056","17088","Apache Highlands","AZ","63","32","0.046","72.33",11,1
+"10","10","900115","Clark National Forest - Lewis","UFS","US Forest Service","Inventoried Roadless Area / National Forest","739745","17030","Canadian Rocky Mountains","MT","124","39","0.024","71.93",13,1
+"11","11","1499","Great Smoky Mountains National Park","NPS","National Park Service","National Park","519597","17021","Southern Blue Ridge","NC, TN","33","17","0.035","71.27",16,1
+"12","12","900242","Guadalupe Mountains National Park","NPS","National Park Service","National Park","87068","17090","Chihuahuan Desert","TX","89","47","0.005","71.07",17,1
+"13","13","265","Baxter State Park","SPR","Baxter State Park Authority","State Park","175213","17016","Northern Appalachian / Acadian","ME","42","33","0.002","70.91",18,1
+"14","14","1075","Custer State Park","SPR","State Park & Recreation","State Park","70409","17028","Black Hills","SD","45","15","0.095","70.59",21,1
+"15","15","4007","Boundary Waters Canoe Area Wilderness - Superior National Forest","UFS","US Forest Service","National Forest","793697","17023","Superior Mixed Forest","MN","48","25","0.002","68.82",25,1
+"16","16","5687","Sun River Wildlife Management Area","STA","Montana Fish, Wildlife and Parks","State Conservation Area","12047","17071","Fescue-Mixed Grass Prairie","MT","54","32","0.071","66.11",47,1
+"17","17","900154","Desert National Wildlife Range","FWS","U.S. Fish & Wildlife Service","National Wildlife Refuge / Wilderness Study Area","1507132","17094","Mojave Desert","NV","58","41","0.023","64.63",61,1
+"18","18","900375","Neola Wildlife Management Area - Monongahela NF","FED","USDA Forest Service","National Forest","72677","17006","Central Appalachian Forest","VA, WV","68","22","0.115","64.49",63,1
+"19","19","1432","Gila Wilderness - Gila National Forest","UFS","US Forest Service","National Forest","559005","17027","Arizona-New Mexico Mountains","NM","78","36","0.002","64.46",64,1
+"20","20","900367","Mount Rainier National Park","NPS","National Park Service","National Park","231488","17049","West Cascades","WA","133","26","0.014","64.41",65,1
+"21","21","900095","Cascade-Siskiyou National Monument - Medford Ashland Field Office","BLM","Bureau of Land Management","National Monument","66457","17035","West Cascades","CA, OR","84","43","0.078","64.38",66,1
+"22","22","1563","West Elk Wilderness - Gunnison National Forest","UFS","US Forest Service","National Forest","176416","17045","Southern Rocky Mountains","CO","67","34","0.003","64.06",70,1
+"23","23","900543","Split Rock Wild Forest","SDC","NYS DEC / NYS Department of Environmental Conservation","State Forest","3067","17022","St. Lawrence - Champlain Valley","NY","25","21","0.055","62.98",80,1
+"24","24","900175","Everglades National Park","NPS","National Park Service","National Park","1534165","17101","Tropical Florida","FL","11","20","0.037","62.54",86,1
+"25","25","2819","Pasayten Wilderness - Okanogan National Forest","UFS","US Forest Service","National Forest","417972","17040","Okanagan","WA","37","32","0.001","62.35",89,1
+"26","26","900166","Eagle Cap Wilderness - Whitman National Forest","UFS","US Forest Service","National Forest / Wild and Scenic River","134450","17037","Middle Rockies - Blue Mountains","OR","82","39","0.004","62.21",94,1
+"27","27","12","Amistad National Recreation Area","NPS","National Park Service","National Recreation Area","58829","17096","Tamaulipan Thorn Scrub","TX","36","39","0.087","61.28",120,1
+"28","28","1150","Dinosaur National Monument","NPS","National Park Service","Wilderness Study Area","172956","17048","Utah-Wyoming Rocky Mountains","CO, UT","85","37","0.003","61.09",125,1
+"29","29","900548","Steens Mountain Wilderness - Burns Andrews Field Office","BLM","Bureau of Land Management","National Public Lands
+ / Wild and Scenic River","155575","17092","Columbia Plateau","OR","99","39","0.003","60.99",132,1
+"30","30","3293","Greater Red Creek ACEC (Currant Creek Watershed) - Rock Springs Field Office","BLM","Bureau of Land Management","Area of Critical Environmental Concern","21170","17097","Wyoming Basins","WY","50","32","0.017","59.28",205,1
+"31","31","1234","Sawtooth Mountains Wilderness - El Centro Field Office","BLM","Bureau of Land Management","National Public Lands
+","33701","17086","California South Coast","CA","44","26","0.019","59.14",217,1
+"32","32","900149","Death Valley National Park","NPS","National Park Service","National Park","3351098","17093","Mojave Desert","CA, NV","60","42","0.003","58.92",234,1
+"33","33","900100","Charles M. Russell National Wildlife Refuge","FWS","U.S. Fish & Wildlife Service","National Wildlife Refuge / Wilderness Study Area","343798","17072","Northern Great Plains Steppe","MT","92","23","0.059","58.30",261,1
+"34","34","900455","Red Dirt - Kisatchie National Forest","UFS","US Forest Service","National Wildlife Refuge","40450","17050","West Gulf Coastal Plain","LA","23","17","0.073","58.17",273,1
+"35","35","7578","Balsam Lake Mountain Wild Forest","SDC","NYS Department of Environmental Conservation","State Forest","13385","17010","High Allegheny Plateau","NY","16","27","0.050","56.54",404,1
+"36","36","900125","Coosa Wildlife Management Area","STA","Alabama Forever Wild Land Trust","State Conservation Area","9598","17019","Piedmont","AL","57","7","0.056","56.29",426,1
+"37","37","4616","Chelan - Wenatchee National Forest","UFS","US Forest Service","Inventoried Roadless Area","74534","17031","East Cascades - Modoc Plateau","WA","68","34","0.015","56.28",429,1
+"38","38","3669","Channell - Sequoia National Forest","UFS","US Forest Service","Inventoried Roadless Area","45385","17087","Great Central Valley","CA","58","25","0.119","56.23",440,1
+"39","39","900186","Fort Niobrara National Wildlife Refuge","FWS","U.S. Fish & Wildlife Service","National Wildlife Refuge","17572","17069","Dakota Mixed-Grass Prairie","NE","23","17","0.108","56.15",454,1
+"40","40","5273","Santee Coastal Reserve Wildlife Management Area","SNR","South Carolina Department of Natural Resources","State Conservation Area","25572","17036","Mid-Atlantic Coastal Plain","SC","14","24","0.031","55.20",588,1
+"41","41","900272","Isle Royale National Park","NPS","National Park Service","National Park","506039","17009","Great Lakes","MI","30","26","0.001","54.21",763,1
+"42","42","4868","JE Canyon Ranch - Lower Purgatoire Conservation Area","NGO","The Nature Conservancy","Private Conservation","19035","17066","Central Shortgrass Prairie","CO","17","26","0.048","53.98",813,1
+"43","43","900376","New River Gorge National Park and Preserve","FED","US National Park Service","National Park","70999","17008","Cumberlands And Southern Ridge And Valley","WV","45","21","0.158","53.50",916,1
+"44","44","900402","Okefenokee National Wildlife Refuge","FWS","U.S. Fish & Wildlife Service","National Wildlife Refuge","405259","17044","South Atlantic Coastal Plain","FL, GA","16","22","0.005","53.27",977,1
+"45","45","6840","State Game Land 087","SFW","PA Game Commission","State Land","17318","17025","Western Allegheny Plateau","PA","32","17","0.100","52.85",1091,1
+"46","46","2681","Natchez Trace Parkway","NPS","National Park Service",NULL,"21228","17011","Interior Low Plateau","AL, MS, TN","41","21","0.251","52.66",1153,1
+"47","47","5419","San Juan Islands National Monument - Moran","SPR","Washington State Parks and Recreation Commission (SPRC)","National Monument","5609","17051","Willamette Valley - Puget Trough - Georgia Basin: Temperate Conifer Forests","WA","19","16","0.149","52.46",1205,1
+"48","48","7054","Roseau River State Wildlife Management Area","SNR","Minnesota Department of Natural Resources","State Conservation Area","66943","17073","Northern Tallgrass Prairie","MN","14","21","0.029","52.41",1220,1
+"49","49","900545","St. Marks National Wildlife Refuge","FWS","U.S. Fish & Wildlife Service","National Wildlife Refuge","71241","17032","East Gulf Coastal Plain","FL","25","25","0.080","51.87",1355,1
+"50","50","900056","Black River State Forest","SNR","Wisconsin Department of Natural Resources","State Conservation Area","62422","17020","Prairie-Forest Border","WI","13","30","0.123","51.67",1431,1
+"51","51","900441","Quabbin Reservoir Watershed","STA","DCR - Division of Water Supply Protection","Water Supply Land","40645","17012","Lower New England / Northern Piedmont","MA","32","39","0.149","51.57",1471,1
+"52","52","3719","Bald Knob Wilderness - Shawnee National Forest","UFS","US Forest Service","National Forest","5800","17018","Ozarks","IL","29","7","0.063","51.34",1556,1
+"53","53","5977","Assateague Island National Seashore","FED","US National Park Service","National Seashore","6139","17007","Chesapeake Bay Lowlands","MD, VA","5","16","0.014","50.93",1707,1
+"54","54","1081","Dale Bumpers White River National Wildlife Refuge","FWS","U.S. Fish & Wildlife Service","National Wildlife Refuge","149285","17013","Mississippi River Alluvial Plain","AR","34","9","0.040","49.63",2270,1
+"55","55","900262","Hugo Wildlife Management Area","SDC","Department of Wildlife Conservation","State Conservation Area","12906","17017","Ouachita Mountains","OK","28","21","0.175","49.44",2354,1
+"56","56","5114","Cedar Bluff Wildlife Area","SFW","State Fish and Wildlife","State Conservation Area","11336","17065","Central Mixed-Grass Prairie","KS","18","16","0.101","48.41",2847,1
+"57","57","6219","City Greenspace","LOC","City of Forest Grove","Local Other","3663","17026","Willamette Valley - Puget Trough - Georgia Basin: Temperate Broadleaf And Mixed Forests","OR","15","9","0.137","48.35",2874,1
+"58","58","900593","Upper Ouachita National Wildlife Refuge","FWS","U.S. Fish & Wildlife Service","National Wildlife Refuge","53589","17046","Upper West Gulf Coastal Plain","LA","16","20","0.091","47.60",3210,1
+"59","59","6164","Sanganois State Fish and Wildlife Area","STA","Other State Land","State Conservation Area","10904","17067","Central Tallgrass Prairie","IL","13","10","0.042","47.18",3412,1
+"60","60","4045","Sabinoso - Taos Field Office","BLM","Bureau of Land Management","National Public Lands","17926","17075","Southern Shortgrass Prairie","NM","17","16","0.021","46.33",3733,1
+"61","61","2788","Juniper Prairie Wilderness - Ocala National Forest","UFS","US Forest Service","National Forest","14293","17033","Florida Peninsula","FL","8","16","0.060","45.92",3892,1
+"62","62","3471","Sam D. Hamilton Noxubee National Wildlife Refuge","FWS","U.S. Fish & Wildlife Service","National Wildlife Refuge","47171","17024","Upper East Gulf Coastal Plain","MS","26","17","0.104","45.69",3979,1
+"63","63","6469","Hulah Wildlife Management Area","SDC","Department of Wildlife Conservation","State Conservation Area","19828","17074","Osage Plains/Flint Hills Prairie","KS, OK","20","9","0.159","45.20",4153,1
+"64","64","6610","Pass A Loutre Wildlife Management Area","SFW","State Fish and Wildlife","State Conservation Area","115322","17063","Gulf Coast Prairies And Marshes","LA","16","11","0.043","44.99",4220,1
+"65","65","7973","Lost Maples State Natural Area","SPR","Texas Parks and Wildlife Department","State Conservation Area","2876","17070","Edwards Plateau","TX","23","5","0.067","44.28",4441,1
+"66","66","4964","Flat River State Game Area","SNR","Michigan Department of Natural Resources","State Conservation Area","8614","17015","North Central Tillplain","MI","9","34","0.358","39.32",5513,1
+"67","67","1646","Hugo Lake State Park","SPR","Tourism and Recreation Department","State Park","6376","17068","Crosstimbers And Southern Tallgrass Prairie","OK","30","22","0.259","38.83",5583,1
+"68","68","900613","Wharton State Forest","STA","New Jersey Department of Environmental Protection","State Forest","11152","17014","North Atlantic Coast","NJ","7","9","0.162","37.49",5810,1
+"69","69","2778","North Cascades National Park","NPS","National Park Service","National Park","499355","17039","North Cascades","WA","47","40","0.006","82.65",3,2
+"70","70","900209","Glacier National Park","NPS","National Park Service","National Park / Wild and Scenic River / Wilderness Study Area","992628","17030","Canadian Rocky Mountains","MT","166","27","0.003","71.50",15,2
+"71","71","2827","Buckhorn Wilderness - Olympic National Forest","UFS","US Forest Service","National Forest","36325","17041","Pacific Northwest Coast","WA","97","25","0.003","70.90",19,2
+"72","72","900516","Sequoia National Park","NPS","National Park Service","National Park / Wild and Scenic River","404600","17043","Sierra Nevada","CA","115","28","0.006","70.68",20,2
+"73","73","1909","Upper Burro Creek (East) - Kingman Field Office","BLM","Bureau of Land Management","National Public Lands
+","18458","17088","Apache Highlands","AZ","61","24","0.010","70.07",22,2
+"74","74","1316","Pavant - Fishlake National Forest","UFS","US Forest Service","Inventoried Roadless Area","42517","17047","Utah High Plateaus","UT","87","34","0.012","69.11",23,2
+"75","75","900256","High Peaks Wilderness","SDC","NYS DEC / NYS Department of Environmental Conservation","State Forest","275359","17016","Northern Appalachian / Acadian","NY","36","36","0.037","67.94",30,2
+"76","76","900490","San Rafael Wilderness - Los Padres National Forest","UFS","US Forest Service","National Forest / Wild and Scenic River","185493","17085","California Central Coast","CA","62","23","0.003","67.56",35,2
+"77","77","835","Citico Creek Wilderness - Cherokee National Forest","UFS","US Forest Service","National Forest","16209","17021","Southern Blue Ridge","NC, TN","30","11","0.018","66.46",44,2
+"78","78","3178","Mt. Ellen-Blue Hills - Richfield Field Office","BLM","Bureau of Land Management","Wilderness Study Area","81405","17091","Colorado Plateau","UT","104","36","0.011","66.36",45,2
+"79","79","900036","Berryessa Snow Mountain National Monument - Ukiah Field Office","BLM","Bureau of Land Management",NULL,"94776","17029","Great Central Valley","CA","66","26","0.036","65.66",50,2
+"80","80","4552","Voyageurs National Park","NPS","National Park Service","National Park","122355","17023","Superior Mixed Forest","MN","35","24","0.006","63.78",74,2
+"81","81","4785","Wind Cave National Park","NPS","National Park Service","National Park","33824","17028","Black Hills","SD","30","12","0.031","63.65",76,2
+"82","82","900564","Three Sisters Wilderness - Deschutes National Forest","UFS","US Forest Service","National Forest / Wild and Scenic River","94052","17049","West Cascades","OR","83","33","0.010","62.16",95,2
+"83","83","900251","Hells Canyon - Nezperce National Forest","UFS","US Forest Service","National Recreation Area","72832","17037","Middle Rockies - Blue Mountains","ID","86","38","0.013","61.72",104,2
+"84","84","900084","Cabeza Prieta National Wildlife Refuge","FWS","U.S. Fish & Wildlife Service","National Wildlife Refuge","853879","17095","Sonoran Desert","AZ","51","19","0.003","61.07",127,2
+"85","85","322","Big Cypress National Preserve","NPS","National Park Service","Conservation Area","681487","17101","Tropical Florida","FL","8","22","0.040","60.89",134,2
+"86","86","3608","Pecos Wilderness - Santa Fe National Forest","UFS","US Forest Service","National Forest","192120","17045","Southern Rocky Mountains","NM","55","31","0.006","60.71",142,2
+"87","87","2810","Lake Chelan-Sawtooth Wilderness - Okanogan National Forest","UFS","US Forest Service","National Forest","96235","17040","Okanagan","WA","32","31","0.006","60.59",146,2
+"88","88","900213","Gold Butte Part A - Las Vegas Field Office","BLM","Bureau of Land Management","Area of Critical Environmental Concern","179397","17094","Mojave Desert","NV","68","20","0.007","60.32",155,2
+"89","89","1377","Absaroka-Beartooth Wilderness - Gallatin National Forest","UFS","US Forest Service","National Forest","579125","17048","Utah-Wyoming Rocky Mountains","MT, WY","108","28","0.003","60.13",163,2
+"90","90","900039","Big Bend National Park","NPS","National Park Service","National Park / Wilderness Study Area","780608","17090","Chihuahuan Desert","TX","53","32","0.004","59.73",179,2
+"91","91","1424","Contiguous To Gila Wilderness - Gila National Forest","UFS","US Forest Service","Inventoried Roadless Area","65066","17027","Arizona-New Mexico Mountains","NM","60","36","0.039","59.61",185,2
+"92","92","900218","Goshen and Little North Mountain Wildlife Management Area","SFW","VA Dept of Wildlife Resources","Wildlife Management Area","32865","17006","Central Appalachian Forest","VA","62","18","0.140","59.41",197,2
+"93","93","3713","Mt. Shasta Wilderness - Shasta National Forest","UFS","US Forest Service","National Forest","35164","17035","Klamath Mountains","CA","76","24","0.013","59.20",213,2
+"94","94","2317","Sespe - Frazier - Los Padres National Forest","UFS","US Forest Service","Inventoried Roadless Area","101075","17086","California South Coast","CA","64","23","0.055","58.43",255,2
+"95","95","4540","Browns Park - Vernal Field Office","BLM","Bureau of Land Management","Area of Critical Environmental Concern","15883","17097","Wyoming Basins","UT","44","33","0.032","58.05",281,2
+"96","96","6629","Wolf Lake State Forest","SDC","NYS Department of Environmental Conservation","State Forest","4366","17022","St. Lawrence - Champlain Valley","NY","20","25","0.134","58.04",282,2
+"97","97","558","Pueblo Mountains WSA - Burns Andrews Field Office","BLM","Bureau of Land Management","Wilderness Study Area","69632","17092","Columbia Plateau","NV, OR","80","35","0.004","57.88",296,2
+"98","98","1788","Mono Basin - National Scenic, Botanical Area - Inyo National Forest","UFS","US Forest Service","National Forest","39409","17093","Great Basin","CA","59","43","0.035","57.39",335,2
+"99","99","6982","Fort Peck Recreation Area","UNK","Unknown","Recreation Area","501136","17072","Northern Great Plains Steppe","MT","78","23","0.058","56.31",424,2
+"100","100","6161","Wind Wolves Preserve","NGO","The Wildlands Conservancy","Private Conservation","91635","17087","Great Central Valley","CA","50","28","0.117","56.23",441,2
+"101","101","6866","Willowemoc Wild Forest","SDC","NYS Department of Environmental Conservation","Nature","11486","17010","High Allegheny Plateau","NY","17","27","0.066","56.07",468,2
+"102","102","4619","Glacier Peak Wilderness - Wenatchee National Forest","UFS","US Forest Service","National Forest","288906","17031","East Cascades - Modoc Plateau","WA","53","35","0.002","55.87",488,2
+"103","103","900190","Francis Marion - Francis Marion National Forest","UFS","US Forest Service","National Wildlife Refuge","49607","17036","Mid-Atlantic Coastal Plain","SC","21","19","0.070","54.22",761,2
+"104","104","900377","Newberry State Forest Area","SNR","Michigan Department of Natural Resources","State Conservation Area","330444","17009","Great Lakes","MI","29","30","0.025","54.01",806,2
+"105","105","3395","Garden Park ACEC - Royal Gorge Field Office","BLM","Bureau of Land Management","Area of Critical Environmental Concern","2700","17066","Central Shortgrass Prairie","CO","25","26","0.098","52.92",1065,2
+"106","106","7905","Francis Case Recreation Area","UNK","Unknown","Recreation Area","98652","17069","Dakota Mixed-Grass Prairie","SD","15","20","0.129","52.77",1121,2
+"107","107","900015","Angelina National Forest","UFS","US Forest Service","National Forest","144219","17050","West Gulf Coastal Plain","TX","11","23","0.125","52.72",1135,2
+"108","108","900037","Beury Mountain Wildlife Management Area","STA","WV Division of Natural Resources","Wildlife Management Area","9263","17008","Cumberlands And Southern Ridge And Valley","WV","33","15","0.079","51.62",1449,2
+"109","109","1588","Kevin Rim - Havre Field Office","BLM","Bureau of Land Management","Area of Critical Environmental Concern","3464","17071","Fescue-Mixed Grass Prairie","MT","27","15","0.049","51.48",1502,2
+"110","110","2836","Mt. Zion - Olympic National Forest","UFS","US Forest Service","Inventoried Roadless Area","3544","17051","Willamette Valley - Puget Trough - Georgia Basin: Temperate Conifer Forests","WA","17","9","0.033","51.41",1529,2
+"111","111","900146","Dale Hollow Recreation Area","UNK","Unknown","Recreation Area","51056","17011","Interior Low Plateau","KY, TN","46","10","0.208","51.31",1569,2
+"112","112","7324","OSSABAW ISLAND WMA - Ossabaw Island Wildlife Management Area","SNR","Georgia Department of Natural Resources","State Conservation Area","27439","17044","South Atlantic Coastal Plain","GA","9","21","0.014","50.28",1974,2
+"113","113","6071","Chickahominy Wildlife Management Area","SFW","VA Dept of Wildlife Resources","Wildlife Management Area","4657","17007","Chesapeake Bay Lowlands","VA","18","13","0.212","50.04",2074,2
+"114","114","7372","White Earth State Forest","SNR","Minnesota Department of Natural Resources","State Resource Management Area","6892","17020","Prairie-Forest Border","MN","7","23","0.059","49.88",2148,2
+"115","115","3723","Clear Springs Wilderness - Shawnee National Forest","UFS","US Forest Service","National Forest","4730","17018","Ozarks","IL","24","8","0.063","49.79",2187,2
+"116","116","900557","Tate's Hell State Forest","STL","Trustees of the Internal Improvement Trust Fund","State Resource Management Area","202306","17032","East Gulf Coastal Plain","FL","7","29","0.063","49.35",2390,2
+"117","117","2864","Caney Creek Wilderness - Ouachita National Forest","UFS","US Forest Service","National Forest","13901","17017","Ouachita Mountains","AR","17","10","0.022","48.77",2656,2
+"118","118","7163","State Game Land 311","SFW","PA Game Commission","State Land","3766","17025","Western Allegheny Plateau","PA","17","15","0.067","48.77",2659,2
+"119","119","3024","Pillsbury State Park","STA","NH Department of Resources & Economic Development","State Park","4253","17012","Lower New England / Northern Piedmont","NH","16","33","0.098","48.71",2682,2
+"120","120","7507","McDonald-Dunn Research Forest","STA","Oregon State University","State Resource Management Area","13643","17026","Willamette Valley - Puget Trough - Georgia Basin: Temperate Broadleaf And Mixed Forests","OR","21","12","0.261","47.56",3227,2
+"121","121","7871","Thief Lake State Wildlife Management Area","SNR","Minnesota Department of Natural Resources","State Conservation Area","49048","17073","Northern Tallgrass Prairie","MN","7","21","0.073","47.48",3263,2
+"122","122","1985","Lacreek National Wildlife Refuge","FWS","U.S. Fish & Wildlife Service","National Wildlife Refuge","16519","17065","Central Mixed-Grass Prairie","SD","16","17","0.118","47.36",3326,2
+"123","123","2875","Overflow National Wildlife Refuge","FWS","U.S. Fish & Wildlife Service","National Wildlife Refuge","13106","17013","Mississippi River Alluvial Plain","AR, LA","18","19","0.081","46.06",3840,2
+"124","124","4554","Waccasassa Bay Preserve State Park","STL","Trustees of the Internal Improvement Trust Fund","State Conservation Area","34290","17033","Florida Peninsula","FL","7","18","0.070","45.90",3897,2
+"125","125","1274","Felsenthal National Wildlife Refuge","FWS","U.S. Fish & Wildlife Service","National Wildlife Refuge","64250","17046","Upper West Gulf Coastal Plain","AR","8","16","0.051","45.85",3919,2
+"126","126","1920","Candian River - Kiowa National Grassland","UFS","US Forest Service","Inventoried Roadless Area","6175","17075","Southern Shortgrass Prairie","NM","17","20","0.055","45.78",3940,2
+"127","127","6634","BIG LAZER CREEK WMA - Big Lazer Wildlife Management Area and Public Fishing Area","SNR","Georgia Department of Natural Resources","State Conservation Area","5873","17019","Piedmont","GA","20","7","0.050","45.28",4122,2
+"128","128","5764","Shanks (Ted) Conservation Area","UNK","Unknown","State Conservation Area","4027","17067","Central Tallgrass Prairie","MO","14","8","0.079","44.59",4346,2
+"129","129","2981","Pedernales Falls State Park","SPR","Texas Parks and Wildlife Department","State Park","4009","17070","Edwards Plateau","TX","13","12","0.102","43.00",4768,2
+"130","130","1113","Delta National Wildlife Refuge","FWS","U.S. Fish & Wildlife Service","National Wildlife Refuge","50259","17063","Gulf Coast Prairies And Marshes","LA","7","9","0.029","42.57",4878,2
+"131","131","2061","Land Between The Lakes - Land Between the Lakes Other","UFS","US Forest Service","National Recreation Area","168344","17024","Upper East Gulf Coastal Plain","KY, TN","23","10","0.103","42.43",4908,2
+"132","132","5649","Tuttle Creek Recreation Area","UNK","Unknown","Recreation Area","33531","17074","Osage Plains/Flint Hills Prairie","KS","13","15","0.215","42.16",4980,2
+"133","133","6598","Barry State Game Area","SNR","Michigan Department of Natural Resources","State Conservation Area","15589","17015","North Central Tillplain","MI","22","16","0.276","39.22",5527,2
+"134","134","7691","Lake Chickasha","LOC","City of Chickasha","Local Recreation Area","5100","17068","Crosstimbers And Southern Tallgrass Prairie","OK","11","15","0.160","37.84",5763,2
+"135","135","5749","Peaslee Wildlife Management Area","STA","New Jersey Department of Environmental Protection","Wildlife Management Area","2759","17014","North Atlantic Coast","NJ","10","8","0.202","36.46",5947,2
+"136","136","6887","Chaparral Wildlife Management Area","SPR","Texas Parks and Wildlife Department","State Conservation Area","15190","17096","Tamaulipan Thorn Scrub","TX","14","10","0.242","34.48",6189,2
+"137","137","2630","Mt. Baker Noisy - Diobsud - Mt. Baker National Forest","UFS","US Forest Service","Inventoried Roadless Area","55118","17039","North Cascades","WA","61","26","0.097","71.96",12,4
+"138","138","1785","John Muir Wilderness - Inyo National Forest","UFS","US Forest Service","National Forest","230525","17043","Sierra Nevada","CA","93","31","0.006","67.92",31,4
+"139","139","4248","Boulder - Tonto National Forest","UFS","US Forest Service","Inventoried Roadless Area","40344","17088","Apache Highlands","AZ","66","23","0.072","67.90",32,4
+"140","140","2539","Desolation Canyon - Moab Field Office","BLM","Bureau of Land Management","Wilderness Study Area","79427","17047","Utah High Plateaus","UT","78","31","0.001","66.84",40,6
+"141","141","1617","Henry W. Coe State Park","SPR","California Department of Parks and Recreation","State Park","87063","17085","California Central Coast","CA","46","30","0.032","66.70",43,3
+"142","142","3180","Mt. Pennell - Richfield Field Office","BLM","Bureau of Land Management","Wilderness Study Area","76946","17091","Colorado Plateau","UT","87","38","0.003","65.26",57,3
+"143","143","417","Blue Ridge Parkway","NPS","National Park Service",NULL,"49150","17021","Southern Blue Ridge","NC","34","20","0.244","62.33",90,6
+"144","144","6499","West Canada Lake Wilderness","SDC","NYS Department of Environmental Conservation","State Forest","174316","17016","Northern Appalachian / Acadian","NY","23","31","0.009","62.10",97,5
+"145","145","1327","Bmss Ra 1485 - Flathead National Forest","UFS","US Forest Service","Inventoried Roadless Area","308591","17030","Canadian Rocky Mountains","MT","93","28","0.045","61.70",106,4
+"146","146","398","Black Elk Wilderness - Black Hills National Forest","UFS","US Forest Service","National Forest","12547","17028","Black Hills","SD","28","12","0.049","61.63",108,3
+"147","147","4772","Three Sisters Wilderness - Willamette National Forest","UFS","US Forest Service","National Forest","185313","17049","West Cascades","OR","64","34","0.003","60.92",133,4
+"148","148","2497","Elk Creek - Mendocino National Forest","UFS","US Forest Service",NULL,"19463","17029","California North Coast","CA","41","24","0.007","60.55",147,5
+"149","149","3576","Weminuche Wilderness - San Juan National Forest","UFS","US Forest Service","National Forest","328624","17045","Southern Rocky Mountains","CO","46","33","0.007","60.00",168,3
+"150","150","2840","The Brothers Wilderness - Olympic National Forest","UFS","US Forest Service","National Forest","16152","17041","Pacific Northwest Coast","WA","29","26","0.005","59.54",190,3
+"151","151","5817","Shenandoah National Park","FED","US National Park Service","National Park","113591","17006","Central Appalachian Forest","VA","55","18","0.106","59.11",219,3
+"152","152","3700","Sevilleta National Wildlife Refuge","FWS","U.S. Fish & Wildlife Service","National Wildlife Refuge","227456","17027","Arizona-New Mexico Mountains","NM","19","53","0.046","58.72",242,4
+"153","153","328","Bighorn Canyon National Recreation Area","NPS","National Park Service","National Recreation Area","42220","17097","Wyoming Basins","MT, WY","43","37","0.064","57.88",295,5
+"154","154","475","Bridger Wilderness - Bridger National Forest","UFS","US Forest Service","National Forest","423690","17048","Utah-Wyoming Rocky Mountains","WY","95","25","0.003","57.77",310,9
+"155","155","2316","Sawmill - Badlands - Los Padres National Forest","UFS","US Forest Service","Inventoried Roadless Area","45618","17086","California South Coast","CA","58","21","0.038","57.38",337,4
+"156","156","2747","Gospel-Hump Wilderness - Nezperce National Forest","UFS","US Forest Service","National Forest","195793","17037","Middle Rockies - Blue Mountains","ID","74","28","0.002","57.33",341,11
+"157","157","4036","Tamarac National Wildlife Refuge","FWS","U.S. Fish & Wildlife Service","National Wildlife Refuge","41052","17023","Superior Mixed Forest","MN","20","26","0.059","56.92",371,9
+"158","158","2027","Lake Roosevelt National Recreation Area","NPS","National Park Service","National Recreation Area","58818","17040","Okanagan","WA","69","23","0.141","56.60",399,7
+"159","159","1694","Jarbidge Wilderness - Humboldt National Forest","UFS","US Forest Service","National Forest","105742","17092","Columbia Plateau","NV","78","30","0.006","56.00",476,5
+"160","160","2847","Organ Pipe Cactus Wilderness","NPS","National Park Service",NULL,"307738","17095","Sonoran Desert","AZ","32","18","0.008","56.00",477,5
+"161","161","4146","Georges Canyon - Toiyabe National Forest","UFS","US Forest Service","Inventoried Roadless Area","108317","17093","Great Basin","NV","75","29","0.003","55.96",480,5
+"162","162","6361","Tiadaghton State Forest","SNR","PA Bureau of Forestry","State Forest","129704","17010","High Allegheny Plateau","PA","32","24","0.152","55.93",485,3
+"163","163","3201","Mohave Ground Squirrel - Ridgecrest Field Office","BLM","Bureau of Land Management","Area of Critical Environmental Concern","157082","17094","Mojave Desert","CA","41","31","0.073","54.85",638,7
+"164","164","4614","Alpine Lakes Wilderness - Wenatchee National Forest","UFS","US Forest Service","National Forest","244829","17031","East Cascades - Modoc Plateau","WA","52","33","0.008","54.81",646,4
+"165","165","2151","Ishi Wilderness - Lassen National Forest","UFS","US Forest Service","National Forest","40846","17087","Great Central Valley","CA","21","24","0.009","54.61",690,3
+"166","166","319","Big Bend Ranch State Park","SPR","Texas Parks and Wildlife Department","State Park","312716","17090","Chihuahuan Desert","TX","36","29","0.029","54.46",711,5
+"167","167","1935","Marble Mountain Wilderness - Klamath National Forest","UFS","US Forest Service","National Forest","223264","17035","Klamath Mountains","CA","41","23","0.004","54.34",739,6
+"168","168","4866","Colorado Cattlemen's Agricultural Land Trust Easement # - Lower Purgatoire Conservation Area","NGO","The Nature Conservancy","Ranch Easement","23797","17066","Central Shortgrass Prairie","CO","17","23","0.043","52.70",1142,3
+"169","169","5772","Shingleton State Foreset Area","SNR","Michigan Department of Natural Resources","State Conservation Area","305531","17009","Great Lakes","MI","29","27","0.033","52.58",1172,6
+"170","170","5856","Everglades and Francis S. Taylor Wildlife Management Area","STL","Trustees of the Internal Improvement Trust Fund","State Conservation Area","669421","17101","Tropical Florida","FL","11","15","0.167","51.81",1368,5
+"171","171","3069","Pocosin Lakes National Wildlife Refuge","FWS","U.S. Fish & Wildlife Service","National Wildlife Refuge","106898","17036","Mid-Atlantic Coastal Plain","NC","16","13","0.040","50.80",1753,4
+"172","172","7815","Sharpe Recreation Area","UNK","Unknown","Recreation Area","73729","17069","Dakota Mixed-Grass Prairie","SD","14","19","0.154","50.27",1980,5
+"173","173","5397","San Juan Islands National Monument - Cypress Island Natural Resources Conservation Area","SNR","Washington State Department of Natural Resources (WADNR)","State Conservation Area","2716","17051","Willamette Valley - Puget Trough - Georgia Basin: Temperate Conifer Forests","WA","15","15","0.150","50.25",1986,3
+"174","174","2690","Necedah Wildlife Management Area","FWS","U.S. Fish & Wildlife Service","Conservation Area","50188","17020","Prairie-Forest Border","WI","8","28","0.111","49.86",2155,3
+"175","175","5516","Blackwater National Wildlife Refuge","FED","US Fish and Wildlife Service","National Wildlife Refuge","17484","17007","Chesapeake Bay Lowlands","MD","8","12","0.048","49.74",2216,3
+"176","176","5938","Sam Rayburn Recreation Area","UNK","Unknown","Recreation Area","115483","17050","West Gulf Coastal Plain","TX","11","21","0.160","49.56",2301,6
+"177","177","4452","Upper Missouri Breaks National Monument","BLM","Bureau of Land Management",NULL,"28187","17072","Northern Great Plains Steppe","MT","39","14","0.016","49.55",2310,6
+"178","178","542","Buffalo National River Wilderness","NPS","National Park Service",NULL,"30705","17018","Ozarks","AR","17","15","0.082","49.37",2381,5
+"179","179","325","Big South Fork National River and Recreation Area","NPS","National Park Service",NULL,"39181","17008","Cumberlands And Southern Ridge And Valley","KY, TN","34","8","0.078","48.99",2564,6
+"180","180","5997","Apalachicola River Wildlife and Environmental Area","STL","Trustees of the Internal Improvement Trust Fund","State Conservation Area","57080","17032","East Gulf Coastal Plain","FL","7","27","0.064","48.47",2808,4
+"181","181","5532","Lake Greeson Wildlife Management Area","SNR","State Department of Natural Resources","State Conservation Area","31626","17017","Ouachita Mountains","AR","35","9","0.137","47.86",3094,5
+"182","182","5900","TOWNSEND WMA - Townsend Wildlife Management Area","SNR","Georgia Department of Natural Resources","State Conservation Area","20505","17044","South Atlantic Coastal Plain","GA","8","19","0.050","47.12",3433,6
+"183","183","2380","Mammoth Cave National Park","NPS","National Park Service","National Park","49414","17011","Interior Low Plateau","KY","16","11","0.080","47.02",3472,7
+"184","184","4831","Wilson Recreation Area","UNK","Unknown","Recreation Area","21035","17065","Central Mixed-Grass Prairie","KS","12","16","0.092","46.93",3508,3
+"185","185","7240","Okaloacoochee Slough State Forest","REG","South Florida Water Management District","State Resource Management Area","32033","17033","Florida Peninsula","FL","13","14","0.078","45.72",3966,3
+"186","186","6712","Dewey W Wills Wildlife Management Area","SFW","State Fish and Wildlife","State Conservation Area","62582","17013","Mississippi River Alluvial Plain","LA","21","9","0.055","45.17",4164,3
+"187","187","3053","Pisgah State Park","STA","NH Department of Resources & Economic Development","State Park","8833","17012","Lower New England / Northern Piedmont","NH","17","35","0.193","44.37",4416,9
+"188","188","8113","East Lynn Lake Wildlife Management Area","FED","Army Corps of Engineers","Wildlife Management Area","24791","17025","Western Allegheny Plateau","WV","17","6","0.071","44.12",4484,7
+"189","189","7961","Elm Lake State Wildlife Management Area","SNR","Minnesota Department of Natural Resources","State Conservation Area","15705","17073","Northern Tallgrass Prairie","MN","10","9","0.061","43.77",4580,5
+"190","190","6619","Upper And Lower Lakes Wma","SDC","NYS Department of Environmental Conservation","Wildlife Management Area","8810","17022","St. Lawrence - Champlain Valley","NY","14","19","0.282","43.00",4770,8
+"191","191","81","Aransas National Wildlife Refuge","FWS","U.S. Fish & Wildlife Service","National Wildlife Refuge","88877","17063","Gulf Coast Prairies And Marshes","TX","8","14","0.066","42.34",4928,3
+"192","192","6909","Wright Patman Recreation Area","UNK","Unknown","Recreation Management Area","80580","17046","Upper West Gulf Coastal Plain","TX","10","22","0.178","42.06",5002,6
+"193","193","5098","Wildlife Management Area - Chickasaw State Forest","SNR","State Department of Agriculture, Division of Forestry","State Conservation Area","12806","17024","Upper East Gulf Coastal Plain","TN","19","12","0.138","40.44",5316,4
+"194","194","2992","Piedmont National Wildlife Refuge","FWS","U.S. Fish & Wildlife Service","National Wildlife Refuge","34667","17019","Piedmont","GA","11","8","0.101","40.09",5389,5
+"195","195","6771","Sauvie Island Wildlife Area","STA","Unknown","State Conservation Area","11091","17026","Willamette Valley - Puget Trough - Georgia Basin: Temperate Broadleaf And Mixed Forests","OR","16","9","0.310","39.40",5502,4
+"196","196","3282","Rita Blanca National Grassland","UFS","US Forest Service",NULL,"50041","17075","Southern Shortgrass Prairie","OK, TX","7","19","0.140","39.10",5546,14
+"197","197","6157","Jim Edgar Panther Creek State Fish and Wildlife Area","STA","Other State Land","State Conservation Area","14605","17067","Central Tallgrass Prairie","IL","20","7","0.220","38.76",5595,11
+"198","198","6060","Melvern Recreation Area","UNK","Unknown","Recreation Area","23490","17074","Osage Plains/Flint Hills Prairie","KS","9","10","0.195","38.63",5618,9
+"199","199","1114","Des Lacs National Wildlife Refuge","FWS","U.S. Fish & Wildlife Service","National Wildlife Refuge","13876","17071","Fescue-Mixed Grass Prairie","ND","17","10","0.193","38.44",5649,4
+"200","200","7362","Brookville Recreation Area","UNK","Unknown","Recreation Area","16834","17015","North Central Tillplain","IN","15","15","0.288","35.84",6024,6
+"201","201","7388","Belton Recreation Area","UNK","Unknown","Recreation Management Area","24797","17070","Edwards Plateau","TX","21","14","0.291","35.72",6035,10
+"202","202","5218","Cape Cod National Seashore","FED","US Department of the Interior","Area of Critical Environmental Concern","8874","17014","North Atlantic Coast","MA","9","16","0.279","34.69",6156,8
+"203","203","7949","Whitney Point Recreation Area","UNK","Unknown","Recreation Management Area","43345","17068","Crosstimbers And Southern Tallgrass Prairie","TX","22","16","0.274","34.32",6207,11
+"204","204","1314","North Pavant - Fishlake National Forest","UFS","US Forest Service","Inventoried Roadless Area","53215","17047","Utah High Plateaus","UT","75","35","0.010","67.95",29,3
+"205","205","4253","Hellsgate Wilderness - Tonto National Forest","UFS","US Forest Service","National Forest","37452","17088","Apache Highlands","AZ","56","22","0.004","67.86",33,5
+"206","206","1772","Coyote Southeast - Inyo National Forest","UFS","US Forest Service","Inventoried Roadless Area","52717","17043","Sierra Nevada","CA","96","29","0.005","67.72",34,5
+"207","207","2615","Boulder River Wilderness - Mt. Baker National Forest","UFS","US Forest Service","National Forest","48570","17039","North Cascades","WA","35","25","0.027","66.96",39,9
+"208","208","6387","Lake George Wild Forest","SDC","NYS Department of Environmental Conservation","State Forest","34270","17016","Northern Appalachian / Acadian","NY","27","39","0.033","65.96",48,3
+"209","209","2294","Fox Mountain - Los Padres National Forest","UFS","US Forest Service","Inventoried Roadless Area","51716","17085","California Central Coast","CA","59","25","0.061","64.92",58,4
+"210","210","5252","Blue Ridge Boy Scout Camp","NGO","Boy Scouts Blue Ridge Mountains Council","Private Conservaed Land","13343","17021","Southern Blue Ridge","VA","30","14","0.111","63.19",77,4
+"211","211","659","Capitol Reef National Park","NPS","National Park Service","National Park","243553","17091","Colorado Plateau","UT","76","31","0.004","61.12",123,8
+"212","212","3327","Sky Lakes Wilderness - Rogue River National Forest","UFS","US Forest Service","National Forest","69341","17049","West Cascades","OR","70","31","0.005","60.19",162,5
+"213","213","3007","Lost Creek Wilderness - Pike National Forest","UFS","US Forest Service","National Forest","114725","17045","Southern Rocky Mountains","CO","55","29","0.011","59.61",186,6
+"214","214","5466","Rothrock State Forest","SNR","PA Bureau of Forestry","State Forest","88981","17006","Central Appalachian Forest","PA","68","18","0.182","58.99",229,4
+"215","215","1389","North Absaroka - Gallatin National Forest","UFS","US Forest Service","Inventoried Roadless Area","150988","17048","Utah-Wyoming Rocky Mountains","MT","101","37","0.071","58.96",230,4
+"216","216","4381","North Fork John Day Wilderness - Umatilla National Forest","UFS","US Forest Service","National Forest","104337","17037","Middle Rockies - Blue Mountains","OR","44","40","0.007","58.64",247,5
+"217","217","859","Apache Kid Contiguous - Cibola National Forest","UFS","US Forest Service","Inventoried Roadless Area","67115","17027","Arizona-New Mexico Mountains","NM","50","38","0.044","58.47",253,5
+"218","218","3296","Greater Red Creek ACEC (Sage Creek Watershed) - Rock Springs Field Office","BLM","Bureau of Land Management","Area of Critical Environmental Concern","39737","17097","Wyoming Basins","WY","45","31","0.021","57.93",289,4
+"219","219","884","Hoodoo - Clearwater National Forest","UFS","US Forest Service","Inventoried Roadless Area","150936","17030","Canadian Rocky Mountains","ID, MT","49","25","0.012","57.13",356,7
+"220","220","399","Sand Creek - Black Hills National Forest","UFS","US Forest Service","Inventoried Roadless Area","7947","17028","Black Hills","WY","22","11","0.059","57.06",359,4
+"221","221","4255","Lime Creek - Tonto National Forest","UFS","US Forest Service","Inventoried Roadless Area","42063","17095","Sonoran Desert","AZ","38","22","0.056","56.91",374,4
+"222","222","2286","Chumash Wilderness - Los Padres National Forest","UFS","US Forest Service","National Forest","36229","17086","California South Coast","CA","44","21","0.030","55.79",499,6
+"223","223","7623","Paul Bunyan State Forest","SNR","Minnesota Department of Natural Resources","State Resource Management Area","49730","17023","Superior Mixed Forest","MN","22","22","0.055","55.70",513,16
+"224","224","7450","Slide Mountain Wilderness","SDC","NYS Department of Environmental Conservation","Nature","50721","17010","High Allegheny Plateau","NY","16","31","0.109","55.27",576,4
+"225","225","1945","Trinity Alps Wilderness - Klamath National Forest","UFS","US Forest Service","National Forest","75787","17035","Klamath Mountains","CA","42","25","0.005","55.18",593,3
+"226","226","989","Thirteenmile - Colville National Forest","UFS","US Forest Service","Inventoried Roadless Area","11517","17040","Okanagan","WA","31","21","0.017","54.93",627,9
+"227","227","1899","BLACK MOUNTAINS ECOSYSTEM MANAGEMENT ACEC - Kingman Field Office","BLM","Bureau of Land Management","Area of Critical Environmental Concern","115843","17094","Mojave Desert","AZ","61","15","0.051","54.70",665,9
+"228","228","2567","South Warner Wilderness - Modoc National Forest","UFS","US Forest Service","National Forest","64000","17031","East Cascades - Modoc Plateau","CA","47","33","0.007","54.37",731,7
+"229","229","3991","Clan Alpine Mountains - Stillwater Field Office","BLM","Bureau of Land Management","Wilderness Study Area","192272","17093","Great Basin","NV","53","30","0.001","54.37",733,11
+"230","230","5891","Corkscrew Swamp Sanctuary","NGO","National Audubon Society, Inc.","Private Conservation","11679","17101","Tropical Florida","FL","14","19","0.230","54.14",777,4
+"231","231","7917","Black Gap Wildlife Management Area","SPR","Texas Parks and Wildlife Department","State Conservation Area","93855","17090","Chihuahuan Desert","TX","38","25","0.022","53.70",876,6
+"232","232","3074","Porcupine Mountains Wilderness State Park","SNR","Michigan Department of Natural Resources","State Park","62178","17009","Great Lakes","MI","29","28","0.019","53.66",884,3
+"233","233","3168","Redwood National Park","NPS","National Park Service","National Park","68687","17029","California North Coast","CA","32","16","0.023","53.57",898,15
+"234","234","2828","Colonel Bob Wilderness - Olympic National Forest","UFS","US Forest Service","National Forest","11826","17041","Pacific Northwest Coast","WA","26","17","0.014","53.22",989,10
+"235","235","413","Poodle Mountain - Black Rock Field Office","BLM","Bureau of Land Management","Wilderness Study Area","115841","17092","Columbia Plateau","NV","65","24","0.001","53.16",1003,11
+"236","236","6886","Tehama Wildlife Area","SFW","California Department of Fish and Wildlife","State Conservation Area","43605","17087","Great Central Valley","CA","34","18","0.066","51.06",1656,9
+"237","237","6020","Beartown State Forest","SDC","NYS Department of Environmental Conservation","State Forest","5762","17022","St. Lawrence - Champlain Valley","NY","9","27","0.168","51.05",1662,3
+"238","238","327","Big Thicket National Preserve","NPS","National Park Service",NULL,"79267","17050","West Gulf Coastal Plain","TX","9","24","0.161","50.31",1959,5
+"239","239","5342","Bow and Arrow Ranch - Prairie Canyonlands","NGO","The Nature Conservancy","Private Conservation","28635","17066","Central Shortgrass Prairie","CO","15","20","0.057","49.93",2122,5
+"240","240","6450","Clinch Mountain Wildlife Management Area","SFW","VA Dept of Wildlife Resources","Wildlife Management Area","22256","17008","Cumberlands And Southern Ridge And Valley","VA","29","20","0.133","49.58",2290,5
+"241","241","1640","Charles C. Deam Wilderness - Hoosier National Forest","UFS","US Forest Service","National Forest","11595","17011","Interior Low Plateau","IN","26","7","0.071","49.41",2367,3
+"242","242","2689","Necedah National Wildlife Refuge","FWS","U.S. Fish & Wildlife Service","National Wildlife Refuge","43742","17020","Prairie-Forest Border","WI","7","25","0.102","48.52",2779,5
+"243","243","5409","Harry Truman Recreation Area","UNK","Unknown","Recreation Area","105123","17018","Ozarks","MO","26","19","0.212","47.84",3101,7
+"244","244","692","Carolina Sandhills National Wildlife Refuge","FWS","U.S. Fish & Wildlife Service","National Wildlife Refuge","45801","17036","Mid-Atlantic Coastal Plain","SC","13","13","0.088","46.70",3588,12
+"245","245","2522","Terry Badlands - Miles City Field Office","BLM","Bureau of Land Management","Wilderness Study Area","39645","17072","Northern Great Plains Steppe","MT","15","16","0.023","46.42",3696,23
+"246","246","2867","Ouachita - Ouachita National Forest","UFS","US Forest Service","National Wildlife Refuge","138038","17017","Ouachita Mountains","AR","17","11","0.081","46.01",3852,7
+"247","247","5804","Aucilla Wildlife Management Area","STL","Trustees of the Internal Improvement Trust Fund","State Conservation Area","45258","17032","East Gulf Coastal Plain","FL","14","18","0.082","45.94",3884,12
+"248","248","6355","Freezout Lake Wildlife Management Area","UNK","Unknown","Conservation Area","6449","17071","Fescue-Mixed Grass Prairie","MT","10","13","0.060","45.79",3937,3
+"249","249","6563","SAPELO ISLAND WMA - Sapelo Island Wildlife Management Area","SNR","Georgia Department of Natural Resources","State Conservation Area","18437","17044","South Atlantic Coastal Plain","GA","9","17","0.065","45.78",3943,9
+"250","250","7121","Arthur Davis WMA","SFW","VT Department of Fish and Wildlife","Wildlife Management Area","7561","17012","Lower New England / Northern Piedmont","VT","17","22","0.094","45.49",4052,5
+"251","251","5359","Deal Island Wma","SNR","MD Department of Natural Resources","Wildlife Management Area","10340","17007","Chesapeake Bay Lowlands","MD","7","8","0.084","44.93",4235,7
+"252","252","1809","J. Clark Salyer National Wildlife Refuge","FWS","U.S. Fish & Wildlife Service","National Wildlife Refuge","53908","17069","Dakota Mixed-Grass Prairie","ND","9","11","0.121","44.43",4400,8
+"253","253","8043","Zaleski State Forest","SNR","Ohio Department of Natural Resources","State Conservation Area","22799","17025","Western Allegheny Plateau","OH","16","6","0.088","42.83",4809,14
+"254","254","4784","William L. Finley National Wildlife Refuge","FWS","U.S. Fish & Wildlife Service","National Wildlife Refuge","4734","17026","Willamette Valley - Puget Trough - Georgia Basin: Temperate Broadleaf And Mixed Forests","OR","14","12","0.281","42.68",4846,3
+"255","255","1925","Kissimmee Prairie Preserve State Park","STL","Trustees of the Internal Improvement Trust Fund","State Conservation Area","53738","17033","Florida Peninsula","FL","9","17","0.134","42.63",4857,7
+"256","256","3151","Quivira National Wildlife Refuge","FWS","U.S. Fish & Wildlife Service","National Wildlife Refuge","22163","17065","Central Mixed-Grass Prairie","KS","7","14","0.127","42.29",4947,10
+"257","257","3734","Sheyenne - Sheyenne National Grassland","UFS","US Forest Service","Inventoried Roadless Area","14415","17073","Northern Tallgrass Prairie","ND","9","11","0.108","41.75",5057,13
+"258","258","8038","Sulphur River","SFW","State Fish and Wildlife","State Conservation Area","18094","17046","Upper West Gulf Coastal Plain","AR","17","13","0.159","41.11",5185,10
+"259","259","5742","Boeuf Wildlife Management Area","SFW","State Fish and Wildlife","State Conservation Area","48553","17013","Mississippi River Alluvial Plain","LA","14","10","0.100","41.08",5189,13
+"260","260","3405","Sabine National Wildlife Refuge","FWS","U.S. Fish & Wildlife Service","National Wildlife Refuge","123071","17063","Gulf Coast Prairies And Marshes","LA","11","11","0.102","40.30",5344,8
+"261","261","3722","Burke Branch - Shawnee National Forest","UFS","US Forest Service","Inventoried Roadless Area","6192","17024","Upper East Gulf Coastal Plain","IL","21","6","0.119","39.59",5469,7
+"262","262","3358","LESSER PRAIRIE CHICKEN HABITAT PRESERVATION ACEC - Roswell Field Office","BLM","Bureau of Land Management","Area of Critical Environmental Concern","48988","17075","Southern Shortgrass Prairie","NM","10","15","0.117","39.59",5468,11
+"263","263","197","Balcones Canyonlands National Wildlife Refuge","FWS","U.S. Fish & Wildlife Service","National Wildlife Refuge","14164","17070","Edwards Plateau","TX","15","11","0.196","37.91",5749,9
+"264","264","7188","Red Rock Wildlife Management Area","ACE","Army Corps of Engineers","State Conservation Area","27389","17067","Central Tallgrass Prairie","IA","22","12","0.297","37.76",5772,15
+"265","265","2801","REDLANDS WMA - Oconee National Forest","UFS","US Forest Service","National Forest","22444","17019","Piedmont","GA","10","8","0.154","36.90",5888,14
+"266","266","5689","Milford Recreation Area","UNK","Unknown","Recreation Area","45289","17074","Osage Plains/Flint Hills Prairie","KS","9","15","0.285","36.45",5948,18
+"267","267","5410","Killdeer Plains Wildlife Area","SNR","Ohio Department of Natural Resources","State Conservation Area","8456","17015","North Central Tillplain","OH","7","10","0.226","34.20",6223,11
+"268","268","4881","Miller Peninsula","SPR","Washington State Parks and Recreation Commission (SPRC)","State Park","2893","17051","Willamette Valley - Puget Trough - Georgia Basin: Temperate Conifer Forests","WA","15","8","0.318","34.20",6222,4
+"269","269","8011","Myles Standish State Forest","SPR","DCR - Division of State Parks and Recreation","State Forest","4448","17014","North Atlantic Coast","MA","9","9","0.246","33.92",6258,12
+"270","270","7398","Cooper Recreation Area","UNK","Unknown","Recreation Management Area","32037","17068","Crosstimbers And Southern Tallgrass Prairie","TX","7","10","0.216","32.31",6434,18
+"271","271","63","Sunset - Apache National Forest","UFS","US Forest Service","Inventoried Roadless Area","28925","17088","Apache Highlands","AZ","60","27","0.053","68.71",26,3
+"272","272","4151","Hoover Wilderness - Toiyabe National Forest","UFS","US Forest Service","National Forest","96860","17043","Sierra Nevada","CA","67","36","0.001","65.50",52,8
+"273","273","1155","Boulder Mtn. / Boulder Top / Deer Lake - Dixie National Forest","UFS","US Forest Service","Inventoried Roadless Area","108311","17047","Utah High Plateaus","UT","84","32","0.055","65.26",56,9
+"274","274","2619","Glacier Peak J - Mt. Baker National Forest","UFS","US Forest Service","Inventoried Roadless Area","16180","17039","North Cascades","WA","44","21","0.077","64.11",69,14
+"275","275","3045","Linville Gorge Wilderness - Pisgah National Forest","UFS","US Forest Service","National Forest","11537","17021","Southern Blue Ridge","NC","24","13","0.059","61.14",121,8
+"276","276","6443","Siamese Ponds Wilderness","SDC","NYS Department of Environmental Conservation","State Forest","114090","17016","Northern Appalachian / Acadian","NY","20","31","0.015","60.52",150,13
+"277","277","1453","Glen Canyon National Recreation Area","NPS","National Park Service","National Recreation Area","1233824","17091","Colorado Plateau","AZ, UT","66","35","0.025","60.11",165,9
+"278","278","3586","Trickle Mountain - San Luis Valley Field Office","BLM","Bureau of Land Management","Area of Critical Environmental Concern","38812","17045","Southern Rocky Mountains","CO","68","30","0.055","59.73",178,4
+"279","279","2320","Silver Peak Wilderness - Los Padres National Forest","UFS","US Forest Service","National Forest","31232","17085","California Central Coast","CA","19","28","0.030","59.52",191,7
+"280","280","1406","Mount St. Helens - Gifford Pinchot National Forest","UFS","US Forest Service","National Forest","111476","17049","West Cascades","WA","105","26","0.077","57.89",293,7
+"281","281","1419","Aldo Leopold Wilderness - Gila National Forest","UFS","US Forest Service","National Forest","203524","17027","Arizona-New Mexico Mountains","NM","34","36","0.003","57.44",331,9
+"282","282","4060","Palisades - Targhee National Forest","UFS","US Forest Service","Wilderness Study Area","153329","17048","Utah-Wyoming Rocky Mountains","ID, WY","124","27","0.076","57.36",339,10
+"283","283","2082","Brokeoff Mountains - Las Cruces District Office","BLM","Bureau of Land Management","Wilderness Study Area","31091","17090","Chihuahuan Desert","NM, TX","56","23","0.005","56.82",381,3
+"284","284","1260","Fakahatchee Strand Preserve State Park","STL","Trustees of the Internal Improvement Trust Fund","State Conservation Area","76840","17101","Tropical Florida","FL","7","18","0.053","56.32",422,3
+"285","285","3441","Lemhi Range - Salmon National Forest","UFS","US Forest Service","Inventoried Roadless Area","166790","17037","Middle Rockies - Blue Mountains","ID","69","32","0.045","55.99",479,20
+"286","286","627","Clover Mountains - Caliente Field Office","BLM","Bureau of Land Management","National Public Lands
+","85610","17093","Great Basin","NV","50","35","0.001","55.74",505,6
+"287","287","4306","Yolla Bolly-Middle Eel Wilderness - Trinity National Forest","UFS","US Forest Service","National Forest","36629","17029","California North Coast","CA","29","19","0.001","55.65",521,10
+"288","288","2834","Mount Skokomish Wilderness - Olympic National Forest","UFS","US Forest Service","National Forest","12428","17041","Pacific Northwest Coast","WA","30","21","0.028","55.50",539,7
+"289","289","887","Mallard-Larkins - Clearwater National Forest","UFS","US Forest Service","Inventoried Roadless Area","109573","17030","Canadian Rocky Mountains","ID","41","23","0.011","55.26",578,14
+"290","290","2643","Badger Creek Wilderness - Mt. Hood National Forest","UFS","US Forest Service","National Forest","16945","17031","East Cascades - Modoc Plateau","OR","56","32","0.009","54.82",643,3
+"291","291","639","Mormon Mountains - Caliente Field Office","BLM","Bureau of Land Management","National Public Lands
+","111517","17094","Mojave Desert","NV","37","21","0.001","54.51",705,10
+"292","292","1897","Arrastra Mountain - Kingman Field Office","BLM","Bureau of Land Management","National Public Lands
+","124288","17095","Sonoran Desert","AZ","20","19","0.005","54.07",791,7
+"293","293","17","Fish Canyon - Angeles National Forest","UFS","US Forest Service","Inventoried Roadless Area","29884","17086","California South Coast","CA","47","21","0.070","54.02",802,9
+"294","294","1941","Siskiyou Wilderness - Klamath National Forest","UFS","US Forest Service","National Forest","70719","17035","Klamath Mountains","CA","29","26","0.004","53.80",858,8
+"295","295","4937","Red Lake State Forest","SNR","Minnesota Department of Natural Resources","State Resource Management Area","66053","17023","Superior Mixed Forest","MN","19","20","0.051","53.79",863,31
+"296","296","7099","Elk State Forest","SNR","PA Bureau of Forestry","State Forest","173529","17010","High Allegheny Plateau","PA","19","19","0.052","53.71",875,7
+"297","297","3307","Steamboat Mountain ACEC - Rock Springs Field Office","BLM","Bureau of Land Management","Area of Critical Environmental Concern","47134","17097","Wyoming Basins","WY","17","29","0.017","53.49",917,14
+"298","298","4031","Tahquamenon Falls State Park","SNR","Michigan Department of Natural Resources","State Park","45424","17009","Great Lakes","MI","29","26","0.018","53.05",1032,4
+"299","299","2230","Little Pend Oreille National Wildlife Refuge","FWS","U.S. Fish & Wildlife Service","National Wildlife Refuge","38094","17040","Okanagan","WA","35","21","0.070","52.80",1109,16
+"300","300","560","Rincon WSA - Burns Andrews Field Office","BLM","Bureau of Land Management","Wilderness Study Area","104141","17092","Columbia Plateau","OR","47","27","0.002","52.33",1237,20
+"301","301","7098","Sproul State Forest","SNR","PA Bureau of Forestry","State Forest","282513","17006","Central Appalachian Forest","PA","20","24","0.080","52.31",1239,19
+"302","302","3670","Chico - Sequoia National Forest","UFS","US Forest Service","Inventoried Roadless Area","38157","17087","Great Central Valley","CA","43","23","0.124","52.07",1302,6
+"303","303","1921","Catahoula - Kisatchie National Forest","UFS","US Forest Service","National Wildlife Refuge","37628","17050","West Gulf Coastal Plain","LA","9","16","0.064","50.64",1822,4
+"304","304","5839","Red Mountain Ranch / Laramie Foothills Mountains to Plains","LOC","Larimer County Parks and Open Lands","Ranch Easement","13712","17066","Central Shortgrass Prairie","CO, WY","19","22","0.083","50.38",1924,4
+"305","305","2521","Seven Blackfoot - Miles City Field Office","BLM","Bureau of Land Management","Wilderness Study Area","20714","17072","Northern Great Plains Steppe","MT","34","15","0.025","48.71",2681,9
+"306","306","6210","Big South Fork N.R.R.A. - Big South Fork National River and Recreation Area","JNT","National Park Service & National Park Service",NULL,"69512","17008","Cumberlands And Southern Ridge And Valley","KY, TN","34","6","0.082","47.94",3059,8
+"307","307","397","Beaver Park - Black Hills National Forest","UFS","US Forest Service","Inventoried Roadless Area","5001","17028","Black Hills","SD","25","7","0.194","47.90",3070,6
+"308","308","2426","Maplewood State Park","SNR","Minnesota Department of Natural Resources","State Park","8069","17020","Prairie-Forest Border","MN","11","19","0.086","47.57",3220,7
+"309","309","541","Buffalo National River","NPS","National Park Service",NULL,"53140","17018","Ozarks","AR","17","16","0.126","47.42",3293,12
+"310","310","7901","Cardigan Mountain State Forest","STA","NH Department of Resources & Economic Development","State Forest","5943","17012","Lower New England / Northern Piedmont","NH","18","24","0.081","47.12",3435,3
+"311","311","2848","Big Gum Swamp Wilderness - Osceola National Forest","UFS","US Forest Service","National Forest","13835","17044","South Atlantic Coastal Plain","FL","2","16","0.011","46.20",3785,8
+"312","312","2346","Lower Suwannee National Wildlife Refuge","FWS","U.S. Fish & Wildlife Service","National Wildlife Refuge","43719","17032","East Gulf Coastal Plain","FL","14","21","0.100","46.13",3805,11
+"313","313","2441","Mattamuskeet National Wildlife Refuge","FWS","U.S. Fish & Wildlife Service","National Wildlife Refuge","48835","17036","Mid-Atlantic Coastal Plain","NC","17","8","0.103","45.61",4012,15
+"314","314","5608","Millwood Recreation Area","UNK","Unknown","Recreation Area","36763","17046","Upper West Gulf Coastal Plain","AR","20","18","0.149","44.68",4316,3
+"315","315","2873","Winding Stair Mountain - Ouachita National Forest","UFS","US Forest Service","National Recreation Area","26617","17017","Ouachita Mountains","OK","17","11","0.114","44.21",4464,15
+"316","316","5130","Burnsville Lake Wildlife Management Area","FED","Army Corps of Engineers","Wildlife Management Area","13268","17025","Western Allegheny Plateau","WV","17","8","0.103","43.33",4688,11
+"317","317","6151","Mockhorn Wildlife Management Area","SFW","VA Dept of Wildlife Resources","Wildlife Management Area","7341","17007","Chesapeake Bay Lowlands","VA","3","3","0.023","42.30",4945,12
+"318","318","7990","Kerr Wildlife Management Area","SPR","Texas Parks and Wildlife Department","State Conservation Area","6514","17070","Edwards Plateau","TX","17","8","0.105","42.01",5019,6
+"319","319","853","Chickasaw National Wildlife Refuge","FWS","U.S. Fish & Wildlife Service","National Wildlife Refuge","16636","17013","Mississippi River Alluvial Plain","TN","19","14","0.132","41.96",5022,7
+"320","320","6386","Cumberland Recreation Area","UNK","Unknown","Recreation Area","86144","17011","Interior Low Plateau","KY","25","16","0.290","41.63",5083,17
+"321","321","5071","Kanopolis Recreation Area","UNK","Unknown","Recreation Area","19639","17065","Central Mixed-Grass Prairie","KS","11","18","0.211","41.15",5178,13
+"322","322","2023","Lake Meredith National Recreation Area","NPS","National Park Service","National Recreation Area","40797","17075","Southern Shortgrass Prairie","TX","15","20","0.135","41.05",5196,7
+"323","323","3733","Mcleod - Sheyenne National Grassland","UFS","US Forest Service","Inventoried Roadless Area","9088","17073","Northern Tallgrass Prairie","ND","6","11","0.115","40.26",5352,18
+"324","324","5624","Three Lakes Wildlife Management Area","STL","Trustees of the Internal Improvement Trust Fund","State Conservation Area","63521","17033","Florida Peninsula","FL","7","15","0.149","40.25",5355,19
+"325","325","6024","Perch River Wma","SDC","NYS Department of Environmental Conservation","Wildlife Management Area","7124","17022","St. Lawrence - Champlain Valley","NY","8","22","0.309","39.81",5437,10
+"326","326","4830","Union Ridge Conservation Area","UNK","Unknown","State Conservation Area","8208","17067","Central Tallgrass Prairie","MO","11","10","0.163","39.73",5447,7
+"327","327","8028","South Mountains Game Land Dedicated Nature Preserve - South Mountains Game Land","SFW","NC Wildlife Resources Commission",NULL,"18177","17019","Piedmont","NC","17","10","0.166","39.07",5550,6
+"328","328","3589","Sand Lake National Wildlife Refuge","FWS","U.S. Fish & Wildlife Service","National Wildlife Refuge","19485","17069","Dakota Mixed-Grass Prairie","SD","6","10","0.182","38.90",5577,13
+"329","329","1343","Flint Hills National Wildlife Refuge","FWS","U.S. Fish & Wildlife Service","National Wildlife Refuge","18552","17074","Osage Plains/Flint Hills Prairie","KS","9","10","0.228","36.79",5907,17
+"330","330","6490","Rogue River State Game Area","SNR","Michigan Department of Natural Resources","State Conservation Area","5719","17015","North Central Tillplain","MI","14","23","0.360","35.44",6063,7
+"331","331","5264","Meeman-Shelby Forest Wildlife Management Area","STA","Tennessee Department of Environment and Conservation (TDEC)","State Conservation Area","9433","17024","Upper East Gulf Coastal Plain","TN","9","13","0.202","35.27",6087,24
+"332","332","1987","Laguna Atascosa National Wildlife Refuge","FWS","U.S. Fish & Wildlife Service","National Wildlife Refuge","12546","17063","Gulf Coast Prairies And Marshes","TX","7","14","0.201","34.63",6167,17
+"333","333","5695","Makepeace Lake Wildlife Management Area","STA","New Jersey Department of Environmental Protection","Wildlife Management Area","2525","17014","North Atlantic Coast","NJ","7","8","0.216","34.17",6227,11
+"334","334","5285","Lake Murray State Resort Park","SPR","Tourism and Recreation Department","State Park","18365","17068","Crosstimbers And Southern Tallgrass Prairie","OK","21","7","0.242","33.04",6350,15
+"335","335","7007","Fern Ridge Wildlife Area","STA","Unknown","State Conservation Area","3038","17026","Willamette Valley - Puget Trough - Georgia Basin: Temperate Broadleaf And Mixed Forests","OR","5","4","0.302","29.29",6683,6
+"336","336","6449","Skagit-Snoqualmie Wildlife Area Complex","SFW","Washington State Department of Fish & Wildlife (WDFW)","State Conservation Area","2498","17051","Willamette Valley - Puget Trough - Georgia Basin: Temperate Conifer Forests","WA","7","4","0.375","24.85",6930,6
+"337","337","2540","Floy Canyon - Moab Field Office","BLM","Bureau of Land Management","Wilderness Study Area","72122","17047","Utah High Plateaus","UT","73","31","0.001","66.12",46,7
+"338","338","5603","Morning Star Natural Resources Conservation Area","SNR","Washington State Department of Natural Resources (WADNR)","State Conservation Area","32746","17039","North Cascades","WA","38","26","0.077","65.84",49,10
+"339","339","3800","Ansel Adams Wilderness - Sierra National Forest","UFS","US Forest Service","National Forest","152080","17043","Sierra Nevada","CA","66","25","0.004","60.86",136,19
+"340","340","5721","Moose River Plains Wild Forest","SDC","NYS Department of Environmental Conservation","Nature","67022","17016","Northern Appalachian / Acadian","NY","21","31","0.026","60.33",154,14
+NULL,"341","1001","Chiricahua Wilderness - Coronado National Forest","UFS","US Forest Service","National Forest","86640","17088","Apache Highlands","AZ","37","19","0.008","59.91",170,18
+"341","342","1837","Saddle Mountain Wilderness - Kaibab National Forest","UFS","US Forest Service","National Forest","40806","17091","Colorado Plateau","AZ","63","32","0.003","59.79",174,10
+"342","343","2292","Dick Smith Wilderness - Los Padres National Forest","UFS","US Forest Service","National Forest","70985","17085","California Central Coast","CA","27","22","0.008","58.78",239,8
+"343","344","4666","Eagles Nest Wilderness - White River National Forest","UFS","US Forest Service","National Forest","135080","17045","Southern Rocky Mountains","CO","62","28","0.052","58.12",277,11
+"344","345","4250","Four Peaks Wilderness - Tonto National Forest","UFS","US Forest Service","National Forest","57580","17095","Sonoran Desert","AZ","28","27","0.049","57.85",301,3
+"345","346","1401","Goat Rocks Wilderness - Gifford Pinchot National Forest","UFS","US Forest Service","National Forest","66713","17049","West Cascades","WA","62","27","0.009","57.36",338,8
+"346","347","492","West Slope Winds - Bridger National Forest","UFS","US Forest Service","Inventoried Roadless Area","142962","17048","Utah-Wyoming Rocky Mountains","WY","83","33","0.054","56.64",396,15
+"347","348","3265","Cebolla Wilderness - Rio Puerco Field Office","BLM","Bureau of Land Management","National Public Lands
+","61379","17027","Arizona-New Mexico Mountains","NM","60","22","0.005","56.50",410,11
+"348","349","3193","Inyo Mountains Wilderness - Ridgecrest Field Office","BLM","Bureau of Land Management","National Public Lands
+","77955","17093","Great Basin","CA","54","35","0.000","56.15",453,4
+"349","350","805","Mark Trail Wilderness - Chattahoochee National Forest","UFS","US Forest Service","National Forest","16611","17021","Southern Blue Ridge","GA","19","13","0.085","56.13",457,16
+"350","351","2505","Thomes Creek - Mendocino National Forest","UFS","US Forest Service","Inventoried Roadless Area","15881","17029","California North Coast","CA","17","31","0.061","55.74",507,8
+"351","352","2252","Hoodoo - Lolo National Forest","UFS","US Forest Service","Inventoried Roadless Area","105017","17030","Canadian Rocky Mountains","ID, MT","40","23","0.009","55.28",572,11
+NULL,"353","2974","Secesh - Payette National Forest","UFS","US Forest Service","Inventoried Roadless Area","245347","17037","Middle Rockies - Blue Mountains","ID","65","27","0.022","54.98",624,32
+"352","354","7462","Big Indian Wilderness","SDC","NYS Department of Environmental Conservation","Nature","33873","17010","High Allegheny Plateau","NY","17","23","0.052","54.87",635,5
+"353","355","6313","Tabby Mountain State Wildlife Area","SNR","Utah Department of Natural Resources","State Conservation Area","40985","17097","Wyoming Basins","UT","40","33","0.083","54.71",664,10
+NULL,"356","313","Beltrami Wildlife Management Area","FWS","U.S. Fish & Wildlife Service","Conservation Area","34381","17023","Superior Mixed Forest","MN","7","25","0.012","54.66",677,22
+"354","357","2841","Upper Skokomish - Olympic National Forest","UFS","US Forest Service","Inventoried Roadless Area","9264","17041","Pacific Northwest Coast","WA","30","18","0.018","54.26",750,9
+"355","358","977","Bald Snow - Colville National Forest","UFS","US Forest Service","Inventoried Roadless Area","23186","17040","Okanagan","WA","27","21","0.020","53.98",811,12
+"356","359","1203","Skedaddle Wilderness Study Area - Eagle Lake Field Office","BLM","Bureau of Land Management","Wilderness Study Area","61866","17092","Columbia Plateau","CA","64","29","0.014","53.91",827,8
+"357","360","2307","Matilija Wilderness - Los Padres National Forest","UFS","US Forest Service","National Forest","28858","17086","California South Coast","CA","29","19","0.011","53.54",903,10
+NULL,"361","205","Amargosa North - Barstow Field Office","BLM","Bureau of Land Management","Area of Critical Environmental Concern","112517","17094","Mojave Desert","CA","34","21","0.007","53.51",912,15
+"358","362","5718","Tea Creek Wildlife Management Area - Monongahela NF","FED","USDA Forest Service","National Forest","36189","17006","Central Appalachian Forest","WV","34","16","0.072","53.47",927,13
+"359","363","3883","Sleeping Bear Dunes Wilderness","NPS","National Park Service",NULL,"26582","17009","Great Lakes","MI","30","28","0.045","52.42",1216,8
+"360","364","3684","Mill Creek - Sequoia National Forest","UFS","US Forest Service","Inventoried Roadless Area","27543","17087","Great Central Valley","CA","29","23","0.077","51.92",1337,7
+NULL,"365","3718","Whiskeytown Shasta-Trinity - Shasta National Forest","UFS","US Forest Service","National Recreation Area","127089","17035","Klamath Mountains","CA","43","27","0.092","51.37",1547,15
+"361","366","1124","Newberry - Deschutes National Forest","UFS","US Forest Service","National Forest","27188","17031","East Cascades - Modoc Plateau","OR","75","25","0.070","51.03",1666,20
+"362","367","5895","Picayune Strand State Forest","STL","Trustees of the Internal Improvement Trust Fund","State Resource Management Area","73633","17101","Tropical Florida","FL","7","16","0.141","50.08",2055,8
+NULL,"368","5638","Brantley Wildlife Area","SFW","State Fish and Wildlife","State Conservation Area","28860","17090","Chihuahuan Desert","NM","22","27","0.079","48.71",2684,12
+NULL,"369","5982","Stockton Recreation Area","UNK","Unknown","Recreation Area","41090","17018","Ozarks","MO","21","14","0.150","46.71",3586,15
+NULL,"370","4882","Econfina Creek Water Management Area","REG","Northwest Florida Water Management District","Watershed Protection Area","37811","17032","East Gulf Coastal Plain","FL","16","26","0.137","46.60",3632,8
+NULL,"371","6587","Friendshuh Game Production Area","SFW","State Fish and Wildlife","State Conservation Area","4544","17028","Black Hills","SD","17","8","0.157","46.57",3645,7
+NULL,"372","6925","State Game Land 074","SFW","PA Game Commission","State Land","6568","17025","Western Allegheny Plateau","PA","30","14","0.177","46.50",3675,4
+NULL,"373","6412","Chuck Swan State Forest","SNR","State Department of Agriculture, Division of Forestry","State Resource Management Area","19546","17008","Cumberlands And Southern Ridge And Valley","TN","30","9","0.121","45.85",3923,14
+NULL,"374","1449","Bitter Creek - Glasgow Field Office","BLM","Bureau of Land Management",NULL,"60686","17072","Northern Great Plains Steppe","MT","15","12","0.009","45.70",3975,28
+NULL,"375","8071","Gull Rock Game Land","SFW","NC Wildlife Resources Commission","Conservation Area","20461","17036","Mid-Atlantic Coastal Plain","NC","7","10","0.034","45.42",4080,19
+NULL,"376","7530","Gile State Forest","STA","NH Department of Resources & Economic Development","State Forest","6725","17012","Lower New England / Northern Piedmont","NH","16","30","0.145","45.13",4178,7
+NULL,"377","4872","Pushmataha Wildlife Management Area","SDC","Department of Wildlife Conservation","State Conservation Area","19071","17017","Ouachita Mountains","OK","17","9","0.080","45.08",4194,11
+NULL,"378","6553","ALTAMAHA WMA - Altamaha Wildlife Management Area","SNR","Georgia Department of Natural Resources","State Conservation Area","15879","17044","South Atlantic Coastal Plain","GA","15","15","0.116","43.95",4535,13
+NULL,"379","3730","Sherburne National Wildlife Refuge","FWS","U.S. Fish & Wildlife Service","National Wildlife Refuge","30136","17020","Prairie-Forest Border","MN","17","30","0.291","43.68",4606,8
+NULL,"380","6623","Fish Creek Wma","SDC","NYS Department of Environmental Conservation","Wildlife Management Area","4558","17022","St. Lawrence - Champlain Valley","NY","9","19","0.223","43.37",4676,6
+NULL,"381","5325","Beaver River Wildlife Management Area","SDC","Department of Wildlife Conservation","State Conservation Area","18741","17066","Central Shortgrass Prairie","OK","14","18","0.158","43.12",4737,13
+NULL,"382","7880","Hamre State Wildlife Management Area","SNR","Minnesota Department of Natural Resources","State Conservation Area","4330","17073","Northern Tallgrass Prairie","MN","7","8","0.046","43.11",4742,9
+NULL,"383","6422","Monroe Recreation Area","UNK","Unknown","Recreation Area","23028","17011","Interior Low Plateau","IN","27","9","0.212","43.08",4752,14
+NULL,"384","6462","Cheyenne Bottoms Wildlife Area","SFW","State Fish and Wildlife","State Conservation Area","18843","17065","Central Mixed-Grass Prairie","KS","8","14","0.127","42.64",4856,8
+NULL,"385","5625","three Forks Conservation Area","REG","St. Johns River Water Management District","State Resource Management Area","47040","17033","Florida Peninsula","FL","13","14","0.137","42.48",4897,8
+NULL,"386","6096","Chesapeake Forest Lands","SNR","MD Department of Natural Resources","State Forest","4358","17007","Chesapeake Bay Lowlands","MD","7","9","0.138","42.46",4903,11
+NULL,"387","1896","Kickapoo Cavern State Park","SPR","Texas Parks and Wildlife Department","State Park","6391","17070","Edwards Plateau","TX","11","8","0.069","42.37",4921,5
+NULL,"388","142","Arrowwood National Wildlife Refuge","FWS","U.S. Fish & Wildlife Service","National Wildlife Refuge","13262","17069","Dakota Mixed-Grass Prairie","ND","9","11","0.164","42.07",4996,10
+NULL,"389","6036","Rice Lake State Fish and Wildlife Area","STA","Other State Land","State Conservation Area","7061","17067","Central Tallgrass Prairie","IL","17","10","0.168","41.89",5031,4
+NULL,"390","1633","Hillside National Wildlife Refuge","FWS","U.S. Fish & Wildlife Service","National Wildlife Refuge","15482","17013","Mississippi River Alluvial Plain","MS","9","17","0.104","41.65",5077,9
+NULL,"391","8042","Lafayette Wildlife Management Area","SFW","State Fish and Wildlife","State Conservation Area","14590","17046","Upper West Gulf Coastal Plain","AR","8","15","0.139","40.57",5289,13
+NULL,"392","5802","Wlf - Lake Anacoco / Lake Vernon","SFW","State Fish and Wildlife","State Recreation Area","22731","17050","West Gulf Coastal Plain","LA","9","20","0.301","40.13",5380,11
+NULL,"393","7919","Matador Wildlife Management Area","SPR","Texas Parks and Wildlife Department","State Conservation Area","28288","17075","Southern Shortgrass Prairie","TX","9","12","0.099","39.42",5499,13
+NULL,"394","6603","Yankee Springs Recreation Area","SNR","Michigan Department of Natural Resources","State Recreation Area","4595","17015","North Central Tillplain","MI","24","16","0.306","38.22",5690,5
+NULL,"395","7953","Mad Island Wildlife Management Area","SPR","Texas Parks and Wildlife Department","State Conservation Area","7213","17063","Gulf Coast Prairies And Marshes","TX","2","11","0.098","37.98",5736,12
+NULL,"396","7837","Appomattox-Buckingham State Forest","SNR","VA Dept of Forestry","State Forest","19430","17019","Piedmont","VA","13","6","0.153","37.16",5849,12
+NULL,"397","5428","Oologah Wildlife Management Area","SDC","Department of Wildlife Conservation","State Conservation Area","15918","17074","Osage Plains/Flint Hills Prairie","OK","9","5","0.186","36.31",5968,20
+NULL,"398","1585","Hatchie National Wildlife Refuge","FWS","U.S. Fish & Wildlife Service","National Wildlife Refuge","9437","17024","Upper East Gulf Coastal Plain","TN","9","7","0.146","36.03",5995,21
+NULL,"399","4876","Delaware Bayshore","NGO","Wildlife Preserves","Nature","2634","17014","North Atlantic Coast","NJ","4","7","0.172","34.66",6163,9
+NULL,"400","3216","Ridgefield National Wildlife Refuge","FWS","U.S. Fish & Wildlife Service","National Wildlife Refuge","2684","17026","Willamette Valley - Puget Trough - Georgia Basin: Temperate Broadleaf And Mixed Forests","WA","10","10","0.358","34.42",6196,5
+NULL,"401","5484","Ozark Recreation Area","UNK","Unknown","Recreation Area","17132","17068","Crosstimbers And Southern Tallgrass Prairie","AR","15","15","0.253","33.61",6293,14
+"363","402","2618","Glacier Peak I - Mt. Baker National Forest","UFS","US Forest Service","Inventoried Roadless Area","13944","17039","North Cascades","WA","49","20","0.070","65.37",55,11
+"364","403","1159","Casto Bluff - Dixie National Forest","UFS","US Forest Service","Inventoried Roadless Area","86013","17047","Utah High Plateaus","UT","74","30","0.034","63.89",72,11
+"365","404","2674","Joyce Kilmer-Slickrock Wilderness - Nantahala National Forest","UFS","US Forest Service","National Forest","13581","17021","Southern Blue Ridge","NC, TN","22","11","0.006","61.43",116,7
+NULL,"405","1003","Galiuro Wilderness - Coronado National Forest","UFS","US Forest Service","National Forest","77314","17088","Apache Highlands","AZ","32","23","0.002","60.33",153,16
+"366","406","3979","Emigrant Wilderness - Stanislaus National Forest","UFS","US Forest Service","National Forest","112536","17043","Sierra Nevada","CA","60","25","0.002","59.87",171,20
+"367","407","2314","Santa Cruz - Los Padres National Forest","UFS","US Forest Service","Inventoried Roadless Area","21060","17085","California Central Coast","CA","38","26","0.080","59.78",175,6
+NULL,"408","6211","Wilcox Lake Wild Forest","SDC","NYS Department of Environmental Conservation","State Forest","112565","17016","Northern Appalachian / Acadian","NY","17","34","0.036","59.58",188,19
+"368","409","860","Apache Kid Wilderness - Cibola National Forest","UFS","US Forest Service","National Forest","44509","17027","Arizona-New Mexico Mountains","NM","50","35","0.006","59.49",193,3
+"369","410","3571","South San Juan Wilderness - San Juan National Forest","UFS","US Forest Service","National Forest","71803","17045","Southern Rocky Mountains","CO","48","31","0.011","59.28",206,9
+"370","411","2837","Quilcene - Olympic National Forest","UFS","US Forest Service","Inventoried Roadless Area","8813","17041","Pacific Northwest Coast","WA","50","21","0.026","59.06",226,4
+"371","412","5454","Mission Mountains Tribal Wilderness","UNK","Unknown",NULL,"91972","17030","Canadian Rocky Mountains","MT","47","32","0.053","58.24",267,6
+"372","413","654","Canyonlands National Park","NPS","National Park Service","National Park","334098","17091","Colorado Plateau","UT","44","32","0.002","57.28",346,17
+"373","414","2650","Mark O. Hatfield Wilderness - Mt. Hood National Forest","UFS","US Forest Service","National Forest","39492","17049","West Cascades","OR","62","26","0.005","57.15",353,9
+"374","415","174","Flaming Gorge - Ashley National Forest","UFS","US Forest Service","National Recreation Area","74575","17048","Utah-Wyoming Rocky Mountains","UT, WY","68","36","0.043","56.83",379,12
+"375","416","117","Yuki Wilderness - Arcata Field Office","BLM","Bureau of Land Management","National Public Lands","15501","17029","California North Coast","CA","26","22","0.005","56.28",427,6
+"376","417","2242","Bear - Marshall - Scapegoat - Swan - Lolo National Forest","UFS","US Forest Service","Inventoried Roadless Area","117686","17037","Middle Rockies - Blue Mountains","MT","58","35","0.048","55.87",487,21
+"377","418","2808","Hungry Ridge - Okanogan National Forest","UFS","US Forest Service","Inventoried Roadless Area","8708","17040","Okanagan","WA","32","24","0.051","54.69",670,10
+"378","419","2713","Kingston Range Wilderness - Needles Field Office","BLM","Bureau of Land Management","National Public Lands
+","110289","17094","Mojave Desert","CA","34","21","0.001","53.87",840,12
+"379","420","3716","Trinity Alps Wilderness - Shasta National Forest","UFS","US Forest Service","National Forest","112918","17035","Klamath Mountains","CA","38","23","0.005","53.82",849,7
+NULL,"421","5041","Solana State Forest","SNR","Minnesota Department of Natural Resources","State Resource Management Area","54854","17023","Superior Mixed Forest","MN","16","21","0.049","53.48",924,35
+NULL,"422","7794","Flaming Gorge Reservoir National Recreation Area - Ashley National Forest","JNT","Bureau of Reclamation & US Forest Service",NULL,"35723","17097","Wyoming Basins","WY","29","24","0.015","53.01",1042,16
+NULL,"423","4117","Arc Dome Wilderness - Toiyabe National Forest","UFS","US Forest Service","National Forest","120458","17093","Great Basin","NV","48","26","0.001","52.56",1181,34
+"380","424","7781","Susquehannock State Forest","SNR","PA Bureau of Forestry","State Forest","228485","17010","High Allegheny Plateau","PA","17","20","0.072","52.27",1253,11
+"381","425","1199","Dry Valley Rim Wilderness Study Area - Eagle Lake Field Office","BLM","Bureau of Land Management","Wilderness Study Area","92251","17092","Columbia Plateau","CA, NV","64","22","0.004","52.27",1251,21
+"382","426","1222","Little Picacho Wilderness - El Centro Field Office","BLM","Bureau of Land Management","National Public Lands
+","35456","17095","Sonoran Desert","CA","33","10","0.004","52.08",1299,10
+"383","427","1131","Wild and Scenic Rivers - Recreational - Deschutes National Forest","UFS","US Forest Service","Wild and Scenic River","19027","17031","East Cascades - Modoc Plateau","OR","71","37","0.124","51.59",1459,13
+NULL,"428","7100","Moshannon State Forest","SNR","PA Bureau of Forestry","State Forest","161311","17006","Central Appalachian Forest","PA","17","24","0.080","51.35",1555,27
+NULL,"429","783","Channel Islands National Park","NPS","National Park Service","National Park","67899","17086","California South Coast","CA","17","17","0.006","50.98",1681,18
+"384","430","8074","Sault Ste. Marie State Forest Area","SNR","Michigan Department of Natural Resources","State Conservation Area","133936","17009","Great Lakes","MI","19","28","0.047","50.07",2060,11
+"385","431","2887","Leatherwood Wilderness - Ozark National Forest","UFS","US Forest Service","National Forest","16631","17018","Ozarks","AR","17","10","0.029","49.77",2195,3
+"386","432","6927","Gray Davis Dye Creek Preserve","STA","Other State","State Conservation Area","37309","17087","Great Central Valley","CA","34","19","0.099","49.75",2211,12
+NULL,"433","1344","Florida Panther National Wildlife Refuge","FWS","U.S. Fish & Wildlife Service","National Wildlife Refuge","26389","17101","Tropical Florida","FL","7","13","0.118","49.16",2481,9
+NULL,"434","2079","Big Hatchet Mountains - Las Cruces District Office","BLM","Bureau of Land Management","Wilderness Study Area","27696","17090","Chihuahuan Desert","NM","21","18","0.012","48.91",2605,11
+NULL,"435","65","Bradwell Bay Wilderness - Apalachicola National Forest","UFS","US Forest Service","National Forest","24222","17032","East Gulf Coastal Plain","FL","14","12","0.003","47.92",3062,5
+NULL,"436","6933","White Earth State Forest","SNR","Minnesota Department of Natural Resources","State Resource Management Area","4337","17020","Prairie-Forest Border","MN","18","21","0.138","47.89",3077,6
+NULL,"437","4927","Atoka Public Hunting Area","SDC","Department of Wildlife Conservation","State Conservation Area","12906","17017","Ouachita Mountains","OK","29","9","0.113","47.23",3390,6
+NULL,"438","537","Indian Creek - Buffalo Gap National Grassland","UFS","US Forest Service","Inventoried Roadless Area","24518","17072","Northern Great Plains Steppe","SD","26","17","0.062","46.26",3761,24
+NULL,"439","5561","South Cumberland","SDC","Tennessee Department of Environment and Conservation","State Park","17373","17008","Cumberlands And Southern Ridge And Valley","TN","34","7","0.126","45.93",3889,13
+NULL,"440","5581","Brasher State Forest","SDC","NYS Department of Environmental Conservation","State Forest","4537","17022","St. Lawrence - Champlain Valley","NY","7","21","0.181","45.71",3971,5
+NULL,"441","6059","Alligator River Game Land Dedicated Nature Preserve - Alligator River Game Land","SFW","NC Wildlife Resources Commission",NULL,"13289","17036","Mid-Atlantic Coastal Plain","NC","7","9","0.023","45.56",4035,17
+NULL,"442","3468","Salt Plains National Wildlife Refuge","FWS","U.S. Fish & Wildlife Service","National Wildlife Refuge","19917","17065","Central Mixed-Grass Prairie","OK","8","15","0.084","45.51",4049,4
+NULL,"443","6538","Hamilton Ridge Wildlife Management Area","SNR","South Carolina Department of Natural Resources","State Conservation Area","13268","17044","South Atlantic Coastal Plain","GA, SC","9","13","0.051","44.87",4245,12
+NULL,"444","6094","Pocomoke River Sf","SNR","MD Department of Natural Resources","State Forest","4281","17007","Chesapeake Bay Lowlands","MD","7","9","0.096","44.74",4296,8
+NULL,"445","3054","Pisgah State Park - Critria 1 lands","STA","State of New Hampshire - DNCR/DFL + DPR","State Park","4594","17012","Lower New England / Northern Piedmont","NH","15","31","0.160","44.43",4402,8
+NULL,"446","7957","Willow-Run State Wildlife Management Area","SNR","Minnesota Department of Natural Resources","State Conservation Area","3372","17073","Northern Tallgrass Prairie","MN","7","12","0.069","43.63",4622,7
+NULL,"447","5217","Copan Wildlife Management Area","SDC","Department of Wildlife Conservation","State Conservation Area","15205","17066","Central Shortgrass Prairie","OK","9","18","0.137","43.26",4703,11
+NULL,"448","5672","Alexander State Forest Wildlife Management Area","STA","State Department of Agriculture","State Conservation Area","8452","17050","West Gulf Coastal Plain","LA","14","21","0.307","43.07",4753,10
+NULL,"449","1988","Lake Alice National Wildlife Refuge","FWS","U.S. Fish & Wildlife Service","National Wildlife Refuge","8482","17069","Dakota Mixed-Grass Prairie","ND","2","6","0.030","42.65",4854,9
+NULL,"450","4986","Deer Ridge Conservation Area","UNK","Unknown","State Conservation Area","6037","17067","Central Tallgrass Prairie","MO","18","9","0.156","42.45",4906,3
+NULL,"451","7215","Dupuis Reserve","REG","South Florida Water Management District","Local Other","21974","17033","Florida Peninsula","FL","7","12","0.087","42.34",4931,10
+NULL,"452","8048","Vinton Furnace State Forest","SNR","Ohio Department of Natural Resources","State Conservation Area","12333","17025","Western Allegheny Plateau","OH","13","5","0.084","41.60",5088,18
+NULL,"453","6605","Hill Country State Natural Area","SPR","Texas Parks and Wildlife Department","State Conservation Area","5382","17070","Edwards Plateau","TX","15","9","0.114","41.48",5119,7
+NULL,"454","5674","White Lake Wetlands Conservation Area","SFW","State Fish and Wildlife","State Conservation Area","71602","17063","Gulf Coast Prairies And Marshes","LA","9","7","0.053","41.23",5168,4
+NULL,"455","5613","Bois D'arc","SFW","State Fish and Wildlife","State Conservation Area","5890","17046","Upper West Gulf Coastal Plain","AR","18","17","0.194","41.21",5172,8
+NULL,"456","4069","Tensas River National Wildlife Refuge","FWS","U.S. Fish & Wildlife Service","National Wildlife Refuge","73226","17013","Mississippi River Alluvial Plain","LA","9","8","0.068","40.80",5254,19
+NULL,"457","3926","Fort Meade Recreation Area - South Dakota Field Office","BLM","Bureau of Land Management","Area of Critical Environmental Concern","6382","17028","Black Hills","SD","18","14","0.373","40.24",5359,10
+NULL,"458","2937","Palo Duro Canyon State Park","SPR","Texas Parks and Wildlife Department","State Park","26959","17075","Southern Shortgrass Prairie","TX","17","17","0.143","39.96",5411,10
+NULL,"459","6464","Schell-Osage Conservation Area","UNK","Unknown","State Conservation Area","8653","17074","Osage Plains/Flint Hills Prairie","MO","15","8","0.215","39.21",5531,7
+NULL,"460","7551","Tranquility Wildlife Area","SNR","Ohio Department of Natural Resources","State Conservation Area","4469","17015","North Central Tillplain","OH","13","12","0.199","38.61",5621,3
+NULL,"461","6141","Center Hill Recreation Area","UNK","Unknown","Recreation Area","33871","17011","Interior Low Plateau","TN","28","7","0.282","38.60",5622,31
+NULL,"462","7122","Clark Hill Wildlife Management Area - J. Strom Thurmond Recreation Area","ACE","Unknown & Army Corps of Engineers","State Park","17597","17019","Piedmont","GA","9","6","0.125","37.48",5812,11
+NULL,"463","4932","White Oak Wildlife Management Area","SFW","Tennessee Wildlife Resources Agency","State Conservation Area","6491","17024","Upper East Gulf Coastal Plain","TN","11","10","0.167","36.43",5950,19
+NULL,"464","5249","Love Valley Wildlife Management Area","SDC","Department of Wildlife Conservation","State Conservation Area","12521","17068","Crosstimbers And Southern Tallgrass Prairie","OK, TX","20","11","0.232","34.64",6166,9
+NULL,"465","5138","Egg Island Wildlife Management Area","STA","New Jersey Department of Environmental Protection","Wildlife Management Area","2682","17014","North Atlantic Coast","NJ","1","4","0.128","34.45",6193,10
+"387","466","2628","Mount Baker Wilderness - Mt. Baker National Forest","UFS","US Forest Service","National Forest","115839","17039","North Cascades","WA","48","25","0.016","71.61",14,5
+"388","467","1318","Signal Peak - Fishlake National Forest","UFS","US Forest Service","Inventoried Roadless Area","30804","17047","Utah High Plateaus","UT","90","37","0.083","67.16",38,5
+"389","468","4366","Northern California Chapparral - Ukiah Field Office","BLM","Bureau of Land Management",NULL,"10367","17029","California North Coast","CA","55","24","0.029","62.51",87,4
+NULL,"469","1576","AGUA FRIA NM - Hassayampa Field Office","BLM","Bureau of Land Management","National Monument","70880","17088","Apache Highlands","AZ","41","22","0.041","60.79",138,13
+"390","470","2856","Wild and Scenic Rivers - Recreational - Ottawa National Forest","UFS","US Forest Service","Wild and Scenic River","34958","17023","Superior Mixed Forest","MI, WI","27","26","0.038","60.41",151,4
+"391","471","4279","McKenna Peak - Tres Rios Field Office","BLM","Bureau of Land Management","Wilderness Study Area","20562","17045","Southern Rocky Mountains","CO","55","28","0.009","59.35",200,8
+NULL,"472","3806","John Muir Wilderness - Sierra National Forest","UFS","US Forest Service","National Forest","352813","17043","Sierra Nevada","CA","57","24","0.001","59.03",228,24
+"392","473","3768","Fitzpatrick Wilderness - Shoshone National Forest","UFS","US Forest Service","National Forest","198900","17048","Utah-Wyoming Rocky Mountains","WY","96","25","0.002","57.91",290,7
+NULL,"474","6632","Ferris Lake Wild Forest","SDC","NYS Department of Environmental Conservation","Nature","144987","17016","Northern Appalachian / Acadian","NY","17","31","0.042","57.86",299,38
+"393","475","813","Tray Mountain Wilderness - Chattahoochee National Forest","UFS","US Forest Service","National Forest","7832","17021","Southern Blue Ridge","GA","21","12","0.084","57.06",360,12
+"394","476","2211","West Face Sacramento Mountains - Lincoln National Forest","UFS","US Forest Service","Inventoried Roadless Area","40505","17027","Arizona-New Mexico Mountains","NM","53","29","0.035","56.23",438,12
+"395","477","2831","Jupiter Ridge - Olympic National Forest","UFS","US Forest Service","Inventoried Roadless Area","8621","17041","Pacific Northwest Coast","WA","25","22","0.020","55.66",517,6
+"396","478","722","Clear Creek Serpentine - Central Coast Field Office","BLM","Bureau of Land Management","Area of Critical Environmental Concern","27628","17085","California Central Coast","CA","31","23","0.095","55.54",536,16
+NULL,"479","4055","Italian Peak - Targhee National Forest","UFS","US Forest Service","Inventoried Roadless Area","138110","17037","Middle Rockies - Blue Mountains","ID, MT","70","29","0.041","55.21",587,25
+"397","480","3158","Ferris Mountains - Rawlins Field Office","BLM","Bureau of Land Management","Wilderness Study Area","21861","17097","Wyoming Basins","WY","47","27","0.047","55.04",618,9
+"398","481","4765","Mount Jefferson Wilderness - Willamette National Forest","UFS","US Forest Service","National Forest","69998","17049","West Cascades","OR","45","27","0.018","55.00",623,12
+"399","482","1885","Selkirk - Kaniksu National Forest","UFS","US Forest Service","Inventoried Roadless Area","95118","17030","Canadian Rocky Mountains","ID","46","23","0.030","54.79",652,15
+NULL,"483","2401","Dark Canyon Wilderness - Manti-La Sal National Forest","UFS","US Forest Service","National Forest","46335","17091","Colorado Plateau","UT","43","26","0.005","54.75",656,30
+NULL,"484","237","Nopah Range Wilderness - Barstow Field Office","BLM","Bureau of Land Management","National Public Lands
+","107017","17094","Mojave Desert","CA, NV","33","22","0.004","53.84",844,13
+NULL,"485","404","Fox Range - Black Rock Field Office","BLM","Bureau of Land Management","Wilderness Study Area","75734","17093","Great Basin","NV","72","23","0.003","53.65",885,18
+"400","486","6753","Elk State Forest - Quehanna Wild Area","SNR","PA Bureau of Forestry","State Forest","21319","17010","High Allegheny Plateau","PA","17","16","0.020","53.18",999,8
+"401","487","402","Calico Mountains - Black Rock Field Office","BLM","Bureau of Land Management","National Public Lands
+","64964","17092","Columbia Plateau","NV","50","28","0.004","52.86",1081,14
+"402","488","7078","Baraga State Forest Area","SNR","Michigan Department of Natural Resources","State Conservation Area","8046","17009","Great Lakes","MI","28","23","0.005","52.58",1173,7
+"403","489","5064","Cranberry Wildlife Management Area - Monongahela NF","FED","USDA Forest Service","National Forest","91480","17006","Central Appalachian Forest","WV","25","19","0.074","51.87",1353,23
+"404","490","7909","Buryanek Game Production Area","SFW","State Fish and Wildlife","State Conservation Area","4657","17069","Dakota Mixed-Grass Prairie","SD","16","13","0.076","51.76",1392,4
+NULL,"491","983","Hoodoo - Colville National Forest","UFS","US Forest Service","Inventoried Roadless Area","7142","17040","Okanagan","WA","26","18","0.031","51.67",1425,20
+"405","492","3834","South Kalmiopsis - Siskiyou National Forest","UFS","US Forest Service","Inventoried Roadless Area","99899","17035","Klamath Mountains","CA, OR","23","26","0.030","51.48",1506,14
+NULL,"493","1372","Gearhart Mountain Wilderness - Fremont National Forest","UFS","US Forest Service","National Forest","21688","17031","East Cascades - Modoc Plateau","OR","30","27","0.006","50.82",1743,21
+"406","494","4068","Ten Thousand Islands National Wildlife Refuge","FWS","U.S. Fish & Wildlife Service","National Wildlife Refuge","12078","17101","Tropical Florida","FL","7","15","0.117","50.68",1808,6
+"407","495","3679","Greenhorn Creek - Sequoia National Forest","UFS","US Forest Service","Inventoried Roadless Area","28080","17087","Great Central Valley","CA","30","21","0.098","50.04",2071,11
+NULL,"496","1219","Jacumba Wilderness - El Centro Field Office","BLM","Bureau of Land Management","National Public Lands
+","27828","17086","California South Coast","CA","25","13","0.017","49.34",2392,33
+NULL,"497","5711","Chincoteague National Wildlife Refuge","FED","US Fish and Wildlife Service","National Wildlife Refuge","8322","17007","Chesapeake Bay Lowlands","MD, VA","7","16","0.077","49.21",2460,5
+NULL,"498","2337","LOWER GILA TERRACES AND HISTORIC TRAILS ACEC - Lower Sonoran Field Office","BLM","Bureau of Land Management","Area of Critical Environmental Concern","62352","17095","Sonoran Desert","AZ","27","16","0.097","48.93",2593,31
+NULL,"499","3914","Jornada del Muerto - Socorro Field Office","BLM","Bureau of Land Management","Wilderness Study Area","26726","17090","Chihuahuan Desert","NM","21","15","0.007","48.04",3014,16
+NULL,"500","5951","Apalachicola River Water Management Area","REG","Northwest Florida Water Management District","Watershed Protection Area","36222","17032","East Gulf Coastal Plain","FL","14","20","0.077","46.98",3490,6
+NULL,"501","5435","Apishapa","SFW","Colorado Division of Wildlife","State Conservation Area","11502","17066","Central Shortgrass Prairie","CO","13","15","0.058","46.83",3543,8
+NULL,"502","7013","Black Hills National Forest - Pactola Reservoir","JNT","Bureau of Reclamation & US Forest Service","National Forest","3515","17028","Black Hills","SD","13","10","0.149","46.57",3646,8
+NULL,"503","5276","Belle W. Baruch Institute for Marine and Coastal Sciences","STA","University of South Carolina",NULL,"12204","17036","Mid-Atlantic Coastal Plain","SC","8","21","0.113","46.51",3669,14
+NULL,"504","6305","Sunklands Conservation Area","UNK","Unknown","State Conservation Area","27547","17018","Ozarks","MO","16","10","0.086","46.22",3782,21
+NULL,"505","6488","Kenneth Dubuque Memorial State Forest","SPR","DCR - Division of State Parks and Recreation","State Forest","4518","17012","Lower New England / Northern Piedmont","MA","16","28","0.133","45.14",4175,6
+NULL,"506","1452","Mountain Plover - Glasgow Field Office","BLM","Bureau of Land Management","Area of Critical Environmental Concern","24762","17072","Northern Great Plains Steppe","MT","18","14","0.049","44.69",4310,35
+NULL,"507","8060","McCurtain County Wilderness Area","SDC","Department of Wildlife Conservation","State Conservation Area","13918","17017","Ouachita Mountains","OK","15","9","0.077","44.61",4341,12
+NULL,"508","6682","Camp Beauregard Wildlife Management Area","SNR","State Department of Natural Resources","State Conservation Area","12606","17050","West Gulf Coastal Plain","LA","9","17","0.196","44.03",4511,9
+NULL,"509","7955","Carmelee State Wildlife Management Area","SNR","Minnesota Department of Natural Resources","State Conservation Area","3907","17073","Northern Tallgrass Prairie","MN","6","14","0.078","43.66",4615,6
+NULL,"510","5574","Fall Creek Falls","SDC","Tennessee Department of Environment and Conservation","State Park","25592","17008","Cumberlands And Southern Ridge And Valley","TN","31","7","0.168","42.74",4835,26
+NULL,"511","4943","Lovewell Wildlife Area","SFW","State Fish and Wildlife","State Conservation Area","4067","17065","Central Mixed-Grass Prairie","KS","10","12","0.123","42.43",4910,9
+NULL,"512","7042","Mason Mountain Wildlife Management Area","SPR","Texas Parks and Wildlife Department","State Conservation Area","5307","17070","Edwards Plateau","TX","20","10","0.130","42.38",4920,4
+NULL,"513","660","Caprock Canyons State Park","SPR","Texas Parks and Wildlife Department","State Park","13966","17075","Southern Shortgrass Prairie","TX","18","13","0.081","42.27",4952,6
+NULL,"514","6375","Camp Blanding Military Reservation","STA","FL Dept. of Military Affairs",NULL,"71599","17044","South Atlantic Coastal Plain","FL","15","24","0.223","41.85",5035,31
+NULL,"515","6621","Wilson Hill Wma","SDC","NYS Department of Environmental Conservation","Wildlife Management Area","4039","17022","St. Lawrence - Champlain Valley","NY","14","19","0.311","41.40",5135,9
+NULL,"516","3928","South Mountains State Park Dedicated Nature Preserve - South Mountains State Park","SPR","NC DENR, Division of Parks and Recreation","State Park","13626","17019","Piedmont","NC","17","8","0.122","40.82",5247,4
+NULL,"517","7911","Pool 5 (Ark. Rv) Recreation Area","UNK","Unknown","Recreation Area","4762","17046","Upper West Gulf Coastal Plain","AR","20","9","0.148","40.82",5251,12
+NULL,"518","7305","Big Lake","SFW","State Fish and Wildlife","State Recreation Area","10803","17013","Mississippi River Alluvial Plain","AR, MO","7","8","0.060","40.68",5273,20
+NULL,"519","7006","Clark State Forest","SNR","Indiana DNR, Forestry Division","State Resource Management Area","23672","17011","Interior Low Plateau","IN","30","12","0.308","40.57",5288,22
+NULL,"520","6811","Babcock Ranch Preserve","STL","Trustees of the Internal Improvement Trust Fund","Private Conservation","70355","17033","Florida Peninsula","FL","7","16","0.159","40.15",5373,21
+NULL,"521","4446","Upper Mississippi River National Wildlife And Fish Refuge","FWS","U.S. Fish & Wildlife Service","National Wildlife Refuge","29389","17020","Prairie-Forest Border","IL, MN, WI","24","15","0.261","39.91",5418,13
+NULL,"522","5070","Kaw Wildlife Management Area","SDC","Department of Wildlife Conservation","State Conservation Area","7433","17074","Osage Plains/Flint Hills Prairie","OK","11","7","0.159","39.84",5428,6
+NULL,"523","5171","Stonewall Jackson Lake Wildlife Management Area","FED","Army Corps of Engineers","Wildlife Management Area","18399","17025","Western Allegheny Plateau","WV","17","5","0.165","38.45",5648,37
+NULL,"524","320","Big Boggy National Wildlife Refuge","FWS","U.S. Fish & Wildlife Service","National Wildlife Refuge","4188","17063","Gulf Coast Prairies And Marshes","TX","2","9","0.083","38.19",5700,11
+NULL,"525","621","Caddo National Grassland","UFS","US Forest Service",NULL,"10772","17068","Crosstimbers And Southern Tallgrass Prairie","TX","24","5","0.160","37.61",5796,3
+NULL,"526","6218","Lowndes Wildlife Management Area","SFW","State Fish and Wildlife","State Conservation Area","5211","17024","Upper East Gulf Coastal Plain","AL","12","12","0.167","37.41",5826,16
+NULL,"527","4950","Rathbun Recreation Area","UNK","Unknown","Recreation Area","11549","17067","Central Tallgrass Prairie","IA","9","10","0.219","35.89",6014,26
+NULL,"528","6239","Pigeon River Fish And Wildlife Area","SFW","Indiana DNR, Fish and Wildlife Division","State Conservation Area","5467","17015","North Central Tillplain","IN","9","15","0.327","31.73",6493,12
+NULL,"529","2614","Boulder River - Mt. Baker National Forest","UFS","US Forest Service","Inventoried Roadless Area","26813","17039","North Cascades","WA","42","20","0.073","63.01",79,16
+NULL,"530","1178","Long Neck Mesa / Steep Creek / Oak Creek - Steep Creek / Oak - Dixie National Forest","UFS","US Forest Service","Inventoried Roadless Area","55470","17047","Utah High Plateaus","UT","45","33","0.027","61.61",112,14
+NULL,"531","1000","Chiricahua - Coronado National Forest","UFS","US Forest Service","Inventoried Roadless Area","68801","17088","Apache Highlands","AZ","34","25","0.027","60.53",148,15
+NULL,"532","1796","South Sierra - Inyo National Forest","UFS","US Forest Service","Inventoried Roadless Area","39270","17043","Sierra Nevada","CA","66","30","0.058","59.82",172,21
+"408","533","1554","Raggeds Wilderness - Gunnison National Forest","UFS","US Forest Service","National Forest","48147","17045","Southern Rocky Mountains","CO","40","34","0.004","59.63",183,5
+NULL,"534","5632","Lake George Wild Forest","SDC","NYS Department of Environmental Conservation","State Forest","20582","17016","Northern Appalachian / Acadian","NY","25","36","0.116","59.26",207,26
+"409","535","1130","West - South Bachelor - Deschutes National Forest","UFS","US Forest Service","Inventoried Roadless Area","24929","17049","West Cascades","OR","61","35","0.036","59.24",210,6
+"410","536","3271","Ignacio Chavez - Rio Puerco Field Office","BLM","Bureau of Land Management","Wilderness Study Area","32187","17027","Arizona-New Mexico Mountains","NM","65","23","0.004","57.73",314,7
+"411","537","2304","Machesna Mountain Wilderness - Los Padres National Forest","UFS","US Forest Service","National Forest","16576","17085","California Central Coast","CA","25","20","0.015","56.70",392,14
+"412","538","3156","Blowout Penstemon ACEC - Rawlins Field Office","BLM","Bureau of Land Management","Area of Critical Environmental Concern","20850","17097","Wyoming Basins","WY","58","27","0.052","56.26",432,6
+"413","539","2959","Cottontail Point/Pilot Peak - Payette National Forest","UFS","US Forest Service","Inventoried Roadless Area","92203","17037","Middle Rockies - Blue Mountains","ID","83","27","0.032","56.19",446,18
+"414","540","2504","Thatcher - Mendocino National Forest","UFS","US Forest Service",NULL,"13856","17029","California North Coast","CA","33","18","0.006","55.78",502,7
+"415","541","118","Arches National Park","NPS","National Park Service","National Park","76940","17091","Colorado Plateau","UT","47","29","0.019","55.64",522,22
+"416","542","175","High Uintas Wilderness - Ashley National Forest","UFS","US Forest Service","National Forest","271446","17048","Utah-Wyoming Rocky Mountains","UT","56","29","0.003","55.31",567,22
+NULL,"543","7709","Bowstring State Forest","SNR","Minnesota Department of Natural Resources","State Resource Management Area","18924","17023","Superior Mixed Forest","MN","22","20","0.054","54.64",683,23
+NULL,"544","3949","Big Creek - St. Joe National Forest","UFS","US Forest Service","Inventoried Roadless Area","69555","17030","Canadian Rocky Mountains","ID","29","23","0.003","54.38",728,18
+"417","545","4237","Kawich - Tonopah Field Office","BLM","Bureau of Land Management","Wilderness Study Area","68387","17093","Great Basin","NV","60","28","0.001","54.36",735,12
+"418","546","4241","Queer Mountain - Tonopah Field Office","BLM","Bureau of Land Management","Wilderness Study Area","85063","17094","Mojave Desert","NV","34","22","0.000","54.25",751,11
+NULL,"547","985","Profanity - Colville National Forest","UFS","US Forest Service","Inventoried Roadless Area","28542","17040","Okanagan","WA","26","21","0.019","53.81",852,13
+NULL,"548","800","Ed Jenkins - Chattahoochee National Forest","UFS","US Forest Service","National Recreation Area","16116","17021","Southern Blue Ridge","GA","17","10","0.090","52.67",1149,40
+"419","549","3695","Woolstaff - Sequoia National Forest","UFS","US Forest Service","Inventoried Roadless Area","37530","17087","Great Central Valley","CA","31","23","0.075","52.42",1215,4
+NULL,"550","5755","State Game Land 013","SFW","PA Game Commission","State Land","50646","17010","High Allegheny Plateau","PA","17","20","0.087","51.47",1513,14
+"420","551","4617","Devils Gulch - Wenatchee National Forest","UFS","US Forest Service","Inventoried Roadless Area","24418","17031","East Cascades - Modoc Plateau","WA","55","22","0.014","51.20",1607,17
+NULL,"552","3828","North Kalmiopsis - Siskiyou National Forest","UFS","US Forest Service","Inventoried Roadless Area","84653","17035","Klamath Mountains","OR","25","24","0.026","51.20",1606,18
+NULL,"553","3501","Santa Rosa And San Jacinto - San Bernardino National Forest","UFS","US Forest Service",NULL,"19446","17086","California South Coast","CA","56","26","0.200","50.97",1685,19
+NULL,"554","1205","Twin Peaks Wilderness Study Area - Eagle Lake Field Office","BLM","Bureau of Land Management","Wilderness Study Area","90625","17092","Columbia Plateau","CA, NV","41","24","0.003","50.77",1771,34
+NULL,"555","5461","Bald Eagle State Forest","SNR","PA Bureau of Forestry","State Forest","180802","17006","Central Appalachian Forest","PA","46","16","0.195","50.50",1877,38
+"421","556","6018","Sand Flats State Forest","SDC","NYS Department of Environmental Conservation","State Forest","2532","17022","St. Lawrence - Champlain Valley","NY","14","21","0.173","50.18",2022,4
+NULL,"557","2839","South Quinault - Olympic National Forest","UFS","US Forest Service","Inventoried Roadless Area","8719","17041","Pacific Northwest Coast","WA","26","16","0.065","49.84",2163,14
+NULL,"558","2926","Palen/McCoy Wilderness - Palm Springs/S. Coast Field Office","BLM","Bureau of Land Management","National Public Lands
+","236218","17095","Sonoran Desert","CA","17","11","0.004","49.10",2502,29
+NULL,"559","7906","Chinati Mountains State Natural Area - Chinati Mountains","SPR","Texas Parks and Wildlife Department","State Conservation Area","37500","17090","Chihuahuan Desert","TX","25","19","0.036","48.59",2743,13
+NULL,"560","1053","Crocodile Lake National Wildlife Refuge","FWS","U.S. Fish & Wildlife Service","National Wildlife Refuge","5525","17101","Tropical Florida","FL","7","13","0.147","47.56",3224,11
+NULL,"561","7590","Pigeon River Country State Forest Area","SNR","Michigan Department of Natural Resources","State Conservation Area","102451","17009","Great Lakes","MI","15","23","0.051","47.35",3333,29
+NULL,"562","5976","Suggs Mill Pond Game Land Dedicated Nature Preserve - Suggs Mill Pond Game Land","SFW","NC Wildlife Resources Commission","State Recreation Area","9346","17036","Mid-Atlantic Coastal Plain","NC","17","11","0.096","47.30",3354,9
+NULL,"563","6321","Current River Conservation Area","UNK","Unknown","State Conservation Area","28789","17018","Ozarks","MO","15","10","0.087","45.77",3949,25
+NULL,"564","1074","Tongue River Breaks - Custer National Forest","UFS","US Forest Service","Inventoried Roadless Area","16938","17072","Northern Great Plains Steppe","MT","34","12","0.065","45.38",4092,31
+NULL,"565","2861","Black Fork Mountain Wilderness - Ouachita National Forest","UFS","US Forest Service","National Forest","13347","17017","Ouachita Mountains","AR, OK","14","10","0.067","45.33",4110,8
+NULL,"566","6547","Sicily Island Hills Wildlife Management Area","SFW","State Fish and Wildlife","State Conservation Area","7489","17013","Mississippi River Alluvial Plain","LA","19","17","0.103","44.52",4375,4
+NULL,"567","2141","Las Vegas National Wildlife Refuge","FWS","U.S. Fish & Wildlife Service","National Wildlife Refuge","8711","17075","Southern Shortgrass Prairie","NM","16","19","0.087","43.53",4646,4
+NULL,"568","6930","State Game Land 120","SFW","PA Game Commission","State Land","7254","17025","Western Allegheny Plateau","PA","17","14","0.156","43.38",4672,10
+NULL,"569","6292","Pueblo","SFW","Colorado Division of Wildlife","State Conservation Area","7409","17066","Central Shortgrass Prairie","CO","13","22","0.188","43.37",4675,10
+NULL,"570","956","Colorado Bend State Park","SPR","Texas Parks and Wildlife Department","State Park","4749","17070","Edwards Plateau","TX","13","12","0.105","42.84",4805,3
+NULL,"571","3031","Pinhook - Pinhook Purchase Unit","UFS","US Forest Service","Inventoried Roadless Area","15276","17044","South Atlantic Coastal Plain","FL","2","14","0.058","42.75",4831,22
+NULL,"572","5723","Pascagoula Wma","STA","MDWFP","Conservation Area","34914","17032","East Gulf Coastal Plain","MS","9","22","0.150","42.36",4925,30
+NULL,"573","4894","Skiatook Wildlife Management Area","SDC","Department of Wildlife Conservation","State Conservation Area","7263","17074","Osage Plains/Flint Hills Prairie","OK","9","7","0.111","41.55",5104,3
+NULL,"574","6339","Catoosa Wildlife Management Area","SFW","Tennessee Wildlife Resources Agency","State Conservation Area","78323","17008","Cumberlands And Southern Ridge And Valley","TN","17","11","0.143","41.51",5115,35
+NULL,"575","5232","Yellow River State Forest","SNR","Iowa Department of Natural Resources","State Resource Management Area","5403","17020","Prairie-Forest Border","IA","24","13","0.216","41.39",5137,12
+NULL,"576","5719","Fairmount Wma","SNR","MD Department of Natural Resources","Wildlife Management Area","2815","17007","Chesapeake Bay Lowlands","MD","8","9","0.174","41.34",5143,13
+NULL,"577","6467","Cimarron Bluff Wildlife Management Area","SDC","Department of Wildlife Conservation","State Conservation Area","3631","17065","Central Mixed-Grass Prairie","OK","7","11","0.116","41.28",5153,12
+NULL,"578","5032","Pennyrile State Forest","SDC","Kentucky Division of Forestry","State Resource Management Area","13767","17011","Interior Low Plateau","KY","15","8","0.150","41.25",5160,18
+NULL,"579","7214","Capital District Wma","SDC","NYS Department of Environmental Conservation","Wildlife Management Area","5523","17012","Lower New England / Northern Piedmont","NY","15","32","0.226","41.10",5187,18
+NULL,"580","4954","Battle Mountain Game Production Area","SFW","State Fish and Wildlife","State Conservation Area","3066","17028","Black Hills","SD","16","8","0.250","40.92",5227,9
+NULL,"581","3073","Pond Creek National Wildlife Refuge","FWS","U.S. Fish & Wildlife Service","National Wildlife Refuge","24744","17046","Upper West Gulf Coastal Plain","AR","7","14","0.128","40.46",5309,14
+NULL,"582","3731","Delamere - Sheyenne National Grassland","UFS","US Forest Service","Inventoried Roadless Area","5030","17073","Northern Tallgrass Prairie","ND","5","9","0.092","40.29",5348,17
+NULL,"583","5924","State-owned Submerged Lands - Millers Ferry Lock Recreation Area","STA","Unknown & State of Alabama",NULL,"4788","17024","Upper East Gulf Coastal Plain","AL","18","9","0.126","39.72",5451,6
+NULL,"584","3160","Red River National Wildlife Refuge","FWS","U.S. Fish & Wildlife Service","National Wildlife Refuge","3098","17050","West Gulf Coastal Plain","LA","6","9","0.169","38.96",5565,12
+NULL,"585","5191","Withlacoochee State Forest","STL","Trustees of the Internal Improvement Trust Fund","State Resource Management Area","47140","17033","Florida Peninsula","FL","20","15","0.285","37.12",5858,41
+NULL,"586","7119","Rathbun Wildlife Management Area - Rathbun Recreation Area","ACE","Unknown & Army Corps of Engineers","State Conservation Area","7685","17067","Central Tallgrass Prairie","IA","9","9","0.189","37.04",5872,22
+NULL,"587","2800","CEDAR CREEK WMA - Oconee National Forest","UFS","US Forest Service","National Forest","36740","17019","Piedmont","GA","9","5","0.154","35.54",6058,23
+NULL,"588","179","Attwater Prairie Chicken National Wildlife Refuge","FWS","U.S. Fish & Wildlife Service","National Wildlife Refuge","9280","17063","Gulf Coast Prairies And Marshes","TX","6","7","0.151","35.01",6111,16
+NULL,"589","6665","Pipestem Recreation Area","UNK","Unknown","Recreation Area","7499","17069","Dakota Mixed-Grass Prairie","ND","9","12","0.310","34.71",6154,14
+NULL,"590","7538","Keystone Wildlife Management Area","SDC","Department of Wildlife Conservation","State Conservation Area","11008","17068","Crosstimbers And Southern Tallgrass Prairie","OK","20","11","0.274","32.32",6433,17
+NULL,"591","7389","Sharonville State Game Area","SNR","Michigan Department of Natural Resources","State Conservation Area","4241","17015","North Central Tillplain","MI","14","14","0.356","31.31",6529,14
+NULL,"592","3890","Eagle Rock - Snoqualmie National Forest","UFS","US Forest Service",NULL,"32526","17039","North Cascades","WA","31","24","0.080","62.03",98,19
+"422","593","55","Lower San Francisco - Apache National Forest","UFS","US Forest Service","Inventoried Roadless Area","59305","17088","Apache Highlands","AZ","34","27","0.037","60.86",135,12
+NULL,"594","4644","E. Douglas Creek/Soldier Creek ACEC - White River Field Office","BLM","Bureau of Land Management","Area of Critical Environmental Concern","46345","17047","Utah High Plateaus","CO","54","30","0.046","60.35",152,21
+NULL,"595","5868","Blue Ridge Wilderness","SDC","NYS Department of Environmental Conservation","State Forest","47319","17016","Northern Appalachian / Acadian","NY","21","27","0.016","59.09",225,29
+"423","596","137","Paiute (North) - Arizona Strip Field Office","BLM","Bureau of Land Management","National Public Lands
+","51853","17094","Mojave Desert","AZ","38","31","0.008","57.77",309,3
+NULL,"597","190","Domeland Wilderness - Bakersfield Field Office","BLM","Bureau of Land Management","National Public Lands
+","37358","17043","Sierra Nevada","CA","65","19","0.016","57.66",320,30
+NULL,"598","4673","Flat Tops Wilderness - White River National Forest","UFS","US Forest Service","National Forest","192661","17045","Southern Rocky Mountains","CO","35","30","0.003","57.21",349,20
+"424","599","3793","Washakie Wilderness - Shoshone National Forest","UFS","US Forest Service","National Forest","686755","17048","Utah-Wyoming Rocky Mountains","WY","43","33","0.004","55.43",551,19
+NULL,"600","1399","Dark Divide - Gifford Pinchot National Forest","UFS","US Forest Service","Inventoried Roadless Area","46049","17049","West Cascades","WA","56","23","0.011","54.87",633,13
+NULL,"601","295","Lee Metcalf Wilderness - Beaverhead National Forest","UFS","US Forest Service","National Forest","101914","17037","Middle Rockies - Blue Mountains","MT","57","27","0.010","54.81",645,34
+NULL,"602","5676","Stillwater State Forest","SNR","Montana State Trust Lands","State Resource Management Area","80385","17030","Canadian Rocky Mountains","MT","48","24","0.044","54.75",657,16
+NULL,"603","3625","Savanna Portage State Park","SNR","Minnesota Department of Natural Resources","State Park","15163","17023","Superior Mixed Forest","MN","20","19","0.033","54.58",698,24
+NULL,"604","810","Southern Nantahala Wilderness - Chattahoochee National Forest","UFS","US Forest Service","National Forest","11591","17021","Southern Blue Ridge","GA, NC","21","10","0.110","54.42",720,22
+"425","605","6591","South Dakota Game Fish and Parks - Wildlife Division","STA","South Dakota Game Fish and Parks - Wildlife Division","State Park","2962","17028","Black Hills","SD","16","15","0.115","54.17",770,5
+NULL,"606","528","Bryce Canyon National Park","NPS","National Park Service","National Park","35915","17091","Colorado Plateau","UT","54","29","0.067","53.93",820,37
+NULL,"607","2309","Mono - Los Padres National Forest","UFS","US Forest Service","Inventoried Roadless Area","27917","17085","California Central Coast","CA","27","20","0.075","53.85",842,20
+NULL,"608","7080","Red Rim-Grizzly Wildlife Habitat Management Area - Rawlins Field Office","JNT","Bureau of Land Management & State of Wyoming","National Public Lands","26220","17097","Wyoming Basins","WY","21","32","0.045","53.77",867,11
+NULL,"609","1702","Mt. Moriah Wilderness - Humboldt National Forest","UFS","US Forest Service","National Forest","69168","17093","Great Basin","NV","44","30","0.001","53.54",902,19
+NULL,"610","1241","El Malpais National Mounument","NPS","National Park Service","Wilderness Study Area","93815","17027","Arizona-New Mexico Mountains","NM","38","22","0.002","53.17",1000,28
+"426","611","4602","Watoga State Park","STA","WV Division of Natural Resources","State Park","10167","17006","Central Appalachian Forest","WV","24","17","0.036","52.79",1113,15
+NULL,"612","2822","South Ridge - Okanogan National Forest","UFS","US Forest Service","Inventoried Roadless Area","6149","17040","Okanagan","WA","25","24","0.061","52.75",1127,17
+NULL,"613","2832","Lightning - Olympic National Forest","UFS","US Forest Service","Inventoried Roadless Area","7105","17041","Pacific Northwest Coast","WA","24","17","0.018","52.65",1156,11
+"427","614","1722","Santa Rosa - Humboldt National Forest","UFS","US Forest Service","Inventoried Roadless Area","54340","17092","Columbia Plateau","NV","59","32","0.045","52.65",1155,17
+NULL,"615","112","King Range Wilderness - Arcata Field Office","BLM","Bureau of Land Management","National Public Lands
+","41755","17029","California North Coast","CA","28","15","0.029","51.82",1362,26
+NULL,"616","6407","Delaware Water Gap","FED","US National Park Service","National Park","30659","17010","High Allegheny Plateau","NJ, PA","34","22","0.241","50.86",1735,22
+"428","617","4984","Holey Land Wildlife Management Area","STL","Trustees of the Internal Improvement Trust Fund","State Conservation Area","34929","17101","Tropical Florida","FL","3","14","0.042","50.16",2028,7
+NULL,"618","213","Bighorn Mountain Wilderness - Barstow Field Office","BLM","Bureau of Land Management","National Public Lands
+","26531","17086","California South Coast","CA","28","13","0.013","49.98",2099,27
+NULL,"619","2345","Woolsey Peak - Lower Sonoran Field Office","BLM","Bureau of Land Management","National Public Lands
+","64866","17095","Sonoran Desert","AZ","19","12","0.008","49.84",2162,22
+"429","620","3921","Stallion - Socorro Field Office","BLM","Bureau of Land Management","Wilderness Study Area","23799","17090","Chihuahuan Desert","NM","17","22","0.011","49.75",2209,8
+NULL,"621","1200","Eagle Lake Basin - Eagle Lake Field Office","BLM","Bureau of Land Management","Area of Critical Environmental Concern","27550","17031","East Cascades - Modoc Plateau","CA","38","23","0.022","49.42",2361,29
+NULL,"622","4639","Whiskeytown-Shasta-Trinity National Recreation Area","NPS","National Park Service","National Recreation Area","42117","17035","Klamath Mountains","CA","30","22","0.071","48.65",2710,32
+NULL,"623","2851","Mccormick Wilderness - Ottawa National Forest","UFS","US Forest Service","National Forest","15754","17009","Great Lakes","MI","11","20","0.002","48.21",2927,18
+NULL,"624","6086","State Game Land 331","SFW","PA Game Commission","State Land","5260","17025","Western Allegheny Plateau","PA","17","17","0.104","47.70",3170,3
+NULL,"625","2433","Irish Wilderness - Mark Twain National Forest","UFS","US Forest Service","National Forest","16416","17018","Ozarks","MO","14","8","0.042","46.82",3547,14
+NULL,"626","5291","Grassland Reserve Program - Prairie Canyonlands","NGO","The Nature Conservancy","Grassland Reserve Program","5477","17066","Central Shortgrass Prairie","CO","12","14","0.055","46.29",3749,9
+NULL,"627","7410","Mount Kearsarge State Forest","STA","NH Department of Resources & Economic Development","State Forest","3893","17012","Lower New England / Northern Piedmont","NH","16","31","0.138","45.86",3912,4
+NULL,"628","4960","Saxis Wildlife Management Area","SFW","VA Dept of Wildlife Resources","Wildlife Management Area","3415","17007","Chesapeake Bay Lowlands","VA","11","9","0.140","45.85",3922,6
+NULL,"629","1031","Coyote Creek State Park","SPR","State Park & Recreation","State Park","7306","17075","Southern Shortgrass Prairie","NM","29","18","0.083","45.60",4015,3
+NULL,"630","2868","Poteau Mountain Wilderness - Ouachita National Forest","UFS","US Forest Service","National Forest","11141","17017","Ouachita Mountains","AR","15","10","0.088","44.49",4382,13
+NULL,"631","7745","Wee Tee State Forest","STL","South Carolina Forestry Commission","State Conservation Area","10401","17036","Mid-Atlantic Coastal Plain","SC","8","10","0.066","44.17",4470,25
+NULL,"632","5777","Calcasieu River","SFW","State Fish and Wildlife","State Conservation Area","8144","17050","West Gulf Coastal Plain","LA","7","15","0.152","44.12",4483,8
+NULL,"633","1059","Cumberland Gap National Historical Park","NPS","National Park Service","Historic or Cultural Area","14183","17008","Cumberlands And Southern Ridge And Valley","KY, TN, VA","35","13","0.213","44.02",4513,20
+NULL,"634","3167","Sacramento River/Bend Area - Redding Field Office","BLM","Bureau of Land Management","Area of Critical Environmental Concern","15648","17087","Great Central Valley","CA","17","15","0.114","43.73",4589,19
+NULL,"635","2215","Bullion Butte - Little Missouri National Grassland","UFS","US Forest Service","Inventoried Roadless Area","19427","17072","Northern Great Plains Steppe","ND","21","16","0.090","43.66",4612,43
+NULL,"636","6731","Yellowwood State Forest","SNR","Indiana DNR, Forestry Division","State Conservation Area","8807","17011","Interior Low Plateau","IN","27","7","0.189","43.31",4694,12
+NULL,"637","5714","CHICKASAWHATCHEE WMA - Chickasawhatchee Wildlife Management Area","SNR","Georgia Department of Natural Resources","State Conservation Area","19538","17032","East Gulf Coastal Plain","GA","9","11","0.059","43.06",4754,28
+NULL,"638","5133","Lower Wisconsin State Riverway","SNR","Wisconsin Department of Natural Resources","State Conservation Area","3693","17020","Prairie-Forest Border","WI","25","11","0.181","42.62",4861,9
+NULL,"639","7636","TUCKAHOE WMA - Tuckahoe Wildlife Management Area","SNR","Georgia Department of Natural Resources","State Conservation Area","11201","17044","South Atlantic Coastal Plain","GA, SC","7","13","0.083","42.50",4892,23
+NULL,"640","6459","Jay V. Wessels","SFW","State Fish and Wildlife","State Conservation Area","3094","17073","Northern Tallgrass Prairie","ND","7","11","0.083","42.40",4915,12
+NULL,"641","6747","Cottonwood/steverson Wildlife Management Area","SFW","Nebraska Game and Parks Commission","State Conservation Area","2907","17065","Central Mixed-Grass Prairie","NE","9","9","0.092","42.21",4973,11
+NULL,"642","6946","Camp Blanding - Dallas Pension - Belmore State Forest","STL","Trustees of the Internal Improvement Trust Fund","State Resource Management Area","8734","17033","Florida Peninsula","FL","13","16","0.176","41.26",5158,16
+NULL,"643","5732","Dagmar","SFW","State Fish and Wildlife","State Conservation Area","9579","17013","Mississippi River Alluvial Plain","AR","7","9","0.060","40.99",5211,15
+NULL,"644","1984","Lacassine National Wildlife Refuge","FWS","U.S. Fish & Wildlife Service","National Wildlife Refuge","33203","17063","Gulf Coast Prairies And Marshes","LA","10","8","0.069","40.94",5223,6
+NULL,"645","2691","Neches River National Wildlife Refuge","FWS","U.S. Fish & Wildlife Service","National Wildlife Refuge","4368","17046","Upper West Gulf Coastal Plain","TX","11","13","0.149","39.99",5406,16
+NULL,"646","4088","Tewaukon National Wildlife Refuge","FWS","U.S. Fish & Wildlife Service","National Wildlife Refuge","4728","17069","Dakota Mixed-Grass Prairie","ND","7","11","0.192","39.52",5482,12
+NULL,"647","5558","Lauderdale Wildlife Management Area","STA","ADCNR, Division of Wildlife and Freshwater Fisheries","State Conservation Area","4802","17024","Upper East Gulf Coastal Plain","AL, TN","14","7","0.115","38.73",5601,14
+NULL,"648","2240","Loess Bluffs National Wildlife Refuge","FWS","U.S. Fish & Wildlife Service","National Wildlife Refuge","7442","17067","Central Tallgrass Prairie","MO","13","9","0.202","37.94",5741,13
+NULL,"649","7540","Keystone Wildlife Management Area","SDC","Department of Wildlife Conservation","State Conservation Area","9687","17074","Osage Plains/Flint Hills Prairie","OK","19","11","0.317","37.16",5848,15
+NULL,"650","5322","Gus Engeling Wildlife Management Area","SPR","Texas Parks and Wildlife Department","State Conservation Area","9994","17068","Crosstimbers And Southern Tallgrass Prairie","TX","9","10","0.170","35.29",6082,7
+NULL,"651","3076","Potato Creek State Park","SPR","Indiana DNR, State Parks and Reservoirs Division","State Park","3586","17015","North Central Tillplain","IN","16","14","0.314","34.22",6218,10
+NULL,"652","803","LAKE RUSSELL WMA - Chattahoochee National Forest","UFS","US Forest Service","National Forest","17025","17019","Piedmont","GA","16","9","0.245","34.09",6238,30
+NULL,"653","7382","Stillhouse Recreation Area","UNK","Unknown","Recreation Management Area","15116","17070","Edwards Plateau","TX","22","14","0.357","32.33",6432,13
+NULL,"654","2629","Mt. Baker Ma - Mt. Baker National Forest","UFS","US Forest Service","Inventoried Roadless Area","24835","17039","North Cascades","WA","48","22","0.103","64.69",60,12
+"430","655","2541","Flume Canyon - Moab Field Office","BLM","Bureau of Land Management","Wilderness Study Area","42304","17047","Utah High Plateaus","UT","57","29","0.001","62.76",83,12
+"431","656","1017","Rincon Mountain Wilderness - Coronado National Forest","UFS","US Forest Service","National Forest","36907","17088","Apache Highlands","AZ","33","27","0.013","61.85",101,9
+"432","657","1797","South Sierra Wilderness - Inyo National Forest","UFS","US Forest Service","National Forest","29424","17043","Sierra Nevada","CA","77","23","0.009","61.75",102,13
+"433","658","5030","West Grand Lake Fee","NGO","Downeast Lakes Land Trust","Private Conservaed Land","14518","17016","Northern Appalachian / Acadian","ME","28","23","0.008","60.52",149,12
+"434","659","3456","West Big Hole - Salmon National Forest","UFS","US Forest Service","Inventoried Roadless Area","81466","17037","Middle Rockies - Blue Mountains","ID, MT","83","35","0.054","58.03",283,8
+NULL,"660","1482","Kannah Creek - Grand Mesa National Forest","UFS","US Forest Service","Inventoried Roadless Area","34485","17045","Southern Rocky Mountains","CO","48","30","0.056","56.39",416,29
+"435","661","7573","Turtle Flambeau Scenic Waters Area","SNR","Wisconsin Department of Natural Resources","State Conservation Area","32445","17023","Superior Mixed Forest","WI","18","23","0.040","55.69",516,17
+"436","662","3206","Piper Mountain Wilderness - Ridgecrest Field Office","BLM","Bureau of Land Management","National Public Lands
+","72834","17094","Mojave Desert","CA","38","23","0.004","55.25",580,6
+"437","663","4776","Waldo Lake Wilderness - Willamette National Forest","UFS","US Forest Service","National Forest","32920","17049","West Cascades","OR","40","27","0.005","55.17",596,11
+NULL,"664","3111","Mexican Mountain - Price Field Office","BLM","Bureau of Land Management","National Public Lands
+","75881","17091","Colorado Plateau","UT","55","25","0.020","55.16",598,28
+"438","665","2830","Jefferson Ridge - Olympic National Forest","UFS","US Forest Service","Inventoried Roadless Area","6428","17041","Pacific Northwest Coast","WA","25","22","0.035","54.82",644,8
+NULL,"666","894","Pot Mountain - Clearwater National Forest","UFS","US Forest Service","Inventoried Roadless Area","50871","17030","Canadian Rocky Mountains","ID","40","22","0.013","54.50",706,17
+NULL,"667","869","Ryan Hill - Cibola National Forest","UFS","US Forest Service","Inventoried Roadless Area","34182","17027","Arizona-New Mexico Mountains","NM","29","36","0.044","54.41",723,19
+NULL,"668","4586","Lakes - Wasatch National Forest","UFS","US Forest Service","Inventoried Roadless Area","121882","17048","Utah-Wyoming Rocky Mountains","UT","69","33","0.074","54.13",779,28
+NULL,"669","1784","Inyo Mountains Wilderness - Inyo National Forest","UFS","US Forest Service","National Forest","69084","17093","Great Basin","CA","56","27","0.000","53.67",882,17
+"439","670","3905","William O. Douglas Wilderness - Snoqualmie National Forest","UFS","US Forest Service","National Forest","148011","17031","East Cascades - Modoc Plateau","WA","44","32","0.011","53.52",910,10
+NULL,"671","3930","Chopaka Mountain WSA - Spokane Wenatchee Field Office","BLM","Bureau of Land Management","Wilderness Study Area","5476","17040","Okanagan","WA","26","23","0.042","53.50",914,14
+NULL,"672","2315","Santa Lucia Wilderness - Los Padres National Forest","UFS","US Forest Service","National Forest","16741","17085","California Central Coast","CA","14","21","0.043","53.30",968,24
+NULL,"673","3052","Woods Mountain - Pisgah National Forest","UFS","US Forest Service","Inventoried Roadless Area","9578","17021","Southern Blue Ridge","NC","19","9","0.099","52.98",1048,33
+"440","674","4497","Fifteenmile Creek WSA - Vale Malheur Field Office","BLM","Bureau of Land Management","Wilderness Study Area","50383","17092","Columbia Plateau","OR","34","33","0.003","52.96",1053,12
+NULL,"675","1111","Del Norte Coast Redwoods State Park","SPR","California Department of Parks and Recreation","State Park","30709","17029","California North Coast","CA","21","23","0.068","52.21",1270,23
+"441","676","1209","Carrizo Gorge Wilderness - El Centro Field Office","BLM","Bureau of Land Management","National Public Lands
+","14675","17086","California South Coast","CA","34","16","0.019","52.17",1276,13
+NULL,"677","3305","South Pass Historic Landscape ACEC - Rock Springs Field Office","BLM","Bureau of Land Management","Area of Critical Environmental Concern","53853","17097","Wyoming Basins","WY","15","28","0.055","50.71",1797,31
+NULL,"678","1218","Indian Pass Wilderness - El Centro Field Office","BLM","Bureau of Land Management","National Public Lands
+","31195","17095","Sonoran Desert","CA","28","9","0.003","50.49",1879,20
+NULL,"679","5240","Tioga State Forest","SNR","PA Bureau of Forestry","State Forest","144660","17010","High Allegheny Plateau","PA","17","20","0.116","49.87",2151,31
+"442","680","5304","Sandhill Wildlife Area","SNR","Wisconsin Department of Natural Resources","State Conservation Area","9483","17020","Prairie-Forest Border","WI","11","27","0.119","49.79",2188,4
+NULL,"681","7501","Audubon of Kansas Unknown","NGO","Audubon of Kansas","Unknown","4377","17069","Dakota Mixed-Grass Prairie","NE","14","15","0.127","49.20",2468,6
+NULL,"682","4854","Michaux State Forest","SNR","PA Bureau of Forestry","State Forest","85527","17006","Central Appalachian Forest","PA","68","15","0.339","49.01",2556,55
+NULL,"683","1940","Siskiyou - Klamath National Forest","UFS","US Forest Service","Inventoried Roadless Area","47931","17035","Klamath Mountains","CA","23","21","0.042","48.82",2642,30
+NULL,"684","5855","Rotenberger Wildlife Management Area","STL","Trustees of the Internal Improvement Trust Fund","State Conservation Area","29787","17101","Tropical Florida","FL","1","13","0.022","48.59",2741,10
+NULL,"685","2870","Upper Kiamichi River Wilderness - Ouachita National Forest","UFS","US Forest Service","National Forest","10372","17017","Ouachita Mountains","AR, OK","17","10","0.031","48.25",2916,3
+NULL,"686","1623","Grand Island - Hiawatha National Forest","UFS","US Forest Service","National Recreation Area","12995","17009","Great Lakes","MI","15","24","0.044","48.07",2993,21
+NULL,"687","2895","Ozark National Scenic Riverway","NPS","National Park Service",NULL,"15479","17018","Ozarks","MO","17","14","0.101","47.78",3131,9
+NULL,"688","1251","Elephant Butte Lake State Park","SPR","State Park & Recreation","State Park","20396","17090","Chihuahuan Desert","NM","33","23","0.102","47.75",3141,17
+NULL,"689","5576","Bridgestone/Firestone Wildlife Management Area","SFW","Tennessee Wildlife Resources Agency","State Conservation Area","7731","17011","Interior Low Plateau","TN","32","7","0.149","47.48",3262,5
+NULL,"690","6678","Little River Wildlife Management Area","SFW","State Fish and Wildlife","State Conservation Area","4171","17050","West Gulf Coastal Plain","LA","8","13","0.084","47.17",3414,7
+"443","691","4154","Iceberg - Mill Creek - Toiyabe National Forest","UFS","US Forest Service","Inventoried Roadless Area","26766","17043","Sierra Nevada","CA","71","37","0.019","65.60",51,7
+NULL,"692","2617","Glacier Peak H - Mt. Baker National Forest","UFS","US Forest Service","Inventoried Roadless Area","6366","17039","North Cascades","WA","30","24","0.065","62.57",85,18
+"444","693","56","Mitchell Peak - Apache National Forest","UFS","US Forest Service","Inventoried Roadless Area","35381","17088","Apache Highlands","AZ","35","28","0.039","61.55",113,11
+NULL,"694","1323","Tushar Mountain - Fishlake National Forest","UFS","US Forest Service","Inventoried Roadless Area","38250","17047","Utah High Plateaus","UT","59","33","0.067","61.47",115,15
+NULL,"695","7094","Nahmakanta Unit","SPR","Maine Bureau of Parks and Lands","State Land","32500","17016","Northern Appalachian / Acadian","ME","21","26","0.004","59.31",202,24
+"445","696","377","Bitter Creek National Wildlife Refuge","FWS","U.S. Fish & Wildlife Service","National Wildlife Refuge","14774","17085","California Central Coast","CA","53","20","0.093","58.71",244,9
+NULL,"697","3221","Bennet Mountain / Blowout / Willow Creek / Lion Point / Greenie Mountain - Rio Grande National Forest","UFS","US Forest Service","Inventoried Roadless Area","52011","17045","Southern Rocky Mountains","CO","60","30","0.063","57.98",285,12
+"446","698","2807","Granite Mountain - Okanogan National Forest","UFS","US Forest Service","Inventoried Roadless Area","27425","17040","Okanagan","WA","31","27","0.043","56.40",415,8
+NULL,"699","1438","Sawyers Peak - Gila National Forest","UFS","US Forest Service","Inventoried Roadless Area","59641","17027","Arizona-New Mexico Mountains","NM","41","32","0.049","54.61",688,16
+NULL,"700","670","Elkhorn Mountain - Caribou National Forest","UFS","US Forest Service","Inventoried Roadless Area","41715","17048","Utah-Wyoming Rocky Mountains","ID","62","33","0.053","54.59",693,25
+NULL,"701","831","Big Frog Wilderness - Cherokee National Forest","UFS","US Forest Service","National Forest","8012","17021","Southern Blue Ridge","TN","16","7","0.017","54.16",771,24
+"447","702","411","Pahute Peak - Black Rock Field Office","BLM","Bureau of Land Management","National Public Lands
+","56896","17093","Great Basin","NV","69","25","0.004","54.00",807,14
+NULL,"703","448","Peace Rock - Boise National Forest","UFS","US Forest Service","Inventoried Roadless Area","190517","17037","Middle Rockies - Blue Mountains","ID","69","23","0.020","53.97",814,50
+NULL,"704","2582","Grand Gulch ISA Complex - Monticello Field Office","BLM","Bureau of Land Management","Wilderness Study Area","105219","17091","Colorado Plateau","UT","34","25","0.002","53.31",961,42
+NULL,"705","976","Abercrombie - Hooknose - Colville National Forest","UFS","US Forest Service","Inventoried Roadless Area","33523","17030","Canadian Rocky Mountains","WA","54","20","0.046","53.21",990,30
+NULL,"706","2065","Green Mountain ACEC - Lander Field Office","BLM","Bureau of Land Management","Area of Critical Environmental Concern","19185","17097","Wyoming Basins","WY","32","29","0.062","53.04",1034,15
+NULL,"707","2655","Mount Hood Wilderness - Mt. Hood National Forest","UFS","US Forest Service","National Forest","41897","17049","West Cascades","OR","56","29","0.097","52.75",1126,23
+NULL,"708","251","Resting Spring Range Wilderness - Barstow Field Office","BLM","Bureau of Land Management","National Public Lands
+","76181","17094","Mojave Desert","CA, NV","34","17","0.003","52.36",1229,24
+NULL,"709","406","High Rock Lake - Black Rock Field Office","BLM","Bureau of Land Management","National Public Lands
+","58398","17092","Columbia Plateau","NV","46","26","0.004","51.82",1363,24
+NULL,"710","2833","Moonlight Dome - Olympic National Forest","UFS","US Forest Service","Inventoried Roadless Area","4919","17041","Pacific Northwest Coast","WA","21","17","0.026","51.67",1428,13
+NULL,"711","2498","Grindstone - Mendocino National Forest","UFS","US Forest Service","Inventoried Roadless Area","26027","17029","California North Coast","CA","22","21","0.064","51.62",1444,27
+NULL,"712","7502","Savanna State Forest","SNR","Minnesota Department of Natural Resources","State Resource Management Area","36751","17023","Superior Mixed Forest","MN","8","21","0.035","51.59",1463,67
+"448","713","1077","Cuyamaca Rancho State Park","SPR","California Department of Parks and Recreation","State Park","23871","17086","California South Coast","CA","34","20","0.071","51.52",1483,15
+NULL,"714","5059","Bluestone Lake Wildlife Management Area","FED","Army Corps of Engineers","Wildlife Management Area","16731","17006","Central Appalachian Forest","VA, WV","31","16","0.108","50.55",1860,36
+NULL,"715","5743","State Game Land 057","SFW","PA Game Commission","State Land","45861","17010","High Allegheny Plateau","PA","17","19","0.096","50.46",1899,26
+"449","716","1628","Wild and Scenic Rivers - Scenic - Hiawatha National Forest","UFS","US Forest Service","Wild and Scenic River","12591","17009","Great Lakes","MI","18","25","0.030","49.80",2178,13
+NULL,"717","1125","North Paulina - Deschutes National Forest","UFS","US Forest Service",NULL,"17898","17031","East Cascades - Modoc Plateau","OR","50","22","0.035","49.57",2292,28
+NULL,"718","5922","Big Bend Wildlife Management Area","STL","Trustees of the Internal Improvement Trust Fund","State Conservation Area","22595","17032","East Gulf Coastal Plain","FL","7","25","0.035","49.30",2413,3
+NULL,"719","1936","Orleans Mtn. - Klamath National Forest","UFS","US Forest Service","Inventoried Roadless Area","44480","17035","Klamath Mountains","CA","29","21","0.051","49.22",2452,29
+NULL,"720","4311","IRONWOOD FOREST NM - Tucson Field Office","BLM","Bureau of Land Management","National Monument","122951","17095","Sonoran Desert","AZ","15","17","0.063","48.70",2690,35
+NULL,"721","2090","FLORIDA MOUNTAINS - Las Cruces District Office","BLM","Bureau of Land Management",NULL,"15520","17090","Chihuahuan Desert","NM","28","17","0.040","48.12",2970,15
+NULL,"722","1495","Great Dismal Swamp National Wildlife Refuge","FWS","U.S. Fish & Wildlife Service","National Wildlife Refuge","27618","17036","Mid-Atlantic Coastal Plain","NC, VA","18","9","0.100","46.68",3598,13
+NULL,"723","6329","Peck Ranch Conservation Area","UNK","Unknown","State Conservation Area","18523","17018","Ozarks","MO","14","9","0.071","45.77",3950,26
+NULL,"724","1083","Clifty Wilderness - Daniel Boone National Forest","UFS","US Forest Service","National Forest","11089","17008","Cumberlands And Southern Ridge And Valley","KY","31","6","0.105","45.74",3953,15
+"450","725","3123","Turtle Canyon - Price Field Office","BLM","Bureau of Land Management","National Public Lands
+","29033","17047","Utah High Plateaus","UT","65","31","0.002","64.85",59,10
+NULL,"726","2622","Henry M. Jackson Wilderness - Mt. Baker National Forest","UFS","US Forest Service","National Forest","27680","17039","North Cascades","WA","28","23","0.008","64.34",67,13
+"451","727","3179","Mt. Hillers - Richfield Field Office","BLM","Bureau of Land Management","Wilderness Study Area","19268","17091","Colorado Plateau","UT","74","33","0.007","61.41",117,7
+NULL,"728","6","Allagash Wilderness Waterway State Park","SPR","Maine Bureau of Parks and Lands","State Park","20714","17016","Northern Appalachian / Acadian","ME","26","22","0.003","59.55",189,20
+"452","729","1549","Mount Lamborn - Gunnison National Forest","UFS","US Forest Service","Inventoried Roadless Area","22501","17045","Southern Rocky Mountains","CO","62","34","0.073","59.40",198,7
+"453","730","3046","Lost Cove - Pisgah National Forest","UFS","US Forest Service",NULL,"5685","17021","Southern Blue Ridge","NC","28","7","0.077","59.39",199,9
+NULL,"731","1021","Tumacacori - Coronado National Forest","UFS","US Forest Service","Inventoried Roadless Area","42768","17088","Apache Highlands","AZ","30","26","0.055","58.13",276,31
+NULL,"732","3975","Carson-Iceberg Wilderness - Stanislaus National Forest","UFS","US Forest Service","National Forest","80185","17043","Sierra Nevada","CA","52","24","0.003","58.01",284,28
+"454","733","2370","Strawberry Mountain Wilderness - Malheur National Forest","UFS","US Forest Service","National Forest","68670","17037","Middle Rockies - Blue Mountains","OR","42","38","0.011","57.46",329,10
+"455","734","2818","Pasayten Rim - Okanogan National Forest","UFS","US Forest Service","Inventoried Roadless Area","16831","17040","Okanagan","WA","27","29","0.036","57.01",363,6
+"456","735","2212","White Mountain Wilderness - Lincoln National Forest","UFS","US Forest Service","National Forest","46940","17027","Arizona-New Mexico Mountains","NM","53","29","0.024","56.83",380,10
+"457","736","1776","Glass Mountain - Inyo National Forest","UFS","US Forest Service","Inventoried Roadless Area","49890","17093","Great Basin","CA","48","36","0.006","55.61",526,7
+"458","737","6679","East Fork ACEC - Kirk Inberg/Kevin Roy Wildlife Habitat Management Area","STA","State of Wyoming","State Conservation Area","16274","17097","Wyoming Basins","WY","56","26","0.055","55.41",555,8
+"459","738","5169","Spice Run Wilderness","FED","USDA Forest Service",NULL,"6000","17006","Central Appalachian Forest","WV","39","17","0.076","55.28",573,9
+"460","739","5381","Kabetogama State Forest","SNR","Minnesota Department of Natural Resources","State Resource Management Area","14322","17023","Superior Mixed Forest","MN","11","24","0.015","55.26",579,19
+NULL,"740","1405","Mount Adams Wilderness - Gifford Pinchot National Forest","UFS","US Forest Service","National Forest","42694","17049","West Cascades","WA","57","22","0.011","54.57",699,14
+NULL,"741","888","Meadow Creek - Upper North Fork - Clearwater National Forest","UFS","US Forest Service","Inventoried Roadless Area","43199","17030","Canadian Rocky Mountains","ID, MT","30","23","0.006","54.35",737,19
+NULL,"742","4236","Grapevine Mountains - Tonopah Field Office","BLM","Bureau of Land Management","Wilderness Study Area","69579","17094","Mojave Desert","CA, NV","34","20","0.000","53.55",901,14
+"461","743","7806","San Felipe Valley Wildlife Area","SFW","California Department of Fish and Wildlife","State Conservation Area","14328","17086","California South Coast","CA","25","23","0.047","53.19",996,11
+NULL,"744","663","Bear Creek - Caribou National Forest","UFS","US Forest Service","Inventoried Roadless Area","115537","17048","Utah-Wyoming Rocky Mountains","ID","99","23","0.082","53.12",1014,37
+NULL,"745","3077","Prairie Creek Redwoods State Park","SPR","California Department of Parks and Recreation","State Park","12886","17029","California North Coast","CA","33","14","0.021","52.89",1074,19
+NULL,"746","2296","Garcia Wilderness - Los Padres National Forest","UFS","US Forest Service","National Forest","13915","17085","California Central Coast","CA","15","18","0.021","52.86",1083,25
+"462","747","5668","Clear Creek State Forest","SNR","PA Bureau of Forestry","State Forest","16114","17010","High Allegheny Plateau","PA","30","17","0.131","52.80",1111,9
+"463","748","2143","Caribou Wilderness - Lassen National Forest","UFS","US Forest Service","National Forest","20808","17035","Klamath Mountains","CA","32","20","0.002","51.92",1336,11
+NULL,"749","2829","Green Mountain - Olympic National Forest","UFS","US Forest Service","Inventoried Roadless Area","4617","17041","Pacific Northwest Coast","WA","32","14","0.025","51.91",1339,12
+NULL,"750","2036","Diablo Mountain WSA - Lakeview District Lakeview Field Office","BLM","Bureau of Land Management","Wilderness Study Area","117126","17092","Columbia Plateau","OR","34","24","0.004","50.07",2056,43
+"464","751","2991","Beaver Basin Wilderness","NPS","National Park Service",NULL,"10771","17009","Great Lakes","MI","14","25","0.012","49.96",2109,12
+"465","752","4874","JE Canyon Ranch - Lower Purgatoire Conservation Area","NGO","The Nature Conservancy","Private Conservation","3031","17066","Central Shortgrass Prairie","CO","14","19","0.047","49.77",2199,6
+NULL,"753","2432","Hercules-Glades Wilderness - Mark Twain National Forest","UFS","US Forest Service","National Forest","12423","17018","Ozarks","MO","15","11","0.029","49.42",2362,4
+NULL,"754","1369","Crane Mountain - Fremont National Forest","UFS","US Forest Service","Inventoried Roadless Area","23066","17031","East Cascades - Modoc Plateau","CA, OR","32","26","0.031","49.31",2406,30
+NULL,"755","4867","Elephant Mountain Wildlife Management Area","SPR","Texas Parks and Wildlife Department","State Conservation Area","23070","17090","Chihuahuan Desert","TX","17","24","0.037","49.06",2536,10
+NULL,"756","4814","Eagletail Mountains - Yuma Field Office","BLM","Bureau of Land Management","National Public Lands
+","98700","17095","Sonoran Desert","AZ","17","11","0.006","48.98",2572,30
+NULL,"757","1253","Ernest F. Hollings Ace Basin National Wildlife Refuge","FWS","U.S. Fish & Wildlife Service","National Wildlife Refuge","6653","17044","South Atlantic Coastal Plain","SC","14","16","0.030","48.79",2651,4
+NULL,"758","2595","Bagby Serpentine - Mother Lode Field Office","BLM","Bureau of Land Management","Area of Critical Environmental Concern","4888","17087","Great Central Valley","CA","23","19","0.082","48.59",2738,15
+NULL,"759","2866","Flatside Wilderness - Ouachita National Forest","UFS","US Forest Service","National Forest","9393","17017","Ouachita Mountains","AR","17","8","0.019","47.93",3060,4
+NULL,"760","6353","Centennial Wilderness Wildlife Management Area","SFW","Tennessee Wildlife Resources Agency","State Conservation Area","5962","17011","Interior Low Plateau","TN","27","7","0.110","47.63",3198,4
+NULL,"761","532","Fortification Creek - Buffalo Field Office","BLM","Bureau of Land Management","Wilderness Study Area","12534","17072","Northern Great Plains Steppe","WY","22","11","0.021","45.66",3989,29
+NULL,"762","2634","Noisy-Diobsud Wilderness - Mt. Baker National Forest","UFS","US Forest Service","National Forest","14161","17039","North Cascades","WA","28","23","0.034","62.90",82,17
+"466","763","1020","Santa Teresa Wilderness - Coronado National Forest","UFS","US Forest Service","National Forest","26898","17088","Apache Highlands","AZ","32","26","0.003","61.62",110,10
+NULL,"764","1166","Deer Creek - Dixie National Forest","UFS","US Forest Service","Inventoried Roadless Area","39802","17047","Utah High Plateaus","UT","55","28","0.031","60.26",160,22
+NULL,"765","5129","Telos","SPR","Maine Bureau of Parks and Lands","State Land","17386","17016","Northern Appalachian / Acadian","ME","26","21","0.006","58.93",233,31
+"467","766","2826","Buckhorn - National Scenic, Botanical Area - Olympic National Forest","UFS","US Forest Service","National Forest","3665","17041","Pacific Northwest Coast","WA","42","16","0.000","56.19",445,5
+"468","767","5861","Nemadji State Forest","SNR","Minnesota Department of Natural Resources","State Resource Management Area","88225","17023","Superior Mixed Forest","MN, WI","22","22","0.052","55.86",490,14
+NULL,"768","4417","Dominguez Canyon - Uncompahgre Field Office","BLM","Bureau of Land Management","National Public Lands
+","35565","17045","Southern Rocky Mountains","CO","34","27","0.010","55.44",549,50
+NULL,"769","3207","Sacatar Trail Wilderness - Ridgecrest Field Office","BLM","Bureau of Land Management","National Public Lands
+","34087","17043","Sierra Nevada","CA","35","24","0.003","54.97",625,39
+NULL,"770","2299","La Brea - Los Padres National Forest","UFS","US Forest Service","Inventoried Roadless Area","13070","17085","California Central Coast","CA","29","19","0.056","54.74",658,19
+NULL,"771","1118","Diamond Peak Wilderness - Deschutes National Forest","UFS","US Forest Service","National Forest","31866","17049","West Cascades","OR","34","27","0.010","54.22",758,15
+NULL,"772","287","East Pioneer - Beaverhead National Forest","UFS","US Forest Service","Inventoried Roadless Area","143223","17037","Middle Rockies - Blue Mountains","MT","65","31","0.067","54.02",803,49
+NULL,"773","2573","Alkali Ridge - Monticello Field Office","BLM","Bureau of Land Management","Area of Critical Environmental Concern","39152","17091","Colorado Plateau","UT","51","21","0.017","53.29",970,43
+NULL,"774","4222","Table Mtn. - East - Toiyabe National Forest","UFS","US Forest Service","Inventoried Roadless Area","87454","17093","Great Basin","NV","38","31","0.003","53.20",993,24
+NULL,"775","676","Oxford Mountain - Caribou National Forest","UFS","US Forest Service","Inventoried Roadless Area","40778","17048","Utah-Wyoming Rocky Mountains","ID","57","35","0.085","53.06",1027,39
+NULL,"776","3910","Continental Divide - Socorro Field Office","BLM","Bureau of Land Management","Wilderness Study Area","72850","17027","Arizona-New Mexico Mountains","NM","31","25","0.007","52.82",1103,31
+NULL,"777","850","Upper Bald River - Cherokee National Forest","UFS","US Forest Service",NULL,"9019","17021","Southern Blue Ridge","NC, TN","20","8","0.105","52.77",1118,39
+NULL,"778","2500","Sanhedrin Wilderness - Mendocino National Forest","UFS","US Forest Service","National Forest","10655","17029","California North Coast","CA","18","19","0.017","52.28",1245,22
+NULL,"779","1884","Scotchman Peaks - Kaniksu National Forest","UFS","US Forest Service","Inventoried Roadless Area","61006","17030","Canadian Rocky Mountains","ID, MT","29","22","0.031","52.28",1244,51
+NULL,"780","990","Twin Sisters - Colville National Forest","UFS","US Forest Service","Inventoried Roadless Area","13051","17040","Okanagan","WA","22","18","0.015","51.76",1388,19
+NULL,"781","6912","State Game Land 054","SFW","PA Game Commission","State Land","19401","17010","High Allegheny Plateau","PA","28","15","0.127","51.26",1592,17
+NULL,"782","1750","N. Fork Of The Little Humboldt River - Humboldt River Field Office","BLM","Bureau of Land Management","Wilderness Study Area","69657","17092","Columbia Plateau","NV","29","28","0.005","50.79",1757,33
+NULL,"783","1394","Big Lava Bed - Gifford Pinchot National Forest","UFS","US Forest Service","Inventoried Roadless Area","17632","17031","East Cascades - Modoc Plateau","WA","53","20","0.007","50.73",1788,23
+NULL,"784","3300","Honeycomb Buttes - Rock Springs Field Office","BLM","Bureau of Land Management","Wilderness Study Area","42098","17097","Wyoming Basins","WY","15","21","0.003","50.50",1876,32
+NULL,"785","2706","Chemehuevi Mountains Wilderness - Needles Field Office","BLM","Bureau of Land Management","National Public Lands
+","84472","17094","Mojave Desert","CA","33","12","0.005","50.30",1965,36
+NULL,"786","4295","Pattison - Trinity National Forest","UFS","US Forest Service","Inventoried Roadless Area","29056","17035","Klamath Mountains","CA","20","22","0.017","50.19",2013,22
+NULL,"787","2326","White Ledge - Los Padres National Forest","UFS","US Forest Service","Inventoried Roadless Area","18539","17086","California South Coast","CA","32","19","0.093","49.46",2343,31
+NULL,"788","4821","Trigo Mountain (South) - Yuma Field Office","BLM","Bureau of Land Management","National Public Lands
+","14133","17095","Sonoran Desert","AZ","27","7","0.003","49.16",2482,28
+NULL,"789","4911","Wardensville Wildlife Management Area","FED","USDA Forest Service","Wildlife Management Area","46405","17006","Central Appalachian Forest","VA, WV","33","16","0.150","48.86",2624,58
+NULL,"790","7427","Beaver Creek County Park","LOC","County Government","Local Park","9084","17072","Northern Great Plains Steppe","MT","29","21","0.074","47.54",3236,17
+NULL,"791","2083","Cedar Mountains - Las Cruces District Office","BLM","Bureau of Land Management","Wilderness Study Area","14968","17090","Chihuahuan Desert","NM","21","13","0.013","46.97",3492,19
+NULL,"792","3882","Sleeping Bear Dunes National Lakeshore","NPS","National Park Service",NULL,"23364","17009","Great Lakes","MI","28","31","0.167","46.34",3730,45
+NULL,"793","6755","Clearwater Lake - Clearwater Recreation Area","JNT","Unknown & Unknown",NULL,"16427","17018","Ozarks","MO","16","14","0.127","45.95",3879,24
+"469","794","3897","Henry M. Jackson Wilderness - Snoqualmie National Forest","UFS","US Forest Service","National Forest","45970","17039","North Cascades","WA","31","28","0.012","68.69",27,7
+"470","795","1900","BURRO CREEK RIPARIAN AND CULTURAL ACEC - Kingman Field Office","BLM","Bureau of Land Management","Area of Critical Environmental Concern","22256","17088","Apache Highlands","AZ","38","29","0.050","62.38",88,8
+"471","796","4128","Carson-Iceberg Wilderness - Toiyabe National Forest","UFS","US Forest Service","National Forest","77784","17043","Sierra Nevada","CA","66","25","0.001","61.02",130,18
+"472","797","7549","Deboullie","SPR","Maine Bureau of Parks and Lands","State Land","14023","17016","Northern Appalachian / Acadian","ME","29","21","0.003","60.28",158,16
+NULL,"798","1470","Roan and Carr Creeks - Grand Junction Field Office","BLM","Bureau of Land Management","Area of Critical Environmental Concern","33065","17047","Utah High Plateaus","CO","54","30","0.048","60.23",161,23
+"473","799","4570","Lord Flat Somers Point - Wallowa National Forest","UFS","US Forest Service",NULL,"67588","17037","Middle Rockies - Blue Mountains","OR","67","33","0.047","56.10",465,19
+NULL,"800","4431","Kelso Mesa - Uncompahgre National Forest","UFS","US Forest Service","Inventoried Roadless Area","35460","17045","Southern Rocky Mountains","CO","48","27","0.052","55.42",554,52
+NULL,"801","2302","Lpoor Canyon - Los Padres National Forest","UFS","US Forest Service","Inventoried Roadless Area","13584","17085","California Central Coast","CA","22","22","0.055","55.10",612,17
+NULL,"802","674","Meade Peak - Caribou National Forest","UFS","US Forest Service","Inventoried Roadless Area","44308","17048","Utah-Wyoming Rocky Mountains","ID","56","34","0.046","54.75",655,24
+"474","803","3182","Argus Range Wilderness - Ridgecrest Field Office","BLM","Bureau of Land Management","National Public Lands
+","62532","17094","Mojave Desert","CA","38","21","0.001","54.71",662,8
+"475","804","4622","Lake Chelan-Sawtooth Wilderness - Wenatchee National Forest","UFS","US Forest Service","National Forest","56592","17031","East Cascades - Modoc Plateau","WA","54","31","0.002","54.68",673,5
+"476","805","2823","Tiffany - Okanogan National Forest","UFS","US Forest Service","Inventoried Roadless Area","21750","17040","Okanagan","WA","25","26","0.048","54.44",717,11
+NULL,"806","3935","Canaan Mountain - St. George Field Office","BLM","Bureau of Land Management","National Public Lands","31113","17091","Colorado Plateau","AZ, UT","46","29","0.048","53.89",833,38
+NULL,"807","3041","Harper Creek - Pisgah National Forest","UFS","US Forest Service",NULL,"6652","17021","Southern Blue Ridge","NC","19","7","0.065","53.66",883,30
+NULL,"808","3915","Ladron Mountain - Devil's Backbone Complex - Socorro Field Office","BLM","Bureau of Land Management","Area of Critical Environmental Concern","50038","17027","Arizona-New Mexico Mountains","NM","29","33","0.044","53.35",950,25
+NULL,"809","1704","Pearl Peak - Humboldt National Forest","UFS","US Forest Service","Inventoried Roadless Area","70702","17093","Great Basin","NV","69","28","0.041","52.97",1049,29
+NULL,"810","1808","Itasca State Park","SNR","Minnesota Department of Natural Resources","State Park","29155","17023","Superior Mixed Forest","MN","13","22","0.057","52.57",1175,48
+"477","811","7458","Sundown Wild Forest","SDC","NYS Department of Environmental Conservation","Nature","29120","17010","High Allegheny Plateau","NY","17","28","0.145","52.24",1262,12
+NULL,"812","1397","Columbia River Gorge - National Scenic, Botanical Area - Gifford Pinchot National Forest","UFS","US Forest Service","National Forest","24442","17049","West Cascades","WA","42","32","0.103","52.17",1277,25
+NULL,"813","2496","Deer Mountain - Mendocino National Forest","UFS","US Forest Service","Inventoried Roadless Area","11619","17029","California North Coast","CA","22","23","0.078","51.88",1347,25
+NULL,"814","949","Magee - Coeur D Alene National Forest","UFS","US Forest Service","Inventoried Roadless Area","34747","17030","Canadian Rocky Mountains","ID","26","19","0.008","51.71",1406,65
+"478","815","2002","Rawhide Mountains - Lake Havasu Field Office","BLM","Bureau of Land Management","National Public Lands
+","37759","17095","Sonoran Desert","AZ","17","16","0.010","51.48",1503,16
+NULL,"816","73","Massacre Rim - Applegate Field Office","BLM","Bureau of Land Management",NULL,"47874","17092","Columbia Plateau","NV","29","29","0.000","51.38",1539,29
+NULL,"817","2153","Mill Creek - Lassen National Forest","UFS","US Forest Service","Inventoried Roadless Area","6576","17035","Klamath Mountains","CA","28","27","0.054","51.29",1574,16
+NULL,"818","912","Pine Creek Wilderness - Cleveland National Forest","UFS","US Forest Service","National Forest","13233","17086","California South Coast","CA","32","18","0.054","51.06",1654,17
+NULL,"819","2074","Twin Creek ACEC - Lander Field Office","BLM","Bureau of Land Management","Area of Critical Environmental Concern","30495","17097","Wyoming Basins","WY","45","21","0.067","51.05",1661,26
+NULL,"820","6846","Moshannon State Forest - Quehanna Wild Area","SNR","PA Bureau of Forestry","State Forest","23917","17006","Central Appalachian Forest","PA","17","18","0.056","49.93",2123,42
+"479","821","3919","Sierra de las Canas - Socorro Field Office","BLM","Bureau of Land Management","Wilderness Study Area","13278","17090","Chihuahuan Desert","NM","30","16","0.010","49.71",2226,9
+NULL,"822","2518","Musselshell Breaks - Miles City Field Office","BLM","Bureau of Land Management","Wilderness Study Area","8532","17072","Northern Great Plains Steppe","MT","28","17","0.028","48.42",2840,13
+NULL,"823","7634","Traverse City State Forest Area","SNR","Michigan Department of Natural Resources","State Conservation Area","109657","17009","Great Lakes","MI","14","23","0.082","45.47",4061,57
+"480","824","2636","Pasayten Wilderness - Mt. Baker National Forest","UFS","US Forest Service","National Forest","111277","17039","North Cascades","WA","35","26","0.005","68.87",24,6
+NULL,"825","4548","Winter Ridge - Vernal Field Office","BLM","Bureau of Land Management","Wilderness Study Area","42852","17047","Utah High Plateaus","UT","40","25","0.007","57.83",303,37
+NULL,"826","4267","Superstition Wilderness - Tonto National Forest","UFS","US Forest Service","National Forest","160150","17088","Apache Highlands","AZ","33","23","0.061","57.44",332,35
+"481","827","2857","Wild and Scenic Rivers - Scenic - Ottawa National Forest","UFS","US Forest Service","Wild and Scenic River","12000","17023","Superior Mixed Forest","MI","23","23","0.043","57.20",350,8
+NULL,"828","6381","Debar Mountain Wild Forest","SDC","NYS Department of Environmental Conservation","Nature","45679","17016","Northern Appalachian / Acadian","NY","21","29","0.073","56.87",376,48
+NULL,"829","3808","Kings River - Sierra National Forest","UFS","US Forest Service","Inventoried Roadless Area","26909","17043","Sierra Nevada","CA","64","27","0.103","55.83",496,37
+NULL,"830","2970","Patrick Butte - Payette National Forest","UFS","US Forest Service","Inventoried Roadless Area","80300","17037","Middle Rockies - Blue Mountains","ID","90","24","0.034","55.64",524,23
+NULL,"831","1468","Dominguez Canyon - Grand Junction Field Office","BLM","Bureau of Land Management","National Public Lands
+","30316","17045","Southern Rocky Mountains","CO","34","27","0.008","55.56",533,47
+"482","832","351","Pryor Mountain - Billings Field Office","BLM","Bureau of Land Management","Wilderness Study Area","13131","17097","Wyoming Basins","MT, WY","43","31","0.061","55.45",544,7
+NULL,"833","1834","Kanab Creek Wilderness - Kaibab National Forest","UFS","US Forest Service","National Forest","61458","17091","Colorado Plateau","AZ","38","25","0.004","53.77",866,40
+NULL,"834","2308","Mirada Pime - Los Padres National Forest","UFS","US Forest Service","Inventoried Roadless Area","13182","17085","California Central Coast","CA","29","18","0.068","53.46",929,23
+NULL,"835","3880","Yolla Bolly-Middle Eel Wilderness - Six Rivers National Forest","UFS","US Forest Service","National Forest","11170","17029","California North Coast","CA","16","20","0.005","53.00",1044,18
+NULL,"836","6115","Loomis Natural Resources Conservation Area","SNR","Washington State Department of Natural Resources (WADNR)","State Conservation Area","13973","17040","Okanagan","WA","23","23","0.044","52.84",1096,15
+NULL,"837","3917","Pelona Mountain - Socorro Field Office","BLM","Bureau of Land Management","Area of Critical Environmental Concern","39616","17027","Arizona-New Mexico Mountains","NM","40","25","0.036","52.70",1140,34
+"483","838","3495","San Jacinto Wilderness - San Bernardino National Forest","UFS","US Forest Service","National Forest","12222","17086","California South Coast","CA","64","22","0.155","52.35",1232,12
+NULL,"839","5847","Swan River State Forest","SNR","Montana State Trust Lands","State Resource Management Area","22013","17030","Canadian Rocky Mountains","MT","36","23","0.056","52.23",1267,52
+NULL,"840","4512","Oregon Canyon WSA - Vale Malheur Field Office","BLM","Bureau of Land Management","Wilderness Study Area","42098","17092","Columbia Plateau","OR","31","32","0.007","52.09",1297,23
+NULL,"841","3993","Gabbs Valley Range - Stillwater Field Office","BLM","Bureau of Land Management","Wilderness Study Area","80533","17093","Great Basin","NV","53","23","0.001","52.02",1314,41
+NULL,"842","665","Caribou City - Caribou National Forest","UFS","US Forest Service","Inventoried Roadless Area","93280","17048","Utah-Wyoming Rocky Mountains","ID","82","24","0.078","51.99",1318,52
+NULL,"843","807","Raven Cliffs Wilderness - Chattahoochee National Forest","UFS","US Forest Service","National Forest","9138","17021","Southern Blue Ridge","GA","16","12","0.118","51.61",1450,44
+NULL,"844","635","Meadow Valley Range - Caliente Field Office","BLM","Bureau of Land Management","National Public Lands
+","111411","17094","Mojave Desert","NV","34","13","0.000","51.12",1633,31
+NULL,"845","2660","Salmon-Huckleberry Wilderness - Mt. Hood National Forest","UFS","US Forest Service","National Forest","40905","17049","West Cascades","OR","27","23","0.025","50.94",1701,36
+NULL,"846","5348","Middle Mountain Roadless Area (Neola Wildlife Management Area) - Monongahela NF","FED","USDA Forest Service","Inventoried Roadless Area","12121","17006","Central Appalachian Forest","WV","26","21","0.117","50.80",1754,32
+NULL,"847","4286","Chinquapin - Trinity National Forest","UFS","US Forest Service","Inventoried Roadless Area","16637","17035","Klamath Mountains","CA","25","21","0.015","50.61",1836,21
+NULL,"848","79","Tule Mountain Wilderness Study Area - Applegate Field Office","BLM","Bureau of Land Management","Wilderness Study Area","16006","17031","East Cascades - Modoc Plateau","CA","21","26","0.019","48.92",2596,37
+NULL,"849","2738","Whipple Mountains Wilderness - Needles Field Office","BLM","Bureau of Land Management","National Public Lands
+","73873","17095","Sonoran Desert","CA","18","10","0.002","48.83",2637,33
+NULL,"850","4844","Sierra Diablo Wildlife Management Area","SPR","Texas Parks and Wildlife Department","State Conservation Area","9618","17090","Chihuahuan Desert","TX","30","15","0.026","48.46",2814,14
+NULL,"851","5754","Loyalsock State Forest","SNR","PA Bureau of Forestry","State Forest","103308","17010","High Allegheny Plateau","PA","19","19","0.152","48.19",2939,48
+NULL,"852","2885","Hurricane Creek Wilderness - Ozark National Forest","UFS","US Forest Service","National Forest","12859","17018","Ozarks","AR","15","8","0.032","47.78",3130,8
+NULL,"853","7471","Bear Hollow Mountain Wildlife Management Area","SFW","Tennessee Wildlife Resources Agency","State Conservation Area","6323","17008","Cumberlands And Southern Ridge And Valley","AL, TN","34","7","0.100","47.37",3323,9
+NULL,"854","66","Clear Lake - Apalachicola National Forest","UFS","US Forest Service",NULL,"5475","17032","East Gulf Coastal Plain","FL","14","13","0.028","46.95",3498,7
+NULL,"855","6585","Baraga State Forest Area","SNR","Michigan Department of Natural Resources","State Conservation Area","25496","17009","Great Lakes","MI","13","22","0.047","46.85",3536,40
+NULL,"856","4543","Nine Mile Canyon - Vernal Field Office","BLM","Bureau of Land Management","Area of Critical Environmental Concern","39758","17047","Utah High Plateaus","UT","61","25","0.055","58.29",262,31
+NULL,"857","61","Pipestem - Apache National Forest","UFS","US Forest Service","Inventoried Roadless Area","34585","17088","Apache Highlands","AZ","31","23","0.036","58.16",274,30
+NULL,"858","1246","Mokelumne Wilderness - Eldorado National Forest","UFS","US Forest Service","National Forest","60318","17043","Sierra Nevada","CA","47","27","0.005","58.15",275,27
+NULL,"859","6631","Silver Lake Wilderness","SDC","NYS Department of Environmental Conservation","Nature","109627","17016","Northern Appalachian / Acadian","NY","17","28","0.028","57.33",342,44
+NULL,"860","3522","Greenhorn Mountain Wilderness - San Isabel National Forest","UFS","US Forest Service","National Forest","23100","17045","Southern Rocky Mountains","CO","42","28","0.029","56.10",464,35
+NULL,"861","762","King Mountain - Challis National Forest","UFS","US Forest Service","Inventoried Roadless Area","87033","17037","Middle Rockies - Blue Mountains","ID","67","29","0.038","55.06",614,31
+NULL,"862","682","Scout Mountain - Caribou National Forest","UFS","US Forest Service","Inventoried Roadless Area","24463","17048","Utah-Wyoming Rocky Mountains","ID","50","33","0.038","54.23",755,27
+NULL,"863","3107","Labyrinth Canyon - Price Field Office","BLM","Bureau of Land Management","National Public Lands
+","54114","17091","Colorado Plateau","UT","34","31","0.030","54.06",794,35
+NULL,"864","845","Sampson Mountain Wilderness - Cherokee National Forest","UFS","US Forest Service","National Forest","8003","17021","Southern Blue Ridge","TN","21","8","0.096","53.98",810,26
+NULL,"865","7793","Lake Sonoma Wildlife Area","ACE","Army Corps of Engineers","State Conservation Area","8022","17029","California North Coast","CA","28","27","0.112","53.37",946,16
+NULL,"866","4174","Mount Stirling - Toiyabe National Forest","UFS","US Forest Service",NULL,"50067","17094","Mojave Desert","NV","35","19","0.002","53.32",959,16
+NULL,"867","4010","Kawishiwi Lake To Sawbill - Superior National Forest","UFS","US Forest Service","Inventoried Roadless Area","14778","17023","Superior Mixed Forest","MN","11","19","0.009","52.91",1068,45
+NULL,"868","922","Kachina Peaks Wilderness - Coconino National Forest","UFS","US Forest Service","National Forest","17386","17027","Arizona-New Mexico Mountains","AZ","30","29","0.033","52.69",1145,35
+"484","869","5132","Camp Creek State Forest","STA","West Virginia Division of Natural Resources - Office of Land and Streams","State Forest","5312","17006","Central Appalachian Forest","WV","43","12","0.107","52.54",1189,17
+NULL,"870","2297","Horseshoe Springs - Los Padres National Forest","UFS","US Forest Service","Inventoried Roadless Area","13872","17085","California Central Coast","CA","18","20","0.063","52.52",1190,27
+NULL,"871","3958","North Fork - St. Joe National Forest","UFS","US Forest Service","Inventoried Roadless Area","28155","17030","Canadian Rocky Mountains","ID","26","20","0.003","52.51",1194,47
+NULL,"872","4630","Sawtooth - Wenatchee National Forest","UFS","US Forest Service",NULL,"5603","17040","Okanagan","WA","18","21","0.016","52.39",1225,18
+NULL,"873","80","Wall Canyon Wilderness Study Area - Applegate Field Office","BLM","Bureau of Land Management","Wilderness Study Area","46783","17092","Columbia Plateau","NV","34","30","0.001","52.12",1284,22
+"485","874","3870","Siskiyou Wilderness - Six Rivers National Forest","UFS","US Forest Service","National Forest","24777","17035","Klamath Mountains","CA","24","23","0.004","51.89",1346,12
+"486","875","7869","M Diamond Ranch","STA","Arizona State Land Department","Local Other","9543","17095","Sonoran Desert","AZ","15","19","0.026","51.79",1378,12
+NULL,"876","4396","Boulder Creek Wilderness - Umpqua National Forest","UFS","US Forest Service","National Forest","19917","17049","West Cascades","OR","25","24","0.015","51.70",1415,29
+NULL,"877","3292","Devil's Playground-Twin Buttes - Rock Springs Field Office","BLM","Bureau of Land Management","Wilderness Study Area","18223","17097","Wyoming Basins","WY","28","19","0.003","51.38",1544,24
+NULL,"878","401","Black Rock Desert - Black Rock Field Office","BLM","Bureau of Land Management","National Public Lands
+","314920","17093","Great Basin","NV","54","20","0.002","51.01",1673,74
+NULL,"879","5226","State Game Land 075","SFW","PA Game Commission","State Land","27371","17010","High Allegheny Plateau","PA","17","17","0.097","49.43",2359,36
+NULL,"880","5006","Sault Ste. Marie State Forest Area","SNR","Michigan Department of Natural Resources","State Conservation Area","37201","17009","Great Lakes","MI","9","27","0.036","48.29",2899,17
+NULL,"881","2164","Lava Beds Wilderness","NPS","National Park Service",NULL,"27702","17031","East Cascades - Modoc Plateau","CA","25","18","0.005","47.49",3255,54
+NULL,"882","4870","Christmas Mountains Ranch","STA","Texas State University System","State Resource Management Area","9603","17090","Chihuahuan Desert","TX","17","19","0.032","47.48",3261,18
+NULL,"883","2934","Santa Rosa Wildlife Area - Palm Springs/S. Coast Field Office","BLM","Bureau of Land Management & Bureau of Land Management",NULL,"34740","17086","California South Coast","CA","30","9","0.029","47.21",3397,46
+NULL,"884","5813","Gene Rush/buffalo River","SFW","State Fish and Wildlife","State Conservation Area","15232","17018","Ozarks","AR","17","9","0.103","45.24",4136,35
+NULL,"885","1433","Hell Hole - Gila National Forest","UFS","US Forest Service",NULL,"19528","17088","Apache Highlands","AZ, NM","42","19","0.023","60.74",141,14
+"487","886","7103","Moosehead Region","NGO","Appalachian Mountain Club","Private Conservaed Land","17853","17016","Northern Appalachian / Acadian","ME","24","25","0.010","59.71",181,17
+NULL,"887","155","0401011 - Ashley National Forest","UFS","US Forest Service",NULL,"30014","17047","Utah High Plateaus","UT","46","32","0.069","58.91",235,28
+NULL,"888","196","Sacatar Trail Wilderness - Bakersfield Field Office","BLM","Bureau of Land Management","National Public Lands
+","18877","17043","Sierra Nevada","CA","63","17","0.023","56.10",463,35
+"488","889","2501","Skeleton Glade - Mendocino National Forest","UFS","US Forest Service",NULL,"9166","17029","California North Coast","CA","25","21","0.002","55.71",511,9
+"489","890","2407","Horse Mountain - Mans Peak - Manti-La Sal National Forest","UFS","US Forest Service","Inventoried Roadless Area","22122","17091","Colorado Plateau","UT","43","30","0.018","55.52",538,23
+NULL,"891","4538","Valles Caldera National Preserve","NPS","National Park Service","Conservation Area","87626","17045","Southern Rocky Mountains","NM","35","28","0.036","54.61",691,74
+NULL,"892","2678","Tusquitee Bald - Nantahala National Forest","UFS","US Forest Service","Inventoried Roadless Area","13664","17021","Southern Blue Ridge","NC","23","7","0.103","54.42",722,23
+NULL,"893","2858","Wild and Scenic Rivers - Wild - Ottawa National Forest","UFS","US Forest Service","Wild and Scenic River","8269","17023","Superior Mixed Forest","MI","13","20","0.021","53.43",935,37
+NULL,"894","897","Selway-Bitterroot Wilderness - Clearwater National Forest","UFS","US Forest Service","National Forest","261137","17037","Middle Rockies - Blue Mountains","ID, MT","53","23","0.001","53.42",936,59
+NULL,"895","952","Spion Kop - Coeur D Alene National Forest","UFS","US Forest Service","Inventoried Roadless Area","22094","17030","Canadian Rocky Mountains","ID","28","21","0.003","53.23",986,29
+NULL,"896","2206","Little Dog And Pup Canyons - Lincoln National Forest","UFS","US Forest Service","Inventoried Roadless Area","25387","17027","Arizona-New Mexico Mountains","NM","34","26","0.019","53.03",1035,30
+NULL,"897","1708","Quinn - Humboldt National Forest","UFS","US Forest Service","Inventoried Roadless Area","60382","17093","Great Basin","NV","47","27","0.002","52.73",1132,33
+NULL,"898","146","0401002 - Ashley National Forest","UFS","US Forest Service",NULL,"34481","17048","Utah-Wyoming Rocky Mountains","UT","56","29","0.051","52.67",1148,42
+NULL,"899","2234","Cross Mountain - Little Snake Field Office","BLM","Bureau of Land Management","Wilderness Study Area","14268","17097","Wyoming Basins","CO","20","26","0.020","52.43",1212,19
+"490","900","2157","Thousand Lakes Wilderness - Lassen National Forest","UFS","US Forest Service","National Forest","16414","17035","Klamath Mountains","CA","34","20","0.007","51.93",1334,10
+NULL,"901","4766","Mount Washington Wilderness - Willamette National Forest","UFS","US Forest Service","National Forest","40143","17049","West Cascades","OR","38","20","0.006","51.90",1343,26
+NULL,"902","1723","Santa Rosa-Paradise Peak Wilderness - Humboldt National Forest","UFS","US Forest Service","National Forest","32064","17092","Columbia Plateau","NV","35","30","0.009","51.76",1389,25
+NULL,"903","6092","Loomis Natural Resources Conservation Area","SNR","Washington State Department of Natural Resources (WADNR)","State Conservation Area","10632","17040","Okanagan","WA","20","22","0.045","51.66",1433,21
+NULL,"904","239","Old Woman Springs Wildlife Linkage - Barstow Field Office","BLM","Bureau of Land Management","Area of Critical Environmental Concern","51571","17094","Mojave Desert","CA","34","20","0.044","51.15",1619,30
+NULL,"905","6818","State Game Land 034","SFW","PA Game Commission","State Land","9975","17006","Central Appalachian Forest","PA","17","19","0.048","50.80",1755,33
+NULL,"906","6911","State Game Land 028","SFW","PA Game Commission","State Land","11164","17010","High Allegheny Plateau","PA","17","13","0.037","50.74",1786,23
+NULL,"907","2918","Mecca Hills Wilderness - Palm Springs/S. Coast Field Office","BLM","Bureau of Land Management","National Public Lands
+","25331","17095","Sonoran Desert","CA","39","9","0.047","50.51",1870,19
+NULL,"908","7682","Carrizo Plains Ecological Reserve","SFW","California Department of Fish and Wildlife","State Conservation Area","24735","17085","California Central Coast","CA","19","16","0.077","49.46",2346,42
+NULL,"909","2883","East Fork Wilderness - Ozark National Forest","UFS","US Forest Service","National Forest","10495","17018","Ozarks","AR","16","7","0.033","47.65",3184,10
+NULL,"910","7826","Tennessee National Wildlife Refuge","UNK","Unknown","National Wildlife Refuge","5245","17011","Interior Low Plateau","TN","22","9","0.097","47.46",3273,6
+NULL,"911","1216","Fish Creek Mountains Wilderness - El Centro Field Office","BLM","Bureau of Land Management","National Public Lands
+","21212","17086","California South Coast","CA","29","7","0.004","47.36",3325,44
+NULL,"912","2163","Lava Beds National Monument","NPS","National Park Service",NULL,"18667","17031","East Cascades - Modoc Plateau","CA","26","20","0.021","47.33",3340,57
+NULL,"913","3811","Sacate Ridge - Sierra National Forest","UFS","US Forest Service","Research Natural Area","4017","17087","Great Central Valley","CA","18","14","0.054","46.73",3578,17
+NULL,"914","7803","Escanaba State Forest Area","SNR","Michigan Department of Natural Resources","State Conservation Area","52271","17009","Great Lakes","MI","15","25","0.090","45.88",3905,53
+NULL,"915","1067","King Mountain - Custer National Forest","UFS","US Forest Service","Inventoried Roadless Area","12130","17072","Northern Great Plains Steppe","MT","32","13","0.068","45.32",4112,32
+NULL,"916","153","0401009 - Ashley National Forest","UFS","US Forest Service",NULL,"30338","17047","Utah High Plateaus","UT","51","29","0.064","58.38",259,30
+NULL,"917","998","Butterfly Roadless Area - Coronado National Forest","UFS","US Forest Service","Inventoried Roadless Area","39601","17088","Apache Highlands","AZ","32","24","0.055","57.89",292,32
+NULL,"918","3976","Carson - Iceberg - Stanislaus National Forest","UFS","US Forest Service","Inventoried Roadless Area","49836","17043","Sierra Nevada","CA","51","25","0.039","56.26",433,34
+"491","919","4597","Stansbury Mountains - Wasatch National Forest","UFS","US Forest Service","Inventoried Roadless Area","39392","17093","Great Basin","UT","82","31","0.021","56.26",434,3
+NULL,"920","5876","Independence River Wild Forest","SDC","NYS Department of Environmental Conservation","Nature","76595","17016","Northern Appalachian / Acadian","NY","17","31","0.073","56.18",449,57
+"492","921","7598","Montana Fish, Wildlife and Parks","STA","Montana Fish, Wildlife and Parks","State Park","13953","17030","Canadian Rocky Mountains","MT","40","27","0.034","55.92",486,9
+NULL,"922","3389","Sugarloaf South - Routt National Forest","UFS","US Forest Service","Inventoried Roadless Area","23162","17045","Southern Rocky Mountains","CO","53","26","0.052","55.83",495,41
+NULL,"923","1156","Box-Death Hollow Wilderness - Dixie National Forest","UFS","US Forest Service","National Forest","24276","17091","Colorado Plateau","UT","46","27","0.010","55.22",583,26
+NULL,"924","2267","Scapegoat Wilderness - Lolo National Forest","UFS","US Forest Service","National Forest","75405","17037","Middle Rockies - Blue Mountains","MT","32","33","0.001","55.15",601,29
+NULL,"925","1423","Contiguous To Black - Gila National Forest","UFS","US Forest Service","Inventoried Roadless Area","106552","17027","Arizona-New Mexico Mountains","NM","28","36","0.042","54.33",744,20
+NULL,"926","4357","Mount Nebo Wilderness - Uinta National Forest","UFS","US Forest Service","National Forest","26744","17048","Utah-Wyoming Rocky Mountains","UT","55","34","0.066","53.53",905,33
+NULL,"927","828","Bald Mountain - Cherokee National Forest","UFS","US Forest Service","Inventoried Roadless Area","11676","17021","Southern Blue Ridge","NC, TN","23","11","0.170","53.13",1012,32
+NULL,"928","2073","Split Rock - Lander Field Office","BLM","Bureau of Land Management","Wilderness Study Area","14075","17097","Wyoming Basins","WY","32","22","0.013","52.67",1150,18
+NULL,"929","3867","Salt Creek - Six Rivers National Forest","UFS","US Forest Service","Inventoried Roadless Area","9478","17029","California North Coast","CA","30","15","0.027","52.40",1223,21
+NULL,"930","7510","Land O'Lakes State Forest","SNR","Minnesota Department of Natural Resources","State Resource Management Area","22850","17023","Superior Mixed Forest","MN","13","22","0.072","51.73",1403,62
+"493","931","4815","Little Picacho Wilderness - Yuma Field Office","BLM","Bureau of Land Management","National Public Lands
+","2948","17095","Sonoran Desert","CA","26","12","0.004","51.63",1442,14
+NULL,"932","2665","Wild and Scenic Rivers - Recreational - Mt. Hood National Forest","UFS","US Forest Service","Wild and Scenic River","16984","17049","West Cascades","OR","33","25","0.060","50.55",1858,37
+NULL,"933","4539","Valley of Fire State Park","STL","Nevada State Parks","State Park","40010","17094","Mojave Desert","NV","41","9","0.028","49.69",2240,44
+NULL,"934","2283","Black Mountain - Los Padres National Forest","UFS","US Forest Service","Inventoried Roadless Area","16786","17085","California Central Coast","CA","19","17","0.086","49.61",2277,40
+NULL,"935","6119","Bud Love Wildlife Habitat Management Area","STA","State of Wyoming","State Conservation Area","7897","17072","Northern Great Plains Steppe","WY","31","23","0.063","49.20",2467,7
+NULL,"936","5579","State Game Land 051","SFW","PA Game Commission","State Land","16938","17006","Central Appalachian Forest","PA","48","16","0.232","49.07",2528,53
+NULL,"937","6121","Hungry Valley State Vehicular Recreation Area","SPR","California Department of Parks and Recreation","State Recreation Area","18227","17086","California South Coast","CA","54","17","0.140","49.02",2553,36
+NULL,"938","547","Alvord Desert WSA - Burns Andrews Field Office","BLM","Bureau of Land Management","Wilderness Study Area","81326","17092","Columbia Plateau","OR","27","22","0.004","48.77",2654,73
+NULL,"939","4877","State Game Land 012","SFW","PA Game Commission","State Land","24524","17010","High Allegheny Plateau","PA","17","18","0.121","48.62",2721,43
+NULL,"940","2890","Richland Creek Wilderness - Ozark National Forest","UFS","US Forest Service","National Forest","10327","17018","Ozarks","AR","17","8","0.042","48.05",3007,6
+NULL,"941","4304","Whiskeytown Shasta-Trinity - Trinity National Forest","UFS","US Forest Service","National Recreation Area","34093","17035","Klamath Mountains","CA","17","21","0.048","47.65",3187,42
+NULL,"942","1204","Tunnison Mountain Wilderness Study Area - Eagle Lake Field Office","BLM","Bureau of Land Management","Wilderness Study Area","15930","17031","East Cascades - Modoc Plateau","CA","29","19","0.017","47.55",3231,53
+NULL,"943","1034","Craig Lake State Park","SNR","Michigan Department of Natural Resources","State Park","8606","17009","Great Lakes","MI","9","21","0.019","47.22",3393,34
+NULL,"944","6474","Hidden Valley Wildlife Management Area","SFW","VA Dept of Wildlife Resources","Wildlife Management Area","6239","17008","Cumberlands And Southern Ridge And Valley","VA","28","18","0.175","46.10",3826,12
+"494","945","2677","Southern Nantahala Wilderness - Nantahala National Forest","UFS","US Forest Service","National Forest","11682","17021","Southern Blue Ridge","GA, NC","30","10","0.058","63.67",75,3
+"495","946","7124","Nash Stream Forest","STA","NH Department of Resources & Economic Development","State Forest","28810","17016","Northern Appalachian / Acadian","NH","33","27","0.045","62.27",92,4
+NULL,"947","3115","Nine Mile Canyon - Price Field Office","BLM","Bureau of Land Management","Area of Critical Environmental Concern","23622","17047","Utah High Plateaus","UT","63","29","0.053","60.75",139,18
+NULL,"948","3542","Sangre De Cristo Wilderness - San Isabel National Forest","UFS","US Forest Service","National Forest","89433","17045","Southern Rocky Mountains","CO","50","28","0.026","57.57",325,17
+NULL,"949","3094","Sheridan Mountain - Prescott National Forest","UFS","US Forest Service","Inventoried Roadless Area","37580","17088","Apache Highlands","AZ","27","21","0.017","56.96",367,39
+"496","950","1335","Mission Mountains Wilderness - Flathead National Forest","UFS","US Forest Service","National Forest","74481","17030","Canadian Rocky Mountains","MT","36","26","0.006","56.53",405,8
+NULL,"951","1425","Devils Creek - Gila National Forest","UFS","US Forest Service","Inventoried Roadless Area","89169","17027","Arizona-New Mexico Mountains","NM","38","35","0.035","55.99",478,13
+NULL,"952","3809","Monarch Wilderness - Sierra National Forest","UFS","US Forest Service","National Forest","18560","17043","Sierra Nevada","CA","36","25","0.003","55.53",537,38
+NULL,"953","7615","Mt. Haggin Wildlife Management Area","STA","Montana Fish, Wildlife and Parks","State Conservation Area","55205","17037","Middle Rockies - Blue Mountains","MT","80","29","0.059","55.20",589,26
+NULL,"954","515","Browns Park National Wildlife Refuge","FWS","U.S. Fish & Wildlife Service","National Wildlife Refuge","11902","17097","Wyoming Basins","CO, UT","45","24","0.046","53.52",907,13
+NULL,"955","7891","Foot Hills State Forest","SNR","Minnesota Department of Natural Resources","State Resource Management Area","7010","17023","Superior Mixed Forest","MN","18","22","0.076","53.20",995,43
+NULL,"956","110","Eden Valley Wilderness Study Area - Arcata Field Office","BLM","Bureau of Land Management","Wilderness Study Area","5972","17029","California North Coast","CA","19","21","0.026","53.01",1039,17
+NULL,"957","1494","Great Basin National Park","NPS","National Park Service","National Park","76983","17093","Great Basin","NV","47","29","0.032","51.77",1383,53
+NULL,"958","617","Worm Creek - Cache National Forest","UFS","US Forest Service","Inventoried Roadless Area","41511","17048","Utah-Wyoming Rocky Mountains","ID","50","28","0.050","51.75",1393,56
+NULL,"959","1412","Tatoosh Wilderness - Gifford Pinchot National Forest","UFS","US Forest Service","National Forest","14006","17049","West Cascades","WA","49","23","0.056","51.61",1451,31
+NULL,"960","1847","Parunuweap Canyon - Kanab Field Office","BLM","Bureau of Land Management","Wilderness Study Area","30114","17091","Colorado Plateau","UT","17","25","0.007","50.76",1777,67
+NULL,"961","2321","Stanley Mountain - Los Padres National Forest","UFS","US Forest Service","Inventoried Roadless Area","14092","17085","California Central Coast","CA","18","16","0.067","49.79",2184,39
+NULL,"962","2726","Old Woman Mountains Wilderness - Needles Field Office","BLM","Bureau of Land Management","National Public Lands
+","127014","17094","Mojave Desert","CA","28","13","0.002","49.75",2208,43
+NULL,"963","22","Salt Creek - Angeles National Forest","UFS","US Forest Service","Inventoried Roadless Area","11022","17086","California South Coast","CA","25","18","0.065","49.43",2355,32
+NULL,"964","4940","Picacho State Recreation Area - Picacho State Recreation Area","JNT","Bureau of Reclamation & California Department of Parks and Recreation","State Recreation Area","4370","17095","Sonoran Desert","CA","14","15","0.035","48.89",2613,32
+NULL,"965","548","Basque Hills WSA - Burns Andrews Field Office","BLM","Bureau of Land Management","Wilderness Study Area","71482","17092","Columbia Plateau","OR","49","15","0.000","48.83",2636,71
+NULL,"966","2279","Antimony - Los Padres National Forest","UFS","US Forest Service","Inventoried Roadless Area","40266","17087","Great Central Valley","CA","24","22","0.108","48.79",2652,14
+NULL,"967","1370","Deadhorse Rim - Fremont National Forest","UFS","US Forest Service","Inventoried Roadless Area","11368","17031","East Cascades - Modoc Plateau","OR","29","24","0.026","48.66",2705,39
+NULL,"968","1933","Kangaroo - Klamath National Forest","UFS","US Forest Service","Inventoried Roadless Area","40107","17035","Klamath Mountains","CA","26","22","0.061","48.60",2733,33
+NULL,"969","2802","Ohiopyle State Park","SPR","PA Bureau of State Parks","State Park","20372","17006","Central Appalachian Forest","PA","30","16","0.142","48.37",2865,66
+NULL,"970","6408","Delaware Water Gap National Recreation Area","FED","US National Park Service","National Recreation Area","23005","17010","High Allegheny Plateau","NJ, PA","33","23","0.302","47.62",3204,61
+NULL,"971","1392","George H. Crosby Manitou State Park","SNR","Minnesota Department of Natural Resources","State Park","5566","17009","Great Lakes","MN","16","18","0.022","47.50",3247,26
+NULL,"972","658","Cape Romain National Wildlife Refuge","FWS","U.S. Fish & Wildlife Service","National Wildlife Refuge","6947","17036","Mid-Atlantic Coastal Plain","SC","11","7","0.019","46.84",3538,10
+NULL,"973","6427","Yellowwood State Forest","SNR","Indiana DNR, Forestry Division","State Conservation Area","5092","17011","Interior Low Plateau","IN","26","5","0.121","45.63",4006,8
