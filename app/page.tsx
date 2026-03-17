@@ -599,12 +599,12 @@ export default function Home() {
         style={{
           position: "absolute",
           right: 12,
-          top: 12,
+          top: 78,
           zIndex: 20,
           display: "flex",
           flexDirection: "column",
-          gap: 8,
-          width: "min(170px, calc(100vw - 24px))"
+          gap: 6,
+          width: 118
         }}
       >
         <a
@@ -613,10 +613,11 @@ export default function Home() {
             background: "white",
             border: "1px solid #ccc",
             borderRadius: 8,
-            padding: "10px 12px",
+            padding: "8px 10px",
             textDecoration: "none",
             color: "#333",
             fontWeight: 700,
+            fontSize: 13,
             textAlign: "center",
             boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
           }}
@@ -640,6 +641,7 @@ export default function Home() {
             padding: "10px 12px",
             color: isRouteMode ? "white" : "#333",
             fontWeight: 700,
+            fontSize: 13,
             boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
             cursor: "pointer"
           }}
@@ -657,6 +659,7 @@ export default function Home() {
             textDecoration: "none",
             color: "#333",
             fontWeight: 700,
+            fontSize: 13,
             textAlign: "center",
             boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
           }}
@@ -670,7 +673,7 @@ export default function Home() {
           style={{
             position: "absolute",
             right: 12,
-            top: 198,
+            top: 176,
             zIndex: 20,
             background: "rgba(0,0,0,0.8)",
             color: "white",
@@ -782,14 +785,19 @@ export default function Home() {
           transition: "width 0.2s"
         }}
       >
-        <div
-          style={{
-            display: "flex",
-            justifyContent: isFilterOpen ? "space-between" : "center",
-            alignItems: "center",
-            marginBottom: isFilterOpen ? 10 : 0
-          }}
-        >
+<div
+  style={{
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 10,
+    position: "sticky",
+    top: 0,
+    background: "white",
+    zIndex: 2,
+    paddingBottom: 8
+  }}
+>
           {isFilterOpen ? (
             <>
               <div style={{ fontWeight: 700, fontSize: 16, color: "#222" }}>
