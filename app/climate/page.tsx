@@ -11,6 +11,7 @@ const supabase = createClient(
 type ClimateRow = {
   climdiv_id: string;
   state_abbr: string;
+  state_list: string;
   division_name: string;
   month_name: string;
   tmax_f: number;
@@ -264,7 +265,7 @@ export default function ClimatePage() {
         return;
       }
 
-      const header = `<div style="font-weight:700; margin-bottom:8px;">${rows[0].state_abbr} — ${rows[0].division_name}</div>`;
+      const header = `<div style="font-weight:700; margin-bottom:8px;">${rows[0].state_list || rows[0].state_abbr} — ${rows[0].division_name}</div>`;
 
       const body = rows
         .map((r) => {
@@ -518,7 +519,7 @@ export default function ClimatePage() {
     boxShadow: "0 2px 10px rgba(0,0,0,0.12)",
   }}
 >
-  Top Places
+  Landscapes
 </a>
 
       {panelOpen ? (
@@ -763,7 +764,7 @@ boxShadow: "0 2px 10px rgba(0,0,0,0.12)",
         wordBreak: "break-word",
       }}
     >
-      {results[0].state_abbr} — {results[0].division_name}
+      {results[0].state_list || results[0].state_abbr} — {results[0].division_name}
     </div>
 
     <div style={{ display: "grid", gap: 8, maxHeight: "40vh", overflowY: "auto", paddingRight: 4 }}>
