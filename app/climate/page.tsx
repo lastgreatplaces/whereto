@@ -501,7 +501,7 @@ export default function ClimatePage() {
       </a>
 
       <a
-  href="/last-great-places"
+  href="/lastgreatplaces"
   style={{
     position: "absolute",
     right: 12,
@@ -528,13 +528,15 @@ export default function ClimatePage() {
             left: 12,
             top: 72,
             zIndex: 11,
-            width: 340,
-            maxWidth: "calc(100vw - 24px)",
-            background: "white",
-            border: "1px solid #ccc",
-            borderRadius: 8,
-            padding: 12,
-            boxShadow: "0 2px 10px rgba(0,0,0,0.12)",
+            width: "min(340px, calc(100vw - 24px))",
+maxWidth: "calc(100vw - 24px)",
+maxHeight: "calc(100vh - 96px)",
+overflowY: "auto",
+background: "white",
+border: "1px solid #ccc",
+borderRadius: 8,
+padding: 12,
+boxShadow: "0 2px 10px rgba(0,0,0,0.12)",
           }}
         >
           <div
@@ -752,99 +754,106 @@ export default function ClimatePage() {
           )}
 
           {results.length > 0 && (
-            <div style={{ borderTop: "1px solid #eee", paddingTop: 10 }}>
-              <div style={{ fontWeight: 700, marginBottom: 6 }}>
-                {results[0].state_abbr} — {results[0].division_name}
+  <div style={{ borderTop: "1px solid #eee", paddingTop: 10 }}>
+    <div
+      style={{
+        fontWeight: 700,
+        marginBottom: 6,
+        lineHeight: 1.35,
+        wordBreak: "break-word",
+      }}
+    >
+      {results[0].state_abbr} — {results[0].division_name}
+    </div>
+
+    <div style={{ display: "grid", gap: 8, maxHeight: "40vh", overflowY: "auto", paddingRight: 4 }}>
+      {results.map((r) => {
+        const mosq = getMosquitoCategory(Number(r.mosquito_score));
+        const travel = computeTravelScore(r);
+
+        return (
+          <div
+            key={r.month_name}
+            style={{
+              fontSize: 12,
+              padding: "6px 0",
+              borderBottom: "1px solid #f3f3f3",
+            }}
+          >
+            <div style={{ fontWeight: 700, marginBottom: 4 }}>
+              {r.month_name}
+            </div>
+
+            <div>
+              Early&nbsp;&nbsp; High {r.tmax_f - 6}° &nbsp;&nbsp; Low{" "}
+              {r.tmin_f - 6}°
+            </div>
+            <div>
+              Mid&nbsp;&nbsp;&nbsp;&nbsp; High {r.tmax_f}° &nbsp;&nbsp;
+              Low {r.tmin_f}°
+            </div>
+            <div>
+              Late&nbsp;&nbsp;&nbsp; High {r.tmax_f + 6}° &nbsp;&nbsp;
+              Low {r.tmin_f + 6}°
+            </div>
+
+            <div
+              style={{
+                marginTop: 4,
+                fontWeight: 700,
+                color: mosq.color,
+              }}
+            >
+              Mosquito Risk: {mosq.label}
+            </div>
+
+            <div style={{ marginTop: 6, paddingTop: 6, borderTop: "1px solid #f7f7f7" }}>
+              <div>
+                Day:{" "}
+                <span
+                  style={{
+                    fontWeight: 700,
+                    color: getTravelColor(travel.day.label),
+                  }}
+                >
+                  {travel.day.label}
+                </span>
               </div>
-
-              <div style={{ display: "grid", gap: 8, maxHeight: "34vh", overflowY: "auto", paddingRight: 4 }}>
-                {results.map((r) => {
-                  const mosq = getMosquitoCategory(Number(r.mosquito_score));
-                  const travel = computeTravelScore(r);
-
-                  return (
-                    <div
-                      key={r.month_name}
-                      style={{
-                        fontSize: 12,
-                        padding: "6px 0",
-                        borderBottom: "1px solid #f3f3f3",
-                      }}
-                    >
-                      <div style={{ fontWeight: 700, marginBottom: 4 }}>
-                        {r.month_name}
-                      </div>
-
-                      <div>
-                        Early&nbsp;&nbsp; High {r.tmax_f - 6}° &nbsp;&nbsp; Low{" "}
-                        {r.tmin_f - 6}°
-                      </div>
-                      <div>
-                        Mid&nbsp;&nbsp;&nbsp;&nbsp; High {r.tmax_f}° &nbsp;&nbsp;
-                        Low {r.tmin_f}°
-                      </div>
-                      <div>
-                        Late&nbsp;&nbsp;&nbsp; High {r.tmax_f + 6}° &nbsp;&nbsp;
-                        Low {r.tmin_f + 6}°
-                      </div>
-
-                      <div
-                        style={{
-                          marginTop: 4,
-                          fontWeight: 700,
-                          color: mosq.color,
-                        }}
-                      >
-                        Mosquito Risk: {mosq.label}
-                      </div>
-
-                      <div style={{ marginTop: 6, paddingTop: 6, borderTop: "1px solid #f7f7f7" }}>
-                        <div>
-                          Day:{" "}
-                          <span
-                            style={{
-                              fontWeight: 700,
-                              color: getTravelColor(travel.day.label),
-                            }}
-                          >
-                            {travel.day.label}
-                          </span>
-                        </div>
-                        <div>
-                          Night:{" "}
-                          <span
-                            style={{
-                              fontWeight: 700,
-                              color: getTravelColor(travel.night.label),
-                            }}
-                          >
-                            {travel.night.label}
-                          </span>
-                        </div>
-                        <div>
-                          Mosquito:{" "}
-                          <span
-                            style={{
-                              fontWeight: 700,
-                              color: getTravelColor(travel.mosquito.label),
-                            }}
-                          >
-                            {travel.mosquito.label}
-                          </span>
-                        </div>
-                        <div style={{ marginTop: 4 }}>
-                          <span style={{ fontWeight: 700 }}>Travel Score:</span>{" "}
-                          <span style={{ fontWeight: 700, color: "#1565c0" }}>
-                            {formatTravelScore(travel.travelScore)} / 10
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
+              <div>
+                Night:{" "}
+                <span
+                  style={{
+                    fontWeight: 700,
+                    color: getTravelColor(travel.night.label),
+                  }}
+                >
+                  {travel.night.label}
+                </span>
+              </div>
+              <div>
+                Mosquito:{" "}
+                <span
+                  style={{
+                    fontWeight: 700,
+                    color: getTravelColor(travel.mosquito.label),
+                  }}
+                >
+                  {travel.mosquito.label}
+                </span>
+              </div>
+              <div style={{ marginTop: 4 }}>
+                <span style={{ fontWeight: 700 }}>Travel Score:</span>{" "}
+                <span style={{ fontWeight: 700, color: "#1565c0" }}>
+                  {formatTravelScore(travel.travelScore)} / 10
+                </span>
               </div>
             </div>
-          )}
+          </div>
+        );
+      })}
+    </div>
+  </div>
+)}
 
           <div
             style={{
