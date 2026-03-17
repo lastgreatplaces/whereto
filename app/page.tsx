@@ -640,7 +640,7 @@ export default function Home() {
       </button>
 
       <a
-        href="/last-great-places"
+        href="/lastgreatplaces"
         style={{
           position: "absolute",
           right: 12,
@@ -656,7 +656,7 @@ export default function Home() {
           boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
         }}
       >
-        Last Great Places
+        Top Places
       </a>
 
       {routeMessage && (

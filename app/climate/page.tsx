@@ -497,8 +497,29 @@ export default function ClimatePage() {
           boxShadow: "0 2px 10px rgba(0,0,0,0.12)",
         }}
       >
-        Places Map
+        Home
       </a>
+
+      <a
+  href="/last-great-places"
+  style={{
+    position: "absolute",
+    right: 12,
+    top: 58,
+    zIndex: 12,
+    background: "white",
+    border: "1px solid #ccc",
+    borderRadius: 8,
+    padding: "10px 14px",
+    textDecoration: "none",
+    color: "#333",
+    fontWeight: 700,
+    fontSize: 14,
+    boxShadow: "0 2px 10px rgba(0,0,0,0.12)",
+  }}
+>
+  Top Places
+</a>
 
       {panelOpen ? (
         <div
