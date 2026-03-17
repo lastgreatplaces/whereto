@@ -452,9 +452,9 @@ export default function LastGreatPlacesPage() {
               lineHeight: 1.45,
             }}
           >
-            A nationwide portfolio of exceptional public landscapes selected
-            across 69 ecoregions for ecological diversity, natural integrity,
-            and representation of America’s full range of landscapes.
+            A nationwide portfolio of public lands selected
+            for geophysical diversity, ecosystem diversity, low human modification,
+            and representation of America’s varied landscape features within and across 68 ecoregions.
           </div>
 
           <div
