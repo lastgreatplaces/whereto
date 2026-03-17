@@ -648,7 +648,7 @@ export default function Home() {
         </button>
 
         <a
-          href="/last-great-places"
+          href="/lastgreatplaces"
           style={{
             background: "white",
             border: "1px solid #ccc",
