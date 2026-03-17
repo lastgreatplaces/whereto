@@ -95,9 +95,10 @@ function buildPopupHtml(row: LandscapeRow, mode: PortfolioMode) {
         <div><span style="font-weight:700;">Designation:</span> ${escapeHtml(row.designation || "—")}</div>
         <div><span style="font-weight:700;">Ecoregion:</span> ${escapeHtml(row.ecoregion || "—")}</div>
         <div><span style="font-weight:700;">Ecoregion Rank:</span> ${escapeHtml(row.ecoregion_rank ?? "—")}</div>
-        <div><span style="font-weight:700;">National Rank:</span> ${escapeHtml(row.national_rank ?? "—")}</div>
+       
         <div><span style="font-weight:700;">${mode === "top500" ? "Top 500 Rank" : "Top 1000 Rank"}:</span> ${escapeHtml(portfolioRank)}</div>
-      </div>
+       <div><span style="font-weight:300;">Overall Rank of 7100 Candidate Areas:</span> ${escapeHtml(row.national_rank ?? "—")}</div>
+        </div>
     </div>
   `;
 }
