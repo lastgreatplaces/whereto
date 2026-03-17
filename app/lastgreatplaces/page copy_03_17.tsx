@@ -97,7 +97,7 @@ function buildPopupHtml(row: LandscapeRow, mode: PortfolioMode) {
         <div><span style="font-weight:700;">Ecoregion Rank:</span> ${escapeHtml(row.ecoregion_rank ?? "—")}</div>
        
         <div><span style="font-weight:700;">${mode === "top500" ? "Top 500 Rank" : "Top 1000 Rank"}:</span> ${escapeHtml(portfolioRank)}</div>
-       <div><span style="font-weight:300;">Raw National Rank 7100 Candidate Areas:</span> ${escapeHtml(row.national_rank ?? "—")}</div>
+       <div><span style="font-weight:300;">Raw National Rank - 7100 Candidate Areas:</span> ${escapeHtml(row.national_rank ?? "—")}</div>
         </div>
     </div>
   `;
@@ -324,9 +324,9 @@ export default function LastGreatPlacesPage() {
 
       return {
         fillColor: isTop500Mode ? "#2e7d32" : "#66bb6a",
-        fillOpacity: isTop500Mode ? 0.5 : 0.5,
+        fillOpacity: isTop500Mode ? 0.8 : 0.72,
         strokeColor: isTop500Mode ? "#1b5e20" : "#2e7d32",
-        strokeWeight: isTop500Mode ? 1.0 : 1.0,
+        strokeWeight: isTop500Mode ? 2.2 : 1.6,
         strokeOpacity: 1,
         clickable: true,
         zIndex: isTop500Mode ? 3 : 2,

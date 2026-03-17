@@ -11,11 +11,23 @@ const supabase = createClient(
 type ClimateRow = {
   climdiv_id: string;
   state_abbr: string;
+  state_list: string;
   division_name: string;
   month_name: string;
   tmax_f: number;
   tmin_f: number;
   mosquito_score: number;
+};
+
+type TravelLayerRow = {
+  climdiv_id: string;
+  state_abbr: string;
+  division_name: string;
+  month: number;
+  travel_score: number;
+  score_band: string;
+  fill_color: string;
+  geom_geojson: any;
 };
 
 type TravelLabel =
@@ -42,6 +54,12 @@ const MONTHS = [
   { num: 10, label: "Oct" },
   { num: 11, label: "Nov" },
   { num: 12, label: "Dec" },
+];
+
+const CONUS_STATES = [
+  "AL", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA", "ID", "IL", "IN", "IA", "KS", "KY", "LA",
+  "ME", "MD", "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "ND",
+  "OH", "OK", "OR", "PA", "RI", "SC", "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"
 ];
 
 function getMosquitoCategory(score: number) {
@@ -153,10 +171,16 @@ export default function ClimatePage() {
   const [clickedLatLng, setClickedLatLng] = useState<{ lat: number; lng: number } | null>(null);
   const [panelOpen, setPanelOpen] = useState(true);
 
+  const [showTravelLayer, setShowTravelLayer] = useState(false);
+  const [layerStates, setLayerStates] = useState<string[]>([]);
+  const [layerMonth, setLayerMonth] = useState<number | "">("");
+  const [travelStatesOpen, setTravelStatesOpen] = useState(false);
+
   const selectedMonthsRef = useRef<number[]>([]);
   const mapRef = useRef<any>(null);
   const markerRef = useRef<any>(null);
   const infoWindowRef = useRef<any>(null);
+  const travelPolygonsRef = useRef<any[]>([]);
 
   useEffect(() => {
     selectedMonthsRef.current = selectedMonths;
@@ -170,12 +194,31 @@ export default function ClimatePage() {
     );
   };
 
+  const toggleLayerState = (stateAbbr: string) => {
+    setLayerStates((prev) =>
+      prev.includes(stateAbbr)
+        ? prev.filter((s) => s !== stateAbbr)
+        : [...prev, stateAbbr]
+    );
+  };
+
+  const clearTravelLayer = () => {
+    travelPolygonsRef.current.forEach((p) => p.setMap(null));
+    travelPolygonsRef.current = [];
+  };
+
   const clearAll = () => {
     setSelectedMonths([]);
     setResults([]);
     setClickedLatLng(null);
     setErrorMsg("");
     setLoading(false);
+
+    setShowTravelLayer(false);
+    setLayerStates([]);
+    setLayerMonth("");
+    setTravelStatesOpen(false);
+    clearTravelLayer();
 
     if (markerRef.current) {
       markerRef.current.setMap(null);
@@ -232,7 +275,7 @@ export default function ClimatePage() {
         return;
       }
 
-      const header = `<div style="font-weight:700; margin-bottom:8px;">${rows[0].state_abbr} — ${rows[0].division_name}</div>`;
+      const header = `<div style="font-weight:700; margin-bottom:8px;">${rows[0].state_list || rows[0].state_abbr} — ${rows[0].division_name}</div>`;
 
       const body = rows
         .map((r) => {
@@ -290,6 +333,93 @@ export default function ClimatePage() {
       infoWindowRef.current.open(mapRef.current);
     }
   };
+
+  const addPolygonFeature = (
+    google: any,
+    map: any,
+    geometry: any,
+    row: TravelLayerRow
+  ) => {
+    const createPolygon = (paths: any[]) => {
+      const poly = new google.maps.Polygon({
+        paths,
+        strokeColor: "#555",
+        strokeOpacity: 0.8,
+        strokeWeight: 1,
+        fillColor: row.fill_color,
+        fillOpacity: 0.45,
+        map,
+        zIndex: 1,
+      });
+
+      poly.addListener("click", (e: any) => {
+        if (!infoWindowRef.current) return;
+        infoWindowRef.current.setContent(`
+          <div style="padding:10px; font-family:sans-serif; min-width:180px;">
+            <div style="font-weight:700; margin-bottom:4px;">${row.state_abbr} — ${row.division_name}</div>
+            <div style="font-size:12px;">Travel Score: <b>${Number(row.travel_score).toFixed(1)} / 10</b></div>
+            <div style="font-size:12px; margin-top:2px;">Band: <b>${row.score_band}</b></div>
+          </div>
+        `);
+        infoWindowRef.current.setPosition(e.latLng);
+        infoWindowRef.current.open(map);
+      });
+
+      travelPolygonsRef.current.push(poly);
+    };
+
+    if (!geometry) return;
+
+    if (geometry.type === "Polygon") {
+      const paths = geometry.coordinates.map((ring: number[][]) =>
+        ring.map(([lng, lat]) => ({ lat, lng }))
+      );
+      createPolygon(paths);
+    } else if (geometry.type === "MultiPolygon") {
+      geometry.coordinates.forEach((polygon: number[][][]) => {
+        const paths = polygon.map((ring: number[][]) =>
+          ring.map(([lng, lat]) => ({ lat, lng }))
+        );
+        createPolygon(paths);
+      });
+    }
+  };
+
+  const loadTravelLayer = async () => {
+    clearTravelLayer();
+
+    if (!showTravelLayer || !layerStates.length || !layerMonth || !mapRef.current) return;
+
+    const google = (window as any).google;
+    if (!google) return;
+
+    const responses = await Promise.all(
+      layerStates.map((st) =>
+        supabase.rpc("get_state_travel_score_layer", {
+          p_state: st,
+          p_month: layerMonth,
+        })
+      )
+    );
+
+    const allRows: TravelLayerRow[] = [];
+
+    for (const resp of responses) {
+      if (resp.error) {
+        console.error("Travel layer error:", resp.error);
+        continue;
+      }
+      allRows.push(...((resp.data ?? []) as TravelLayerRow[]));
+    }
+
+    allRows.forEach((row) => {
+      addPolygonFeature(google, mapRef.current, row.geom_geojson, row);
+    });
+  };
+
+  useEffect(() => {
+    loadTravelLayer();
+  }, [showTravelLayer, layerStates, layerMonth]);
 
   useEffect(() => {
     const key = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY;
@@ -386,7 +516,28 @@ export default function ClimatePage() {
           boxShadow: "0 2px 10px rgba(0,0,0,0.12)",
         }}
       >
-        Places Map
+        Home
+      </a>
+
+      <a
+        href="/lastgreatplaces"
+        style={{
+          position: "absolute",
+          right: 12,
+          top: 58,
+          zIndex: 12,
+          background: "white",
+          border: "1px solid #ccc",
+          borderRadius: 8,
+          padding: "10px 14px",
+          textDecoration: "none",
+          color: "#333",
+          fontWeight: 700,
+          fontSize: 14,
+          boxShadow: "0 2px 10px rgba(0,0,0,0.12)",
+        }}
+      >
+        Landscapes
       </a>
 
       {panelOpen ? (
@@ -396,8 +547,10 @@ export default function ClimatePage() {
             left: 12,
             top: 72,
             zIndex: 11,
-            width: 340,
+            width: "min(340px, calc(100vw - 24px))",
             maxWidth: "calc(100vw - 24px)",
+            maxHeight: "calc(100vh - 96px)",
+            overflowY: "auto",
             background: "white",
             border: "1px solid #ccc",
             borderRadius: 8,
@@ -499,6 +652,189 @@ export default function ClimatePage() {
             })}
           </div>
 
+          <div
+            style={{
+              borderTop: "1px solid #eee",
+              paddingTop: 10,
+              marginTop: 4,
+              marginBottom: 12,
+            }}
+          >
+            <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 8, color: "#333" }}>
+              Travel Score Layer
+            </div>
+
+            <label
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                fontSize: 12,
+                marginBottom: 10,
+                cursor: "pointer",
+              }}
+            >
+              <input
+                type="checkbox"
+                checked={showTravelLayer}
+                onChange={(e) => setShowTravelLayer(e.target.checked)}
+              />
+              Show state travel score shading
+            </label>
+
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: 8,
+              }}
+            >
+              <div>
+                <div style={{ fontSize: 11, color: "#555", marginBottom: 4 }}>
+                  States
+                </div>
+
+                <button
+                  onClick={() => setTravelStatesOpen((prev) => !prev)}
+                  style={{
+                    width: "100%",
+                    padding: "8px",
+                    borderRadius: 6,
+                    border: "1px solid #ccc",
+                    fontSize: 12,
+                    background: "white",
+                    textAlign: "left",
+                    cursor: "pointer",
+                  }}
+                >
+                  {layerStates.length === 0
+                    ? "Select states"
+                    : layerStates.length <= 3
+                    ? layerStates.join(", ")
+                    : `${layerStates.length} states selected`}
+                </button>
+
+                {travelStatesOpen && (
+                  <div
+                    style={{
+                      marginTop: 6,
+                      border: "1px solid #ddd",
+                      borderRadius: 6,
+                      background: "#fafafa",
+                      padding: 8,
+                      maxHeight: 180,
+                      overflowY: "auto",
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: 6,
+                        marginBottom: 8,
+                      }}
+                    >
+                      <button
+                        onClick={() => setLayerStates(CONUS_STATES)}
+                        style={{
+                          flex: 1,
+                          padding: "4px 6px",
+                          fontSize: 10,
+                          border: "1px solid #ccc",
+                          borderRadius: 4,
+                          background: "white",
+                          cursor: "pointer",
+                        }}
+                      >
+                        All
+                      </button>
+
+                      <button
+                        onClick={() => setLayerStates([])}
+                        style={{
+                          flex: 1,
+                          padding: "4px 6px",
+                          fontSize: 10,
+                          border: "1px solid #ccc",
+                          borderRadius: 4,
+                          background: "white",
+                          cursor: "pointer",
+                        }}
+                      >
+                        Clear
+                      </button>
+                    </div>
+
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "repeat(3, 1fr)",
+                        gap: 4,
+                      }}
+                    >
+                      {CONUS_STATES.map((st) => (
+                        <label
+                          key={st}
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 4,
+                            fontSize: 11,
+                            cursor: "pointer",
+                          }}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={layerStates.includes(st)}
+                            onChange={() => toggleLayerState(st)}
+                          />
+                          <span>{st}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <div style={{ fontSize: 11, color: "#555", marginBottom: 4 }}>
+                  Month
+                </div>
+                <select
+                  value={layerMonth}
+                  onChange={(e) =>
+                    setLayerMonth(e.target.value ? Number(e.target.value) : "")
+                  }
+                  style={{
+                    width: "100%",
+                    padding: "8px",
+                    borderRadius: 6,
+                    border: "1px solid #ccc",
+                    fontSize: 12,
+                    background: "white",
+                  }}
+                >
+                  <option value="">Select month</option>
+                  {MONTHS.map((m) => (
+                    <option key={m.num} value={m.num}>
+                      {m.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div
+              style={{
+                marginTop: 8,
+                fontSize: 11,
+                color: "#666",
+                lineHeight: 1.4,
+              }}
+            >
+              Map colors: 8–10 dark green, 6–8 light green, 4–6 yellow, 2–4 orange, 0–2 red.
+            </div>
+          </div>
+
           {loading && (
             <div style={{ fontSize: 12, marginBottom: 8 }}>Loading...</div>
           )}
@@ -518,11 +854,18 @@ export default function ClimatePage() {
 
           {results.length > 0 && (
             <div style={{ borderTop: "1px solid #eee", paddingTop: 10 }}>
-              <div style={{ fontWeight: 700, marginBottom: 6 }}>
-                {results[0].state_abbr} — {results[0].division_name}
+              <div
+                style={{
+                  fontWeight: 700,
+                  marginBottom: 6,
+                  lineHeight: 1.35,
+                  wordBreak: "break-word",
+                }}
+              >
+                {results[0].state_list || results[0].state_abbr} — {results[0].division_name}
               </div>
 
-              <div style={{ display: "grid", gap: 8, maxHeight: "34vh", overflowY: "auto", paddingRight: 4 }}>
+              <div style={{ display: "grid", gap: 8, maxHeight: "40vh", overflowY: "auto", paddingRight: 4 }}>
                 {results.map((r) => {
                   const mosq = getMosquitoCategory(Number(r.mosquito_score));
                   const travel = computeTravelScore(r);

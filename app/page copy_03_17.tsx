@@ -24,15 +24,21 @@ type RouteStop = {
 
 const CAMP_THEMES: Record<string, Theme> = {
   COE: { color: "#d32f2f", emoji: "⚓" },
-  NF: { color: "#1b5e20", emoji: "🌲" },
-  NP: { color: "#5d4037", emoji: "⛰️" },
-  SP: { color: "#1976d2", emoji: "🏞️" },
+  NF: { color: "#1b5e20", emoji: "🔆" },
+  NP: { color: "#5e3225", emoji: "🏞️" },
+  NM: { color: "#5e3225", emoji: "🏞️" },
+  NS: { color: "#5e3225", emoji: "🏞️" },
+  SP: { color: "#26ff00", emoji: "⛰️" },
+  SPR: { color: "#26ff00", emoji: "⛰️" },
   SF: { color: "#388e3c", emoji: "🌳" },
+  SFW: { color: "#039cfc", emoji: "🐤" },
+  USFW: { color: "#039cfc", emoji: "🐤" },
+  NWR: { color: "#039cfc", emoji: "🐤" },
   BLM: { color: "#fbc02d", emoji: "🏜️" },
   NRA: { color: "#8d6e63", emoji: "🏕️" },
   SRA: { color: "#8d6e63", emoji: "🏕️" },
-  CP: { color: "#00acc1", emoji: "🏙️" },
-  BD: { color: "#6a1b9a", emoji: "🚐" },
+  CP: { color: "#9b989b", emoji: "🏙️" },
+  BD: { color: "#1a0328", emoji: "✴️" },
   default: { color: "#607d8b", emoji: "⛺" }
 };
 
@@ -89,6 +95,8 @@ export default function Home() {
   const isPopupOpenRef = useRef<boolean>(false);
 
   const markersMapRef = useRef<Map<string, any>>(new Map());
+  const campMarkersRef = useRef<any[]>([]);
+  const nonClusterMarkersRef = useRef<any[]>([]);
   const highwayLinesRef = useRef<any[]>([]);
 
   const filtersRef = useRef({
@@ -121,7 +129,13 @@ export default function Home() {
       .replace(/"/g, "&quot;")
       .replace(/'/g, "&#39;");
 
-  const getMarkerStyle = (google: any, type: PlaceType, subtype: string, zoom: number, isFavorite: boolean) => {
+  const getMarkerStyle = (
+    google: any,
+    type: PlaceType,
+    subtype: string,
+    zoom: number,
+    isFavorite: boolean
+  ) => {
     const baseSize = zoom <= 7 ? 20 : zoom <= 10 ? 30 : 40;
     const strokeColor = isFavorite ? "#FFD700" : "#ffffff";
     const strokeWeight = isFavorite ? 6 : 2;
@@ -152,7 +166,7 @@ export default function Home() {
     const theme = CAMP_THEMES[subtype] || CAMP_THEMES.default;
     return {
       path: "M 0,0 C -2,-20 -10,-22 -10,-30 A 10,10 0 1 1 10,-30 C 10,-22 2,-20 0,0 z",
-      scale: baseSize / 16,
+      scale: baseSize / 21,
       fillColor: theme.color,
       fillOpacity: 1,
       strokeWeight,
@@ -166,7 +180,7 @@ export default function Home() {
     const google = (window as any).google;
     const z = mapRef.current.getZoom() ?? 4;
 
-    markersMapRef.current.forEach((m) => {
+    [...nonClusterMarkersRef.current, ...campMarkersRef.current].forEach((m) => {
       const type = (m as any).__type as PlaceType;
       const isFav = (m as any).__isFavorite;
       m.setIcon(getMarkerStyle(google, type, (m as any).__subtype, z, isFav));
@@ -193,9 +207,13 @@ export default function Home() {
     });
   };
 
-  const loadHighways = async () => {
+  const clearHighways = () => {
     highwayLinesRef.current.forEach((line) => line.setMap(null));
     highwayLinesRef.current = [];
+  };
+
+  const loadHighways = async () => {
+    clearHighways();
 
     if (!filtersRef.current.types.has("highways") || filtersRef.current.states.size === 0) return;
 
@@ -321,13 +339,15 @@ export default function Home() {
   };
 
   const triggerPlacePopup = (place: any) => {
-    const marker = markersMapRef.current.get(place.id);
+    const marker = markersMapRef.current.get(String(place.id));
     if (!marker || !mapRef.current) return;
 
     isPopupOpenRef.current = true;
     const t = place.place_type as PlaceType;
     const sub = place.subtype || "";
-    const navUrl = `https://www.google.com/maps/dir/?api=1&destination=${place.lat},${place.lon}`;
+    const navLat = place.nav_lat ?? place.lat;
+    const navLon = place.nav_lon ?? place.lon;
+    const navUrl = `https://www.google.com/maps/dir/?api=1&destination=${navLat},${navLon}`;
     const isAlreadyInRoute = routeStops.some((s) => s.id === String(place.id));
     const canAddStop = routeStops.length < 8 && !isAlreadyInRoute;
 
@@ -392,12 +412,23 @@ export default function Home() {
     });
   };
 
+  const clearPlaceMarkers = () => {
+    if (clustererRef.current) {
+      clustererRef.current.clearMarkers();
+    }
+
+    campMarkersRef.current.forEach((m) => m.setMap(null));
+    nonClusterMarkersRef.current.forEach((m) => m.setMap(null));
+    campMarkersRef.current = [];
+    nonClusterMarkersRef.current = [];
+    markersMapRef.current.clear();
+  };
+
   const loadPlaces = async () => {
     if (!mapRef.current || !clustererRef.current || isPopupOpenRef.current) return;
 
-    loadHighways();
-    clustererRef.current.clearMarkers();
-    markersMapRef.current.clear();
+    await loadHighways();
+    clearPlaceMarkers();
 
     const statesArr = Array.from(filtersRef.current.states);
     const typesArr = Array.from(filtersRef.current.types).filter((t) => t !== "highways");
@@ -421,9 +452,16 @@ export default function Home() {
     setLoadedPlaces(filteredData);
     const google = (window as any).google;
 
-    const markers = filteredData.map((r) => {
+    const campMarkers: any[] = [];
+    const nonClusterMarkers: any[] = [];
+
+    filteredData.forEach((r) => {
+      const latVal = Number(r.lat);
+      const lonVal = Number(r.lon);
+      if (!Number.isFinite(latVal) || !Number.isFinite(lonVal)) return;
+
       const marker = new google.maps.Marker({
-        position: { lat: Number(r.lat), lng: Number(r.lon) },
+        position: { lat: latVal, lng: lonVal },
         zIndex: r.favorite ? 1000 : 1
       });
 
@@ -437,11 +475,20 @@ export default function Home() {
       (marker as any).__emoji = t === "birds" ? "🦅" : t === "hikes" ? "🥾" : theme.emoji;
 
       marker.addListener("click", () => triggerPlacePopup(r));
-      markersMapRef.current.set(r.id, marker);
-      return marker;
+      markersMapRef.current.set(String(r.id), marker);
+
+      if (t === "camps") {
+        campMarkers.push(marker);
+      } else {
+        marker.setMap(mapRef.current);
+        nonClusterMarkers.push(marker);
+      }
     });
 
-    clustererRef.current.addMarkers(markers);
+    campMarkersRef.current = campMarkers;
+    nonClusterMarkersRef.current = nonClusterMarkers;
+
+    clustererRef.current.addMarkers(campMarkersRef.current);
     applyMarkerSizing();
   };
 
@@ -453,8 +500,10 @@ export default function Home() {
   useEffect(() => {
     const key = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY;
     if (!key) return;
+    if (document.getElementById("google-maps-script")) return;
 
     const script = document.createElement("script");
+    script.id = "google-maps-script";
     script.src = `https://maps.googleapis.com/maps/api/js?key=${key}`;
 
     const clusterScript = document.createElement("script");
@@ -464,6 +513,9 @@ export default function Home() {
       document.head.appendChild(clusterScript);
       clusterScript.onload = () => {
         const google = (window as any).google;
+        const MarkerClusterer = (window as any).markerClusterer.MarkerClusterer;
+        const SuperClusterAlgorithm = (window as any).markerClusterer.SuperClusterAlgorithm;
+
         const map = new google.maps.Map(document.getElementById("map") as HTMLElement, {
           center: { lat: 39.5, lng: -98.35 },
           zoom: 4,
@@ -478,9 +530,37 @@ export default function Home() {
           isPopupOpenRef.current = false;
         });
 
-        clustererRef.current = new (window as any).markerClusterer.MarkerClusterer({
+        clustererRef.current = new MarkerClusterer({
           map,
-          algorithmOptions: { maxZoom: 9, gridSize: 60 }
+          markers: [],
+          algorithm: new SuperClusterAlgorithm({
+            radius: 32,
+            maxZoom: 11
+          }),
+          renderer: {
+            render: ({ count, position }: any) => {
+              const size = count < 10 ? 22 : count < 50 ? 26 : count < 100 ? 30 : 34;
+
+              return new google.maps.Marker({
+                position,
+                icon: {
+                  path: google.maps.SymbolPath.CIRCLE,
+                  scale: size / 2,
+                  fillColor: "#2c6bed",
+                  fillOpacity: 0.78,
+                  strokeColor: "#ffffff",
+                  strokeWeight: 2
+                },
+                label: {
+                  text: String(count),
+                  color: "white",
+                  fontSize: "11px",
+                  fontWeight: "bold"
+                },
+                zIndex: Number(google.maps.Marker.MAX_ZINDEX) + count
+              });
+            }
+          }
         });
 
         map.addListener("idle", scheduleLoad);
@@ -559,12 +639,32 @@ export default function Home() {
         {isRouteMode ? "Route Mode ✓" : "Build Route"}
       </button>
 
+      <a
+        href="/lastgreatplaces"
+        style={{
+          position: "absolute",
+          right: 12,
+          top: 104,
+          zIndex: 20,
+          background: "white",
+          border: "1px solid #ccc",
+          borderRadius: 8,
+          padding: "8px 12px",
+          textDecoration: "none",
+          color: "#333",
+          fontWeight: 700,
+          boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
+        }}
+      >
+        Landscapes
+      </a>
+
       {routeMessage && (
         <div
           style={{
             position: "absolute",
             right: 12,
-            top: 106,
+            top: 152,
             zIndex: 20,
             background: "rgba(0,0,0,0.8)",
             color: "white",
@@ -1050,7 +1150,7 @@ export default function Home() {
                 lineHeight: 1.35
               }}
             >
-              Select categories, sub-categories, & state(s) to display on the map.  Click on icons or scenic road for info. Close menu for full map view.
+              Select categories, sub-categories, & state(s) to display on the map. Click on icons or scenic road for info. Close menu for full map view.
             </div>
           </div>
         )}
