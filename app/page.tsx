@@ -31,9 +31,9 @@ const CAMP_THEMES: Record<string, Theme> = {
   SP: { color: "#26ff00", emoji: "⛰️" },
   SPR: { color: "#26ff00", emoji: "⛰️" },
   SF: { color: "#388e3c", emoji: "🌳" },
-   SFW: { color: "#039cfc", emoji: "🐤" },
-   USFW: { color: "#039cfc", emoji: "🐤" },
-   NWR: { color: "#039cfc", emoji: "🐤" },
+  SFW: { color: "#039cfc", emoji: "🐤" },
+  USFW: { color: "#039cfc", emoji: "🐤" },
+  NWR: { color: "#039cfc", emoji: "🐤" },
   BLM: { color: "#fbc02d", emoji: "🏜️" },
   NRA: { color: "#8d6e63", emoji: "🏕️" },
   SRA: { color: "#8d6e63", emoji: "🏕️" },
@@ -639,12 +639,32 @@ export default function Home() {
         {isRouteMode ? "Route Mode ✓" : "Build Route"}
       </button>
 
+      <a
+        href="/last-great-places"
+        style={{
+          position: "absolute",
+          right: 12,
+          top: 104,
+          zIndex: 20,
+          background: "white",
+          border: "1px solid #ccc",
+          borderRadius: 8,
+          padding: "8px 12px",
+          textDecoration: "none",
+          color: "#333",
+          fontWeight: 700,
+          boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
+        }}
+      >
+        Last Great Places
+      </a>
+
       {routeMessage && (
         <div
           style={{
             position: "absolute",
             right: 12,
-            top: 106,
+            top: 152,
             zIndex: 20,
             background: "rgba(0,0,0,0.8)",
             color: "white",
