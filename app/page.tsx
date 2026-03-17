@@ -590,81 +590,87 @@ export default function Home() {
       ? loadedHighways.filter((h) => h.name.toLowerCase().includes(searchQuery.toLowerCase())).slice(0, 5)
       : [];
 
+  const hasAnySelectedStates = states.length > 0;
+  const categoryCount = placeTypes.length;
+
   return (
     <div style={{ position: "relative", height: "100vh", overflow: "hidden", fontFamily: "sans-serif" }}>
-      <a
-        href="/climate"
+      <div
         style={{
           position: "absolute",
           right: 12,
           top: 12,
           zIndex: 20,
-          background: "white",
-          border: "1px solid #ccc",
-          borderRadius: 8,
-          padding: "8px 12px",
-          textDecoration: "none",
-          color: "#333",
-          fontWeight: 700,
-          boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
+          display: "flex",
+          flexDirection: "column",
+          gap: 8,
+          width: "min(170px, calc(100vw - 24px))"
         }}
       >
-        Climate Map
-      </a>
+        <a
+          href="/climate"
+          style={{
+            background: "white",
+            border: "1px solid #ccc",
+            borderRadius: 8,
+            padding: "10px 12px",
+            textDecoration: "none",
+            color: "#333",
+            fontWeight: 700,
+            textAlign: "center",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
+          }}
+        >
+          Climate Map
+        </a>
 
-      <button
-        onClick={() => {
-          setIsRouteMode((prev) => !prev);
-          setRouteMessage(!isRouteMode ? "Route mode on" : "Route mode off");
-          if (infoWindowRef.current) {
-            infoWindowRef.current.close();
-            isPopupOpenRef.current = false;
-          }
-        }}
-        style={{
-          position: "absolute",
-          right: 12,
-          top: 58,
-          zIndex: 20,
-          background: isRouteMode ? "#188038" : "white",
-          border: "1px solid #ccc",
-          borderRadius: 8,
-          padding: "8px 12px",
-          color: isRouteMode ? "white" : "#333",
-          fontWeight: 700,
-          boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-          cursor: "pointer"
-        }}
-      >
-        {isRouteMode ? "Route Mode ✓" : "Build Route"}
-      </button>
+        <button
+          onClick={() => {
+            setIsRouteMode((prev) => !prev);
+            setRouteMessage(!isRouteMode ? "Route mode on" : "Route mode off");
+            if (infoWindowRef.current) {
+              infoWindowRef.current.close();
+              isPopupOpenRef.current = false;
+            }
+          }}
+          style={{
+            background: isRouteMode ? "#188038" : "white",
+            border: "1px solid #ccc",
+            borderRadius: 8,
+            padding: "10px 12px",
+            color: isRouteMode ? "white" : "#333",
+            fontWeight: 700,
+            boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+            cursor: "pointer"
+          }}
+        >
+          {isRouteMode ? "Route Mode ✓" : "Build Route"}
+        </button>
 
-      <a
-        href="/lastgreatplaces"
-        style={{
-          position: "absolute",
-          right: 12,
-          top: 104,
-          zIndex: 20,
-          background: "white",
-          border: "1px solid #ccc",
-          borderRadius: 8,
-          padding: "8px 12px",
-          textDecoration: "none",
-          color: "#333",
-          fontWeight: 700,
-          boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
-        }}
-      >
-        Landscapes
-      </a>
+        <a
+          href="/last-great-places"
+          style={{
+            background: "white",
+            border: "1px solid #ccc",
+            borderRadius: 8,
+            padding: "10px 12px",
+            textDecoration: "none",
+            color: "#333",
+            fontWeight: 700,
+            textAlign: "center",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
+          }}
+        >
+          Landscapes
+        </a>
+      </div>
 
       {routeMessage && (
         <div
           style={{
             position: "absolute",
             right: 12,
-            top: 152,
+            top: 198,
             zIndex: 20,
             background: "rgba(0,0,0,0.8)",
             color: "white",
@@ -766,18 +772,72 @@ export default function Home() {
           background: "white",
           border: "1px solid #ccc",
           borderRadius: 8,
-          width: isFilterOpen ? 240 : 40,
+          width: isFilterOpen ? "min(340px, calc(100vw - 24px - 182px))" : 48,
+          minWidth: isFilterOpen ? 240 : 48,
+          maxWidth: "calc(100vw - 206px)",
+          maxHeight: "calc(100vh - 24px)",
+          overflowY: isFilterOpen ? "auto" : "visible",
           padding: isFilterOpen ? 12 : 4,
           boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
           transition: "width 0.2s"
         }}
       >
-        <button
-          onClick={() => setIsFilterOpen(!isFilterOpen)}
-          style={{ width: "100%", cursor: "pointer", padding: "4px", marginBottom: isFilterOpen ? 8 : 0 }}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: isFilterOpen ? "space-between" : "center",
+            alignItems: "center",
+            marginBottom: isFilterOpen ? 10 : 0
+          }}
         >
-          {isFilterOpen ? "Close Menu" : "☰"}
-        </button>
+          {isFilterOpen ? (
+            <>
+              <div style={{ fontWeight: 700, fontSize: 16, color: "#222" }}>
+                Filters
+              </div>
+              <button
+                onClick={() => setIsFilterOpen(false)}
+                style={{
+                  border: "1px solid #ccc",
+                  borderRadius: 6,
+                  width: 32,
+                  height: 32,
+                  background: "#f5f5f5",
+                  cursor: "pointer",
+                  color: "#333",
+                  fontSize: 18,
+                  lineHeight: 1,
+                  fontWeight: 700,
+                  flexShrink: 0
+                }}
+                aria-label="Close filters"
+                title="Close filters"
+              >
+                ×
+              </button>
+            </>
+          ) : (
+            <button
+              onClick={() => setIsFilterOpen(true)}
+              style={{
+                width: 40,
+                height: 40,
+                border: "1px solid #ccc",
+                borderRadius: 6,
+                background: "#f5f5f5",
+                cursor: "pointer",
+                color: "#333",
+                fontSize: 20,
+                lineHeight: 1,
+                fontWeight: 700
+              }}
+              aria-label="Show filters"
+              title="Show filters"
+            >
+              ☰
+            </button>
+          )}
+        </div>
 
         {isFilterOpen && (
           <div style={{ fontSize: 13 }}>
@@ -789,10 +849,10 @@ export default function Home() {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 style={{
                   width: "100%",
-                  padding: "8px",
-                  borderRadius: "4px",
+                  padding: "10px 10px",
+                  borderRadius: "6px",
                   border: "1px solid #ddd",
-                  fontSize: "12px",
+                  fontSize: "13px",
                   outline: "none"
                 }}
               />
@@ -859,53 +919,66 @@ export default function Home() {
               CATEGORIES
             </div>
 
-            {(["birds", "hikes", "camps", "highways"] as PlaceType[]).map((t) => (
-              <div key={t}>
-                <div style={{ display: "flex", alignItems: "center", marginBottom: 6 }}>
+            {([
+              { key: "birds" as PlaceType, label: "🐦 Birds" },
+              { key: "hikes" as PlaceType, label: "🥾 Hikes" },
+              { key: "camps" as PlaceType, label: "⛺ Camps" },
+              { key: "highways" as PlaceType, label: "🛣 Highways" }
+            ]).map((item) => (
+              <div key={item.key}>
+                <div style={{ display: "flex", alignItems: "center", marginBottom: 8 }}>
                   <input
                     type="checkbox"
-                    checked={placeTypes.includes(t)}
+                    checked={placeTypes.includes(item.key)}
                     onChange={() =>
-                      setPlaceTypes((prev) => (prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]))
+                      setPlaceTypes((prev) =>
+                        prev.includes(item.key)
+                          ? prev.filter((x) => x !== item.key)
+                          : [...prev, item.key]
+                      )
                     }
                   />
-                  <span style={{ marginLeft: 8, textTransform: "capitalize", flexGrow: 1 }}>{t}</span>
+                  <span style={{ marginLeft: 8, flexGrow: 1 }}>{item.label}</span>
 
-                  {(t === "camps" || t === "highways") && (
+                  {(item.key === "camps" || item.key === "highways") && (
                     <button
                       onClick={(e) => {
                         e.preventDefault();
-                        t === "camps"
+                        item.key === "camps"
                           ? setIsCampSubmenuOpen(!isCampSubmenuOpen)
                           : setIsHighwaySubmenuOpen(!isHighwaySubmenuOpen);
                       }}
-                      style={{ fontSize: 10, background: "none", border: "none", cursor: "pointer", padding: "0 5px" }}
+                      style={{
+                        fontSize: 10,
+                        background: "none",
+                        border: "none",
+                        cursor: "pointer",
+                        padding: "0 5px"
+                      }}
                     >
-                      {t === "camps"
-                        ? isCampSubmenuOpen
-                          ? "▲"
-                          : "▼"
-                        : isHighwaySubmenuOpen
-                        ? "▲"
-                        : "▼"}
+                      {item.key === "camps"
+                        ? isCampSubmenuOpen ? "▲" : "▼"
+                        : isHighwaySubmenuOpen ? "▲" : "▼"}
                     </button>
                   )}
 
                   <button
                     onClick={() =>
                       setFavOnlyCategories((prev) =>
-                        prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]
+                        prev.includes(item.key)
+                          ? prev.filter((x) => x !== item.key)
+                          : [...prev, item.key]
                       )
                     }
                     style={{
-                      background: favOnlyCategories.includes(t) ? "#fff8dc" : "transparent",
-                      border: favOnlyCategories.includes(t) ? "1px solid #d4af37" : "1px solid transparent",
+                      background: favOnlyCategories.includes(item.key) ? "#fff8dc" : "transparent",
+                      border: favOnlyCategories.includes(item.key) ? "1px solid #d4af37" : "1px solid transparent",
                       borderRadius: 4,
                       cursor: "pointer",
                       fontSize: "16px",
                       lineHeight: 1,
                       padding: "2px 4px",
-                      color: favOnlyCategories.includes(t) ? "#b8860b" : "#999"
+                      color: favOnlyCategories.includes(item.key) ? "#b8860b" : "#999"
                     }}
                     title="Favorites only"
                   >
@@ -913,7 +986,7 @@ export default function Home() {
                   </button>
                 </div>
 
-                {t === "camps" && isCampSubmenuOpen && (
+                {item.key === "camps" && isCampSubmenuOpen && (
                   <div
                     style={{
                       padding: "8px",
@@ -971,7 +1044,7 @@ export default function Home() {
                   </div>
                 )}
 
-                {t === "highways" && isHighwaySubmenuOpen && (
+                {item.key === "highways" && isHighwaySubmenuOpen && (
                   <div
                     style={{
                       padding: "8px",
@@ -1039,7 +1112,7 @@ export default function Home() {
               <button
                 onClick={() => setStates([])}
                 style={{
-                  fontSize: 9,
+                  fontSize: 10,
                   cursor: "pointer",
                   color: "#f44336",
                   background: "none",
@@ -1048,7 +1121,7 @@ export default function Home() {
                   fontWeight: 700
                 }}
               >
-                CLEAR
+                Clear All
               </button>
             </div>
 
@@ -1057,13 +1130,20 @@ export default function Home() {
                 const groupSelected = groupStates.length > 0 && groupStates.every((st) => states.includes(st));
 
                 return (
-                  <div key={groupName} style={{ marginBottom: 4 }}>
+                  <div
+                    key={groupName}
+                    style={{
+                      marginBottom: 6,
+                      background: groupSelected ? "#eef5ff" : "#f8f9fa",
+                      borderRadius: 6,
+                      padding: "2px 0"
+                    }}
+                  >
                     <div
                       style={{
                         display: "flex",
                         alignItems: "center",
-                        background: "#f8f9fa",
-                        padding: "4px 6px",
+                        padding: "6px 8px",
                         borderRadius: 4
                       }}
                     >
@@ -1087,7 +1167,15 @@ export default function Home() {
                         {openGroups.includes(groupName) ? "▼" : "▶"}
                       </button>
 
-                      <span style={{ flexGrow: 1, fontWeight: 600, fontSize: 11 }}>{groupName}</span>
+                      <span
+                        style={{
+                          flexGrow: 1,
+                          fontWeight: groupSelected ? 700 : 600,
+                          fontSize: 12
+                        }}
+                      >
+                        {groupName}
+                      </span>
 
                       {groupStates.length > 0 && (
                         <button
@@ -1099,23 +1187,23 @@ export default function Home() {
                             )
                           }
                           style={{
-                            fontSize: 9,
+                            fontSize: 10,
                             cursor: "pointer",
                             color: "#007bff",
                             background: "#e7f1ff",
                             border: "none",
-                            padding: "2px 4px",
-                            borderRadius: 3,
+                            padding: "4px 6px",
+                            borderRadius: 4,
                             fontWeight: 700
                           }}
                         >
-                          {groupSelected ? "NONE" : "ALL"}
+                          Select All
                         </button>
                       )}
                     </div>
 
                     {openGroups.includes(groupName) && (
-                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4px", padding: "6px 12px" }}>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4px", padding: "0 12px 8px 12px" }}>
                         {groupStates.map((st) => (
                           <label
                             key={st}
@@ -1145,12 +1233,14 @@ export default function Home() {
                 marginTop: 12,
                 paddingTop: 8,
                 borderTop: "1px solid #eee",
-                fontSize: 11,
+                fontSize: 12,
                 color: "#666",
                 lineHeight: 1.35
               }}
             >
-              Select categories, sub-categories, & state(s) to display on the map. Click on icons or scenic road for info. Close menu for full map view.
+              {categoryCount === 0 && !hasAnySelectedStates
+                ? "Choose categories and regions to display places on the map."
+                : "Tap map icons or scenic roads for details."}
             </div>
           </div>
         )}
