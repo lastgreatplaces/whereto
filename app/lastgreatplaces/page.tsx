@@ -152,7 +152,7 @@ function getFeatureCenter(
 }
 
 export default function LastGreatPlacesPage() {
-  const [portfolioMode, setPortfolioMode] = useState<PortfolioMode>("top1000");
+  const [portfolioMode, setPortfolioMode] = useState<PortfolioMode>("top500");
   const [rows, setRows] = useState<LandscapeRow[]>([]);
   const [loading, setLoading] = useState(false);
   const [mapReady, setMapReady] = useState(false);

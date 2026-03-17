@@ -57,9 +57,9 @@ const MONTHS = [
 ];
 
 const CONUS_STATES = [
-  "AL","AZ","AR","CA","CO","CT","DE","FL","GA","ID","IL","IN","IA","KS","KY","LA",
-  "ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND",
-  "OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"
+  "AL", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA", "ID", "IL", "IN", "IA", "KS", "KY", "LA",
+  "ME", "MD", "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "ND",
+  "OH", "OK", "OR", "PA", "RI", "SC", "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"
 ];
 
 function getMosquitoCategory(score: number) {
@@ -172,8 +172,9 @@ export default function ClimatePage() {
   const [panelOpen, setPanelOpen] = useState(true);
 
   const [showTravelLayer, setShowTravelLayer] = useState(false);
-  const [layerState, setLayerState] = useState<string>("");
+  const [layerStates, setLayerStates] = useState<string[]>([]);
   const [layerMonth, setLayerMonth] = useState<number | "">("");
+  const [travelStatesOpen, setTravelStatesOpen] = useState(false);
 
   const selectedMonthsRef = useRef<number[]>([]);
   const mapRef = useRef<any>(null);
@@ -193,6 +194,14 @@ export default function ClimatePage() {
     );
   };
 
+  const toggleLayerState = (stateAbbr: string) => {
+    setLayerStates((prev) =>
+      prev.includes(stateAbbr)
+        ? prev.filter((s) => s !== stateAbbr)
+        : [...prev, stateAbbr]
+    );
+  };
+
   const clearTravelLayer = () => {
     travelPolygonsRef.current.forEach((p) => p.setMap(null));
     travelPolygonsRef.current = [];
@@ -206,8 +215,9 @@ export default function ClimatePage() {
     setLoading(false);
 
     setShowTravelLayer(false);
-    setLayerState("");
+    setLayerStates([]);
     setLayerMonth("");
+    setTravelStatesOpen(false);
     clearTravelLayer();
 
     if (markerRef.current) {
@@ -378,30 +388,38 @@ export default function ClimatePage() {
   const loadTravelLayer = async () => {
     clearTravelLayer();
 
-    if (!showTravelLayer || !layerState || !layerMonth || !mapRef.current) return;
+    if (!showTravelLayer || !layerStates.length || !layerMonth || !mapRef.current) return;
 
     const google = (window as any).google;
     if (!google) return;
 
-    const { data, error } = await supabase.rpc("get_state_travel_score_layer", {
-      p_state: layerState,
-      p_month: layerMonth,
-    });
+    const responses = await Promise.all(
+      layerStates.map((st) =>
+        supabase.rpc("get_state_travel_score_layer", {
+          p_state: st,
+          p_month: layerMonth,
+        })
+      )
+    );
 
-    if (error) {
-      console.error("Travel layer error:", error);
-      return;
+    const allRows: TravelLayerRow[] = [];
+
+    for (const resp of responses) {
+      if (resp.error) {
+        console.error("Travel layer error:", resp.error);
+        continue;
+      }
+      allRows.push(...((resp.data ?? []) as TravelLayerRow[]));
     }
 
-    const rows = (data ?? []) as TravelLayerRow[];
-    rows.forEach((row) => {
+    allRows.forEach((row) => {
       addPolygonFeature(google, mapRef.current, row.geom_geojson, row);
     });
   };
 
   useEffect(() => {
     loadTravelLayer();
-  }, [showTravelLayer, layerState, layerMonth]);
+  }, [showTravelLayer, layerStates, layerMonth]);
 
   useEffect(() => {
     const key = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY;
@@ -502,25 +520,25 @@ export default function ClimatePage() {
       </a>
 
       <a
-  href="/lastgreatplaces"
-  style={{
-    position: "absolute",
-    right: 12,
-    top: 58,
-    zIndex: 12,
-    background: "white",
-    border: "1px solid #ccc",
-    borderRadius: 8,
-    padding: "10px 14px",
-    textDecoration: "none",
-    color: "#333",
-    fontWeight: 700,
-    fontSize: 14,
-    boxShadow: "0 2px 10px rgba(0,0,0,0.12)",
-  }}
->
-  Landscapes
-</a>
+        href="/lastgreatplaces"
+        style={{
+          position: "absolute",
+          right: 12,
+          top: 58,
+          zIndex: 12,
+          background: "white",
+          border: "1px solid #ccc",
+          borderRadius: 8,
+          padding: "10px 14px",
+          textDecoration: "none",
+          color: "#333",
+          fontWeight: 700,
+          fontSize: 14,
+          boxShadow: "0 2px 10px rgba(0,0,0,0.12)",
+        }}
+      >
+        Landscapes
+      </a>
 
       {panelOpen ? (
         <div
@@ -530,14 +548,14 @@ export default function ClimatePage() {
             top: 72,
             zIndex: 11,
             width: "min(340px, calc(100vw - 24px))",
-maxWidth: "calc(100vw - 24px)",
-maxHeight: "calc(100vh - 96px)",
-overflowY: "auto",
-background: "white",
-border: "1px solid #ccc",
-borderRadius: 8,
-padding: 12,
-boxShadow: "0 2px 10px rgba(0,0,0,0.12)",
+            maxWidth: "calc(100vw - 24px)",
+            maxHeight: "calc(100vh - 96px)",
+            overflowY: "auto",
+            background: "white",
+            border: "1px solid #ccc",
+            borderRadius: 8,
+            padding: 12,
+            boxShadow: "0 2px 10px rgba(0,0,0,0.12)",
           }}
         >
           <div
@@ -634,7 +652,6 @@ boxShadow: "0 2px 10px rgba(0,0,0,0.12)",
             })}
           </div>
 
-          {/* Travel Score Layer Enhancements */}
           <div
             style={{
               borderTop: "1px solid #eee",
@@ -674,11 +691,11 @@ boxShadow: "0 2px 10px rgba(0,0,0,0.12)",
             >
               <div>
                 <div style={{ fontSize: 11, color: "#555", marginBottom: 4 }}>
-                  State
+                  States
                 </div>
-                <select
-                  value={layerState}
-                  onChange={(e) => setLayerState(e.target.value)}
+
+                <button
+                  onClick={() => setTravelStatesOpen((prev) => !prev)}
                   style={{
                     width: "100%",
                     padding: "8px",
@@ -686,15 +703,96 @@ boxShadow: "0 2px 10px rgba(0,0,0,0.12)",
                     border: "1px solid #ccc",
                     fontSize: 12,
                     background: "white",
+                    textAlign: "left",
+                    cursor: "pointer",
                   }}
                 >
-                  <option value="">Select state</option>
-                  {CONUS_STATES.map((st) => (
-                    <option key={st} value={st}>
-                      {st}
-                    </option>
-                  ))}
-                </select>
+                  {layerStates.length === 0
+                    ? "Select states"
+                    : layerStates.length <= 3
+                    ? layerStates.join(", ")
+                    : `${layerStates.length} states selected`}
+                </button>
+
+                {travelStatesOpen && (
+                  <div
+                    style={{
+                      marginTop: 6,
+                      border: "1px solid #ddd",
+                      borderRadius: 6,
+                      background: "#fafafa",
+                      padding: 8,
+                      maxHeight: 180,
+                      overflowY: "auto",
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: 6,
+                        marginBottom: 8,
+                      }}
+                    >
+                      <button
+                        onClick={() => setLayerStates(CONUS_STATES)}
+                        style={{
+                          flex: 1,
+                          padding: "4px 6px",
+                          fontSize: 10,
+                          border: "1px solid #ccc",
+                          borderRadius: 4,
+                          background: "white",
+                          cursor: "pointer",
+                        }}
+                      >
+                        All
+                      </button>
+
+                      <button
+                        onClick={() => setLayerStates([])}
+                        style={{
+                          flex: 1,
+                          padding: "4px 6px",
+                          fontSize: 10,
+                          border: "1px solid #ccc",
+                          borderRadius: 4,
+                          background: "white",
+                          cursor: "pointer",
+                        }}
+                      >
+                        Clear
+                      </button>
+                    </div>
+
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "repeat(3, 1fr)",
+                        gap: 4,
+                      }}
+                    >
+                      {CONUS_STATES.map((st) => (
+                        <label
+                          key={st}
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 4,
+                            fontSize: 11,
+                            cursor: "pointer",
+                          }}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={layerStates.includes(st)}
+                            onChange={() => toggleLayerState(st)}
+                          />
+                          <span>{st}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div>
@@ -755,106 +853,106 @@ boxShadow: "0 2px 10px rgba(0,0,0,0.12)",
           )}
 
           {results.length > 0 && (
-  <div style={{ borderTop: "1px solid #eee", paddingTop: 10 }}>
-    <div
-      style={{
-        fontWeight: 700,
-        marginBottom: 6,
-        lineHeight: 1.35,
-        wordBreak: "break-word",
-      }}
-    >
-      {results[0].state_list || results[0].state_abbr} — {results[0].division_name}
-    </div>
-
-    <div style={{ display: "grid", gap: 8, maxHeight: "40vh", overflowY: "auto", paddingRight: 4 }}>
-      {results.map((r) => {
-        const mosq = getMosquitoCategory(Number(r.mosquito_score));
-        const travel = computeTravelScore(r);
-
-        return (
-          <div
-            key={r.month_name}
-            style={{
-              fontSize: 12,
-              padding: "6px 0",
-              borderBottom: "1px solid #f3f3f3",
-            }}
-          >
-            <div style={{ fontWeight: 700, marginBottom: 4 }}>
-              {r.month_name}
-            </div>
-
-            <div>
-              Early&nbsp;&nbsp; High {r.tmax_f - 6}° &nbsp;&nbsp; Low{" "}
-              {r.tmin_f - 6}°
-            </div>
-            <div>
-              Mid&nbsp;&nbsp;&nbsp;&nbsp; High {r.tmax_f}° &nbsp;&nbsp;
-              Low {r.tmin_f}°
-            </div>
-            <div>
-              Late&nbsp;&nbsp;&nbsp; High {r.tmax_f + 6}° &nbsp;&nbsp;
-              Low {r.tmin_f + 6}°
-            </div>
-
-            <div
-              style={{
-                marginTop: 4,
-                fontWeight: 700,
-                color: mosq.color,
-              }}
-            >
-              Mosquito Risk: {mosq.label}
-            </div>
-
-            <div style={{ marginTop: 6, paddingTop: 6, borderTop: "1px solid #f7f7f7" }}>
-              <div>
-                Day:{" "}
-                <span
-                  style={{
-                    fontWeight: 700,
-                    color: getTravelColor(travel.day.label),
-                  }}
-                >
-                  {travel.day.label}
-                </span>
+            <div style={{ borderTop: "1px solid #eee", paddingTop: 10 }}>
+              <div
+                style={{
+                  fontWeight: 700,
+                  marginBottom: 6,
+                  lineHeight: 1.35,
+                  wordBreak: "break-word",
+                }}
+              >
+                {results[0].state_list || results[0].state_abbr} — {results[0].division_name}
               </div>
-              <div>
-                Night:{" "}
-                <span
-                  style={{
-                    fontWeight: 700,
-                    color: getTravelColor(travel.night.label),
-                  }}
-                >
-                  {travel.night.label}
-                </span>
-              </div>
-              <div>
-                Mosquito:{" "}
-                <span
-                  style={{
-                    fontWeight: 700,
-                    color: getTravelColor(travel.mosquito.label),
-                  }}
-                >
-                  {travel.mosquito.label}
-                </span>
-              </div>
-              <div style={{ marginTop: 4 }}>
-                <span style={{ fontWeight: 700 }}>Travel Score:</span>{" "}
-                <span style={{ fontWeight: 700, color: "#1565c0" }}>
-                  {formatTravelScore(travel.travelScore)} / 10
-                </span>
+
+              <div style={{ display: "grid", gap: 8, maxHeight: "40vh", overflowY: "auto", paddingRight: 4 }}>
+                {results.map((r) => {
+                  const mosq = getMosquitoCategory(Number(r.mosquito_score));
+                  const travel = computeTravelScore(r);
+
+                  return (
+                    <div
+                      key={r.month_name}
+                      style={{
+                        fontSize: 12,
+                        padding: "6px 0",
+                        borderBottom: "1px solid #f3f3f3",
+                      }}
+                    >
+                      <div style={{ fontWeight: 700, marginBottom: 4 }}>
+                        {r.month_name}
+                      </div>
+
+                      <div>
+                        Early&nbsp;&nbsp; High {r.tmax_f - 6}° &nbsp;&nbsp; Low{" "}
+                        {r.tmin_f - 6}°
+                      </div>
+                      <div>
+                        Mid&nbsp;&nbsp;&nbsp;&nbsp; High {r.tmax_f}° &nbsp;&nbsp;
+                        Low {r.tmin_f}°
+                      </div>
+                      <div>
+                        Late&nbsp;&nbsp;&nbsp; High {r.tmax_f + 6}° &nbsp;&nbsp;
+                        Low {r.tmin_f + 6}°
+                      </div>
+
+                      <div
+                        style={{
+                          marginTop: 4,
+                          fontWeight: 700,
+                          color: mosq.color,
+                        }}
+                      >
+                        Mosquito Risk: {mosq.label}
+                      </div>
+
+                      <div style={{ marginTop: 6, paddingTop: 6, borderTop: "1px solid #f7f7f7" }}>
+                        <div>
+                          Day:{" "}
+                          <span
+                            style={{
+                              fontWeight: 700,
+                              color: getTravelColor(travel.day.label),
+                            }}
+                          >
+                            {travel.day.label}
+                          </span>
+                        </div>
+                        <div>
+                          Night:{" "}
+                          <span
+                            style={{
+                              fontWeight: 700,
+                              color: getTravelColor(travel.night.label),
+                            }}
+                          >
+                            {travel.night.label}
+                          </span>
+                        </div>
+                        <div>
+                          Mosquito:{" "}
+                          <span
+                            style={{
+                              fontWeight: 700,
+                              color: getTravelColor(travel.mosquito.label),
+                            }}
+                          >
+                            {travel.mosquito.label}
+                          </span>
+                        </div>
+                        <div style={{ marginTop: 4 }}>
+                          <span style={{ fontWeight: 700 }}>Travel Score:</span>{" "}
+                          <span style={{ fontWeight: 700, color: "#1565c0" }}>
+                            {formatTravelScore(travel.travelScore)} / 10
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
-          </div>
-        );
-      })}
-    </div>
-  </div>
-)}
+          )}
 
           <div
             style={{
