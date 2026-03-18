@@ -185,10 +185,10 @@ export default function Home() {
       return {
         path: "M -10,-10 L 10,-10 L 10,10 L -10,10 Z",
         scale: baseSize / 20,
-        fillColor: "#28a745",
+        fillColor: "#f9ed80",
         fillOpacity: 1,
-        strokeWeight,
-        strokeColor
+     strokeWeight: isFavorite ? 7 : 4,
+        strokeColor: isFavorite ? "#f3cf05" : "#f80808"
       };
     }
 
@@ -378,7 +378,7 @@ export default function Home() {
       const geo = h.geom_geojson;
       if (!geo || !geo.coordinates) return;
 
-      let lineColor = "#4e342e";
+      let lineColor = "#f9d005";
       if (h.favorite) lineColor = "#FFD700";
       else if (h.subtype === "Backcountry") lineColor = "#CC5500";
 
@@ -390,8 +390,8 @@ export default function Home() {
           path,
           geodesic: true,
           strokeColor: lineColor,
-          strokeOpacity: 0.9,
-          strokeWeight: h.favorite ? 7 : 4,
+          strokeOpacity: 0.5,
+          strokeWeight: h.favorite ? 7 : 2,
           map: mapRef.current,
           zIndex: h.favorite ? 50 : h.subtype === "Backcountry" ? 10 : 5
         });
