@@ -184,7 +184,7 @@ export default function Home() {
     if (type === "hikes") {
       return {
         path: "M -10,-10 L 10,-10 L 10,10 L -10,10 Z",
-        scale: baseSize / 20,
+        scale: baseSize / 10,
         fillColor: "#c4fcfe",
         fillOpacity: 1,
      strokeWeight: isFavorite ? 3 : 2,
@@ -378,9 +378,9 @@ export default function Home() {
       const geo = h.geom_geojson;
       if (!geo || !geo.coordinates) return;
 
-      let lineColor = "#f8c14a";
+      let lineColor = "#89857c";
       if (h.favorite) lineColor = "#FFD700";
-      else if (h.subtype === "Backcountry") lineColor = "#CC5500";
+      else if (h.subtype === "Backcountry") lineColor = "#e46a13";
 
       const segments = geo.type === "MultiLineString" ? geo.coordinates : [geo.coordinates];
 
@@ -391,7 +391,7 @@ export default function Home() {
           geodesic: true,
           strokeColor: lineColor,
           strokeOpacity: 0.5,
-          strokeWeight: h.favorite ? 7 : 3,
+          strokeWeight: h.favorite ? 7 : 3.5,
           map: mapRef.current,
           zIndex: h.favorite ? 50 : h.subtype === "Backcountry" ? 10 : 5
         });
