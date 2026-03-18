@@ -454,7 +454,7 @@ export default function LastGreatPlacesPage() {
             }}
           >
             A nationwide portfolio of public lands selected
-            for geophysical diversity, ecosystem diversity, low human modification,
+            for landscape diversity, ecosystem diversity, low human modification,
             and representation of America’s varied landscape features within and across 68 ecoregions.
           </div>
 

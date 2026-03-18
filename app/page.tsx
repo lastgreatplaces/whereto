@@ -10,6 +10,8 @@ const supabase = createClient(
 
 type PlaceType = "birds" | "hikes" | "camps" | "highways";
 
+type LandscapeMode = "top500" | "top1000";
+
 interface Theme {
   color: string;
   emoji: string;
@@ -20,6 +22,23 @@ type RouteStop = {
   name: string;
   lat: number;
   lon: number;
+};
+
+type LandscapeRow = {
+  place_id: number;
+  name: string;
+  states: string | null;
+  acres: number | null;
+  owner_name: string | null;
+  designation: string | null;
+  ecoregion: string | null;
+  ecoregion_rank: number | null;
+  national_rank: number | null;
+  rank_top500: number | null;
+  in_top500: boolean;
+  rank_top1000: number | null;
+  in_top1000: boolean;
+  geom: any;
 };
 
 const CAMP_THEMES: Record<string, Theme> = {
@@ -68,6 +87,11 @@ const STATE_GROUPS: Record<string, string[]> = {
   Canada: ["AB", "BC", "MB", "NB", "NL", "NS", "ON", "PE", "QC", "SK"]
 };
 
+function formatAcres(acres: number | null) {
+  if (acres == null) return "—";
+  return `${Math.round(acres).toLocaleString()} acres`;
+}
+
 export default function Home() {
   const [states, setStates] = useState<string[]>([]);
   const [placeTypes, setPlaceTypes] = useState<PlaceType[]>([]);
@@ -76,6 +100,7 @@ export default function Home() {
   const [favOnlyCategories, setFavOnlyCategories] = useState<PlaceType[]>([]);
 
   const [isFilterOpen, setIsFilterOpen] = useState(true);
+  const [isRegionsOpen, setIsRegionsOpen] = useState(false);
   const [openGroups, setOpenGroups] = useState<string[]>([]);
   const [isCampSubmenuOpen, setIsCampSubmenuOpen] = useState(false);
   const [isHighwaySubmenuOpen, setIsHighwaySubmenuOpen] = useState(false);
@@ -88,6 +113,9 @@ export default function Home() {
   const [routeStops, setRouteStops] = useState<RouteStop[]>([]);
   const [routeMessage, setRouteMessage] = useState("");
 
+  const [showLandscapes, setShowLandscapes] = useState(false);
+  const [landscapeMode, setLandscapeMode] = useState<LandscapeMode>("top1000");
+
   const mapRef = useRef<any>(null);
   const clustererRef = useRef<any>(null);
   const infoWindowRef = useRef<any>(null);
@@ -98,6 +126,7 @@ export default function Home() {
   const campMarkersRef = useRef<any[]>([]);
   const nonClusterMarkersRef = useRef<any[]>([]);
   const highwayLinesRef = useRef<any[]>([]);
+  const landscapePolygonsRef = useRef<any[]>([]);
 
   const filtersRef = useRef({
     states: new Set<string>(states),
@@ -210,6 +239,115 @@ export default function Home() {
   const clearHighways = () => {
     highwayLinesRef.current.forEach((line) => line.setMap(null));
     highwayLinesRef.current = [];
+  };
+
+  const clearLandscapes = () => {
+    landscapePolygonsRef.current.forEach((poly) => poly.setMap(null));
+    landscapePolygonsRef.current = [];
+  };
+
+  const addLandscapeFeature = (
+    google: any,
+    map: any,
+    geometry: any,
+    row: LandscapeRow
+  ) => {
+    const createPolygon = (paths: any[]) => {
+      const poly = new google.maps.Polygon({
+        paths,
+        strokeColor: landscapeMode === "top500" ? "#1b5e20" : "#2e7d32",
+        strokeOpacity: 1,
+        strokeWeight: landscapeMode === "top500" ? 2 : 1.5,
+        fillColor: landscapeMode === "top500" ? "#2e7d32" : "#66bb6a",
+        fillOpacity: landscapeMode === "top500" ? 0.75 : 0.65,
+        map,
+        zIndex: landscapeMode === "top500" ? 3 : 2
+      });
+
+      poly.addListener("click", (e: any) => {
+        if (!infoWindowRef.current) return;
+
+        const portfolioRank =
+          landscapeMode === "top500"
+            ? row.rank_top500 ?? "—"
+            : row.rank_top1000 ?? "—";
+
+        const label = landscapeMode === "top500" ? "Top 500 Rank" : "Top 1000 Rank";
+
+        infoWindowRef.current.setContent(`
+          <div style="padding:10px; font-family:sans-serif; min-width:220px; max-width:280px;">
+            <div style="font-weight:700; font-size:15px; margin-bottom:8px;">
+              ${escapeHtml(row.name)}
+            </div>
+            <div style="font-size:12px; line-height:1.55;">
+              <div><span style="font-weight:700;">States:</span> ${escapeHtml(row.states || "—")}</div>
+              <div><span style="font-weight:700;">Acres:</span> ${escapeHtml(formatAcres(row.acres))}</div>
+              <div><span style="font-weight:700;">Owner:</span> ${escapeHtml(row.owner_name || "—")}</div>
+              <div><span style="font-weight:700;">Designation:</span> ${escapeHtml(row.designation || "—")}</div>
+              <div><span style="font-weight:700;">Ecoregion:</span> ${escapeHtml(row.ecoregion || "—")}</div>
+              <div><span style="font-weight:700;">Ecoregion Rank:</span> ${escapeHtml(row.ecoregion_rank ?? "—")}</div>
+              <div><span style="font-weight:700;">National Rank:</span> ${escapeHtml(row.national_rank ?? "—")}</div>
+              <div><span style="font-weight:700;">${label}:</span> ${escapeHtml(portfolioRank)}</div>
+            </div>
+          </div>
+        `);
+
+        infoWindowRef.current.setPosition(e.latLng);
+        infoWindowRef.current.open(map);
+      });
+
+      landscapePolygonsRef.current.push(poly);
+    };
+
+    if (!geometry) return;
+
+    if (geometry.type === "Polygon") {
+      const paths = geometry.coordinates.map((ring: number[][]) =>
+        ring.map(([lng, lat]) => ({ lat, lng }))
+      );
+      createPolygon(paths);
+    } else if (geometry.type === "MultiPolygon") {
+      geometry.coordinates.forEach((polygon: number[][][]) => {
+        const paths = polygon.map((ring: number[][]) =>
+          ring.map(([lng, lat]) => ({ lat, lng }))
+        );
+        createPolygon(paths);
+      });
+    }
+  };
+
+  const loadLandscapes = async () => {
+    clearLandscapes();
+
+    if (!showLandscapes || !mapRef.current) return;
+
+    let query = supabase
+      .from("whereto_top_portfolios_web")
+      .select(
+        "place_id,name,states,acres,owner_name,designation,ecoregion,ecoregion_rank,national_rank,rank_top500,in_top500,rank_top1000,in_top1000,geom"
+      );
+
+    if (landscapeMode === "top500") {
+      query = query.eq("in_top500", true).order("rank_top500", { ascending: true });
+    } else {
+      query = query.eq("in_top1000", true).order("rank_top1000", { ascending: true });
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      console.error("Landscape load error:", error);
+      return;
+    }
+
+    const rows = (data ?? []) as LandscapeRow[];
+    const google = (window as any).google;
+    if (!google) return;
+
+    rows.forEach((row) => {
+      if (!row.geom) return;
+      addLandscapeFeature(google, mapRef.current, row.geom, row);
+    });
   };
 
   const loadHighways = async () => {
@@ -580,6 +718,12 @@ export default function Home() {
     if (mapRef.current) scheduleLoad();
   }, [states, placeTypes, selectedCampSubtypes, selectedHighwaySubtypes, favOnlyCategories]);
 
+  useEffect(() => {
+    if (mapRef.current) {
+      loadLandscapes();
+    }
+  }, [showLandscapes, landscapeMode]);
+
   const placeResults =
     searchQuery.length > 1
       ? loadedPlaces.filter((p) => p.name.toLowerCase().includes(searchQuery.toLowerCase())).slice(0, 5)
@@ -591,7 +735,7 @@ export default function Home() {
       : [];
 
   const hasAnySelectedStates = states.length > 0;
-  const categoryCount = placeTypes.length;
+  const categoryCount = placeTypes.length + (showLandscapes ? 1 : 0);
 
   return (
     <div style={{ position: "relative", height: "100vh", overflow: "hidden", fontFamily: "sans-serif" }}>
@@ -638,7 +782,7 @@ export default function Home() {
             background: isRouteMode ? "#188038" : "white",
             border: "1px solid #ccc",
             borderRadius: 8,
-            padding: "10px 12px",
+            padding: "8px 10px",
             color: isRouteMode ? "white" : "#333",
             fontWeight: 700,
             fontSize: 13,
@@ -646,7 +790,7 @@ export default function Home() {
             cursor: "pointer"
           }}
         >
-          {isRouteMode ? "Route Mode ✓" : "Build Route"}
+          {isRouteMode ? "Route ✓" : "Build Route"}
         </button>
 
         <a
@@ -655,7 +799,7 @@ export default function Home() {
             background: "white",
             border: "1px solid #ccc",
             borderRadius: 8,
-            padding: "10px 12px",
+            padding: "8px 10px",
             textDecoration: "none",
             color: "#333",
             fontWeight: 700,
@@ -775,9 +919,9 @@ export default function Home() {
           background: "white",
           border: "1px solid #ccc",
           borderRadius: 8,
-          width: isFilterOpen ? "min(340px, calc(100vw - 24px - 182px))" : 48,
+          width: isFilterOpen ? "min(340px, calc(100vw - 24px - 130px))" : 48,
           minWidth: isFilterOpen ? 240 : 48,
-          maxWidth: "calc(100vw - 206px)",
+          maxWidth: "calc(100vw - 154px)",
           maxHeight: "calc(100vh - 24px)",
           overflowY: isFilterOpen ? "auto" : "visible",
           padding: isFilterOpen ? 12 : 4,
@@ -785,24 +929,21 @@ export default function Home() {
           transition: "width 0.2s"
         }}
       >
-<div
-  style={{
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 10,
-    position: "sticky",
-    top: 0,
-    background: "white",
-    zIndex: 2,
-    paddingBottom: 8
-  }}
->
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            marginBottom: 10,
+            position: "sticky",
+            top: 0,
+            background: "white",
+            zIndex: 2,
+            paddingBottom: 8
+          }}
+        >
           {isFilterOpen ? (
             <>
-              <div style={{ fontWeight: 700, fontSize: 16, color: "#222" }}>
-                Filters
-              </div>
               <button
                 onClick={() => setIsFilterOpen(false)}
                 style={{
@@ -823,6 +964,10 @@ export default function Home() {
               >
                 ×
               </button>
+
+              <div style={{ fontWeight: 700, fontSize: 16, color: "#222" }}>
+                Filters
+              </div>
             </>
           ) : (
             <button
@@ -928,10 +1073,10 @@ export default function Home() {
             </div>
 
             {([
-              { key: "birds" as PlaceType, label: "🐦 Birds" },
+              { key: "birds" as PlaceType, label: "🪺 Birds" },
               { key: "hikes" as PlaceType, label: "🥾 Hikes" },
               { key: "camps" as PlaceType, label: "⛺ Camps" },
-              { key: "highways" as PlaceType, label: "🛣 Highways" }
+              { key: "highways" as PlaceType, label: "🛣️ Highways" }
             ]).map((item) => (
               <div key={item.key}>
                 <div style={{ display: "flex", alignItems: "center", marginBottom: 8 }}>
@@ -1107,6 +1252,73 @@ export default function Home() {
 
             <div
               style={{
+                marginTop: 10,
+                marginBottom: 8,
+                borderTop: "1px solid #eee",
+                paddingTop: 10
+              }}
+            >
+              <div style={{ fontWeight: 700, color: "#666", marginBottom: 8 }}>
+                LANDSCAPE PORTFOLIO
+              </div>
+
+              <label
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  fontSize: 12,
+                  marginBottom: 8,
+                  cursor: "pointer"
+                }}
+              >
+                <input
+                  type="checkbox"
+                  checked={showLandscapes}
+                  onChange={(e) => setShowLandscapes(e.target.checked)}
+                />
+                Show Landscapes
+              </label>
+
+              <div style={{ display: "flex", gap: 8 }}>
+                <button
+                  onClick={() => setLandscapeMode("top500")}
+                  style={{
+                    flex: 1,
+                    border: "1px solid #ccc",
+                    borderRadius: 6,
+                    padding: "8px 0",
+                    fontSize: 12,
+                    cursor: "pointer",
+                    background: landscapeMode === "top500" ? "#1a73e8" : "white",
+                    color: landscapeMode === "top500" ? "white" : "#333",
+                    fontWeight: landscapeMode === "top500" ? 700 : 400
+                  }}
+                >
+                  Top 500
+                </button>
+
+                <button
+                  onClick={() => setLandscapeMode("top1000")}
+                  style={{
+                    flex: 1,
+                    border: "1px solid #ccc",
+                    borderRadius: 6,
+                    padding: "8px 0",
+                    fontSize: 12,
+                    cursor: "pointer",
+                    background: landscapeMode === "top1000" ? "#1a73e8" : "white",
+                    color: landscapeMode === "top1000" ? "white" : "#333",
+                    fontWeight: landscapeMode === "top1000" ? 700 : 400
+                  }}
+                >
+                  Top 1000
+                </button>
+              </div>
+            </div>
+
+            <div
+              style={{
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
@@ -1116,7 +1328,25 @@ export default function Home() {
                 paddingBottom: 4
               }}
             >
-              <span style={{ fontWeight: 700, color: "#666" }}>REGIONS</span>
+              <button
+                onClick={() => setIsRegionsOpen((prev) => !prev)}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                  background: "none",
+                  border: "none",
+                  padding: 0,
+                  cursor: "pointer",
+                  fontWeight: 700,
+                  color: "#666",
+                  fontSize: 14
+                }}
+              >
+                <span>{isRegionsOpen ? "▼" : "▶"}</span>
+                <span>REGIONS</span>
+              </button>
+
               <button
                 onClick={() => setStates([])}
                 style={{
@@ -1133,108 +1363,110 @@ export default function Home() {
               </button>
             </div>
 
-            <div style={{ maxHeight: "40vh", overflowY: "auto" }}>
-              {Object.entries(STATE_GROUPS).map(([groupName, groupStates]) => {
-                const groupSelected = groupStates.length > 0 && groupStates.every((st) => states.includes(st));
+            {isRegionsOpen && (
+              <div style={{ maxHeight: "40vh", overflowY: "auto" }}>
+                {Object.entries(STATE_GROUPS).map(([groupName, groupStates]) => {
+                  const groupSelected = groupStates.length > 0 && groupStates.every((st) => states.includes(st));
 
-                return (
-                  <div
-                    key={groupName}
-                    style={{
-                      marginBottom: 6,
-                      background: groupSelected ? "#eef5ff" : "#f8f9fa",
-                      borderRadius: 6,
-                      padding: "2px 0"
-                    }}
-                  >
+                  return (
                     <div
+                      key={groupName}
                       style={{
-                        display: "flex",
-                        alignItems: "center",
-                        padding: "6px 8px",
-                        borderRadius: 4
+                        marginBottom: 6,
+                        background: groupSelected ? "#eef5ff" : "#f8f9fa",
+                        borderRadius: 6,
+                        padding: "2px 0"
                       }}
                     >
-                      <button
-                        onClick={() =>
-                          setOpenGroups((prev) =>
-                            prev.includes(groupName)
-                              ? prev.filter((g) => g !== groupName)
-                              : [...prev, groupName]
-                          )
-                        }
+                      <div
                         style={{
-                          border: "none",
-                          background: "none",
-                          cursor: "pointer",
-                          padding: 0,
-                          marginRight: 6,
-                          fontSize: 10
+                          display: "flex",
+                          alignItems: "center",
+                          padding: "6px 8px",
+                          borderRadius: 4
                         }}
                       >
-                        {openGroups.includes(groupName) ? "▼" : "▶"}
-                      </button>
-
-                      <span
-                        style={{
-                          flexGrow: 1,
-                          fontWeight: groupSelected ? 700 : 600,
-                          fontSize: 12
-                        }}
-                      >
-                        {groupName}
-                      </span>
-
-                      {groupStates.length > 0 && (
                         <button
                           onClick={() =>
-                            setStates((prev) =>
-                              groupSelected
-                                ? prev.filter((st) => !groupStates.includes(st))
-                                : Array.from(new Set([...prev, ...groupStates]))
+                            setOpenGroups((prev) =>
+                              prev.includes(groupName)
+                                ? prev.filter((g) => g !== groupName)
+                                : [...prev, groupName]
                             )
                           }
                           style={{
-                            fontSize: 10,
-                            cursor: "pointer",
-                            color: "#007bff",
-                            background: "#e7f1ff",
                             border: "none",
-                            padding: "4px 6px",
-                            borderRadius: 4,
-                            fontWeight: 700
+                            background: "none",
+                            cursor: "pointer",
+                            padding: 0,
+                            marginRight: 6,
+                            fontSize: 10
                           }}
                         >
-                          Select All
+                          {openGroups.includes(groupName) ? "▼" : "▶"}
                         </button>
+
+                        <span
+                          style={{
+                            flexGrow: 1,
+                            fontWeight: groupSelected ? 700 : 600,
+                            fontSize: 12
+                          }}
+                        >
+                          {groupName}
+                        </span>
+
+                        {groupStates.length > 0 && (
+                          <button
+                            onClick={() =>
+                              setStates((prev) =>
+                                groupSelected
+                                  ? prev.filter((st) => !groupStates.includes(st))
+                                  : Array.from(new Set([...prev, ...groupStates]))
+                              )
+                            }
+                            style={{
+                              fontSize: 10,
+                              cursor: "pointer",
+                              color: "#007bff",
+                              background: "#e7f1ff",
+                              border: "none",
+                              padding: "4px 6px",
+                              borderRadius: 4,
+                              fontWeight: 700
+                            }}
+                          >
+                            Select All
+                          </button>
+                        )}
+                      </div>
+
+                      {openGroups.includes(groupName) && (
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4px", padding: "0 12px 8px 12px" }}>
+                          {groupStates.map((st) => (
+                            <label
+                              key={st}
+                              style={{ display: "flex", alignItems: "center", fontSize: 11, cursor: "pointer" }}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={states.includes(st)}
+                                onChange={() =>
+                                  setStates((prev) =>
+                                    prev.includes(st) ? prev.filter((x) => x !== st) : [...prev, st]
+                                  )
+                                }
+                              />
+                              <span style={{ marginLeft: 4 }}>{st}</span>
+                            </label>
+                          ))}
+                        </div>
                       )}
                     </div>
-
-                    {openGroups.includes(groupName) && (
-                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4px", padding: "0 12px 8px 12px" }}>
-                        {groupStates.map((st) => (
-                          <label
-                            key={st}
-                            style={{ display: "flex", alignItems: "center", fontSize: 11, cursor: "pointer" }}
-                          >
-                            <input
-                              type="checkbox"
-                              checked={states.includes(st)}
-                              onChange={() =>
-                                setStates((prev) =>
-                                  prev.includes(st) ? prev.filter((x) => x !== st) : [...prev, st]
-                                )
-                              }
-                            />
-                            <span style={{ marginLeft: 4 }}>{st}</span>
-                          </label>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
+                  );
+                })}
+              </div>
+            )}
 
             <div
               style={{
@@ -1247,8 +1479,8 @@ export default function Home() {
               }}
             >
               {categoryCount === 0 && !hasAnySelectedStates
-                ? "Choose categories and regions to display places on the map."
-                : "Tap map icons or scenic roads for details."}
+                ? "Choose categories, landscapes, and regions to display on the map."
+                : "Tap icons, roads, or landscape polygons for details."}
             </div>
           </div>
         )}
