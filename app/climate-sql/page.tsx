@@ -277,7 +277,7 @@ export default function ClimateSqlPage() {
                   <span style="font-weight:700; color:#1565c0;"> ${formatTravelScore(Number(r.travel_score))} / 10</span>
                 </div>
                 <div style="margin-top:2px; font-size:12px;">
-                  Band: <b>${r.score_band}</b>
+                  Rating: <b>${r.score_band}</b>
                 </div>
               </div>
             </div>
@@ -320,7 +320,7 @@ export default function ClimateSqlPage() {
           <div style="padding:10px; font-family:sans-serif; min-width:180px;">
             <div style="font-weight:700; margin-bottom:4px;">${row.state_abbr} — ${row.division_name}</div>
             <div style="font-size:12px;">Travel Score: <b>${Number(row.travel_score).toFixed(1)} / 10</b></div>
-            <div style="font-size:12px; margin-top:2px;">Band: <b>${row.score_band}</b></div>
+            <div style="font-size:12px; margin-top:2px;">Rating: <b>${row.score_band}</b></div>
           </div>
         `);
         infoWindowRef.current.setPosition(e.latLng);
@@ -814,7 +814,7 @@ export default function ClimateSqlPage() {
                           </span>
                         </div>
                         <div style={{ marginTop: 2 }}>
-                          <span style={{ fontWeight: 700 }}>Band:</span> {r.score_band}
+                          <span style={{ fontWeight: 700 }}>Rating:</span> {r.score_band}
                         </div>
                       </div>
                     </div>
