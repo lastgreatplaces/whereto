@@ -612,13 +612,13 @@ export default function ClimateSqlPage() {
                 color: "#333",
               }}
             >
-              <span style={{ fontWeight: 700, fontSize: 13 }}>Travel Map: Select State(s)</span>
+              <span style={{ fontWeight: 700, fontSize: 13 }}>Travel Map: Select State(s) & Month</span>
               <span style={{ fontSize: 14 }}>{travelSectionOpen ? "▲" : "▼"}</span>
             </button>
 
             {travelSectionOpen && (
               <div style={{ marginTop: 10 }}>
-                <div style={{ fontSize: 11, color: "#555", marginBottom: 4 }}>Add state</div>
+               
                 <select
                   value={stateToAdd}
                   onChange={(e) => addLayerState(e.target.value)}
@@ -687,11 +687,7 @@ export default function ClimateSqlPage() {
                     </div>
                   </>
                 )}
-
-                <div style={{ fontSize: 11, color: "#555", marginBottom: 6 }}>
-                  Map month
-                </div>
-
+                
                 {!selectedLayerMonthOptions.length ? (
                   <div style={{ fontSize: 11, color: "#777", marginBottom: 8 }}>
                     Select one or more months above.
