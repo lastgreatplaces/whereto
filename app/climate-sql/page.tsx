@@ -20,7 +20,7 @@ type ClimateSqlRow = {
   day_label: string;
   night_label: string;
   precip_label: string;
-  mosquito_label: string;
+  mosquito_label_display: string;
   travel_score: number;
   score_band: string;
 };
@@ -224,8 +224,8 @@ export default function ClimateSqlPage() {
                 </div>
                 <div>
                   Mosquito:
-                  <span style="font-weight:700; color:${getTravelColor(r.mosquito_label)};">
-                    ${r.mosquito_label}
+                  <span style="font-weight:700; color:${getTravelColor(r.mosquito_label_display)};">
+                    ${r.mosquito_label_display}
                   </span>
                 </div>
                 <div style="margin-top:4px; font-size:13px;">
@@ -642,7 +642,7 @@ export default function ClimateSqlPage() {
                           Precip: <span style={{ fontWeight: 700, color: getTravelColor(r.precip_label) }}>{r.precip_label}</span>
                         </div>
                         <div>
-                          Mosquito: <span style={{ fontWeight: 700, color: getTravelColor(r.mosquito_label) }}>{r.mosquito_label}</span>
+                          Mosquito: <span style={{ fontWeight: 700, color: getTravelColor(r.mosquito_label_display) }}>{r.mosquito_label_display}</span>
                         </div>
                         <div style={{ marginTop: 4 }}>
                           <span style={{ fontWeight: 700 }}>Travel Score:</span>{" "}
