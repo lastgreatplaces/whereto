@@ -56,10 +56,6 @@ const MONTH_LABEL_BY_NUM: Record<number, string> = Object.fromEntries(
   MONTHS.map((m) => [m.num, m.label])
 );
 
-const MONTH_NUM_BY_LABEL: Record<string, number> = Object.fromEntries(
-  MONTHS.map((m) => [m.label, m.num])
-);
-
 const CONUS_STATES = [
   "AL","AZ","AR","CA","CO","CT","DE","FL","GA","ID","IL","IN","IA","KS","KY","LA",
   "ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND",
@@ -103,7 +99,8 @@ export default function ClimateSqlPage() {
   const [panelOpen, setPanelOpen] = useState(true);
   const [travelSectionOpen, setTravelSectionOpen] = useState(false);
 
-  const [layerState, setLayerState] = useState<string>("");
+  const [selectedLayerStates, setSelectedLayerStates] = useState<string[]>([]);
+  const [stateToAdd, setStateToAdd] = useState<string>("");
   const [activeLayerMonth, setActiveLayerMonth] = useState<number | null>(null);
 
   const selectedMonthsRef = useRef<number[]>([]);
@@ -119,6 +116,11 @@ export default function ClimateSqlPage() {
   const selectedLayerMonthOptions = useMemo(
     () => selectedMonths.map((m) => ({ num: m, label: MONTH_LABEL_BY_NUM[m] })),
     [selectedMonths]
+  );
+
+  const availableStatesToAdd = useMemo(
+    () => CONUS_STATES.filter((st) => !selectedLayerStates.includes(st)),
+    [selectedLayerStates]
   );
 
   useEffect(() => {
@@ -140,6 +142,18 @@ export default function ClimateSqlPage() {
     );
   };
 
+  const addLayerState = (state: string) => {
+    if (!state) return;
+    setSelectedLayerStates((prev) =>
+      prev.includes(state) ? prev : [...prev, state]
+    );
+    setStateToAdd("");
+  };
+
+  const removeLayerState = (state: string) => {
+    setSelectedLayerStates((prev) => prev.filter((s) => s !== state));
+  };
+
   const clearTravelLayer = () => {
     travelPolygonsRef.current.forEach((p) => p.setMap(null));
     travelPolygonsRef.current = [];
@@ -152,7 +166,8 @@ export default function ClimateSqlPage() {
     setErrorMsg("");
     setLoading(false);
 
-    setLayerState("");
+    setSelectedLayerStates([]);
+    setStateToAdd("");
     setActiveLayerMonth(null);
     setTravelSectionOpen(false);
 
@@ -335,30 +350,35 @@ export default function ClimateSqlPage() {
   const loadTravelLayer = async () => {
     clearTravelLayer();
 
-    if (!layerState || !activeLayerMonth || !mapRef.current) return;
+    if (!selectedLayerStates.length || !activeLayerMonth || !mapRef.current) return;
 
     const google = (window as any).google;
     if (!google) return;
 
-    const { data, error } = await supabase.rpc("get_state_travel_score_layer_sql", {
-      p_state: layerState,
-      p_month: activeLayerMonth,
-    });
+    const responses = await Promise.all(
+      selectedLayerStates.map((state) =>
+        supabase.rpc("get_state_travel_score_layer_sql", {
+          p_state: state,
+          p_month: activeLayerMonth,
+        })
+      )
+    );
 
-    if (error) {
-      console.error("Travel layer error:", error);
-      return;
+    for (const response of responses) {
+      if (response.error) {
+        console.error("Travel layer error:", response.error);
+        continue;
+      }
+      const rows = (response.data ?? []) as TravelLayerRow[];
+      rows.forEach((row) => {
+        addPolygonFeature(google, mapRef.current, row.geom_geojson, row);
+      });
     }
-
-    const rows = (data ?? []) as TravelLayerRow[];
-    rows.forEach((row) => {
-      addPolygonFeature(google, mapRef.current, row.geom_geojson, row);
-    });
   };
 
   useEffect(() => {
     loadTravelLayer();
-  }, [layerState, activeLayerMonth]);
+  }, [selectedLayerStates, activeLayerMonth]);
 
   useEffect(() => {
     const key = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY;
@@ -531,7 +551,7 @@ export default function ClimateSqlPage() {
           </div>
 
           <div style={{ fontSize: 12, color: "#555", marginBottom: 8, lineHeight: 1.4 }}>
-            Select month(s), then tap the map. For state shading, choose a state and tap one selected month below.
+            Select month(s), then tap the map. For state shading, choose one or more states and tap one selected month below.
           </div>
 
           <div
@@ -544,7 +564,7 @@ export default function ClimateSqlPage() {
           >
             {MONTHS.map((m) => {
               const selected = selectedMonths.includes(m.num);
-              const isActiveLayerMonth = activeLayerMonth === m.num && layerState && selected;
+              const isActiveLayerMonth = activeLayerMonth === m.num && selectedLayerStates.length > 0 && selected;
               return (
                 <button
                   key={m.num}
@@ -598,10 +618,10 @@ export default function ClimateSqlPage() {
 
             {travelSectionOpen && (
               <div style={{ marginTop: 10 }}>
-                <div style={{ fontSize: 11, color: "#555", marginBottom: 4 }}>State</div>
+                <div style={{ fontSize: 11, color: "#555", marginBottom: 4 }}>Add state</div>
                 <select
-                  value={layerState}
-                  onChange={(e) => setLayerState(e.target.value)}
+                  value={stateToAdd}
+                  onChange={(e) => addLayerState(e.target.value)}
                   style={{
                     width: "100%",
                     padding: "8px",
@@ -613,10 +633,60 @@ export default function ClimateSqlPage() {
                   }}
                 >
                   <option value="">Select state</option>
-                  {CONUS_STATES.map((st) => (
+                  {availableStatesToAdd.map((st) => (
                     <option key={st} value={st}>{st}</option>
                   ))}
                 </select>
+
+                {selectedLayerStates.length > 0 && (
+                  <>
+                    <div style={{ fontSize: 11, color: "#555", marginBottom: 6 }}>
+                      Selected states
+                    </div>
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: 6,
+                        flexWrap: "wrap",
+                        marginBottom: 10,
+                      }}
+                    >
+                      {selectedLayerStates.map((st) => (
+                        <div
+                          key={st}
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 6,
+                            border: "1px solid #ccc",
+                            borderRadius: 14,
+                            padding: "5px 8px 5px 10px",
+                            fontSize: 11,
+                            background: "#f8f9fa",
+                          }}
+                        >
+                          <span style={{ fontWeight: 700 }}>{st}</span>
+                          <button
+                            onClick={() => removeLayerState(st)}
+                            style={{
+                              border: "none",
+                              background: "transparent",
+                              cursor: "pointer",
+                              fontSize: 13,
+                              lineHeight: 1,
+                              padding: 0,
+                              color: "#555",
+                            }}
+                            title={`Remove ${st}`}
+                            aria-label={`Remove ${st}`}
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )}
 
                 <div style={{ fontSize: 11, color: "#555", marginBottom: 6 }}>
                   Map month
@@ -660,14 +730,14 @@ export default function ClimateSqlPage() {
                 )}
 
                 <div style={{ fontSize: 11, color: "#666", lineHeight: 1.4 }}>
-                  Shading appears automatically when both a state and an active selected month are chosen.
+                  Shading appears automatically when one or more states and an active selected month are chosen.
                 </div>
                 <div style={{ marginTop: 6, fontSize: 11, color: "#666", lineHeight: 1.4 }}>
                   Map colors: 8–10 dark green, 6–8 light green, 4–6 yellow, 2–4 orange, 0–2 red.
                 </div>
-                {layerState && activeLayerMonth && (
+                {selectedLayerStates.length > 0 && activeLayerMonth && (
                   <div style={{ marginTop: 6, fontSize: 11, color: "#444", fontWeight: 700 }}>
-                    Showing {layerState} • {MONTH_LABEL_BY_NUM[activeLayerMonth]}
+                    Showing {selectedLayerStates.join(", ")} • {MONTH_LABEL_BY_NUM[activeLayerMonth]}
                   </div>
                 )}
               </div>
