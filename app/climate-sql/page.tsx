@@ -466,7 +466,7 @@ export default function ClimateSqlPage() {
           boxShadow: "0 2px 10px rgba(0,0,0,0.12)",
         }}
       >
-        Places Map
+        Home
       </a>
 
       <a
@@ -551,7 +551,7 @@ export default function ClimateSqlPage() {
           </div>
 
           <div style={{ fontSize: 12, color: "#555", marginBottom: 8, lineHeight: 1.4 }}>
-            Select month(s), then tap the map. For statewide shading, choose one or more states and tap one selected month below.
+            Select month(s), then tap anywhere on the map for climate report. For statewide travel map shading, choose state(s) and month(s). Toggle months to see changes.
           </div>
 
           <div
@@ -641,7 +641,7 @@ export default function ClimateSqlPage() {
                 {selectedLayerStates.length > 0 && (
                   <>
                     <div style={{ fontSize: 11, color: "#555", marginBottom: 6 }}>
-                      Selected states
+                      Selected state(s) and month(s):
                     </div>
                     <div
                       style={{
