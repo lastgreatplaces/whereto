@@ -470,7 +470,7 @@ export default function ClimateSqlPage() {
       </a>
 
       <a
-        href="/climate"
+        href="/lastgreatplaces"
         style={{
           position: "absolute",
           right: 12,
@@ -487,7 +487,7 @@ export default function ClimateSqlPage() {
           boxShadow: "0 2px 10px rgba(0,0,0,0.12)",
         }}
       >
-        Current Climate Page
+        Landscapes
       </a>
 
       {panelOpen ? (
@@ -529,7 +529,7 @@ export default function ClimateSqlPage() {
                 ×
               </button>
               <div style={{ fontWeight: 700, fontSize: 16, color: "#222" }}>
-                Climate SQL Test
+                Climate
               </div>
             </div>
 
@@ -551,7 +551,7 @@ export default function ClimateSqlPage() {
           </div>
 
           <div style={{ fontSize: 12, color: "#555", marginBottom: 8, lineHeight: 1.4 }}>
-            Select month(s), then tap the map. For state shading, choose one or more states and tap one selected month below.
+            Select month(s), then tap the map. For statewide shading, choose one or more states and tap one selected month below.
           </div>
 
           <div
@@ -612,7 +612,7 @@ export default function ClimateSqlPage() {
                 color: "#333",
               }}
             >
-              <span style={{ fontWeight: 700, fontSize: 13 }}>State Travel Map</span>
+              <span style={{ fontWeight: 700, fontSize: 13 }}>Travel Map: Select State(s)</span>
               <span style={{ fontSize: 14 }}>{travelSectionOpen ? "▲" : "▼"}</span>
             </button>
 
@@ -733,7 +733,7 @@ export default function ClimateSqlPage() {
                   Shading appears automatically when one or more states and an active selected month are chosen.
                 </div>
                 <div style={{ marginTop: 6, fontSize: 11, color: "#666", lineHeight: 1.4 }}>
-                  Map colors: 8–10 dark green, 6–8 light green, 4–6 yellow, 2–4 orange, 0–2 red.
+                  Map colors: Very Good 8–10 dark green, Good 6–8 light green, Fair 4–6 yellow, Poor 2–4 orange, Bad 0–2 red.
                 </div>
                 {selectedLayerStates.length > 0 && activeLayerMonth && (
                   <div style={{ marginTop: 6, fontSize: 11, color: "#444", fontWeight: 700 }}>
