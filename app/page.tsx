@@ -752,7 +752,7 @@ export default function Home() {
         }}
       >
         <a
-          href="/climate"
+          href="/climate-sql"
           style={{
             background: "white",
             border: "1px solid #ccc",
