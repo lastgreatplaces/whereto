@@ -72,8 +72,11 @@ function getMosquitoCategory(score: number) {
 
 function getTravelColor(label: string) {
   switch (label) {
+    case "Optimal":
+      return "#07640b";
     case "Desirable":
-      return "#2e7d32";
+      return "#28bb2f";
+
     case "Acceptable":
       return "#1565c0";
     case "Undesirable":
