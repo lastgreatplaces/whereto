@@ -100,7 +100,6 @@ export default function ClimateSqlPage() {
   const [travelSectionOpen, setTravelSectionOpen] = useState(false);
 
   const [selectedLayerStates, setSelectedLayerStates] = useState<string[]>([]);
-  const [stateToAdd, setStateToAdd] = useState<string>("");
   const [activeLayerMonth, setActiveLayerMonth] = useState<number | null>(null);
 
   const selectedMonthsRef = useRef<number[]>([]);
@@ -116,11 +115,6 @@ export default function ClimateSqlPage() {
   const selectedLayerMonthOptions = useMemo(
     () => selectedMonths.map((m) => ({ num: m, label: MONTH_LABEL_BY_NUM[m] })),
     [selectedMonths]
-  );
-
-  const availableStatesToAdd = useMemo(
-    () => CONUS_STATES.filter((st) => !selectedLayerStates.includes(st)),
-    [selectedLayerStates]
   );
 
   useEffect(() => {
@@ -142,18 +136,6 @@ export default function ClimateSqlPage() {
     );
   };
 
-  const addLayerState = (state: string) => {
-    if (!state) return;
-    setSelectedLayerStates((prev) =>
-      prev.includes(state) ? prev : [...prev, state]
-    );
-    setStateToAdd("");
-  };
-
-  const removeLayerState = (state: string) => {
-    setSelectedLayerStates((prev) => prev.filter((s) => s !== state));
-  };
-
   const clearTravelLayer = () => {
     travelPolygonsRef.current.forEach((p) => p.setMap(null));
     travelPolygonsRef.current = [];
@@ -167,7 +149,6 @@ export default function ClimateSqlPage() {
     setLoading(false);
 
     setSelectedLayerStates([]);
-    setStateToAdd("");
     setActiveLayerMonth(null);
     setTravelSectionOpen(false);
 
@@ -277,7 +258,7 @@ export default function ClimateSqlPage() {
                   <span style="font-weight:700; color:#1565c0;"> ${formatTravelScore(Number(r.travel_score))} / 10</span>
                 </div>
                 <div style="margin-top:2px; font-size:12px;">
-                  Rating: <b>${r.score_band}</b>
+                  Band: <b>${r.score_band}</b>
                 </div>
               </div>
             </div>
@@ -320,7 +301,7 @@ export default function ClimateSqlPage() {
           <div style="padding:10px; font-family:sans-serif; min-width:180px;">
             <div style="font-weight:700; margin-bottom:4px;">${row.state_abbr} — ${row.division_name}</div>
             <div style="font-size:12px;">Travel Score: <b>${Number(row.travel_score).toFixed(1)} / 10</b></div>
-            <div style="font-size:12px; margin-top:2px;">Rating: <b>${row.score_band}</b></div>
+            <div style="font-size:12px; margin-top:2px;">Band: <b>${row.score_band}</b></div>
           </div>
         `);
         infoWindowRef.current.setPosition(e.latLng);
@@ -466,11 +447,11 @@ export default function ClimateSqlPage() {
           boxShadow: "0 2px 10px rgba(0,0,0,0.12)",
         }}
       >
-        Home
+        Places Map
       </a>
 
       <a
-        href="/lastgreatplaces"
+        href="/climate"
         style={{
           position: "absolute",
           right: 12,
@@ -487,7 +468,7 @@ export default function ClimateSqlPage() {
           boxShadow: "0 2px 10px rgba(0,0,0,0.12)",
         }}
       >
-        Landscapes
+        Current Climate Page
       </a>
 
       {panelOpen ? (
@@ -529,7 +510,7 @@ export default function ClimateSqlPage() {
                 ×
               </button>
               <div style={{ fontWeight: 700, fontSize: 16, color: "#222" }}>
-                Climate
+                Climate SQL Test
               </div>
             </div>
 
@@ -551,7 +532,8 @@ export default function ClimateSqlPage() {
           </div>
 
           <div style={{ fontSize: 12, color: "#555", marginBottom: 8, lineHeight: 1.4 }}>
-            Select month(s), then tap anywhere on the map for climate report. For statewide travel map shading, choose state(s) and month(s).           </div>
+            Select month(s), then tap the map. For state shading, choose one or more states and tap one selected month below.
+          </div>
 
           <div
             style={{
@@ -563,7 +545,10 @@ export default function ClimateSqlPage() {
           >
             {MONTHS.map((m) => {
               const selected = selectedMonths.includes(m.num);
-              const isActiveLayerMonth = activeLayerMonth === m.num && selectedLayerStates.length > 0 && selected;
+              const isActiveLayerMonth =
+                activeLayerMonth === m.num &&
+                selectedLayerStates.length > 0 &&
+                selected;
               return (
                 <button
                   key={m.num}
@@ -611,82 +596,80 @@ export default function ClimateSqlPage() {
                 color: "#333",
               }}
             >
-              <span style={{ fontWeight: 700, fontSize: 13 }}>Travel Map: Select State(s) & Month</span>
+              <span style={{ fontWeight: 700, fontSize: 13 }}>State Travel Map</span>
               <span style={{ fontSize: 14 }}>{travelSectionOpen ? "▲" : "▼"}</span>
             </button>
 
             {travelSectionOpen && (
               <div style={{ marginTop: 10 }}>
-               
-                <select
-                  value={stateToAdd}
-                  onChange={(e) => addLayerState(e.target.value)}
-                  style={{
-                    width: "100%",
-                    padding: "8px",
-                    borderRadius: 6,
-                    border: "1px solid #ccc",
-                    fontSize: 12,
-                    background: "white",
-                    marginBottom: 10,
-                  }}
-                >
-                  <option value="">Select state</option>
-                  {availableStatesToAdd.map((st) => (
-                    <option key={st} value={st}>{st}</option>
-                  ))}
-                </select>
-
-                {selectedLayerStates.length > 0 && (
-                  <>
-                    <div style={{ fontSize: 11, color: "#555", marginBottom: 6 }}>
-                      Selected state(s) and month(s). Toggle months to see changes:
-                    </div>
-                    <div
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                  <div style={{ fontSize: 11, color: "#555" }}>States</div>
+                  {selectedLayerStates.length > 0 && (
+                    <button
+                      onClick={() => setSelectedLayerStates([])}
                       style={{
-                        display: "flex",
-                        gap: 6,
-                        flexWrap: "wrap",
-                        marginBottom: 10,
+                        border: "none",
+                        background: "none",
+                        color: "#1565c0",
+                        fontSize: 11,
+                        cursor: "pointer",
+                        padding: 0,
+                        fontWeight: 700,
                       }}
                     >
-                      {selectedLayerStates.map((st) => (
-                        <div
-                          key={st}
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 6,
-                            border: "1px solid #ccc",
-                            borderRadius: 14,
-                            padding: "5px 8px 5px 10px",
-                            fontSize: 11,
-                            background: "#f8f9fa",
-                          }}
-                        >
-                          <span style={{ fontWeight: 700 }}>{st}</span>
-                          <button
-                            onClick={() => removeLayerState(st)}
-                            style={{
-                              border: "none",
-                              background: "transparent",
-                              cursor: "pointer",
-                              fontSize: 13,
-                              lineHeight: 1,
-                              padding: 0,
-                              color: "#555",
-                            }}
-                            title={`Remove ${st}`}
-                            aria-label={`Remove ${st}`}
-                          >
-                            ×
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  </>
-                )}
-                
+                      Clear states
+                    </button>
+                  )}
+                </div>
+
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(4, 1fr)",
+                    gap: 4,
+                    maxHeight: "120px",
+                    overflowY: "auto",
+                    border: "1px solid #e5e5e5",
+                    borderRadius: 6,
+                    padding: 6,
+                    marginBottom: 10,
+                    background: "#fafafa",
+                  }}
+                >
+                  {CONUS_STATES.map((st) => (
+                    <label
+                      key={st}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 4,
+                        fontSize: 11,
+                        cursor: "pointer",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedLayerStates.includes(st)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedLayerStates((prev) =>
+                              prev.includes(st) ? prev : [...prev, st]
+                            );
+                          } else {
+                            setSelectedLayerStates((prev) => prev.filter((s) => s !== st));
+                          }
+                        }}
+                      />
+                      <span>{st}</span>
+                    </label>
+                  ))}
+                </div>
+
+                <div style={{ fontSize: 11, color: "#555", marginBottom: 6 }}>
+                  Map month
+                </div>
+
                 {!selectedLayerMonthOptions.length ? (
                   <div style={{ fontSize: 11, color: "#777", marginBottom: 8 }}>
                     Select one or more months above.
@@ -728,7 +711,7 @@ export default function ClimateSqlPage() {
                   Shading appears automatically when one or more states and an active selected month are chosen.
                 </div>
                 <div style={{ marginTop: 6, fontSize: 11, color: "#666", lineHeight: 1.4 }}>
-                  Map colors: Very Good 8–10 dark green, Good 6–8 light green, Fair 4–6 yellow, Poor 2–4 orange, Bad 0–2 red.
+                  Map colors: 8–10 dark green, 6–8 light green, 4–6 yellow, 2–4 orange, 0–2 red.
                 </div>
                 {selectedLayerStates.length > 0 && activeLayerMonth && (
                   <div style={{ marginTop: 6, fontSize: 11, color: "#444", fontWeight: 700 }}>
@@ -809,7 +792,7 @@ export default function ClimateSqlPage() {
                           </span>
                         </div>
                         <div style={{ marginTop: 2 }}>
-                          <span style={{ fontWeight: 700 }}>Rating:</span> {r.score_band}
+                          <span style={{ fontWeight: 700 }}>Band:</span> {r.score_band}
                         </div>
                       </div>
                     </div>
