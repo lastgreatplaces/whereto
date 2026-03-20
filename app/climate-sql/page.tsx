@@ -80,6 +80,12 @@ function getTravelColor(label: string) {
       return "#ef6c00";
     case "Unacceptable":
       return "#c62828";
+case "minor factor":
+      return "#4e4d4d";
+case "n/a most areas":
+      return "#4e4d4d";
+
+
     default:
       return "#333";
   }
