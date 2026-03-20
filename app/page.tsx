@@ -1291,7 +1291,7 @@ export default function Home() {
                     cursor: "pointer",
                     fontWeight: 700,
                     color: "#666",
-                    fontSize: 12
+                    fontSize: 13
                   }}
                 >
                   <span>{isLandscapeSectionOpen ? "▼" : "▶"}</span>
@@ -1380,11 +1380,11 @@ export default function Home() {
                   cursor: "pointer",
                   fontWeight: 700,
                   color: "#666",
-                  fontSize: 14
+                  fontSize: 13
                 }}
               >
                 <span>{isRegionsOpen ? "▼" : "▶"}</span>
-                <span>REGIONS</span>
+                <span>REGIONS & STATES</span>
               </button>
 
               <button
