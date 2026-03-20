@@ -1291,7 +1291,7 @@ export default function Home() {
                     cursor: "pointer",
                     fontWeight: 700,
                     color: "#666",
-                    fontSize: 14
+                    fontSize: 12
                   }}
                 >
                   <span>{isLandscapeSectionOpen ? "▼" : "▶"}</span>
