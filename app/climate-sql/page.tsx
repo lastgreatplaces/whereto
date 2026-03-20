@@ -447,11 +447,11 @@ export default function ClimateSqlPage() {
           boxShadow: "0 2px 10px rgba(0,0,0,0.12)",
         }}
       >
-        Places Map
+       Home
       </a>
 
       <a
-        href="/climate"
+        href="/lastgreatplaces"
         style={{
           position: "absolute",
           right: 12,
@@ -468,7 +468,7 @@ export default function ClimateSqlPage() {
           boxShadow: "0 2px 10px rgba(0,0,0,0.12)",
         }}
       >
-        Current Climate Page
+        Landscapes
       </a>
 
       {panelOpen ? (
@@ -510,7 +510,7 @@ export default function ClimateSqlPage() {
                 ×
               </button>
               <div style={{ fontWeight: 700, fontSize: 16, color: "#222" }}>
-                Climate SQL Test
+                Climate
               </div>
             </div>
 
@@ -532,7 +532,7 @@ export default function ClimateSqlPage() {
           </div>
 
           <div style={{ fontSize: 12, color: "#555", marginBottom: 8, lineHeight: 1.4 }}>
-            Select month(s), then tap the map. For state shading, choose one or more states and tap one selected month below.
+            Select month(s), then tap the map. For state shading, choose one or more states and months below.
           </div>
 
           <div
@@ -834,7 +834,7 @@ export default function ClimateSqlPage() {
             cursor: "pointer",
           }}
         >
-          Climate SQL
+          Climate
         </button>
       )}
 
