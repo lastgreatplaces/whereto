@@ -65,7 +65,7 @@ const CONUS_STATES = [
 function getMosquitoCategory(score: number) {
   if (score <= 2.4) return { label: "Very Low", color: "#2e7d32" };
   if (score <= 4.4) return { label: "Low", color: "#558b2f" };
-  if (score <= 6.4) return { label: "Moderate", color: "#f9a825" };
+  if (score <= 6.4) return { label: "Moderate", color: "#d18203" };
   if (score <= 8.4) return { label: "High", color: "#ef6c00" };
   return { label: "Very High", color: "#c62828" };
 }
@@ -73,9 +73,9 @@ function getMosquitoCategory(score: number) {
 function getTravelColor(label: string) {
   switch (label) {
     case "Optimal":
-      return "#07640b";
+      return "#0e5711";
     case "Desirable":
-      return "#28bb2f";
+      return "#38823b";
 
     case "Acceptable":
       return "#1565c0";
