@@ -9,8 +9,7 @@ const supabase = createClient(
 );
 
 type PlaceType = "birds" | "hikes" | "camps" | "highways";
-
-type LandscapeMode = "top500" | "top1000";
+type LandscapeRegion = "all" | "west" | "midwest" | "south" | "east";
 
 interface Theme {
   color: string;
@@ -87,6 +86,14 @@ const STATE_GROUPS: Record<string, string[]> = {
   Canada: ["AB", "BC", "MB", "NB", "NL", "NS", "ON", "PE", "QC", "SK"]
 };
 
+const LANDSCAPE_REGION_STATES: Record<LandscapeRegion, string[]> = {
+  all: [],
+  west: ["AK", "AZ", "CA", "CO", "ID", "MT", "NV", "NM", "OR", "UT", "WA", "WY"],
+  midwest: ["IL", "IN", "IA", "KS", "MI", "MN", "MO", "NE", "ND", "OH", "SD", "WI"],
+  south: ["AL", "AR", "FL", "GA", "KY", "LA", "MS", "NC", "OK", "SC", "TN", "TX", "VA", "WV"],
+  east: ["CT", "DE", "ME", "MD", "MA", "NH", "NJ", "NY", "PA", "RI", "VT"]
+};
+
 function formatAcres(acres: number | null) {
   if (acres == null) return "—";
   return `${Math.round(acres).toLocaleString()} acres`;
@@ -101,6 +108,7 @@ export default function Home() {
 
   const [isFilterOpen, setIsFilterOpen] = useState(true);
   const [isRegionsOpen, setIsRegionsOpen] = useState(false);
+  const [isLandscapeSectionOpen, setIsLandscapeSectionOpen] = useState(false);
   const [openGroups, setOpenGroups] = useState<string[]>([]);
   const [isCampSubmenuOpen, setIsCampSubmenuOpen] = useState(false);
   const [isHighwaySubmenuOpen, setIsHighwaySubmenuOpen] = useState(false);
@@ -114,7 +122,7 @@ export default function Home() {
   const [routeMessage, setRouteMessage] = useState("");
 
   const [showLandscapes, setShowLandscapes] = useState(false);
-  const [landscapeMode, setLandscapeMode] = useState<LandscapeMode>("top1000");
+  const [landscapeRegion, setLandscapeRegion] = useState<LandscapeRegion>("all");
 
   const mapRef = useRef<any>(null);
   const clustererRef = useRef<any>(null);
@@ -187,7 +195,7 @@ export default function Home() {
         scale: baseSize / 25,
         fillColor: "#c4fcfe",
         fillOpacity: 1,
-     strokeWeight: isFavorite ? 3 : 2,
+        strokeWeight: isFavorite ? 3 : 2,
         strokeColor: isFavorite ? "#f3cf05" : "#f80808"
       };
     }
@@ -255,24 +263,19 @@ export default function Home() {
     const createPolygon = (paths: any[]) => {
       const poly = new google.maps.Polygon({
         paths,
-        strokeColor: landscapeMode === "top500" ? "#1b5e20" : "#2e7d32",
+        strokeColor: "#2e7d32",
         strokeOpacity: 1,
-        strokeWeight: landscapeMode === "top500" ? 2 : 1.5,
-        fillColor: landscapeMode === "top500" ? "#2e7d32" : "#66bb6a",
-        fillOpacity: landscapeMode === "top500" ? 0.75 : 0.65,
+        strokeWeight: 1.5,
+        fillColor: "#66bb6a",
+        fillOpacity: 0.65,
         map,
-        zIndex: landscapeMode === "top500" ? 3 : 2
+        zIndex: 2
       });
 
       poly.addListener("click", (e: any) => {
         if (!infoWindowRef.current) return;
 
-        const portfolioRank =
-          landscapeMode === "top500"
-            ? row.rank_top500 ?? "—"
-            : row.rank_top1000 ?? "—";
-
-        const label = landscapeMode === "top500" ? "Top 500 Rank" : "Top 1000 Rank";
+        const portfolioRank = row.rank_top1000 ?? "—";
 
         infoWindowRef.current.setContent(`
           <div style="padding:10px; font-family:sans-serif; min-width:220px; max-width:280px;">
@@ -287,7 +290,7 @@ export default function Home() {
               <div><span style="font-weight:700;">Ecoregion:</span> ${escapeHtml(row.ecoregion || "—")}</div>
               <div><span style="font-weight:700;">Ecoregion Rank:</span> ${escapeHtml(row.ecoregion_rank ?? "—")}</div>
               <div><span style="font-weight:700;">National Rank:</span> ${escapeHtml(row.national_rank ?? "—")}</div>
-              <div><span style="font-weight:700;">${label}:</span> ${escapeHtml(portfolioRank)}</div>
+              <div><span style="font-weight:700;">Top 1000 Rank:</span> ${escapeHtml(portfolioRank)}</div>
             </div>
           </div>
         `);
@@ -324,14 +327,10 @@ export default function Home() {
     let query = supabase
       .from("whereto_top_portfolios_web")
       .select(
-        "place_id,name,states,acres,owner_name,designation,ecoregion,ecoregion_rank,national_rank,rank_top500,in_top500,rank_top1000,in_top1000,geom"
-      );
-
-    if (landscapeMode === "top500") {
-      query = query.eq("in_top500", true).order("rank_top500", { ascending: true });
-    } else {
-      query = query.eq("in_top1000", true).order("rank_top1000", { ascending: true });
-    }
+        "place_id,name,states,acres,owner_name,designation,ecoregion,ecoregion_rank,national_rank,rank_top1000,in_top1000,geom"
+      )
+      .eq("in_top1000", true)
+      .order("rank_top1000", { ascending: true });
 
     const { data, error } = await query;
 
@@ -340,7 +339,21 @@ export default function Home() {
       return;
     }
 
-    const rows = (data ?? []) as LandscapeRow[];
+    let rows = (data ?? []) as LandscapeRow[];
+
+    if (landscapeRegion !== "all") {
+      rows = rows.filter((row) => {
+        const rowStates = (row.states || "")
+          .split(",")
+          .map((s) => s.trim().toUpperCase())
+          .filter(Boolean);
+
+        return rowStates.some((st) =>
+          LANDSCAPE_REGION_STATES[landscapeRegion].includes(st)
+        );
+      });
+    }
+
     const google = (window as any).google;
     if (!google) return;
 
@@ -722,7 +735,7 @@ export default function Home() {
     if (mapRef.current) {
       loadLandscapes();
     }
-  }, [showLandscapes, landscapeMode]);
+  }, [showLandscapes, landscapeRegion]);
 
   const placeResults =
     searchQuery.length > 1
@@ -1258,63 +1271,90 @@ export default function Home() {
                 paddingTop: 10
               }}
             >
-              <div style={{ fontWeight: 700, color: "#666", marginBottom: 8 }}>
-                LANDSCAPE PORTFOLIO
-              </div>
-
-              <label
+              <div
                 style={{
                   display: "flex",
+                  justifyContent: "space-between",
                   alignItems: "center",
-                  gap: 8,
-                  fontSize: 12,
-                  marginBottom: 8,
-                  cursor: "pointer"
+                  marginBottom: 8
                 }}
               >
-                <input
-                  type="checkbox"
-                  checked={showLandscapes}
-                  onChange={(e) => setShowLandscapes(e.target.checked)}
-                />
-                Show Landscapes
-              </label>
-
-              <div style={{ display: "flex", gap: 8 }}>
                 <button
-                  onClick={() => setLandscapeMode("top500")}
+                  onClick={() => setIsLandscapeSectionOpen((prev) => !prev)}
                   style={{
-                    flex: 1,
-                    border: "1px solid #ccc",
-                    borderRadius: 6,
-                    padding: "8px 0",
-                    fontSize: 12,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                    background: "none",
+                    border: "none",
+                    padding: 0,
                     cursor: "pointer",
-                    background: landscapeMode === "top500" ? "#1a73e8" : "white",
-                    color: landscapeMode === "top500" ? "white" : "#333",
-                    fontWeight: landscapeMode === "top500" ? 700 : 400
+                    fontWeight: 700,
+                    color: "#666",
+                    fontSize: 14
                   }}
                 >
-                  Top 500
-                </button>
-
-                <button
-                  onClick={() => setLandscapeMode("top1000")}
-                  style={{
-                    flex: 1,
-                    border: "1px solid #ccc",
-                    borderRadius: 6,
-                    padding: "8px 0",
-                    fontSize: 12,
-                    cursor: "pointer",
-                    background: landscapeMode === "top1000" ? "#1a73e8" : "white",
-                    color: landscapeMode === "top1000" ? "white" : "#333",
-                    fontWeight: landscapeMode === "top1000" ? 700 : 400
-                  }}
-                >
-                  Top 1000
+                  <span>{isLandscapeSectionOpen ? "▼" : "▶"}</span>
+                  <span>LANDSCAPE PORTFOLIO</span>
                 </button>
               </div>
+
+              {isLandscapeSectionOpen && (
+                <>
+                  <label
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 8,
+                      fontSize: 12,
+                      marginBottom: 10,
+                      cursor: "pointer"
+                    }}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={showLandscapes}
+                      onChange={(e) => setShowLandscapes(e.target.checked)}
+                    />
+                    Show Top 1000 Landscapes
+                  </label>
+
+                  <div style={{ marginBottom: 8 }}>
+                    <div style={{ fontSize: 12, color: "#555", marginBottom: 4 }}>
+                      Region
+                    </div>
+                    <select
+                      value={landscapeRegion}
+                      onChange={(e) => setLandscapeRegion(e.target.value as LandscapeRegion)}
+                      style={{
+                        width: "100%",
+                        border: "1px solid #ccc",
+                        borderRadius: 6,
+                        padding: "8px",
+                        fontSize: 12,
+                        background: "white",
+                        color: "#333"
+                      }}
+                    >
+                      <option value="all">All regions</option>
+                      <option value="west">West</option>
+                      <option value="midwest">Midwest</option>
+                      <option value="south">South</option>
+                      <option value="east">East</option>
+                    </select>
+                  </div>
+
+                  <div
+                    style={{
+                      fontSize: 11,
+                      color: "#666",
+                      lineHeight: 1.4
+                    }}
+                  >
+                    Landscape polygons are filtered separately from camps, birds, hikes, and highways.
+                  </div>
+                </>
+              )}
             </div>
 
             <div
