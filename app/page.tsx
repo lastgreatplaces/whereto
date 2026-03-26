@@ -1295,7 +1295,7 @@ export default function Home() {
                   }}
                 >
                   <span>{isLandscapeSectionOpen ? "▼" : "▶"}</span>
-                  <span>LANDSCAPE PORTFOLIO</span>
+                  <span>LAST GREAT PLACES</span>
                 </button>
               </div>
 

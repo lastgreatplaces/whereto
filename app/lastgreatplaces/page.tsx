@@ -454,9 +454,9 @@ export default function LastGreatPlacesPage() {
             }}
           >
             A nationwide portfolio of public lands selected
-            for landscape diversity, ecosystem diversity, low human modification, conservation management and designation,
+            for geophysical diversity, ecosystem diversity, low human modification, conservation management & designation,
             and representation of America’s varied landscape features across 68 ecoregions. Top 500 and Top 1000
-              use distinct selection rules to capture high quality sites and landscape diversity within ecoregions.
+              use distinct selection rules to capture high quality sites and diverse landscapes in all ecoregions.
           </div>
 
           <div
@@ -554,7 +554,7 @@ export default function LastGreatPlacesPage() {
                 lineHeight: 1.5,
               }}
             >
-              Click a landscape polygon to view details. 
+              Click a landscape polygon to view details. Close menu to see full map.
             </div>
           )}
         </div>
