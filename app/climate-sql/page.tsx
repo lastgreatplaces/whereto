@@ -232,7 +232,7 @@ export default function ClimateSqlPage() {
               <div>Early: ${r.tmax_f - 6}° / ${r.tmin_f - 6}°</div>
               <div>Mid: ${r.tmax_f}° / ${r.tmin_f}°</div>
               <div>Late: ${r.tmax_f + 6}° / ${r.tmin_f + 6}°</div>
-              <div>Precip: ${r.precip}</div>
+              <div>Precip: ${r.precip}"</div>
 
               <div style="margin-top:4px; font-weight:700; color:${mosq.color};">
                 Mosquito Risk: ${mosq.label}
@@ -764,6 +764,10 @@ export default function ClimateSqlPage() {
                       </div>
                       <div>
                         Late&nbsp;&nbsp;&nbsp; High {r.tmax_f + 6}° &nbsp;&nbsp; Low {r.tmin_f + 6}°
+                      </div>
+
+                      <div>
+                        Late&nbsp;&nbsp;&nbsp; Precip {r.precip}" 
                       </div>
 
                       <div style={{ marginTop: 4, fontWeight: 700, color: mosq.color }}>
