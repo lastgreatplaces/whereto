@@ -1,0 +1,520 @@
+CREATE OR REPLACE FUNCTION public.run_ecoregion_selection(
+	p_eco_id integer,
+	p_target integer DEFAULT 20,
+	p_weight_quality numeric DEFAULT 0.80,
+	p_weight_complementarity numeric DEFAULT 0.20,
+	p_quality_floor_type character varying DEFAULT 'ecoregion_mean'::character varying,
+	p_run_label character varying DEFAULT 'run_80_20_mean_top20_pct_target'::character varying)
+    RETURNS void
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+AS $BODY$
+DECLARE
+    v_run_id bigint;
+    v_run_ts timestamp without time zone;
+
+    v_mean_score numeric;
+    v_iteration integer;
+    v_candidate_count integer;
+
+    v_comp_pct numeric;
+
+    v_weight_facets numeric;
+    v_weight_veg numeric;
+    v_weight_intact numeric;
+	v_weight_facet_pct_eco numeric;
+v_weight_evt_pct_eco numeric;
+
+    v_place_id bigint;
+    v_name varchar(254);
+    v_owner varchar(50);
+    v_acres numeric;
+    v_score_facets numeric;
+    v_score_veg numeric;
+    v_score_intact numeric;
+    v_landscape_score numeric;
+    v_national_rank integer;
+    v_ecoregion_rank integer;
+    v_comp_acres numeric;
+    v_selection_score numeric;
+BEGIN
+    -- Guard clause
+    IF p_target IS NULL OR p_target < 1 THEN
+        RETURN;
+    END IF;
+
+    -- Create a unique run id and timestamp for this function call
+    v_run_id := nextval('public.ecoregion_selection_run_id_seq');
+    v_run_ts := clock_timestamp();
+
+    SELECT weight_value
+    INTO v_weight_facets
+    FROM weights
+    WHERE factor_name = 'facet_types';
+
+    SELECT weight_value
+    INTO v_weight_veg
+    FROM weights
+    WHERE factor_name = 'native_veg_types';
+
+	   SELECT weight_value
+    INTO v_weight_facet_pct_eco
+    FROM weights
+    WHERE factor_name = 'facet_pct_eco';
+
+    SELECT weight_value
+    INTO v_weight_evt_pct_eco
+    FROM weights
+    WHERE factor_name = 'evt_pct_eco';
+
+    SELECT weight_value
+    INTO v_weight_intact
+    FROM weights
+    WHERE factor_name = 'footprint';
+
+    SELECT AVG(v.landscape_score)
+    INTO v_mean_score
+    FROM v_landscape_rankings v
+    WHERE v.eco_id::integer = p_eco_id
+      AND v.footprint <= 0.400;
+
+    SELECT COUNT(*)
+    INTO v_candidate_count
+    FROM v_landscape_rankings v
+    WHERE v.eco_id::integer = p_eco_id
+      AND v.footprint <= 0.400;
+
+    ------------------------------------------------------------------
+    -- ITERATION 1: lock in highest-quality eligible site
+    ------------------------------------------------------------------
+    SELECT
+        v.place_id,
+        v.name,
+        v.owner,
+        v.acres,
+        v.score_facets,
+        v.score_veg,
+        v.score_intact,
+        v.landscape_score,
+        v.national_rank,
+        v.ecoregion_rank
+    INTO
+        v_place_id,
+        v_name,
+        v_owner,
+        v_acres,
+        v_score_facets,
+        v_score_veg,
+        v_score_intact,
+        v_landscape_score,
+        v_national_rank,
+        v_ecoregion_rank
+    FROM v_landscape_rankings v
+    WHERE v.eco_id::integer = p_eco_id
+      AND v.footprint <= 0.400
+      AND (
+            (v_candidate_count < 20)
+            OR
+            (v_candidate_count >= 20 AND (
+                p_quality_floor_type <> 'ecoregion_mean'
+                OR v.landscape_score > v_mean_score
+            ))
+          )
+    ORDER BY v.landscape_score DESC, v.place_id
+    LIMIT 1;
+
+    IF v_place_id IS NULL THEN
+        RETURN;
+    END IF;
+
+    INSERT INTO public.ecoregion_selection_log (
+        run_id,
+        eco_id,
+        iteration,
+        place_id,
+        name,
+        owner,
+        acres,
+        score_facets,
+        score_veg,
+        score_intact,
+        landscape_score,
+        national_rank,
+        ecoregion_rank,
+        complementarity_acres,
+        complementarity_pct,
+        selection_score,
+        weight_facets,
+        weight_veg,
+        weight_intact,
+        weight_quality,
+        weight_complementarity,
+        quality_floor_type,
+        run_label,
+        run_ts,
+		 weight_facet_pct_eco,
+        weight_evt_pct_eco
+    )
+    VALUES (
+        v_run_id,
+        p_eco_id,
+        1,
+        v_place_id,
+        v_name,
+        v_owner,
+        v_acres,
+        v_score_facets,
+        v_score_veg,
+        v_score_intact,
+        v_landscape_score,
+        v_national_rank,
+        v_ecoregion_rank,
+        NULL,
+        NULL,
+        v_landscape_score,
+        v_weight_facets,
+        v_weight_veg,
+        v_weight_intact,
+        p_weight_quality,
+        p_weight_complementarity,
+        p_quality_floor_type,
+        p_run_label,
+        v_run_ts,
+v_weight_facet_pct_eco,
+        v_weight_evt_pct_eco
+		
+    );
+
+    ------------------------------------------------------------------
+    -- ITERATION 2: lock in second-highest-quality eligible site
+    ------------------------------------------------------------------
+    IF p_target >= 2 THEN
+        SELECT
+            v.place_id,
+            v.name,
+            v.owner,
+            v.acres,
+            v.score_facets,
+            v.score_veg,
+            v.score_intact,
+            v.landscape_score,
+            v.national_rank,
+            v.ecoregion_rank
+        INTO
+            v_place_id,
+            v_name,
+            v_owner,
+            v_acres,
+            v_score_facets,
+            v_score_veg,
+            v_score_intact,
+            v_landscape_score,
+            v_national_rank,
+            v_ecoregion_rank
+        FROM v_landscape_rankings v
+        WHERE v.eco_id::integer = p_eco_id
+          AND v.footprint <= 0.400
+          AND (
+                (v_candidate_count < 20)
+                OR
+                (v_candidate_count >= 20 AND (
+                    p_quality_floor_type <> 'ecoregion_mean'
+                    OR v.landscape_score > v_mean_score
+                ))
+              )
+          AND v.place_id NOT IN (
+              SELECT l.place_id
+              FROM public.ecoregion_selection_log l
+              WHERE l.run_id = v_run_id
+          )
+        ORDER BY v.landscape_score DESC, v.place_id
+        LIMIT 1;
+
+        IF v_place_id IS NOT NULL THEN
+            INSERT INTO public.ecoregion_selection_log (
+                run_id,
+                eco_id,
+                iteration,
+                place_id,
+                name,
+                owner,
+                acres,
+                score_facets,
+                score_veg,
+                score_intact,
+                landscape_score,
+                national_rank,
+                ecoregion_rank,
+                complementarity_acres,
+                complementarity_pct,
+                selection_score,
+                weight_facets,
+                weight_veg,
+                weight_intact,
+                weight_quality,
+                weight_complementarity,
+                quality_floor_type,
+                run_label,
+                   run_ts,
+		 weight_facet_pct_eco,
+        weight_evt_pct_eco
+            )
+            VALUES (
+                v_run_id,
+                p_eco_id,
+                2,
+                v_place_id,
+                v_name,
+                v_owner,
+                v_acres,
+                v_score_facets,
+                v_score_veg,
+                v_score_intact,
+                v_landscape_score,
+                v_national_rank,
+                v_ecoregion_rank,
+                NULL,
+                NULL,
+                v_landscape_score,
+                v_weight_facets,
+                v_weight_veg,
+                v_weight_intact,
+                p_weight_quality,
+                p_weight_complementarity,
+                p_quality_floor_type,
+                p_run_label,
+         v_run_ts,
+v_weight_facet_pct_eco,
+        v_weight_evt_pct_eco
+            );
+        END IF;
+    END IF;
+
+    ------------------------------------------------------------------
+    -- ITERATION 3+: complementarity
+    ------------------------------------------------------------------
+    IF p_target < 3 THEN
+        RETURN;
+    END IF;
+
+    FOR v_iteration IN 3..p_target LOOP
+
+        WITH selected_places AS (
+            SELECT l.place_id
+            FROM public.ecoregion_selection_log l
+            WHERE l.run_id = v_run_id
+        ),
+        selected_facets AS (
+            SELECT
+                f.facet_value,
+                LEAST(
+                    SUM(f.acres)::numeric,
+                    MAX(t.facet_target_acres)
+                ) AS acres_selected
+            FROM facet_occurs_places f
+            JOIN selected_places s
+              ON f.place_id = s.place_id
+            JOIN v_facet_targets_ecoregions t
+              ON t.eco_id = p_eco_id
+             AND t.facet_value = f.facet_value
+            GROUP BY f.facet_value
+        ),
+        remaining_candidates AS (
+            SELECT
+                v.place_id,
+                v.name,
+                v.owner,
+                v.acres,
+                v.score_facets,
+                v.score_veg,
+                v.score_intact,
+                v.landscape_score,
+                v.national_rank,
+                v.ecoregion_rank,
+                v.footprint
+            FROM v_landscape_rankings v
+            WHERE v.eco_id::integer = p_eco_id
+              AND v.footprint <= 0.400
+              AND (
+                    (v_candidate_count < 20)
+                    OR
+                    (v_candidate_count >= 20 AND (
+                        p_quality_floor_type <> 'ecoregion_mean'
+                        OR v.landscape_score > v_mean_score
+                    ))
+                  )
+              AND v.place_id NOT IN (
+                  SELECT l.place_id
+                  FROM public.ecoregion_selection_log l
+                  WHERE l.run_id = v_run_id
+              )
+        ),
+        complementarity AS (
+            SELECT
+                p.place_id,
+                p.name,
+                p.owner,
+                p.acres,
+                p.score_facets,
+                p.score_veg,
+                p.score_intact,
+                p.landscape_score,
+                p.national_rank,
+                p.ecoregion_rank,
+                SUM(
+                    LEAST(
+                        f.acres::numeric,
+                        GREATEST(
+                            t.facet_target_acres - COALESCE(s.acres_selected, 0),
+                            0
+                        )
+                    )
+                ) AS complementarity_acres
+            FROM remaining_candidates p
+            JOIN facet_occurs_places f
+              ON f.place_id = p.place_id
+            JOIN v_facet_targets_ecoregions t
+              ON t.eco_id = p_eco_id
+             AND t.facet_value = f.facet_value
+            LEFT JOIN selected_facets s
+              ON s.facet_value = f.facet_value
+            GROUP BY
+                p.place_id,
+                p.name,
+                p.owner,
+                p.acres,
+                p.score_facets,
+                p.score_veg,
+                p.score_intact,
+                p.landscape_score,
+                p.national_rank,
+                p.ecoregion_rank
+        ),
+        scored AS (
+            SELECT
+                c.place_id,
+                c.name,
+                c.owner,
+                c.acres,
+                c.score_facets,
+                c.score_veg,
+                c.score_intact,
+                c.landscape_score,
+                c.national_rank,
+                c.ecoregion_rank,
+                c.complementarity_acres,
+                ROUND(
+                    (100.0 * PERCENT_RANK() OVER (
+                        ORDER BY c.complementarity_acres
+                    ))::numeric,
+                    1
+                ) AS complementarity_pct,
+                ROUND(
+                    (
+                        p_weight_quality * c.landscape_score +
+                        p_weight_complementarity *
+                        (100.0 * PERCENT_RANK() OVER (
+                            ORDER BY c.complementarity_acres
+                        ))
+                    )::numeric,
+                    1
+                ) AS selection_score
+            FROM complementarity c
+        )
+        SELECT
+            s.place_id,
+            s.name,
+            s.owner,
+            s.acres,
+            s.score_facets,
+            s.score_veg,
+            s.score_intact,
+            s.landscape_score,
+            s.national_rank,
+            s.ecoregion_rank,
+            s.complementarity_acres,
+            s.complementarity_pct,
+            s.selection_score
+        INTO
+            v_place_id,
+            v_name,
+            v_owner,
+            v_acres,
+            v_score_facets,
+            v_score_veg,
+            v_score_intact,
+            v_landscape_score,
+            v_national_rank,
+            v_ecoregion_rank,
+            v_comp_acres,
+            v_comp_pct,
+            v_selection_score
+        FROM scored s
+        ORDER BY s.selection_score DESC, s.place_id
+        LIMIT 1;
+
+        EXIT WHEN v_place_id IS NULL;
+
+        INSERT INTO public.ecoregion_selection_log (
+            run_id,
+            eco_id,
+            iteration,
+            place_id,
+            name,
+            owner,
+            acres,
+            score_facets,
+            score_veg,
+            score_intact,
+            landscape_score,
+            national_rank,
+            ecoregion_rank,
+            complementarity_acres,
+            complementarity_pct,
+            selection_score,
+            weight_facets,
+            weight_veg,
+            weight_intact,
+            weight_quality,
+            weight_complementarity,
+            quality_floor_type,
+            run_label,
+           run_ts,
+		 weight_facet_pct_eco,
+        weight_evt_pct_eco
+        )
+        VALUES (
+            v_run_id,
+            p_eco_id,
+            v_iteration,
+            v_place_id,
+            v_name,
+            v_owner,
+            v_acres,
+            v_score_facets,
+            v_score_veg,
+            v_score_intact,
+            v_landscape_score,
+            v_national_rank,
+            v_ecoregion_rank,
+            v_comp_acres,
+            v_comp_pct,
+            v_selection_score,
+            v_weight_facets,
+            v_weight_veg,
+            v_weight_intact,
+            p_weight_quality,
+            p_weight_complementarity,
+            p_quality_floor_type,
+            p_run_label,
+      v_run_ts,
+v_weight_facet_pct_eco,
+        v_weight_evt_pct_eco
+        );
+    END LOOP;
+END;
+$BODY$;
+
+ALTER FUNCTION public.run_ecoregion_selection(integer, integer, numeric, numeric, character varying, character varying)
+    OWNER TO postgres;

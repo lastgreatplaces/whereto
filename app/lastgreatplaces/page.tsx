@@ -455,7 +455,7 @@ export default function LastGreatPlacesPage() {
           >
             A nationwide portfolio of public lands selected
             for landscape diversity, ecosystem diversity, low human modification,
-            and representation of America’s varied landscape features within and across 68 ecoregions.
+            and representation of America’s varied landscape features across 68 ecoregions.
           </div>
 
           <div
@@ -555,7 +555,7 @@ export default function LastGreatPlacesPage() {
             >
               Click a landscape polygon to view details. Top 500 and Top 1000
               use distinct portfolio-selection rules rather than simply showing
-              the first 500 places on one list.
+              the first 500 places on the Top 1000 list.
             </div>
           )}
         </div>
@@ -580,7 +580,7 @@ export default function LastGreatPlacesPage() {
           aria-label="Show landscapes menu"
           title="Show landscapes menu"
         >
-          Landscapes
+          Last Great Places
         </button>
       )}
 

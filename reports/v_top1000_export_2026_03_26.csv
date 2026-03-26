@@ -1,0 +1,1035 @@
+place_id,name,states,acres,owner_name,designation,ecoregion,ecoregion_rank,national_rank,rank_top500,in_top500,rank_top1000,in_top1000
+900404,Olympic National Park,WA,896742,National Park Service,National Park,Pacific Northwest Coast,1,1,1,TRUE,1,TRUE
+2778,North Cascades National Park,WA,499355,National Park Service,National Park,North Cascades,1,2,2,TRUE,2,TRUE
+2621,Glacier Peak Wilderness - Mt. Baker National Forest,WA,274961,US Forest Service,National Forest,North Cascades,2,3,69,TRUE,69,TRUE
+900221,Grand Canyon National Park,AZ,1157563,National Park Service,National Park / Wilderness Study Area,Colorado Plateau,1,4,3,TRUE,3,TRUE
+900209,Glacier National Park,MT,992628,National Park Service,National Park / Wild and Scenic River / Wilderness Study Area,Canadian Rocky Mountains,1,5,4,TRUE,4,TRUE
+900242,Guadalupe Mountains National Park,TX,87068,National Park Service,National Park,Chihuahuan Desert,1,6,5,TRUE,5,TRUE
+900516,Sequoia National Park,CA,404600,National Park Service,National Park / Wild and Scenic River,Sierra Nevada,1,7,6,TRUE,6,TRUE
+900155,Desolation Canyon - Price Field Office,UT,226146,Bureau of Land Management,"National Public Lands
+ / Wilderness Study Area",Utah High Plateaus,1,8,7,TRUE,7,TRUE
+900597,Ventana Wilderness - Los Padres National Forest,CA,209884,US Forest Service,National Forest / Wild and Scenic River,California Central Coast,1,9,8,TRUE,8,TRUE
+900010,Alpine Lakes Wilderness - Snoqualmie National Forest,WA,163154,US Forest Service,National Forest / Wild and Scenic River,North Cascades,3,10,137,TRUE,137,TRUE
+1499,Great Smoky Mountains National Park,"NC, TN",519597,National Park Service,National Park,Southern Blue Ridge,1,11,9,TRUE,9,TRUE
+900290,Kings Canyon National Park,CA,453324,National Park Service,National Park / Wild and Scenic River,Sierra Nevada,2,12,70,TRUE,70,TRUE
+40,Anza-Borrego Desert State Park,CA,608024,California Department of Parks and Recreation,State Park,Sonoran Desert,1,13,10,TRUE,10,TRUE
+900216,Golden Trout Wilderness - Inyo National Forest,CA,191653,US Forest Service,National Forest / Wild and Scenic River,Sierra Nevada,3,14,204,TRUE,204,TRUE
+900628,Zion National Park,UT,125166,National Park Service,National Park / Wild and Scenic River,Utah High Plateaus,2,15,71,TRUE,71,TRUE
+900034,Berryessa Snow Mountain - Mendocino National Forest,CA,172709,US Forest Service,National Forest,California North Coast,1,16,11,TRUE,11,TRUE
+900149,Death Valley National Park,"CA, NV",3351098,National Park Service,National Park,Mojave Desert,1,17,12,TRUE,12,TRUE
+2628,Mount Baker Wilderness - Mt. Baker National Forest,WA,115839,US Forest Service,National Forest,North Cascades,4,18,205,TRUE,205,TRUE
+2827,Buckhorn Wilderness - Olympic National Forest,WA,36325,US Forest Service,National Forest,Pacific Northwest Coast,2,19,72,TRUE,72,TRUE
+900367,Mount Rainier National Park,WA,231488,National Park Service,National Park,West Cascades,1,20,13,TRUE,13,TRUE
+265,Baxter State Park,ME,175213,Baxter State Park Authority,State Park,Northern Appalachian / Acadian,1,21,14,TRUE,14,TRUE
+60,Painted Bluffs IRA - Apache National Forest,AZ,43056,US Forest Service,Inventoried Roadless Area,Apache Highlands,1,22,15,TRUE,15,TRUE
+900036,Berryessa Snow Mountain National Monument - Ukiah Field Office,CA,94776,Bureau of Land Management,,Great Central Valley,2,23,73,TRUE,73,TRUE
+2630,Mt. Baker Noisy - Diobsud IRA - Mt. Baker National Forest,WA,55118,US Forest Service,Inventoried Roadless Area,North Cascades,5,24,271,TRUE,271,TRUE
+4007,Boundary Waters Canoe Area Wilderness - Superior National Forest,MN,793697,US Forest Service,National Forest,Superior Mixed Forest,1,25,16,TRUE,16,TRUE
+2636,Pasayten Wilderness - Mt. Baker National Forest,WA,111277,US Forest Service,National Forest,North Cascades,6,26,368,TRUE,402,TRUE
+3897,Henry M. Jackson Wilderness - Snoqualmie National Forest,WA,45970,US Forest Service,National Forest,North Cascades,7,27,337,TRUE,337,TRUE
+1909,Upper Burro Creek (East) - Kingman Field Office,AZ,18458,Bureau of Land Management,"National Public Lands
+",Apache Highlands,2,28,74,TRUE,74,TRUE
+900095,Cascade-Siskiyou National Monument - Medford Ashland Field Office,"CA, OR",66457,Bureau of Land Management,National Monument,West Cascades,1,29,17,TRUE,17,TRUE
+1785,John Muir Wilderness - Inyo National Forest,CA,230525,US Forest Service,National Forest,Sierra Nevada,4,30,272,TRUE,272,TRUE
+900256,High Peaks Wilderness,NY,275359,NYS DEC / NYS Department of Environmental Conservation,State Forest,Northern Appalachian / Acadian,2,31,75,TRUE,75,TRUE
+4785,Wind Cave National Park,SD,33824,National Park Service,National Park,Black Hills,1,32,18,TRUE,18,TRUE
+4253,Hellsgate Wilderness - Tonto National Forest,AZ,37452,US Forest Service,National Forest,Apache Highlands,3,33,138,TRUE,138,TRUE
+900490,San Rafael Wilderness - Los Padres National Forest,CA,185493,US Forest Service,National Forest / Wild and Scenic River,California Central Coast,2,34,139,TRUE,139,TRUE
+900626,Yosemite National Park,CA,719844,National Park Service,National Park / Wild and Scenic River,Sierra Nevada,5,35,338,TRUE,338,TRUE
+900135,Crater Lake National Park,OR,177605,National Park Service,National Park / Wilderness Study Area,West Cascades,2,36,76,TRUE,76,TRUE
+900175,Everglades National Park,FL,1534165,National Park Service,National Park,Tropical Florida,1,37,19,TRUE,19,TRUE
+2615,Boulder River Wilderness - Mt. Baker National Forest,WA,48570,US Forest Service,National Forest,North Cascades,8,38,396,TRUE,466,TRUE
+4552,Voyageurs National Park,MN,122355,National Park Service,National Park,Superior Mixed Forest,2,39,77,TRUE,77,TRUE
+1316,Pavant IRA - Fishlake National Forest,UT,42517,US Forest Service,Inventoried Roadless Area,Utah High Plateaus,3,40,206,TRUE,206,TRUE
+835,Citico Creek Wilderness - Cherokee National Forest,"NC, TN",16209,US Forest Service,National Forest,Southern Blue Ridge,2,41,78,TRUE,78,TRUE
+4151,Hoover Wilderness - Toiyabe National Forest,CA,96860,US Forest Service,National Forest,Sierra Nevada,6,42,424,TRUE,530,TRUE
+900224,Grand Staircase-Escalante - Kaiparowits Unit - Paria River District Office,UT,501399,Bureau of Land Management,National Monument,Colorado Plateau,2,43,140,TRUE,140,TRUE
+900572,Tinemaha IRA - Inyo National Forest,CA,21767,US Forest Service,Inventoried Roadless Area,Sierra Nevada,7,44,141,TRUE,141,TRUE
+2539,Desolation Canyon WSA - Moab Field Office,UT,79427,Bureau of Land Management,Wilderness Study Area,Utah High Plateaus,4,45,397,TRUE,467,TRUE
+63,Sunset IRA - Apache National Forest,AZ,28925,US Forest Service,Inventoried Roadless Area,Apache Highlands,4,46,207,TRUE,207,TRUE
+900346,Mazatzal Wilderness - Tonto National Forest,AZ,244822,US Forest Service,National Forest / Wild and Scenic River,Apache Highlands,5,47,369,TRUE,403,TRUE
+3178,Mt. Ellen-Blue Hills WSA - Richfield Field Office,UT,81405,Bureau of Land Management,Wilderness Study Area,Colorado Plateau,3,48,208,TRUE,208,TRUE
+900426,Pinaleno IRA - Coronado National Forest,AZ,122813,US Forest Service,Inventoried Roadless Area,Apache Highlands,6,49,273,TRUE,273,TRUE
+1314,North Pavant IRA - Fishlake National Forest,UT,53215,US Forest Service,Inventoried Roadless Area,Utah High Plateaus,5,50,370,TRUE,404,TRUE
+1432,Gila Wilderness - Gila National Forest,NM,559005,US Forest Service,National Forest,Arizona-New Mexico Mountains,1,51,20,TRUE,20,TRUE
+2540,Floy Canyon WSA - Moab Field Office,UT,72122,Bureau of Land Management,Wilderness Study Area,Utah High Plateaus,6,52,425,TRUE,531,TRUE
+4248,Boulder IRA - Tonto National Forest,AZ,40344,US Forest Service,Inventoried Roadless Area,Apache Highlands,7,53,339,TRUE,339,TRUE
+1150,Dinosaur National Monument,"CO, UT",172956,National Park Service,Wilderness Study Area,Utah-Wyoming Rocky Mountains,1,54,21,TRUE,21,TRUE
+1772,Coyote Southeast IRA - Inyo National Forest,CA,52717,US Forest Service,Inventoried Roadless Area,Sierra Nevada,8,55,371,TRUE,405,TRUE
+900625,Yolla Bolly-Middle Eel Wilderness - Mendocino National Forest,CA,117121,US Forest Service,National Forest / Wild and Scenic River,California North Coast,3,56,142,TRUE,142,TRUE
+900063,Bob Marshall Wilderness - Flathead National Forest,MT,711461,US Forest Service,National Forest / Wild and Scenic River,Canadian Rocky Mountains,2,57,79,TRUE,79,TRUE
+6387,Lake George Wild Forest,NY,34270,NYS Department of Environmental Conservation,State Forest,Northern Appalachian / Acadian,3,58,143,TRUE,143,TRUE
+900039,Big Bend National Park,TX,780608,National Park Service,National Park / Wilderness Study Area,Chihuahuan Desert,2,59,80,TRUE,80,TRUE
+900371,Muddy Creek - Nelson Mt. - Manti-La Sal National Forest,UT,59181,US Forest Service,Inventoried Roadless Area,Utah High Plateaus,7,60,340,TRUE,340,TRUE
+1318,Signal Peak IRA - Fishlake National Forest,UT,30804,US Forest Service,Inventoried Roadless Area,Utah High Plateaus,8,61,274,TRUE,274,TRUE
+1563,West Elk Wilderness - Gunnison National Forest,CO,176416,US Forest Service,National Forest,Southern Rocky Mountains,1,62,22,TRUE,22,TRUE
+900470,Ross Lake National Recreation Area,WA,111248,National Park Service,National Recreation Area,North Cascades,9,63,426,TRUE,532,TRUE
+659,Capitol Reef National Park,UT,243553,National Park Service,National Park,Colorado Plateau,4,64,275,TRUE,275,TRUE
+3180,Mt. Pennell WSA - Richfield Field Office,UT,76946,Bureau of Land Management,Wilderness Study Area,Colorado Plateau,5,65,341,TRUE,341,TRUE
+900624,Yellowstone National Park,"ID, MT, WY",2182100,National Park Service,National Park / Wild and Scenic River / Wilderness Study Area,Utah-Wyoming Rocky Mountains,2,66,81,TRUE,81,TRUE
+2622,Henry M. Jackson Wilderness - Mt. Baker National Forest,WA,27680,US Forest Service,National Forest,North Cascades,10,67,448,TRUE,594,TRUE
+5817,Shenandoah National Park,VA,113591,US National Park Service,National Park,Central Appalachian Forest,1,68,23,TRUE,23,TRUE
+322,Big Cypress National Preserve,FL,681487,National Park Service,Conservation Area,Tropical Florida,2,69,82,TRUE,82,TRUE
+900220,Grand Canyon-Parashant National Monument,"AZ, NV",806473,Bureau of Land Management,National Monument,Mojave Desert,6,70,372,TRUE,406,TRUE
+900475,Saguaro National Park,AZ,86599,National Park Service,National Park,Sonoran Desert,8,71,398,TRUE,468,TRUE
+900154,Desert National Wildlife Range,NV,1507132,U.S. Fish & Wildlife Service,National Wildlife Refuge / Wilderness Study Area,Mojave Desert,2,72,144,TRUE,144,TRUE
+3123,Turtle Canyon - Price Field Office,UT,29033,Bureau of Land Management,"National Public Lands
+",Utah High Plateaus,9,73,449,TRUE,595,TRUE
+2677,Southern Nantahala Wilderness - Nantahala National Forest,"GA, NC",11682,US Forest Service,National Forest,Southern Blue Ridge,3,74,145,TRUE,145,TRUE
+900160,Domeland Wilderness - Sequoia National Forest,CA,91848,US Forest Service,National Forest / Wild and Scenic River,Sierra Nevada,9,75,399,TRUE,469,TRUE
+900307,Lake Mead National Recreation Area,"AZ, NV",1281473,National Park Service,National Recreation Area,Mojave Desert,7,76,83,TRUE,83,TRUE
+900029,Bears Ears - Indian Creek Unit - Monticello Field Office,UT,69592,Bureau of Land Management,National Monument,Colorado Plateau,8,77,427,TRUE,533,TRUE
+2634,Noisy-Diobsud Wilderness - Mt. Baker National Forest,WA,14161,US Forest Service,National Forest,North Cascades,11,78,,FALSE,658,TRUE
+900166,Eagle Cap Wilderness - Whitman National Forest,OR,134450,US Forest Service,National Forest / Wild and Scenic River,Middle Rockies - Blue Mountains,1,79,24,TRUE,24,TRUE
+4154,Iceberg - Mill Creek IRA - Toiyabe National Forest,CA,26766,US Forest Service,Inventoried Roadless Area,Sierra Nevada,10,80,450,TRUE,596,TRUE
+900564,Three Sisters Wilderness - Deschutes National Forest,OR,94052,US Forest Service,National Forest / Wild and Scenic River,West Cascades,3,81,146,TRUE,146,TRUE
+5603,Morning Star Natural Resources Conservation Area,WA,32746,Washington State Department of Natural Resources (WADNR),State Conservation Area,North Cascades,12,82,,FALSE,710,TRUE
+1075,Custer State Park,SD,70409,State Park & Recreation,State Park,Black Hills,2,83,147,TRUE,147,TRUE
+900467,Rocky Mountain National Park,CO,257778,National Park Service,National Park / Wild and Scenic River,Southern Rocky Mountains,2,84,276,TRUE,276,TRUE
+900084,Cabeza Prieta National Wildlife Refuge,AZ,853879,U.S. Fish & Wildlife Service,National Wildlife Refuge,Sonoran Desert,2,85,84,TRUE,84,TRUE
+900598,Vermilion Cliffs National Monument,AZ,279624,Bureau of Land Management,National Monument,Colorado Plateau,9,86,470,TRUE,659,TRUE
+1155,Boulder Mtn. / Boulder Top / Deer Lake IRA - Dixie National Forest,UT,108311,US Forest Service,Inventoried Roadless Area,Utah High Plateaus,10,87,149,TRUE,149,TRUE
+2819,Pasayten Wilderness - Okanogan National Forest,WA,417972,US Forest Service,National Forest,Okanagan,1,88,25,TRUE,25,TRUE
+900092,Carlsbad Caverns National Park,NM,45823,National Park Service,National Park,Chihuahuan Desert,2,89,148,TRUE,148,TRUE
+1758,Ansel Adams Wilderness - Inyo National Forest,CA,77975,US Forest Service,National Forest,Sierra Nevada,11,90,,FALSE,711,TRUE
+900286,Katahdin Woods and Waters National Monument,ME,68707,US Department of Interior / US National Park Service,,Northern Appalachian / Acadian,4,91,209,TRUE,209,TRUE
+654,Canyonlands National Park,UT,334098,National Park Service,National Park,Colorado Plateau,10,92,451,TRUE,597,TRUE
+6499,West Canada Lake Wilderness,NY,174316,NYS Department of Environmental Conservation,State Forest,Northern Appalachian / Acadian,5,94,277,TRUE,277,TRUE
+1576,Agua Fria National Monument,AZ,70880,Bureau of Land Management,National Monument,Apache Highlands,9,95,428,TRUE,534,TRUE
+1797,South Sierra Wilderness - Inyo National Forest,CA,29424,US Forest Service,National Forest,Sierra Nevada,12,96,,FALSE,793,TRUE
+900031,Bears Ears - Shash Jáa Unit - Monticello Field Office,UT,97065,Bureau of Land Management,National Monument,Colorado Plateau,11,97,,FALSE,712,TRUE
+900234,Great Sand Dunes National Park,CO,89233,National Park Service,National Park,Southern Rocky Mountains,3,98,85,TRUE,85,TRUE
+900225,Grand Teton National Park,WY,261473,National Park Service,National Park / Wilderness Study Area,Utah-Wyoming Rocky Mountains,3,99,150,TRUE,150,TRUE
+1017,Rincon Mountain Wilderness - Coronado National Forest,AZ,36907,US Forest Service,National Forest,Apache Highlands,10,100,452,TRUE,598,TRUE
+2294,Fox Mountain IRA - Los Padres National Forest,CA,51716,US Forest Service,Inventoried Roadless Area,California Central Coast,3,101,210,TRUE,210,TRUE
+900548,Steens Mountain Wilderness - Burns Andrews Field Office,OR,155575,Bureau of Land Management,"National Public Lands
+ / Wild and Scenic River",Columbia Plateau,1,102,26,TRUE,26,TRUE
+1020,Santa Teresa Wilderness - Coronado National Forest,AZ,26898,US Forest Service,National Forest,Apache Highlands,11,103,,FALSE,660,TRUE
+398,Black Elk Wilderness - Black Hills National Forest,SD,12547,US Forest Service,National Forest,Black Hills,3,105,86,TRUE,86,TRUE
+2541,Flume Canyon WSA - Moab Field Office,UT,42304,Bureau of Land Management,Wilderness Study Area,Utah High Plateaus,11,106,,FALSE,759,TRUE
+900543,Split Rock Wild Forest,NY,3067,NYS DEC / NYS Department of Environmental Conservation,State Forest,St. Lawrence - Champlain Valley,1,107,27,TRUE,27,TRUE
+900233,Great Bear Wilderness - Flathead National Forest,MT,284106,US Forest Service,National Forest / Wild and Scenic River,Canadian Rocky Mountains,3,108,151,TRUE,151,TRUE
+900217,Golden Trout Wilderness - Sequoia National Forest,CA,107069,US Forest Service,National Forest / Wild and Scenic River,Sierra Nevada,13,109,,FALSE,826,TRUE
+4772,Three Sisters Wilderness - Willamette National Forest,OR,185313,US Forest Service,National Forest,West Cascades,4,110,211,TRUE,211,TRUE
+4128,Carson-Iceberg Wilderness - Toiyabe National Forest,CA,77784,US Forest Service,National Forest,Sierra Nevada,14,111,,FALSE,760,TRUE
+900208,Giant Sequoia - Sequoia National Forest,CA,222217,US Forest Service,National Forest,Sierra Nevada,15,112,,FALSE,661,TRUE
+900223,Grand Staircase-Escalante - Grand Staircase Unit - Paria River District Office,UT,200621,Bureau of Land Management,National Monument,Colorado Plateau,12,113,,FALSE,859,TRUE
+4366,Northern California Chapparral - Ukiah Field Office,CA,10367,Bureau of Land Management,,California North Coast,4,114,212,TRUE,212,TRUE
+3800,Ansel Adams Wilderness - Sierra National Forest,CA,152080,US Forest Service,National Forest,Sierra Nevada,16,115,,FALSE,860,TRUE
+2674,Joyce Kilmer-Slickrock Wilderness - Nantahala National Forest,"NC, TN",13581,US Forest Service,National Forest,Southern Blue Ridge,4,116,342,TRUE,342,TRUE
+3045,Linville Gorge Wilderness - Pisgah National Forest,NC,11537,US Forest Service,National Forest,Southern Blue Ridge,5,117,213,TRUE,213,TRUE
+3608,Pecos Wilderness - Santa Fe National Forest,NM,192120,US Forest Service,National Forest,Southern Rocky Mountains,4,118,343,TRUE,343,TRUE
+2676,Snowbird - Nantahala National Forest,"NC, TN",8379,US Forest Service,,Southern Blue Ridge,6,119,373,TRUE,407,TRUE
+1159,Casto Bluff IRA - Dixie National Forest,UT,86013,US Forest Service,Inventoried Roadless Area,Utah High Plateaus,12,120,,FALSE,662,TRUE
+900054,Black Canyon of the Gunnison National Park,CO,27183,National Park Service,National Park,Southern Rocky Mountains,5,123,214,TRUE,214,TRUE
+900222,Grand Staircase-Escalante - Escalante Canyons Unit - Paria River District Office,UT,219910,Bureau of Land Management,National Monument,Colorado Plateau,13,124,,FALSE,761,TRUE
+1900,Burro Creek Riparian & Cultural ACEC - Kingman Field Office,AZ,22256,Bureau of Land Management,Area of Critical Environmental Concern,Apache Highlands,12,125,,FALSE,794,TRUE
+1377,Absaroka-Beartooth Wilderness - Gallatin National Forest,"MT, WY",579125,US Forest Service,National Forest,Utah-Wyoming Rocky Mountains,4,126,344,TRUE,344,TRUE
+2810,Lake Chelan-Sawtooth Wilderness - Okanogan National Forest,WA,96235,US Forest Service,National Forest,Okanagan,2,127,87,TRUE,87,TRUE
+6443,Siamese Ponds Wilderness,NY,114090,NYS Department of Environmental Conservation,State Forest,Northern Appalachian / Acadian,6,129,374,TRUE,408,TRUE
+3327,Sky Lakes Wilderness - Rogue River National Forest,OR,69341,US Forest Service,National Forest,West Cascades,5,130,278,TRUE,278,TRUE
+118,Arches National Park,UT,76940,National Park Service,National Park,Colorado Plateau,14,131,,FALSE,795,TRUE
+900213,Gold Butte Part A ACEC - Las Vegas Field Office,NV,179397,Bureau of Land Management,Area of Critical Environmental Concern,Mojave Desert,3,132,88,TRUE,88,TRUE
+900100,Charles M. Russell National Wildlife Refuge,MT,343798,U.S. Fish & Wildlife Service,National Wildlife Refuge / Wilderness Study Area,Northern Great Plains Steppe,1,133,28,TRUE,28,TRUE
+1803,Wheeler Ridge - Inyo National Forest,CA,13058,US Forest Service,,Sierra Nevada,17,134,,FALSE,891,TRUE
+3179,Mt. Hillers WSA - Richfield Field Office,UT,19268,Bureau of Land Management,Wilderness Study Area,Colorado Plateau,15,135,,FALSE,827,TRUE
+1003,Galiuro Wilderness - Coronado National Forest,AZ,77314,US Forest Service,National Forest,Apache Highlands,13,136,,FALSE,892,TRUE
+3576,Weminuche Wilderness - San Juan National Forest,CO,328624,US Forest Service,National Forest,Southern Rocky Mountains,6,137,400,TRUE,470,TRUE
+900093,Carrizo Plain National Monument - Bakersfield Field Office,CA,211945,Bureau of Land Management,National Monument,California Central Coast,4,138,89,TRUE,89,TRUE
+1837,Saddle Mountain Wilderness - Kaibab National Forest,AZ,40806,US Forest Service,National Forest,Colorado Plateau,16,139,,FALSE,471,TRUE
+3979,Emigrant Wilderness - Stanislaus National Forest,CA,112536,US Forest Service,National Forest,Sierra Nevada,18,140,,FALSE,919,TRUE
+3007,Lost Creek Wilderness - Pike National Forest,CO,114725,US Forest Service,National Forest,Southern Rocky Mountains,7,141,375,TRUE,409,TRUE
+1554,Raggeds Wilderness - Gunnison National Forest,CO,48147,US Forest Service,National Forest,Southern Rocky Mountains,8,142,453,TRUE,599,TRUE
+860,Apache Kid Wilderness - Cibola National Forest,NM,44509,US Forest Service,National Forest,Arizona-New Mexico Mountains,3,143,279,TRUE,279,TRUE
+1001,Chiricahua Wilderness - Coronado National Forest,AZ,86640,US Forest Service,National Forest,Apache Highlands,14,144,,FALSE,713,TRUE
+5737,Pharaoh Lake Wilderness,NY,46218,NYS Department of Environmental Conservation,Nature,Northern Appalachian / Acadian,7,146,401,TRUE,472,TRUE
+1008,Mt. Wrightson Wilderness - Coronado National Forest,AZ,25139,US Forest Service,National Forest,Apache Highlands,15,147,,FALSE,828,TRUE
+900165,Eagle Cap Wilderness - Wallowa National Forest,OR,206466,US Forest Service,National Forest / Wild and Scenic River,Middle Rockies - Blue Mountains,2,148,280,TRUE,280,TRUE
+900523,Sheldon National Wildlife Refuge,"NV, OR",566036,U.S. Fish & Wildlife Service,National Wildlife Refuge / Wilderness Study Area,Columbia Plateau,2,149,152,TRUE,152,TRUE
+900195,Frank Church-River Of No Return Wilderness - Payette National Forest,ID,783681,US Forest Service,National Forest / Wild and Scenic River,Middle Rockies - Blue Mountains,3,150,215,TRUE,215,TRUE
+417,Blue Ridge Parkway,NC,49150,National Park Service,,Southern Blue Ridge,7,151,281,TRUE,281,TRUE
+2320,Silver Peak Wilderness - Los Padres National Forest,CA,31232,US Forest Service,National Forest,California Central Coast,5,152,402,TRUE,473,TRUE
+900311,Lassen Volcanic National Park,CA,106736,National Park Service,National Park,Klamath Mountains,2,153,153,TRUE,153,TRUE
+2840,The Brothers Wilderness - Olympic National Forest,WA,16152,US Forest Service,National Forest,Pacific Northwest Coast,3,154,216,TRUE,216,TRUE
+3571,South San Juan Wilderness - San Juan National Forest,CO,71803,US Forest Service,National Forest,Southern Rocky Mountains,9,155,471,TRUE,663,TRUE
+3713,Mt. Shasta Wilderness - Shasta National Forest,CA,35164,US Forest Service,National Forest,Klamath Mountains,3,156,90,TRUE,90,TRUE
+3115,Nine Mile Canyon ACEC - Price Field Office,UT,23622,Bureau of Land Management,Area of Critical Environmental Concern,Utah High Plateaus,13,157,,FALSE,796,TRUE
+900002,Absaroka-Beartooth Wilderness - Custer National Forest,"MT, WY",329177,US Forest Service,National Forest / Wild and Scenic River,Utah-Wyoming Rocky Mountains,5,158,217,TRUE,217,TRUE
+1234,Sawtooth Mountains Wilderness - El Centro Field Office,CA,33701,Bureau of Land Management,"National Public Lands
+",California South Coast,1,159,29,TRUE,29,TRUE
+1433,Hell Hole - Gila National Forest,"AZ, NM",19528,US Forest Service,,Apache Highlands,16,161,,FALSE,861,TRUE
+4265,Sierra Ancha Wilderness - Tonto National Forest,AZ,20220,US Forest Service,National Forest,Apache Highlands,17,163,,FALSE,920,TRUE
+900356,Mojave National Preserve - Mojave National Preserve,"CA, NV",1429058,National Park Service & National Park Service,,Mojave Desert,4,164,282,TRUE,282,TRUE
+7491,Grafton Forest Wilderness Preserve,ME,6046,Northeast Wilderness Trust,Nature,Northern Appalachian / Acadian,8,165,472,TRUE,664,TRUE
+5868,Blue Ridge Wilderness,NY,47319,NYS Department of Environmental Conservation,State Forest,Northern Appalachian / Acadian,9,166,483,TRUE,714,TRUE
+528,Bryce Canyon National Park,UT,35915,National Park Service,National Park,Colorado Plateau,17,167,,FALSE,893,TRUE
+3700,Sevilleta National Wildlife Refuge,NM,227456,U.S. Fish & Wildlife Service,National Wildlife Refuge,Arizona-New Mexico Mountains,4,168,91,TRUE,91,TRUE
+4381,North Fork John Day Wilderness - Umatilla National Forest,OR,104337,US Forest Service,National Forest,Middle Rockies - Blue Mountains,4,169,154,TRUE,154,TRUE
+2497,Elk Creek - Mendocino National Forest,CA,19463,US Forest Service,,California North Coast,5,170,345,TRUE,345,TRUE
+900251,Hells Canyon NRA - Nezperce National Forest,ID,72832,US Forest Service,National Recreation Area,Middle Rockies - Blue Mountains,5,171,376,TRUE,410,TRUE
+1327,Bmss Ra 1485 IRA - Flathead National Forest,MT,308591,US Forest Service,Inventoried Roadless Area,Canadian Rocky Mountains,4,173,218,TRUE,218,TRUE
+5721,Moose River Plains Wild Forest,NY,67022,NYS Department of Environmental Conservation,Nature,Northern Appalachian / Acadian,10,174,429,TRUE,535,TRUE
+900272,Isle Royale National Park,MI,506039,National Park Service,National Park,Great Lakes,1,175,30,TRUE,30,TRUE
+1617,Henry W. Coe State Park,CA,87063,California Department of Parks and Recreation,State Park,California Central Coast,6,176,346,TRUE,346,TRUE
+6502,Little Moose Wilderness,NY,12293,NYS Department of Environmental Conservation,Nature,Northern Appalachian / Acadian,11,178,,FALSE,762,TRUE
+1295,Circleville Mountain IRA - Fishlake National Forest,UT,24142,US Forest Service,Inventoried Roadless Area,Utah High Plateaus,15,180,,FALSE,862,TRUE
+1470,Roan and Carr Creeks ACEC - Grand Junction Field Office,CO,33065,Bureau of Land Management,Area of Critical Environmental Concern,Utah High Plateaus,16,181,,FALSE,894,TRUE
+900407,Organ Mountains - Desert Peaks National Monument - Las Cruces District Office,NM,424418,Bureau of Land Management,National Monument,Chihuahuan Desert,3,182,219,TRUE,219,TRUE
+377,Bitter Creek National Wildlife Refuge,CA,14774,U.S. Fish & Wildlife Service,National Wildlife Refuge,California Central Coast,7,183,283,TRUE,283,TRUE
+2292,Dick Smith Wilderness - Los Padres National Forest,CA,70985,US Forest Service,National Forest,California Central Coast,8,184,430,TRUE,536,TRUE
+900333,Lower San Francisco IRA - Gila National Forest,"AZ, NM",24993,US Forest Service,Inventoried Roadless Area,Apache Highlands,19,185,,FALSE,763,TRUE
+1323,Tushar Mountain IRA - Fishlake National Forest,UT,38250,US Forest Service,Inventoried Roadless Area,Utah High Plateaus,17,186,,FALSE,975,TRUE
+5645,Hoffman Notch Wilderness,NY,38482,NYS Department of Environmental Conservation,Nature,Northern Appalachian / Acadian,12,187,,FALSE,895,TRUE
+874,Withington Wilderness - Cibola National Forest,NM,18827,US Forest Service,National Forest,Arizona-New Mexico Mountains,5,188,473,TRUE,665,TRUE
+1771,Coyote North IRA - Inyo National Forest,CA,11902,US Forest Service,Inventoried Roadless Area,Sierra Nevada,20,189,,FALSE,947,TRUE
+4666,Eagles Nest Wilderness - White River National Forest,CO,135080,US Forest Service,National Forest,Southern Rocky Mountains,10,190,,FALSE,715,TRUE
+1178,Long Neck Mesa / Steep Creek / Oak Creek - Steep Creek / Oak IRA - Dixie National Forest,UT,55470,US Forest Service,Inventoried Roadless Area,Utah High Plateaus,19,192,,FALSE,921,TRUE
+5687,Sun River Wildlife Management Area,MT,12047,"Montana Fish, Wildlife and Parks",State Conservation Area,Fescue-Mixed Grass Prairie,1,193,31,TRUE,31,TRUE
+900539,South Pass Historical Landscape ACEC - Lander Field Office,WY,117780,Bureau of Land Management,Area of Critical Environmental Concern,Wyoming Basins,1,194,32,TRUE,32,TRUE
+900606,Wenaha-Tucannon Wilderness - Umatilla National Forest,"OR, WA",168950,US Forest Service,National Forest / Wild and Scenic River,Middle Rockies - Blue Mountains,6,195,347,TRUE,347,TRUE
+900390,NPS Wilderness Area,VA,23173,US National Park Service,,Central Appalachian Forest,2,196,155,TRUE,155,TRUE
+3586,Trickle Mountain ACEC - San Luis Valley Field Office,CO,38812,Bureau of Land Management,Area of Critical Environmental Concern,Southern Rocky Mountains,11,198,156,TRUE,156,TRUE
+3768,Fitzpatrick Wilderness - Shoshone National Forest,WY,198900,US Forest Service,National Forest,Utah-Wyoming Rocky Mountains,6,200,431,TRUE,537,TRUE
+3084,Castle Creek Wilderness - Prescott National Forest,AZ,25457,US Forest Service,National Forest,Apache Highlands,20,201,,FALSE,948,TRUE
+56,Mitchell Peak IRA - Apache National Forest,AZ,35381,US Forest Service,Inventoried Roadless Area,Apache Highlands,21,202,,FALSE,976,TRUE
+1149,Dinosaur National Monument,"CO, UT",23377,National Park Service,,Utah-Wyoming Rocky Mountains,7,204,403,TRUE,474,TRUE
+714,Cedar Breaks National Monument,UT,6116,National Park Service,,Utah High Plateaus,21,205,,FALSE,716,TRUE
+5632,Lake George Wild Forest,NY,20582,NYS Department of Environmental Conservation,State Forest,Northern Appalachian / Acadian,13,206,,FALSE,863,TRUE
+475,Bridger Wilderness - Bridger National Forest,WY,423690,US Forest Service,National Forest,Utah-Wyoming Rocky Mountains,8,207,377,TRUE,411,TRUE
+6211,Wilcox Lake Wild Forest,NY,112565,NYS Department of Environmental Conservation,State Forest,Northern Appalachian / Acadian,14,209,,FALSE,949,TRUE
+2282,Black Butte - Los Padres National Forest,CA,2501,US Forest Service,,California Central Coast,9,210,378,TRUE,412,TRUE
+3168,Redwood National Park,CA,68687,National Park Service,National Park,California North Coast,6,212,284,TRUE,284,TRUE
+1602,Gates Of The Mountains Wilderness - Helena National Forest,MT,28424,US Forest Service,National Forest,Middle Rockies - Blue Mountains,7,214,92,TRUE,92,TRUE
+4279,McKenna Peak WSA - Tres Rios Field Office,CO,20562,Bureau of Land Management,Wilderness Study Area,Southern Rocky Mountains,12,216,,FALSE,538,TRUE
+4250,Four Peaks Wilderness - Tonto National Forest,AZ,57580,US Forest Service,National Forest,Sonoran Desert,3,217,157,TRUE,157,TRUE
+137,Paiute Wilderness - AZ Strip Field Office,AZ,51853,Bureau of Land Management,"National Public Lands
+",Mojave Desert,5,218,220,TRUE,220,TRUE
+5648,Giant Mountain Wilderness,NY,23377,NYS Department of Environmental Conservation,State Forest,Northern Appalachian / Acadian,15,220,,FALSE,797,TRUE
+2370,Strawberry Mountain Wilderness - Malheur National Forest,OR,68670,US Forest Service,National Forest,Middle Rockies - Blue Mountains,8,222,454,TRUE,600,TRUE
+900186,Fort Niobrara National Wildlife Refuge,NE,17572,U.S. Fish & Wildlife Service,National Wildlife Refuge,Dakota Mixed-Grass Prairie,1,223,33,TRUE,33,TRUE
+190,Domeland Wilderness - Bakersfield Field Office,CA,37358,Bureau of Land Management,"National Public Lands
+",Sierra Nevada,24,224,,FALSE,977,TRUE
+1173,Hog Ranch IRA - Dixie National Forest,UT,17126,US Forest Service,Inventoried Roadless Area,Utah High Plateaus,23,225,,FALSE,950,TRUE
+4441,Uncompahgre Wilderness - Uncompahgre National Forest,CO,98811,US Forest Service,National Forest,Southern Rocky Mountains,14,226,,FALSE,829,TRUE
+900004,Adirondack Forest Preserve - Boreas Ponds,NY,20078,NYS DEC,State Forest,Northern Appalachian / Acadian,16,227,,FALSE,922,TRUE
+3293,Greater Red Creek ACEC (Currant Creek Watershed) - Rock Springs Field Office,WY,21170,Bureau of Land Management,Area of Critical Environmental Concern,Wyoming Basins,2,228,158,TRUE,158,TRUE
+3259,Weminuche Wilderness - Rio Grande National Forest,CO,168322,US Forest Service,National Forest,Southern Rocky Mountains,15,229,,FALSE,951,TRUE
+900235,Greater Red Creek ACEC (Red Creek Watershed) - Rock Springs Field Office,"UT, WY",55905,Bureau of Land Management,Area of Critical Environmental Concern,Utah-Wyoming Rocky Mountains,9,230,285,TRUE,285,TRUE
+1419,Aldo Leopold Wilderness - Gila National Forest,NM,203524,US Forest Service,National Forest,Arizona-New Mexico Mountains,6,231,404,TRUE,475,TRUE
+2747,Gospel-Hump Wilderness - Nezperce National Forest,ID,195793,US Forest Service,National Forest,Middle Rockies - Blue Mountains,9,232,432,TRUE,539,TRUE
+3046,Lost Cove - Pisgah National Forest,NC,5685,US Forest Service,,Southern Blue Ridge,8,234,405,TRUE,476,TRUE
+1401,Goat Rocks Wilderness - Gifford Pinchot National Forest,WA,66713,US Forest Service,National Forest,West Cascades,6,235,455,TRUE,601,TRUE
+2826,"Buckhorn - National Scenic, Botanical Area - Olympic National Forest",WA,3665,US Forest Service,National Forest,Pacific Northwest Coast,4,236,159,TRUE,159,TRUE
+900280,Joshua Tree National Park,CA,777307,National Park Service,National Park,Mojave Desert,6,240,406,TRUE,477,TRUE
+2650,Mark O. Hatfield Wilderness - Mt. Hood National Forest,OR,39492,US Forest Service,National Forest,West Cascades,7,241,407,TRUE,478,TRUE
+4673,Flat Tops Wilderness - White River National Forest,CO,192661,US Forest Service,National Forest,Southern Rocky Mountains,16,244,,FALSE,978,TRUE
+3937,Deep Creek North Wilderness - St. George Field Office,UT,3948,Bureau of Land Management,"National Public Lands
+",Utah High Plateaus,26,246,,FALSE,830,TRUE
+2212,White Mountain Wilderness - Lincoln National Forest,NM,46940,US Forest Service,National Forest,Arizona-New Mexico Mountains,7,251,492,TRUE,764,TRUE
+900561,Teton Wilderness - Teton National Forest,WY,578951,US Forest Service,National Forest / Wild and Scenic River,Utah-Wyoming Rocky Mountains,10,255,456,TRUE,602,TRUE
+1121,Mount Jefferson Wilderness - Deschutes National Forest,OR,32204,US Forest Service,National Forest,West Cascades,8,256,379,TRUE,413,TRUE
+2856,Wild and Scenic Rivers - Recreational - Ottawa National Forest,"MI, WI",34958,US Forest Service,Wild and Scenic River,Superior Mixed Forest,3,257,221,TRUE,221,TRUE
+900182,Five Ponds Wilderness,NY,128996,NYS DEC / NYS Department of Environmental Conservation,State Forest,Northern Appalachian / Acadian,20,258,,FALSE,831,TRUE
+900507,Sawtooth IRA - Okanogan National Forest,WA,90621,US Forest Service,Inventoried Roadless Area,Okanagan,3,259,222,TRUE,222,TRUE
+900349,Mesa Verde National Park,CO,50235,National Park Service,National Park,Colorado Plateau,18,260,,FALSE,979,TRUE
+813,Tray Mountain Wilderness - Chattahoochee National Forest,GA,7832,US Forest Service,National Forest,Southern Blue Ridge,9,261,433,TRUE,540,TRUE
+900494,Santa Rosa And San Jacinto - San Bernardino National Forest,CA,25130,US Forest Service,National Forest,California South Coast,2,262,160,TRUE,160,TRUE
+2791,Black Canyon Wilderness - Ochoco National Forest,OR,12955,US Forest Service,National Forest,Middle Rockies - Blue Mountains,10,263,408,TRUE,479,TRUE
+900375,Neola Wildlife Management Area - Monongahela NF,"VA, WV",72677,USDA Forest Service,National Forest,Central Appalachian Forest,3,264,223,TRUE,223,TRUE
+900429,Pinnacles National Park,CA,26181,National Park Service,National Park,California Central Coast,10,265,457,TRUE,603,TRUE
+900591,Upper Missouri River Break National Monument,MT,268451,Bureau of Land Management,National Monument / Wild and Scenic River,Northern Great Plains Steppe,2,266,224,TRUE,224,TRUE
+558,Pueblo Mountains WSA - Burns Andrews Field Office,"NV, OR",69632,Bureau of Land Management,Wilderness Study Area,Columbia Plateau,3,268,286,TRUE,286,TRUE
+900376,New River Gorge National Park and Preserve,WV,70999,US National Park Service,National Park,Cumberlands And Southern Ridge And Valley,1,270,34,TRUE,34,TRUE
+4060,Palisades WSA - Targhee National Forest,"ID, WY",153329,US Forest Service,Wilderness Study Area,Utah-Wyoming Rocky Mountains,11,274,,FALSE,832,TRUE
+1494,Great Basin National Park,NV,76983,National Park Service,National Park,Great Basin,1,275,35,TRUE,35,TRUE
+1424,Contiguous To Gila Wilderness IRA - Gila National Forest,NM,65066,US Forest Service,Inventoried Roadless Area,Arizona-New Mexico Mountains,8,276,496,TRUE,798,TRUE
+4036,Tamarac National Wildlife Refuge,MN,41052,U.S. Fish & Wildlife Service,National Wildlife Refuge,Superior Mixed Forest,4,277,161,TRUE,161,TRUE
+2467,Huston Park Wilderness - Medicine Bow National Forest,WY,30988,US Forest Service,National Forest,Southern Rocky Mountains,18,278,,FALSE,896,TRUE
+2314,Santa Cruz IRA - Los Padres National Forest,CA,21060,US Forest Service,Inventoried Roadless Area,California Central Coast,11,282,,FALSE,666,TRUE
+3265,Cebolla Wilderness - Rio Puerco Field Office,NM,61379,Bureau of Land Management,"National Public Lands
+",Arizona-New Mexico Mountains,9,283,434,TRUE,541,TRUE
+1335,Mission Mountains Wilderness - Flathead National Forest,MT,74481,US Forest Service,National Forest,Canadian Rocky Mountains,5,287,287,TRUE,287,TRUE
+2304,Machesna Mountain Wilderness - Los Padres National Forest,CA,16576,US Forest Service,National Forest,California Central Coast,12,288,,FALSE,717,TRUE
+4540,Browns Park ACEC - Vernal Field Office,UT,15883,Bureau of Land Management,Area of Critical Environmental Concern,Wyoming Basins,3,290,93,TRUE,93,TRUE
+1389,North Absaroka IRA - Gallatin National Forest,MT,150988,US Forest Service,Inventoried Roadless Area,Utah-Wyoming Rocky Mountains,12,291,,FALSE,799,TRUE
+3193,Inyo Mountains Wilderness - Ridgecrest Field Office,CA,77955,Bureau of Land Management,"National Public Lands
+",Great Basin,2,292,225,TRUE,225,TRUE
+900121,Comanche Peak Wilderness - Roosevelt National Forest,CO,53973,US Forest Service,National Forest / Wild and Scenic River,Southern Rocky Mountains,21,293,,FALSE,765,TRUE
+900218,Goshen and Little North Mountain Wildlife Management Area,VA,32865,VA Dept of Wildlife Resources,Wildlife Management Area,Central Appalachian Forest,4,294,288,TRUE,288,TRUE
+1694,Jarbidge Wilderness - Humboldt National Forest,NV,105742,US Forest Service,National Forest,Columbia Plateau,4,295,226,TRUE,226,TRUE
+3271,Ignacio Chavez WSA - Rio Puerco Field Office,NM,32187,Bureau of Land Management,Wilderness Study Area,Arizona-New Mexico Mountains,10,300,,FALSE,414,TRUE
+900517,Sespe Wilderness - Los Padres National Forest,CA,211366,US Forest Service,National Forest / Wild and Scenic River,California South Coast,3,303,289,TRUE,289,TRUE
+1130,West - South Bachelor IRA - Deschutes National Forest,OR,24929,US Forest Service,Inventoried Roadless Area,West Cascades,9,304,348,TRUE,348,TRUE
+3296,Greater Red Creek ACEC (Sage Creek Watershed) - Rock Springs Field Office,WY,39737,Bureau of Land Management,Area of Critical Environmental Concern,Wyoming Basins,4,305,349,TRUE,349,TRUE
+3773,North Absaroka Wilderness - Shoshone National Forest,WY,345933,US Forest Service,National Forest,Utah-Wyoming Rocky Mountains,13,308,,FALSE,718,TRUE
+4619,Glacier Peak Wilderness - Wenatchee National Forest,WA,288906,US Forest Service,National Forest,East Cascades - Modoc Plateau,1,313,36,TRUE,36,TRUE
+900136,Craters Of The Moon National Monument,ID,455066,National Park Service,National Monument,Columbia Plateau,5,314,94,TRUE,94,TRUE
+117,Yuki Wilderness - Arcata Field Office,CA,15501,Bureau of Land Management,National Public Lands,California North Coast,7,317,409,TRUE,480,TRUE
+805,Mark Trail Wilderness - Chattahoochee National Forest,GA,16611,US Forest Service,National Forest,Southern Blue Ridge,10,319,458,TRUE,604,TRUE
+4538,Valles Caldera National Preserve,NM,87626,National Park Service,Conservation Area,Southern Rocky Mountains,24,320,,FALSE,800,TRUE
+6,Allagash Wilderness Waterway State Park,ME,20714,Maine Bureau of Parks and Lands,State Park,Northern Appalachian / Acadian,27,324,,FALSE,605,TRUE
+900252,Hells Canyon NRA - Wallowa National Forest,"ID, OR, WA",209126,US Forest Service,National Recreation Area / Wild and Scenic River,Middle Rockies - Blue Mountains,11,327,,FALSE,667,TRUE
+900619,William C. Whitney Wilderness,NY,18305,NYS DEC / NYS Department of Environmental Conservation,State Forest,Northern Appalachian / Acadian,29,328,,FALSE,350,TRUE
+2286,Chumash Wilderness - Los Padres National Forest,CA,36229,US Forest Service,National Forest,California South Coast,4,333,350,TRUE,351,TRUE
+2847,Organ Pipe Cactus Wilderness,AZ,307738,National Park Service,,Sonoran Desert,4,335,351,TRUE,352,TRUE
+2837,Quilcene IRA - Olympic National Forest,WA,8813,US Forest Service,Inventoried Roadless Area,Pacific Northwest Coast,5,344,290,TRUE,290,TRUE
+3793,Washakie Wilderness - Shoshone National Forest,WY,686755,US Forest Service,National Forest,Utah-Wyoming Rocky Mountains,14,348,,FALSE,897,TRUE
+900538,South Beartooth Highway IRA - Shoshone National Forest,"MT, WY",104478,US Forest Service,Inventoried Roadless Area / Wild and Scenic River,Utah-Wyoming Rocky Mountains,15,349,,FALSE,923,TRUE
+900240,Gros Ventre Wilderness - Teton National Forest,WY,250704,US Forest Service,National Forest / Wild and Scenic River,Utah-Wyoming Rocky Mountains,16,351,,FALSE,952,TRUE
+7450,Slide Mountain Wilderness,NY,50721,NYS Department of Environmental Conservation,Nature,High Allegheny Plateau,1,352,37,TRUE,37,TRUE
+859,Apache Kid Contiguous IRA - Cibola National Forest,NM,67115,US Forest Service,Inventoried Roadless Area,Arizona-New Mexico Mountains,11,354,,FALSE,719,TRUE
+900389,NPS Wilderness Area,VA,34176,US National Park Service,,Central Appalachian Forest,5,355,352,TRUE,353,TRUE
+175,High Uintas Wilderness - Ashley National Forest,UT,271446,US Forest Service,National Forest,Utah-Wyoming Rocky Mountains,17,356,,FALSE,668,TRUE
+900511,Selway-Bitterroot Wilderness - Bitterroot National Forest,"ID, MT",507597,US Forest Service,National Forest / Wild and Scenic River,Middle Rockies - Blue Mountains,12,361,,FALSE,720,TRUE
+4306,Yolla Bolly-Middle Eel Wilderness - Trinity National Forest,CA,36629,US Forest Service,National Forest,California North Coast,8,362,380,TRUE,415,TRUE
+2834,Mount Skokomish Wilderness - Olympic National Forest,WA,12428,US Forest Service,National Forest,Pacific Northwest Coast,6,363,353,TRUE,354,TRUE
+2966,Hells Canyon - Payette National Forest,ID,22632,US Forest Service,,Middle Rockies - Blue Mountains,13,368,,FALSE,801,TRUE
+5169,Spice Run Wilderness,WV,6000,USDA Forest Service,,Central Appalachian Forest,6,369,381,TRUE,416,TRUE
+783,Channel Islands National Park,CA,67899,National Park Service,National Park,California South Coast,5,370,95,TRUE,95,TRUE
+2082,Brokeoff Mountains - Las Cruces District Office,"NM, TX",31091,Bureau of Land Management,Wilderness Study Area,Chihuahuan Desert,4,371,291,TRUE,291,TRUE
+2317,Sespe - Frazier IRA - Los Padres National Forest,CA,101075,US Forest Service,Inventoried Roadless Area,California South Coast,6,374,410,TRUE,481,TRUE
+3456,West Big Hole IRA - Salmon National Forest,"ID, MT",81466,US Forest Service,Inventoried Roadless Area,Middle Rockies - Blue Mountains,14,375,,FALSE,833,TRUE
+900196,Frank Church-River Of No Return Wilderness - Salmon National Forest,"ID, MT",414806,US Forest Service,National Forest / Wild and Scenic River,Middle Rockies - Blue Mountains,15,376,,FALSE,980,TRUE
+2267,Scapegoat Wilderness - Lolo National Forest,MT,75405,US Forest Service,National Forest,Middle Rockies - Blue Mountains,16,378,,FALSE,898,TRUE
+4776,Waldo Lake Wilderness - Willamette National Forest,OR,32920,US Forest Service,National Forest,West Cascades,10,381,435,TRUE,542,TRUE
+1406,Mount St. Helens - Gifford Pinchot National Forest,WA,111476,US Forest Service,National Forest,West Cascades,11,383,,FALSE,721,TRUE
+1945,Trinity Alps Wilderness - Klamath National Forest,CA,75787,US Forest Service,National Forest,Klamath Mountains,4,384,227,TRUE,227,TRUE
+900248,Hart Mountain National Antelope Refuge,OR,276695,U.S. Fish & Wildlife Service,National Wildlife Refuge / Wilderness Study Area,Columbia Plateau,6,385,382,TRUE,417,TRUE
+3206,Piper Mountain Wilderness - Ridgecrest Field Office,CA,72834,Bureau of Land Management,"National Public Lands
+",Mojave Desert,7,386,436,TRUE,543,TRUE
+5454,Mission Mountains Tribal Wilderness,MT,91972,Unknown,,Canadian Rocky Mountains,6,387,354,TRUE,355,TRUE
+4765,Mount Jefferson Wilderness - Willamette National Forest,OR,69998,US Forest Service,National Forest,West Cascades,12,388,,FALSE,802,TRUE
+900001,0419020 - Ashley National Forest,UT,349882,US Forest Service,,Utah-Wyoming Rocky Mountains,18,389,,FALSE,864,TRUE
+930,Sycamore Canyon Wilderness - Coconino National Forest,AZ,23968,US Forest Service,National Forest,Arizona-New Mexico Mountains,12,390,,FALSE,865,TRUE
+2643,Badger Creek Wilderness - Mt. Hood National Forest,OR,16945,US Forest Service,National Forest,East Cascades - Modoc Plateau,2,391,162,TRUE,162,TRUE
+4614,Alpine Lakes Wilderness - Wenatchee National Forest,WA,244829,US Forest Service,National Forest,East Cascades - Modoc Plateau,3,392,411,TRUE,482,TRUE
+7578,Balsam Lake Mountain Wild Forest,NY,13385,NYS Department of Environmental Conservation,State Forest,High Allegheny Plateau,2,395,163,TRUE,163,TRUE
+295,Lee Metcalf Wilderness - Beaverhead National Forest,MT,101914,US Forest Service,National Forest,Middle Rockies - Blue Mountains,17,396,,FALSE,924,TRUE
+900215,Gold Butte Part C - Las Vegas Field Office,NV,33745,Bureau of Land Management,,Mojave Desert,8,400,484,TRUE,722,TRUE
+2280,Bear Canyon - Los Padres National Forest,CA,12569,US Forest Service,,California Central Coast,13,401,,FALSE,834,TRUE
+4622,Lake Chelan-Sawtooth Wilderness - Wenatchee National Forest,WA,56592,US Forest Service,National Forest,East Cascades - Modoc Plateau,4,407,383,TRUE,418,TRUE
+830,Beaver Dam Creek IRA - Cherokee National Forest,"TN, VA",5060,US Forest Service,Inventoried Roadless Area,Southern Blue Ridge,11,410,,FALSE,669,TRUE
+900315,Liberty Bell IRA - Okanogan National Forest,WA,51276,US Forest Service,Inventoried Roadless Area,Okanagan,4,413,356,TRUE,357,TRUE
+900578,Trinity Alps Wilderness - Trinity National Forest,CA,286631,US Forest Service,National Forest / Wild and Scenic River,Klamath Mountains,5,414,355,TRUE,356,TRUE
+7462,Big Indian Wilderness,NY,33873,NYS Department of Environmental Conservation,Nature,High Allegheny Plateau,3,415,228,TRUE,228,TRUE
+5876,Independence River Wild Forest,NY,76595,NYS Department of Environmental Conservation,Nature,Northern Appalachian / Acadian,39,418,,FALSE,981,TRUE
+1240,El Malpais National Monument,NM,12484,National Park Service,,Arizona-New Mexico Mountains,13,419,,FALSE,358,TRUE
+2401,Dark Canyon Wilderness - Manti-La Sal National Forest,UT,46335,US Forest Service,National Forest,Colorado Plateau,24,420,,FALSE,953,TRUE
+900492,Sand To Snow - San Bernardino National Forest,CA,61903,US Forest Service,National Forest / Wild and Scenic River,California South Coast,7,422,229,TRUE,229,TRUE
+2289,Cuyama IRA - Los Padres National Forest,CA,19484,US Forest Service,Inventoried Roadless Area,California Central Coast,14,423,,FALSE,899,TRUE
+3156,Blowout Penstemon ACEC - Rawlins Field Office,WY,20850,Bureau of Land Management,Area of Critical Environmental Concern,Wyoming Basins,5,426,412,TRUE,483,TRUE
+900134,Cranberry Wilderness,WV,48035,USDA Forest Service,,Central Appalachian Forest,7,427,437,TRUE,544,TRUE
+900484,San Gabriel Mountains - Angeles National Forest,CA,242559,US Forest Service,National Forest,California South Coast,8,429,485,TRUE,723,TRUE
+900537,Sonoran Desert National Monument,AZ,485211,Bureau of Land Management,National Monument,Sonoran Desert,5,432,486,TRUE,724,TRUE
+900455,Red Dirt - Kisatchie National Forest,LA,40450,US Forest Service,National Wildlife Refuge,West Gulf Coastal Plain,1,434,38,TRUE,38,TRUE
+1405,Mount Adams Wilderness - Gifford Pinchot National Forest,WA,42694,US Forest Service,National Forest,West Cascades,13,435,,FALSE,766,TRUE
+900391,NPS Wilderness Area,VA,15612,US National Park Service,,Central Appalachian Forest,8,440,459,TRUE,606,TRUE
+2567,South Warner Wilderness - Modoc National Forest,CA,64000,US Forest Service,National Forest,East Cascades - Modoc Plateau,5,442,357,TRUE,359,TRUE
+3182,Argus Range Wilderness - Ridgecrest Field Office,CA,62532,Bureau of Land Management,"National Public Lands
+",Mojave Desert,9,444,384,TRUE,419,TRUE
+900402,Okefenokee National Wildlife Refuge,"FL, GA",405259,U.S. Fish & Wildlife Service,National Wildlife Refuge,South Atlantic Coastal Plain,1,445,39,TRUE,39,TRUE
+932,West Clear Creek Wilderness - Coconino National Forest,AZ,15465,US Forest Service,National Forest,Arizona-New Mexico Mountains,14,450,,FALSE,835,TRUE
+1260,Fakahatchee Strand Preserve State Park,FL,76840,Trustees of the Internal Improvement Trust Fund,State Conservation Area,Tropical Florida,3,451,230,TRUE,230,TRUE
+842,Pond Mountain Wilderness - Cherokee National Forest,TN,6932,US Forest Service,National Forest,Southern Blue Ridge,12,452,,FALSE,725,TRUE
+2151,Ishi Wilderness - Lassen National Forest,CA,40846,US Forest Service,National Forest,Great Central Valley,1,455,40,TRUE,40,TRUE
+627,Clover Mountains - Caliente Field Office,NV,85610,Bureau of Land Management,"National Public Lands
+",Great Basin,3,456,358,TRUE,360,TRUE
+2285,Chalk Peak - Los Padres National Forest,CA,6546,US Forest Service,,California Central Coast,15,459,,FALSE,767,TRUE
+810,Southern Nantahala Wilderness - Chattahoochee National Forest,"GA, NC",11591,US Forest Service,National Forest,Southern Blue Ridge,13,465,,FALSE,803,TRUE
+1935,Marble Mountain Wilderness - Klamath National Forest,CA,223264,US Forest Service,National Forest,Klamath Mountains,6,466,413,TRUE,484,TRUE
+351,Pryor Mountain WSA - Billings Field Office,"MT, WY",13131,Bureau of Land Management,Wilderness Study Area,Wyoming Basins,6,470,292,TRUE,292,TRUE
+1118,Diamond Peak Wilderness - Deschutes National Forest,OR,31866,US Forest Service,National Forest,West Cascades,14,471,,FALSE,670,TRUE
+900071,Boundary Peak IRA - Inyo National Forest,"CA, NV",219112,US Forest Service,Inventoried Roadless Area / Wild and Scenic River,Great Basin,4,472,500,TRUE,866,TRUE
+900323,Long Swamp IRA - Okanogan National Forest,WA,64339,US Forest Service,Inventoried Roadless Area,Okanagan,5,473,293,TRUE,293,TRUE
+2201,Capitan Mountains Wilderness - Lincoln National Forest,NM,35016,US Forest Service,National Forest,Arizona-New Mexico Mountains,15,475,,FALSE,925,TRUE
+4264,Salt River Canyon Wilderness - Tonto National Forest,AZ,32114,US Forest Service,National Forest,Sonoran Desert,6,477,438,TRUE,545,TRUE
+900431,Pioneer Mountains IRA - Challis National Forest,ID,166858,US Forest Service,Inventoried Roadless Area,Middle Rockies - Blue Mountains,21,480,,FALSE,954,TRUE
+2316,Sawmill - Badlands IRA - Los Padres National Forest,CA,45618,US Forest Service,Inventoried Roadless Area,California South Coast,9,481,439,TRUE,546,TRUE
+1354,Fossil Butte National Monument,WY,8302,National Park Service,,Wyoming Basins,7,482,474,TRUE,671,TRUE
+2239,West Cold Springs WSA - Little Snake Field Office,"CO, UT",14708,Bureau of Land Management,Wilderness Study Area,Utah-Wyoming Rocky Mountains,19,483,,FALSE,768,TRUE
+2504,Thatcher - Mendocino National Forest,CA,13856,US Forest Service,,California North Coast,9,487,493,TRUE,770,TRUE
+3043,Laurel Mountain IRA - Pisgah National Forest,NC,5670,US Forest Service,Inventoried Roadless Area,Southern Blue Ridge,14,488,,FALSE,769,TRUE
+900555,Taos Plateau - Taos Field Office,"CO, NM",216160,Bureau of Land Management,,Southern Rocky Mountains,45,490,,FALSE,926,TRUE
+4581,Deseret Peak Wilderness - Wasatch National Forest,UT,25057,US Forest Service,National Forest,Great Basin,5,494,385,TRUE,420,TRUE
+2501,Skeleton Glade - Mendocino National Forest,CA,9166,US Forest Service,,California North Coast,10,496,487,TRUE,726,TRUE
+849,Unaka Mountain Wilderness - Cherokee National Forest,"NC, TN",4472,US Forest Service,National Forest,Southern Blue Ridge,15,498,,FALSE,927,TRUE
+722,Clear Creek Serpentine ACEC - Central Coast Field Office,CA,27628,Bureau of Land Management,Area of Critical Environmental Concern,California Central Coast,16,502,,FALSE,868,TRUE
+4754,Diamond Peak Wilderness - Willamette National Forest,OR,18111,US Forest Service,National Forest,West Cascades,15,503,,FALSE,982,TRUE
+5117,Little Dry Run NF Wilderness Area,VA,2857,USDA Forest Service,,Southern Blue Ridge,16,504,,FALSE,867,TRUE
+492,West Slope Winds IRA - Bridger National Forest,WY,142962,US Forest Service,Inventoried Roadless Area,Utah-Wyoming Rocky Mountains,21,505,,FALSE,983,TRUE
+5419,San Juan Islands National Monument - Moran,WA,5609,Washington State Parks and Recreation Commission (SPRC),National Monument,Willamette Valley - Puget Trough - Georgia Basin: Temperate Conifer Forests,1,507,41,TRUE,41,TRUE
+4410,Rogue-Umpqua Divide Wilderness - Umpqua National Forest,OR,25596,US Forest Service,National Forest,West Cascades,16,508,,FALSE,955,TRUE
+6679,East Fork ACEC - Kirk Inberg/Kevin Roy Wildlife Habitat Management Area,WY,16274,State of Wyoming,State Conservation Area,Wyoming Basins,8,509,460,TRUE,607,TRUE
+900355,Mojave National Preserve - Mojave National Preserve,CA,31381,National Park Service & National Park Service,,Mojave Desert,10,510,494,TRUE,771,TRUE
+1784,Inyo Mountains Wilderness - Inyo National Forest,CA,69084,US Forest Service,National Forest,Great Basin,6,511,461,TRUE,608,TRUE
+3095,Sycamore Canyon Wilderness - Prescott National Forest,AZ,26473,US Forest Service,National Forest,Arizona-New Mexico Mountains,16,512,,FALSE,900,TRUE
+4791,Sky Lakes Wilderness - Winema National Forest,OR,35175,US Forest Service,National Forest,West Cascades,17,514,,FALSE,836,TRUE
+900027,Basin and Range National Monument,NV,705048,Bureau of Land Management,National Monument,Great Basin,7,515,164,TRUE,164,TRUE
+900294,Kofa National Wildlife Refuge,AZ,659700,U.S. Fish & Wildlife Service,National Wildlife Refuge,Sonoran Desert,7,516,475,TRUE,672,TRUE
+845,Sampson Mountain Wilderness - Cherokee National Forest,TN,8003,US Forest Service,National Forest,Southern Blue Ridge,17,517,,FALSE,837,TRUE
+884,Hoodoo IRA - Clearwater National Forest,"ID, MT",150936,US Forest Service,Inventoried Roadless Area,Canadian Rocky Mountains,7,518,386,TRUE,421,TRUE
+2088,Culp Canyon - Las Cruces District Office,NM,11304,Bureau of Land Management,Wilderness Study Area,Arizona-New Mexico Mountains,17,520,,FALSE,609,TRUE
+3716,Trinity Alps Wilderness - Shasta National Forest,CA,112918,US Forest Service,National Forest,Klamath Mountains,7,524,476,TRUE,673,TRUE
+1941,Siskiyou Wilderness - Klamath National Forest,CA,70719,US Forest Service,National Forest,Klamath Mountains,8,526,462,TRUE,610,TRUE
+2713,Kingston Range Wilderness - Needles Field Office,CA,110289,Bureau of Land Management,"National Public Lands
+",Mojave Desert,11,527,,FALSE,869,TRUE
+2857,Wild and Scenic Rivers - Scenic - Ottawa National Forest,MI,12000,US Forest Service,Wild and Scenic River,Superior Mixed Forest,5,528,440,TRUE,547,TRUE
+237,Nopah Range Wilderness - Barstow Field Office,"CA, NV",107017,Bureau of Land Management,"National Public Lands
+",Mojave Desert,12,529,,FALSE,838,TRUE
+3158,Ferris Mountains WSA - Rawlins Field Office,WY,21861,Bureau of Land Management,Wilderness Study Area,Wyoming Basins,9,530,387,TRUE,422,TRUE
+3905,William O. Douglas Wilderness - Snoqualmie National Forest,WA,148011,US Forest Service,National Forest,East Cascades - Modoc Plateau,6,531,294,TRUE,294,TRUE
+12,Amistad National Recreation Area,TX,58829,National Park Service,National Recreation Area,Tamaulipan Thorn Scrub,1,532,42,TRUE,42,TRUE
+2846,Organ Pipe Cactus National Monument,AZ,19066,National Park Service,,Sonoran Desert,8,535,497,TRUE,804,TRUE
+900493,Sand to Snow National Monument - Palm Springs/S. Coast Field Office,CA,24800,Bureau of Land Management,,California South Coast,10,536,477,TRUE,674,TRUE
+2290,De La Guerra IRA - Los Padres National Forest,CA,5076,US Forest Service,Inventoried Roadless Area,California Central Coast,17,538,,FALSE,805,TRUE
+116,Yolla Bolly-Middle Eel Wilderness - Arcata Field Office,CA,7761,Bureau of Land Management,National Public Lands,California North Coast,11,539,,FALSE,611,TRUE
+2818,Pasayten Rim IRA - Okanogan National Forest,WA,16831,US Forest Service,Inventoried Roadless Area,Okanagan,6,540,388,TRUE,423,TRUE
+900035,Berryessa Snow Mountain National Monument - Knoxville Wildlife Area,CA,20367,California Department of Fish and Wildlife,,Great Central Valley,2,541,165,TRUE,165,TRUE
+1702,Mt. Moriah Wilderness - Humboldt National Forest,NV,69168,US Forest Service,National Forest,Great Basin,8,542,478,TRUE,675,TRUE
+831,Big Frog Wilderness - Cherokee National Forest,TN,8012,US Forest Service,National Forest,Southern Blue Ridge,18,546,,FALSE,901,TRUE
+557,Mahogany Ridge WSA - Burns Andrews Field Office,OR,26976,Bureau of Land Management,Wilderness Study Area,Columbia Plateau,7,548,463,TRUE,612,TRUE
+1186,Pine Valley Mountain Wilderness - Dixie National Forest,UT,50094,US Forest Service,National Forest,Great Basin,9,551,,FALSE,839,TRUE
+2774,Headwaters Wilderness - Nicolet National Forest,WI,22047,US Forest Service,National Forest,Superior Mixed Forest,6,552,359,TRUE,361,TRUE
+900545,St. Marks National Wildlife Refuge,FL,71241,U.S. Fish & Wildlife Service,National Wildlife Refuge,East Gulf Coastal Plain,1,554,43,TRUE,43,TRUE
+4255,Lime Creek IRA - Tonto National Forest,AZ,42063,US Forest Service,Inventoried Roadless Area,Sonoran Desert,9,556,,FALSE,772,TRUE
+1958,Cabinet Mountains Wilderness - Kootenai National Forest,MT,53922,US Forest Service,National Forest,Canadian Rocky Mountains,8,562,414,TRUE,485,TRUE
+399,Sand Creek IRA - Black Hills National Forest,WY,7947,US Forest Service,Inventoried Roadless Area,Black Hills,4,581,231,TRUE,231,TRUE
+515,Browns Park National Wildlife Refuge,"CO, UT",11902,U.S. Fish & Wildlife Service,National Wildlife Refuge,Wyoming Basins,10,582,232,TRUE,232,TRUE
+1123,Mount Washington Wilderness - Deschutes National Forest,OR,13445,US Forest Service,National Forest,West Cascades,18,584,,FALSE,870,TRUE
+4788,Mount Thielsen Wilderness - Winema National Forest,OR,25562,US Forest Service,National Forest,West Cascades,19,586,,FALSE,928,TRUE
+2307,Matilija Wilderness - Los Padres National Forest,CA,28858,US Forest Service,National Forest,California South Coast,11,587,,FALSE,806,TRUE
+3201,Mohave Ground Squirrel ACEC - Ridgecrest Field Office,CA,157082,Bureau of Land Management,Area of Critical Environmental Concern,Mojave Desert,13,589,,FALSE,902,TRUE
+3669,Channell IRA - Sequoia National Forest,CA,45385,US Forest Service,Inventoried Roadless Area,Great Central Valley,3,590,233,TRUE,233,TRUE
+6161,Wind Wolves Preserve,CA,91635,The Wildlands Conservancy,Private Conservation,Great Central Valley,4,591,96,TRUE,96,TRUE
+4597,Stansbury Mountains IRA - Wasatch National Forest,UT,39392,US Forest Service,Inventoried Roadless Area,Great Basin,10,593,,FALSE,807,TRUE
+4616,Chelan IRA - Wenatchee National Forest,WA,74534,US Forest Service,Inventoried Roadless Area,East Cascades - Modoc Plateau,7,597,479,TRUE,676,TRUE
+2655,Mount Hood Wilderness - Mt. Hood National Forest,OR,41897,US Forest Service,National Forest,West Cascades,20,599,,FALSE,903,TRUE
+4220,Table Mountain Wilderness - Toiyabe National Forest,NV,92498,US Forest Service,National Forest,Great Basin,11,600,,FALSE,904,TRUE
+2288,Cone Peak Gradient - Los Padres National Forest,CA,2685,US Forest Service,,California Central Coast,18,601,,FALSE,929,TRUE
+900283,Kabetogama State Forest,MN,23884,Minnesota Department of Natural Resources,State Resource Management Area,Superior Mixed Forest,7,604,415,TRUE,486,TRUE
+2315,Santa Lucia Wilderness - Los Padres National Forest,CA,16741,US Forest Service,National Forest,California Central Coast,19,607,,FALSE,956,TRUE
+2503,Snow Mountain - Mendocino National Forest,CA,4764,US Forest Service,,California North Coast,12,609,,FALSE,548,TRUE
+6987,Blue Ridge Parkway,VA,3370,US National Park Service,National Park,Southern Blue Ridge,19,615,,FALSE,957,TRUE
+900023,Badlands National Park,SD,109521,National Park Service,National Park,Northern Great Plains Steppe,3,616,97,TRUE,97,TRUE
+2211,West Face Sacramento Mountains IRA - Lincoln National Forest,NM,40505,US Forest Service,Inventoried Roadless Area,Arizona-New Mexico Mountains,18,617,,FALSE,958,TRUE
+2807,Granite Mountain IRA - Okanogan National Forest,WA,27425,US Forest Service,Inventoried Roadless Area,Okanagan,7,620,441,TRUE,549,TRUE
+900421,Petrified Forest National Park,AZ,126523,National Park Service,National Park,Colorado Plateau,33,623,,FALSE,930,TRUE
+900269,Indian Head Wilderness,NY,17460,NYS Department of Environmental Conservation,Nature,High Allegheny Plateau,4,625,360,TRUE,362,TRUE
+5891,Corkscrew Swamp Sanctuary,FL,11679,"National Audubon Society, Inc.",Private Conservation,Tropical Florida,4,626,166,TRUE,166,TRUE
+1788,"Mono Basin - National Scenic, Botanical Area - Inyo National Forest",CA,39409,US Forest Service,National Forest,Great Basin,12,627,,FALSE,959,TRUE
+3991,Clan Alpine Mountains WSA - Stillwater Field Office,NV,192272,Bureau of Land Management,Wilderness Study Area,Great Basin,13,635,295,TRUE,295,TRUE
+4237,Kawich WSA - Tonopah Field Office,NV,68387,Bureau of Land Management,Wilderness Study Area,Great Basin,14,636,,FALSE,550,TRUE
+114,Red Mountain - Arcata Field Office,CA,6610,Bureau of Land Management,National Public Lands,California North Coast,13,637,,FALSE,677,TRUE
+2828,Colonel Bob Wilderness - Olympic National Forest,WA,11826,US Forest Service,National Forest,Pacific Northwest Coast,7,638,389,TRUE,424,TRUE
+3495,San Jacinto Wilderness - San Bernardino National Forest,CA,12222,US Forest Service,National Forest,California South Coast,12,643,,FALSE,840,TRUE
+3035,Bald Mountain IRA - Pisgah National Forest,"NC, TN",11068,US Forest Service,Inventoried Roadless Area,Southern Blue Ridge,20,653,,FALSE,984,TRUE
+1899,Black Mountains Ecosystem Mgmt ACEC,AZ,115843,Bureau of Land Management,Area of Critical Environmental Concern,Mojave Desert,15,654,,FALSE,678,TRUE
+41,Santa Rosa-San Jacinto Mountains National Monument - Anza-Borrego Desert State Park,CA,2593,California Department of Parks and Recreation,,California South Coast,13,661,,FALSE,425,TRUE
+639,Mormon Mountains - Caliente Field Office,NV,111517,Bureau of Land Management,"National Public Lands
+",Mojave Desert,16,668,,FALSE,960,TRUE
+1859,Cabinet Mountains Wilderness - Kaniksu National Forest,MT,39329,US Forest Service,National Forest,Canadian Rocky Mountains,9,673,464,TRUE,613,TRUE
+900434,Piute/Eldorado ACEC - Las Vegas Field Office,NV,316692,Bureau of Land Management,Area of Critical Environmental Concern / National Public Lands,Mojave Desert,17,674,,FALSE,931,TRUE
+4535,Willow Creek WSA - Vale Malheur Field Office,OR,27393,Bureau of Land Management,Wilderness Study Area,Columbia Plateau,8,681,442,TRUE,551,TRUE
+411,Pahute Peak - Black Rock Field Office,NV,56896,Bureau of Land Management,"National Public Lands
+",Great Basin,16,689,,FALSE,487,TRUE
+1203,Skedaddle Wilderness Study Area - Eagle Lake Field Office,CA,61866,Bureau of Land Management,Wilderness Study Area,Columbia Plateau,9,691,495,TRUE,773,TRUE
+900549,Sturgeon River Gorge Wilderness - Ottawa National Forest,MI,14755,US Forest Service,National Forest / Wild and Scenic River,Superior Mixed Forest,2,697,167,TRUE,167,TRUE
+900190,Francis Marion National Forest,SC,49607,US Forest Service,National Wildlife Refuge,Mid-Atlantic Coastal Plain,1,700,44,TRUE,44,TRUE
+2230,Little Pend Oreille National Wildlife Refuge,WA,38094,U.S. Fish & Wildlife Service,National Wildlife Refuge,Okanagan,8,701,168,TRUE,168,TRUE
+3394,Browns Canyon National Monument - Royal Gorge Field Office,CO,7430,Bureau of Land Management,,Southern Rocky Mountains,80,705,,FALSE,871,TRUE
+3883,Sleeping Bear Dunes Wilderness,MI,26582,National Park Service,,Great Lakes,3,706,234,TRUE,234,TRUE
+900153,Delaware Wild Forest,NY,28254,NYS Department of Environmental Conservation,Nature,High Allegheny Plateau,5,716,296,TRUE,296,TRUE
+4452,Upper Missouri Breaks National Monument,MT,28187,Bureau of Land Management,,Northern Great Plains Steppe,4,720,361,TRUE,363,TRUE
+3211,Surprise Canyon Wilderness - Ridgecrest Field Office,CA,18600,Bureau of Land Management,"National Public Lands
+",Mojave Desert,19,727,,FALSE,364,TRUE
+900384,North Lochsa Slope IRA - Clearwater National Forest,ID,110280,US Forest Service,Inventoried Roadless Area / Wild and Scenic River,Middle Rockies - Blue Mountains,10,728,488,TRUE,727,TRUE
+2031,Abert Rim - Lakeview District Lakeview Field Office,OR,18010,Bureau of Land Management,,Columbia Plateau,10,729,416,TRUE,488,TRUE
+4868,JE Canyon Ranch - Lower Purgatoire Conservation Area,CO,19035,The Nature Conservancy,Private Conservation,Central Shortgrass Prairie,1,730,45,TRUE,45,TRUE
+900137,Craters of the Moon National Monument,ID,238698,Bureau of Land Management,National Monument,Columbia Plateau,11,732,,FALSE,365,TRUE
+542,Buffalo National River Wilderness,AR,30705,National Park Service,,Ozarks,1,735,46,TRUE,46,TRUE
+986,Salmo-Priest Wilderness - Colville National Forest,WA,29835,US Forest Service,National Forest,Canadian Rocky Mountains,11,738,,FALSE,552,TRUE
+900331,Lower Owyhee Canyon WSA - Vale Malheur Field Office,OR,69817,Bureau of Land Management,Wild and Scenic River / Wilderness Study Area,Columbia Plateau,12,742,,FALSE,728,TRUE
+404,Fox Range WSA - Black Rock Field Office,NV,75734,Bureau of Land Management,Wilderness Study Area,Great Basin,20,743,,FALSE,932,TRUE
+2775,Whisker Lake Wilderness - Nicolet National Forest,"MI, WI",7264,US Forest Service,National Forest,Superior Mixed Forest,8,747,489,TRUE,729,TRUE
+1897,Arrastra Mountain - Kingman Field Office,AZ,124288,Bureau of Land Management,"National Public Lands
+",Sonoran Desert,10,750,,FALSE,489,TRUE
+900340,Malheur National Wildlife Refuge,OR,181603,U.S. Fish & Wildlife Service,National Wildlife Refuge,Columbia Plateau,13,759,,FALSE,872,TRUE
+5216,Otter Creek Wilderness,WV,20001,USDA Forest Service,,Central Appalachian Forest,9,761,498,TRUE,808,TRUE
+7573,Turtle Flambeau Scenic Waters Area,WI,32445,Wisconsin Department of Natural Resources,State Conservation Area,Superior Mixed Forest,9,762,480,TRUE,679,TRUE
+3465,Laketown Canyon ACEC - Salt Lake  Field Office,UT,8318,Bureau of Land Management,Area of Critical Environmental Concern,Wyoming Basins,11,774,,FALSE,809,TRUE
+2831,Jupiter Ridge IRA - Olympic National Forest,WA,8621,US Forest Service,Inventoried Roadless Area,Pacific Northwest Coast,8,775,417,TRUE,490,TRUE
+900368,Mountain Lake NF Wilderness Area,"VA, WV",12059,USDA Forest Service,,Central Appalachian Forest,10,782,,FALSE,730,TRUE
+1209,Carrizo Gorge Wilderness - El Centro Field Office,CA,14675,Bureau of Land Management,"National Public Lands
+",California South Coast,14,794,,FALSE,614,TRUE
+3930,Chopaka Mountain WSA - Spokane Wenatchee Field Office,WA,5476,Bureau of Land Management,Wilderness Study Area,Okanagan,9,802,481,TRUE,680,TRUE
+6006,Dolly Sods Wilderness,WV,16775,USDA Forest Service,,Central Appalachian Forest,11,803,,FALSE,491,TRUE
+900201,Gathright Wildlife Management Area,"VA, WV",13359,VA Dept of Wildlife Resources,Wildlife Management Area,Central Appalachian Forest,12,810,,FALSE,873,TRUE
+900049,Bighorn - Weitas IRA - Clearwater National Forest,ID,248681,US Forest Service,Inventoried Roadless Area,Canadian Rocky Mountains,12,811,,FALSE,933,TRUE
+327,Big Thicket National Preserve,TX,79267,National Park Service,,West Gulf Coastal Plain,2,814,169,TRUE,169,TRUE
+1723,Santa Rosa-Paradise Peak Wilderness - Humboldt National Forest,NV,32064,US Forest Service,National Forest,Columbia Plateau,14,816,,FALSE,810,TRUE
+887,Mallard-Larkins IRA - Clearwater National Forest,ID,109573,US Forest Service,Inventoried Roadless Area,Canadian Rocky Mountains,13,820,,FALSE,841,TRUE
+2252,Hoodoo IRA - Lolo National Forest,"ID, MT",105017,US Forest Service,Inventoried Roadless Area,Canadian Rocky Mountains,14,822,,FALSE,874,TRUE
+2157,Thousand Lakes Wilderness - Lassen National Forest,CA,16414,US Forest Service,National Forest,Klamath Mountains,9,824,443,TRUE,553,TRUE
+900289,Kiger Mustang ACEC - Burns Three Rivers Field Office,OR,54094,Bureau of Land Management,Area of Critical Environmental Concern,Columbia Plateau,15,831,,FALSE,842,TRUE
+5977,Assateague Island National Seashore,"MD, VA",6139,US National Park Service,National Seashore,Chesapeake Bay Lowlands,1,833,47,TRUE,47,TRUE
+413,Poodle Mountain WSA - Black Rock Field Office,NV,115841,Bureau of Land Management,Wilderness Study Area,Columbia Plateau,16,834,,FALSE,985,TRUE
+2143,Caribou Wilderness - Lassen National Forest,CA,20808,US Forest Service,National Forest,Klamath Mountains,10,835,297,TRUE,297,TRUE
+900341,Mallard-Larkins IRA - St. Joe National Forest,ID,107021,US Forest Service,Inventoried Roadless Area / Wild and Scenic River,Canadian Rocky Mountains,15,836,,FALSE,811,TRUE
+3870,Siskiyou Wilderness - Six Rivers National Forest,CA,24777,US Forest Service,National Forest,Klamath Mountains,11,838,,FALSE,426,TRUE
+4242,Rawhide Mountain WSA - Tonopah Field Office,NV,63841,Bureau of Land Management,Wilderness Study Area,Great Basin,25,839,,FALSE,774,TRUE
+6313,Tabby Mountain State Wildlife Area,UT,40985,Utah Department of Natural Resources,State Conservation Area,Wyoming Basins,12,844,,FALSE,554,TRUE
+1222,Little Picacho Wilderness - El Centro Field Office,CA,35456,Bureau of Land Management,"National Public Lands
+",Sonoran Desert,11,846,235,TRUE,235,TRUE
+3915,Ladron Mountain - Devil's Backbone Complex ACEC - Socorro Field Office,NM,50038,Bureau of Land Management,Area of Critical Environmental Concern,Arizona-New Mexico Mountains,23,847,,FALSE,986,TRUE
+900544,Spring Mountains NRA - Toiyabe National Forest,NV,146690,US Forest Service,National Recreation Area,Mojave Desert,23,849,,FALSE,987,TRUE
+4574,Snake River - Wallowa National Forest,OR,30429,US Forest Service,,Middle Rockies - Blue Mountains,54,855,,FALSE,875,TRUE
+5273,Santee Coastal Reserve Wildlife Management Area,SC,25572,South Carolina Department of Natural Resources,State Conservation Area,Mid-Atlantic Coastal Plain,2,858,98,TRUE,98,TRUE
+5397,San Juan Islands National Monument - Cypress Island Natural Resources Conservation Area,WA,2716,Washington State Department of Natural Resources (WADNR),State Conservation Area,Willamette Valley - Puget Trough - Georgia Basin: Temperate Conifer Forests,2,866,99,TRUE,99,TRUE
+3901,Norse Peak Wilderness - Snoqualmie National Forest,WA,49623,US Forest Service,National Forest,East Cascades - Modoc Plateau,8,870,499,TRUE,843,TRUE
+4174,Mount Stirling - Toiyabe National Forest,NV,50067,US Forest Service,,Mojave Desert,24,871,,FALSE,615,TRUE
+900284,Kalmiopsis Wilderness - Siskiyou National Forest,OR,173693,US Forest Service,National Forest / Wild and Scenic River,Klamath Mountains,12,873,,FALSE,731,TRUE
+3307,Steamboat Mountain ACEC - Rock Springs Field Office,WY,47134,Bureau of Land Management,Area of Critical Environmental Concern,Wyoming Basins,13,875,,FALSE,775,TRUE
+5466,Rothrock State Forest,PA,88981,PA Bureau of Forestry,State Forest,Central Appalachian Forest,13,882,,FALSE,844,TRUE
+1241,El Malpais National Mounument,NM,93815,National Park Service,Wilderness Study Area,Arizona-New Mexico Mountains,24,884,236,TRUE,236,TRUE
+3896,Goat Rocks Wilderness - Snoqualmie National Forest,WA,36253,US Forest Service,National Forest,East Cascades - Modoc Plateau,9,885,,FALSE,905,TRUE
+2380,Mammoth Cave National Park,KY,49414,National Park Service,National Park,Interior Low Plateau,1,888,48,TRUE,48,TRUE
+1782,Horton - Inyo National Forest,CA,4846,US Forest Service,,Great Basin,29,890,,FALSE,732,TRUE
+1774,Dexter Canyon IRA - Inyo National Forest,CA,16965,US Forest Service,Inventoried Roadless Area,Great Basin,31,896,,FALSE,988,TRUE
+1885,Selkirk IRA - Kaniksu National Forest,ID,95118,US Forest Service,Inventoried Roadless Area,Canadian Rocky Mountains,16,897,,FALSE,776,TRUE
+4618,Entiat IRA - Wenatchee National Forest,WA,72615,US Forest Service,Inventoried Roadless Area,East Cascades - Modoc Plateau,10,901,,FALSE,812,TRUE
+3302,Pine Springs ACEC - Rock Springs Field Office,WY,3928,Bureau of Land Management,,Wyoming Basins,14,903,,FALSE,845,TRUE
+2065,Green Mountain ACEC - Lander Field Office,WY,19185,Bureau of Land Management,Area of Critical Environmental Concern,Wyoming Basins,15,904,,FALSE,906,TRUE
+989,Thirteenmile IRA - Colville National Forest,WA,11517,US Forest Service,Inventoried Roadless Area,Okanagan,10,906,465,TRUE,616,TRUE
+900236,Greater Sand Dunes ACEC - Rock Springs Field Office,WY,33950,Bureau of Land Management,Area of Critical Environmental Concern,Wyoming Basins,16,908,,FALSE,733,TRUE
+1751,Pine Forest Range - Humboldt River Field Office,NV,25999,Bureau of Land Management,"National Public Lands
+",Columbia Plateau,19,913,,FALSE,907,TRUE
+2808,Hungry Ridge IRA - Okanogan National Forest,WA,8708,US Forest Service,Inventoried Roadless Area,Okanagan,11,916,,FALSE,492,TRUE
+2830,Jefferson Ridge IRA - Olympic National Forest,WA,6428,US Forest Service,Inventoried Roadless Area,Pacific Northwest Coast,9,921,444,TRUE,555,TRUE
+6753,Elk State Forest - Quehanna Wild Area,PA,21319,PA Bureau of Forestry,State Forest,High Allegheny Plateau,6,923,100,TRUE,100,TRUE
+825,Porcupine Lake Wilderness - Chequamegon National Forest,WI,4074,US Forest Service,National Forest,Superior Mixed Forest,10,928,,FALSE,846,TRUE
+3395,Garden Park ACEC - Royal Gorge Field Office,CO,2700,Bureau of Land Management,Area of Critical Environmental Concern,Central Shortgrass Prairie,2,930,101,TRUE,101,TRUE
+4815,Little Picacho Wilderness - Yuma Field Office,CA,2948,Bureau of Land Management,"National Public Lands
+",Sonoran Desert,12,939,,FALSE,617,TRUE
+900258,Hill River State Forest,MN,70352,Minnesota Department of Natural Resources,State Resource Management Area,Superior Mixed Forest,11,942,,FALSE,777,TRUE
+900515,Seney National Wildlife Refuge,MI,91706,U.S. Fish & Wildlife Service,National Wildlife Refuge,Great Lakes,4,948,102,TRUE,102,TRUE
+6055,Laurel Fork North Wilderness,WV,6048,USDA Forest Service,,Central Appalachian Forest,14,952,,FALSE,778,TRUE
+3323,Red Buttes Wilderness - Rogue River National Forest,"CA, OR",16289,US Forest Service,National Forest,Klamath Mountains,13,965,,FALSE,779,TRUE
+5116,Kimberling Creek NF Wilderness Area,VA,5685,USDA Forest Service,,Central Appalachian Forest,15,966,,FALSE,908,TRUE
+2823,Tiffany IRA - Okanogan National Forest,WA,21750,US Forest Service,Inventoried Roadless Area,Okanagan,12,970,,FALSE,734,TRUE
+3719,Bald Knob Wilderness - Shawnee National Forest,IL,5800,US Forest Service,National Forest,Ozarks,2,971,103,TRUE,103,TRUE
+826,Rainbow Lake Wilderness - Chequamegon National Forest,WI,7135,US Forest Service,National Forest,Superior Mixed Forest,12,974,,FALSE,813,TRUE
+7458,Sundown Wild Forest,NY,29120,NYS Department of Environmental Conservation,Nature,High Allegheny Plateau,7,976,418,TRUE,493,TRUE
+894,Pot Mountain IRA - Clearwater National Forest,ID,50871,US Forest Service,Inventoried Roadless Area,Canadian Rocky Mountains,17,980,,FALSE,961,TRUE
+912,Pine Creek Wilderness - Cleveland National Forest,CA,13233,US Forest Service,National Forest,California South Coast,15,982,,FALSE,962,TRUE
+313,Beltrami Wildlife Management Area,MN,34381,U.S. Fish & Wildlife Service,Conservation Area,Superior Mixed Forest,13,983,298,TRUE,298,TRUE
+2073,Split Rock WSA - Lander Field Office,WY,14075,Bureau of Land Management,Wilderness Study Area,Wyoming Basins,17,984,,FALSE,876,TRUE
+900227,Grandmother Mountain IRA - St. Joe National Forest,ID,18950,US Forest Service,Inventoried Roadless Area,Canadian Rocky Mountains,18,987,,FALSE,681,TRUE
+5200,Rich Hole NF Wilderness Area,VA,6553,USDA Forest Service,,Central Appalachian Forest,16,991,,FALSE,934,TRUE
+3704,Castle Crags Wilderness - Shasta National Forest,CA,10521,US Forest Service,National Forest,Klamath Mountains,14,995,,FALSE,814,TRUE
+900559,Ten Lakes #683 IRA - Kootenai National Forest,MT,38296,US Forest Service,Inventoried Roadless Area,Canadian Rocky Mountains,19,1001,,FALSE,909,TRUE
+900130,Cow Creek - Upper Missouri Breaks National Monument,MT,12325,Bureau of Land Management,,Northern Great Plains Steppe,5,1017,419,TRUE,494,TRUE
+3949,Big Creek IRA - St. Joe National Forest,ID,69555,US Forest Service,Inventoried Roadless Area,Canadian Rocky Mountains,20,1021,,FALSE,989,TRUE
+1372,Gearhart Mountain Wilderness - Fremont National Forest,OR,21688,US Forest Service,National Forest,East Cascades - Modoc Plateau,11,1023,237,TRUE,237,TRUE
+2234,Cross Mountain WSA - Little Snake Field Office,CO,14268,Bureau of Land Management,Wilderness Study Area,Wyoming Basins,18,1025,,FALSE,990,TRUE
+900067,Bosque Del Apache National Wildlife Refuge,NM,57477,U.S. Fish & Wildlife Service,National Wildlife Refuge,Chihuahuan Desert,5,1036,362,TRUE,366,TRUE
+900303,Lake Chelan National Recreation Area,WA,60916,National Park Service,National Recreation Area,East Cascades - Modoc Plateau,12,1044,,FALSE,935,TRUE
+2841,Upper Skokomish IRA - Olympic National Forest,WA,9264,US Forest Service,Inventoried Roadless Area,Pacific Northwest Coast,10,1045,466,TRUE,618,TRUE
+5052,Big Draft Wilderness,WV,5147,USDA Forest Service,,Central Appalachian Forest,17,1048,,FALSE,963,TRUE
+2564,Raider Basin - Modoc National Forest,CA,6182,US Forest Service,,East Cascades - Modoc Plateau,13,1050,,FALSE,877,TRUE
+900424,Picacho ACEC - El Centro Field Office,CA,179553,Bureau of Land Management,Area of Critical Environmental Concern / National Public Lands,Sonoran Desert,13,1053,,FALSE,427,TRUE
+7371,Windham-Blackhead Range Wilderness,NY,17038,NYS Department of Environmental Conservation,Nature,High Allegheny Plateau,8,1058,445,TRUE,556,TRUE
+3877,Trinity Alps Wilderness - Six Rivers National Forest,CA,28862,US Forest Service,National Forest,Klamath Mountains,15,1063,,FALSE,847,TRUE
+2771,09177 - Le Roy Creek IRA - Nicolet National Forest,"MI, WI",8109,US Forest Service,Inventoried Roadless Area,Superior Mixed Forest,14,1067,,FALSE,910,TRUE
+900254,Herd Creek Watershed ACEC - Challis Field Office,ID,16314,Bureau of Land Management,Area of Critical Environmental Concern / National Public Lands,Middle Rockies - Blue Mountains,71,1070,,FALSE,780,TRUE
+7080,Red Rim-Grizzly Wildlife Habitat Management Area - Rawlins Field Office,WY,26220,Bureau of Land Management & State of Wyoming,National Public Lands,Wyoming Basins,19,1074,,FALSE,936,TRUE
+4632,Stormy Mtn. IRA - Wenatchee National Forest,WA,32612,US Forest Service,Inventoried Roadless Area,East Cascades - Modoc Plateau,14,1075,,FALSE,964,TRUE
+2918,Mecca Hills Wilderness - Palm Springs/S. Coast Field Office,CA,25331,Bureau of Land Management,"National Public Lands
+",Sonoran Desert,14,1097,299,TRUE,299,TRUE
+4068,Ten Thousand Islands National Wildlife Refuge,FL,12078,U.S. Fish & Wildlife Service,National Wildlife Refuge,Tropical Florida,5,1099,300,TRUE,300,TRUE
+328,Bighorn Canyon National Recreation Area,"MT, WY",42220,National Park Service,National Recreation Area,Wyoming Basins,20,1107,,FALSE,965,TRUE
+3501,Santa Rosa And San Jacinto - San Bernardino National Forest,CA,19446,US Forest Service,,California South Coast,17,1123,,FALSE,937,TRUE
+6629,Wolf Lake State Forest,NY,4366,NYS Department of Environmental Conservation,State Forest,St. Lawrence - Champlain Valley,2,1127,104,TRUE,104,TRUE
+3069,Pocosin Lakes National Wildlife Refuge,NC,106898,U.S. Fish & Wildlife Service,National Wildlife Refuge,Mid-Atlantic Coastal Plain,3,1130,238,TRUE,238,TRUE
+2855,Sylvania Wilderness - Ottawa National Forest,"MI, WI",15185,US Forest Service,National Forest,Superior Mixed Forest,15,1135,,FALSE,938,TRUE
+5594,Canaan Valley National Wildlife Refuge,WV,9089,US Fish and Wildlife Service,National Wildlife Refuge,Central Appalachian Forest,18,1136,105,TRUE,105,TRUE
+900114,Clark National Forest - Lewis,MT,39333,US Forest Service,Inventoried Roadless Area,Northern Great Plains Steppe,6,1141,170,TRUE,170,TRUE
+1218,Indian Pass Wilderness - El Centro Field Office,CA,31195,Bureau of Land Management,"National Public Lands
+",Sonoran Desert,15,1146,,FALSE,966,TRUE
+2681,Natchez Trace Parkway,"AL, MS, TN",21228,National Park Service,,Interior Low Plateau,2,1162,106,TRUE,106,TRUE
+900428,Pine Island State Forest,MN,619303,Minnesota Department of Natural Resources,State Resource Management Area,Superior Mixed Forest,16,1164,,FALSE,967,TRUE
+900592,Upper Missouri Breaks National Monument,MT,16320,Bureau of Land Management,Wild and Scenic River,Northern Great Plains Steppe,7,1184,482,TRUE,682,TRUE
+900122,Congaree National Park,SC,24059,National Park Service,National Park,Mid-Atlantic Coastal Plain,4,1203,390,TRUE,428,TRUE
+900187,Fort Peck Recreation Area - Charles M. Russell NWR,MT,13156,Unknown,Wilderness Study Area,Northern Great Plains Steppe,8,1204,490,TRUE,735,TRUE
+900357,Mojave Trails National Monument - Needles Field Office,CA,374920,Bureau of Land Management,National Monument,Mojave Desert,35,1212,,FALSE,815,TRUE
+2991,Beaver Basin Wilderness,MI,10771,National Park Service,,Great Lakes,5,1215,363,TRUE,367,TRUE
+2858,Wild and Scenic Rivers - Wild - Ottawa National Forest,MI,8269,US Forest Service,Wild and Scenic River,Superior Mixed Forest,17,1228,,FALSE,429,TRUE
+7806,San Felipe Valley Wildlife Area,CA,14328,California Department of Fish and Wildlife,State Conservation Area,California South Coast,18,1230,,FALSE,781,TRUE
+5314,Kabetogama State Forest,MN,4833,Minnesota Department of Natural Resources,State Resource Management Area,Superior Mixed Forest,18,1232,,FALSE,878,TRUE
+1581,Hassayampa River Canyon - Hassayampa Field Office,AZ,11823,Bureau of Land Management,"National Public Lands
+",Sonoran Desert,17,1233,,FALSE,911,TRUE
+4721,White Sands National Park,NM,148226,National Park Service,National Park,Chihuahuan Desert,6,1238,171,TRUE,171,TRUE
+213,Bighorn Mountain Wilderness - Barstow Field Office,CA,26531,Bureau of Land Management,"National Public Lands
+",California South Coast,19,1245,,FALSE,991,TRUE
+3723,Clear Springs Wilderness - Shawnee National Forest,IL,4730,US Forest Service,National Forest,Ozarks,3,1278,239,TRUE,239,TRUE
+1588,Kevin Rim ACEC - Havre Field Office,MT,3464,Bureau of Land Management,Area of Critical Environmental Concern,Fescue-Mixed Grass Prairie,2,1294,107,TRUE,107,TRUE
+4285,Chanchelulla Wilderness - Trinity National Forest,CA,8021,US Forest Service,National Forest,Klamath Mountains,16,1295,,FALSE,939,TRUE
+900015,Angelina National Forest,TX,144219,US Forest Service,National Forest,West Gulf Coastal Plain,3,1297,240,TRUE,240,TRUE
+401,Black Rock Desert - Black Rock Field Office,NV,314920,Bureau of Land Management,"National Public Lands
+",Great Basin,62,1298,108,TRUE,108,TRUE
+2037,Fish Creek Rim - Lakeview District Lakeview Field Office,OR,6081,Bureau of Land Management,,Columbia Plateau,34,1303,,FALSE,940,TRUE
+900085,Cache Creek Corridor - Ukiah Field Office,CA,7334,Bureau of Land Management,,Great Central Valley,5,1305,301,TRUE,301,TRUE
+3170,Rice Lake National Wildlife Refuge,MN,16638,U.S. Fish & Wildlife Service,National Wildlife Refuge,Superior Mixed Forest,19,1314,,FALSE,619,TRUE
+900532,Smith River NRA - Six Rivers National Forest,"CA, OR",208438,US Forest Service,National Recreation Area / Wild and Scenic River,Klamath Mountains,17,1321,,FALSE,968,TRUE
+2887,Leatherwood Wilderness - Ozark National Forest,AR,16631,US Forest Service,National Forest,Ozarks,4,1322,302,TRUE,302,TRUE
+2904,Beauty Mountain Wilderness - Palm Springs/S. Coast Field Office,CA,10664,Bureau of Land Management,"National Public Lands
+",California South Coast,20,1328,,FALSE,879,TRUE
+5688,Hickory Creek Wilderness Area,PA,9053,USDA Forest Service,,High Allegheny Plateau,9,1347,391,TRUE,430,TRUE
+900109,Chuckwalla ACEC - Palm Springs/S. Coast Field Office,CA,369572,Bureau of Land Management,Area of Critical Environmental Concern / National Public Lands,Sonoran Desert,19,1375,,FALSE,880,TRUE
+900618,Wild Rogue Wilderness - Siskiyou National Forest,OR,22680,US Forest Service,National Forest / Wild and Scenic River,Klamath Mountains,18,1380,,FALSE,992,TRUE
+1640,Charles C. Deam Wilderness - Hoosier National Forest,IN,11595,US Forest Service,National Forest,Interior Low Plateau,3,1381,241,TRUE,241,TRUE
+6828,Susquehannock State Forest - Hammersley Wild Area,PA,29829,PA Bureau of Forestry,State Forest,High Allegheny Plateau,10,1383,467,TRUE,620,TRUE
+3695,Woolstaff IRA - Sequoia National Forest,CA,37530,US Forest Service,Inventoried Roadless Area,Great Central Valley,6,1386,420,TRUE,495,TRUE
+2559,Mt. Bidwell IRA - Modoc National Forest,"CA, OR",11647,US Forest Service,Inventoried Roadless Area,East Cascades - Modoc Plateau,15,1392,,FALSE,621,TRUE
+5516,Blackwater National Wildlife Refuge,MD,17484,US Fish and Wildlife Service,National Wildlife Refuge,Chesapeake Bay Lowlands,2,1404,242,TRUE,242,TRUE
+1081,Dale Bumpers White River National Wildlife Refuge,AR,149285,U.S. Fish & Wildlife Service,National Wildlife Refuge,Mississippi River Alluvial Plain,1,1406,49,TRUE,49,TRUE
+1131,Wild and Scenic Rivers - Recreational - Deschutes National Forest,OR,19027,US Forest Service,Wild and Scenic River,East Cascades - Modoc Plateau,16,1407,,FALSE,557,TRUE
+1219,Jacumba Wilderness - El Centro Field Office,CA,27828,Bureau of Land Management,"National Public Lands
+",California South Coast,21,1412,,FALSE,912,TRUE
+2432,Hercules-Glades Wilderness - Mark Twain National Forest,MO,12423,US Forest Service,National Forest,Ozarks,5,1414,364,TRUE,368,TRUE
+3670,Chico IRA - Sequoia National Forest,CA,38157,US Forest Service,Inventoried Roadless Area,Great Central Valley,7,1415,468,TRUE,622,TRUE
+6210,Big South Fork N.R.R.A. - Big South Fork National River and Recreation Area,"KY, TN",69512,National Park Service & National Park Service,,Cumberlands And Southern Ridge And Valley,2,1421,109,TRUE,109,TRUE
+2832,Lightning IRA - Olympic National Forest,WA,7105,US Forest Service,Inventoried Roadless Area,Pacific Northwest Coast,11,1424,,FALSE,683,TRUE
+2895,Ozark National Scenic Riverway,MO,15479,National Park Service,,Ozarks,6,1429,172,TRUE,172,TRUE
+4621,Henry M. Jackson Wilderness - Wenatchee National Forest,WA,26361,US Forest Service,National Forest,East Cascades - Modoc Plateau,17,1450,,FALSE,993,TRUE
+2877,North Fork Owyhee Wilderness - Owyhee Field Office,ID,35255,Bureau of Land Management,"National Public Lands
+",Columbia Plateau,41,1474,,FALSE,684,TRUE
+900009,Alligator River National Wildlife Refuge,NC,150879,U.S. Fish & Wildlife Service,National Wildlife Refuge,Mid-Atlantic Coastal Plain,5,1485,421,TRUE,496,TRUE
+1230,Picacho Peak Wilderness - El Centro Field Office,CA,7269,Bureau of Land Management,"National Public Lands
+",Sonoran Desert,21,1489,,FALSE,848,TRUE
+1344,Florida Panther National Wildlife Refuge,FL,26389,U.S. Fish & Wildlife Service,National Wildlife Refuge,Tropical Florida,6,1490,365,TRUE,369,TRUE
+6057,Laurel Fork South Wilderness,WV,5840,USDA Forest Service,,Central Appalachian Forest,22,1491,,FALSE,994,TRUE
+5711,Chincoteague National Wildlife Refuge,"MD, VA",8322,US Fish and Wildlife Service,National Wildlife Refuge,Chesapeake Bay Lowlands,3,1496,173,TRUE,173,TRUE
+2926,Palen/McCoy Wilderness - Palm Springs/S. Coast Field Office,CA,236218,Bureau of Land Management,"National Public Lands
+",Sonoran Desert,22,1515,,FALSE,995,TRUE
+3684,Mill Creek IRA - Sequoia National Forest,CA,27543,US Forest Service,Inventoried Roadless Area,Great Central Valley,8,1523,366,TRUE,370,TRUE
+6982,Fort Peck Recreation Area,MT,501136,Unknown,Recreation Area,Northern Great Plains Steppe,9,1525,392,TRUE,431,TRUE
+900056,Black River State Forest,WI,62422,Wisconsin Department of Natural Resources,State Conservation Area,Prairie-Forest Border,1,1536,50,TRUE,50,TRUE
+6854,Elk State Forest - Quehanna Wild Area - Proposed,PA,4689,PA Bureau of Forestry,State Forest,High Allegheny Plateau,11,1542,,FALSE,685,TRUE
+7778,Tioga State Forest - Pine Creek Gorge Natural Area,PA,12925,PA Bureau of Forestry,State Forest,High Allegheny Plateau,12,1562,,FALSE,736,TRUE
+2036,Diablo Mountain WSA - Lakeview District Lakeview Field Office,OR,117126,Bureau of Land Management,Wilderness Study Area,Columbia Plateau,45,1563,,FALSE,969,TRUE
+2163,Lava Beds National Monument,CA,18667,National Park Service,,East Cascades - Modoc Plateau,18,1566,110,TRUE,110,TRUE
+2864,Caney Creek Wilderness - Ouachita National Forest,AR,13901,US Forest Service,National Forest,Ouachita Mountains,1,1597,51,TRUE,51,TRUE
+2689,Necedah National Wildlife Refuge,WI,43742,U.S. Fish & Wildlife Service,National Wildlife Refuge,Prairie-Forest Border,2,1605,111,TRUE,111,TRUE
+5342,Bow and Arrow Ranch - Prairie Canyonlands,CO,28635,The Nature Conservancy,Private Conservation,Central Shortgrass Prairie,3,1626,174,TRUE,174,TRUE
+2829,Green Mountain IRA - Olympic National Forest,WA,4617,US Forest Service,Inventoried Roadless Area,Pacific Northwest Coast,12,1632,,FALSE,737,TRUE
+6361,Tiadaghton State Forest,PA,129704,PA Bureau of Forestry,State Forest,High Allegheny Plateau,13,1634,,FALSE,849,TRUE
+6846,Moshannon State Forest - Quehanna Wild Area,PA,23917,PA Bureau of Forestry,State Forest,Central Appalachian Forest,26,1637,,FALSE,686,TRUE
+900301,L.T. Murray Wildlife Area Complex,WA,31568,Washington State Department of Fish & Wildlife (WDFW),State Conservation Area,East Cascades - Modoc Plateau,19,1641,,FALSE,738,TRUE
+1404,Indian Heaven Wilderness - Gifford Pinchot National Forest,WA,20756,US Forest Service,National Forest,East Cascades - Modoc Plateau,20,1642,,FALSE,782,TRUE
+1253,Ernest F. Hollings Ace Basin National Wildlife Refuge,SC,6653,U.S. Fish & Wildlife Service,National Wildlife Refuge,South Atlantic Coastal Plain,2,1644,112,TRUE,112,TRUE
+3882,Sleeping Bear Dunes National Lakeshore,MI,23364,National Park Service,,Great Lakes,6,1646,422,TRUE,497,TRUE
+900387,Northwest Louisiana Game And Fish Preserve/clear Lake,LA,22559,State Fish and Wildlife,State Conservation Area,West Gulf Coastal Plain,4,1657,113,TRUE,113,TRUE
+900562,Theodore Roosevelt National Park,ND,69030,National Park Service,National Park,Northern Great Plains Steppe,10,1668,,FALSE,558,TRUE
+2737,Turtle Mountains Wilderness - Needles Field Office,CA,60914,Bureau of Land Management,"National Public Lands
+",Sonoran Desert,24,1669,,FALSE,941,TRUE
+6407,Delaware Water Gap,"NJ, PA",30659,US National Park Service,National Park,High Allegheny Plateau,14,1672,,FALSE,783,TRUE
+900125,Coosa Wildlife Management Area,AL,9598,Alabama Forever Wild Land Trust,State Conservation Area,Piedmont,1,1687,52,TRUE,52,TRUE
+3820,"Big Craggies - National Scenic, Botanical Area - Siskiyou National Forest",OR,2616,US Forest Service,National Forest,Klamath Mountains,20,1701,,FALSE,913,TRUE
+4874,JE Canyon Ranch - Lower Purgatoire Conservation Area,CO,3031,The Nature Conservancy,Private Conservation,Central Shortgrass Prairie,4,1704,243,TRUE,243,TRUE
+6866,Willowemoc Wild Forest,NY,11486,NYS Department of Environmental Conservation,Nature,High Allegheny Plateau,15,1705,,FALSE,816,TRUE
+900574,Trail Ridge Tract,GA,16019,Land Trusts,Private Conservation,South Atlantic Coastal Plain,3,1713,303,TRUE,303,TRUE
+2153,Mill Creek IRA - Lassen National Forest,CA,6576,US Forest Service,Inventoried Roadless Area,Klamath Mountains,22,1723,,FALSE,881,TRUE
+3921,Stallion WSA - Socorro Field Office,NM,23799,Bureau of Land Management,Wilderness Study Area,Chihuahuan Desert,7,1728,393,TRUE,432,TRUE
+70,Apostle Islands National Lakeshore,WI,2865,National Park Service,,Great Lakes,7,1730,304,TRUE,304,TRUE
+4013,Tait Lake IRA - Superior National Forest,MN,5930,US Forest Service,Inventoried Roadless Area,Superior Mixed Forest,30,1756,,FALSE,996,TRUE
+1620,Big Island Lake Wilderness - Hiawatha National Forest,MI,5246,US Forest Service,National Forest,Great Lakes,8,1764,394,TRUE,433,TRUE
+3919,Sierra de las Canas WSA - Socorro Field Office,NM,13278,Bureau of Land Management,Wilderness Study Area,Chihuahuan Desert,8,1767,423,TRUE,498,TRUE
+2851,Mccormick Wilderness - Ottawa National Forest,MI,15754,US Forest Service,National Forest,Great Lakes,9,1769,491,TRUE,739,TRUE
+658,Cape Romain National Wildlife Refuge,SC,6947,U.S. Fish & Wildlife Service,National Wildlife Refuge,Mid-Atlantic Coastal Plain,6,1772,367,TRUE,371,TRUE
+2870,Upper Kiamichi River Wilderness - Ouachita National Forest,"AR, OK",10372,US Forest Service,National Forest,Ouachita Mountains,2,1781,244,TRUE,244,TRUE
+2890,Richland Creek Wilderness - Ozark National Forest,AR,10327,US Forest Service,National Forest,Ozarks,7,1848,469,TRUE,623,TRUE
+6886,Tehama Wildlife Area,CA,43605,California Department of Fish and Wildlife,State Conservation Area,Great Central Valley,9,1850,446,TRUE,559,TRUE
+2836,Mt. Zion IRA - Olympic National Forest,WA,3544,US Forest Service,Inventoried Roadless Area,Willamette Valley - Puget Trough - Georgia Basin: Temperate Conifer Forests,3,1877,175,TRUE,175,TRUE
+65,Bradwell Bay Wilderness - Apalachicola National Forest,FL,24222,US Forest Service,National Forest,East Gulf Coastal Plain,2,1906,177,TRUE,177,TRUE
+2866,Flatside Wilderness - Ouachita National Forest,AR,9393,US Forest Service,National Forest,Ouachita Mountains,3,1909,176,TRUE,176,TRUE
+900263,Hunter-West Kill Wilderness,NY,24219,NYS Department of Environmental Conservation,Nature / State Forest,High Allegheny Plateau,16,1913,,FALSE,942,TRUE
+2885,Hurricane Creek Wilderness - Ozark National Forest,AR,12859,US Forest Service,National Forest,Ozarks,8,1946,447,TRUE,560,TRUE
+7489,Tiadaghton State Forest - Algerine Wild Area,PA,4177,PA Bureau of Forestry,State Forest,High Allegheny Plateau,17,1948,,FALSE,882,TRUE
+900593,Upper Ouachita National Wildlife Refuge,LA,53589,U.S. Fish & Wildlife Service,National Wildlife Refuge,Upper West Gulf Coastal Plain,1,1954,53,TRUE,53,TRUE
+2155,Polk Springs IRA - Lassen National Forest,CA,9428,US Forest Service,Inventoried Roadless Area,Great Central Valley,10,1963,395,TRUE,434,TRUE
+657,Cape Romain National Wildlife Refuge,SC,3047,U.S. Fish & Wildlife Service,National Wildlife Refuge,Mid-Atlantic Coastal Plain,7,1967,305,TRUE,305,TRUE
+6972,Fort Peck Recreation Area - Charles M. Russell NWR,MT,6321,Unknown,Wilderness Study Area,Northern Great Plains Steppe,11,1975,,FALSE,943,TRUE
+1053,Crocodile Lake National Wildlife Refuge,FL,5525,U.S. Fish & Wildlife Service,National Wildlife Refuge,Tropical Florida,7,1978,,FALSE,435,TRUE
+7505,Tiadaghton State Forest - Miller Run Natural Area,PA,4985,PA Bureau of Forestry,State Forest,High Allegheny Plateau,18,1992,,FALSE,970,TRUE
+2883,East Fork Wilderness - Ozark National Forest,AR,10495,US Forest Service,National Forest,Ozarks,9,2004,,FALSE,740,TRUE
+1985,Lacreek National Wildlife Refuge,SD,16519,U.S. Fish & Wildlife Service,National Wildlife Refuge,Central Mixed-Grass Prairie,1,2037,54,TRUE,54,TRUE
+2079,Big Hatchet Mountains - Las Cruces District Office,NM,27696,Bureau of Land Management,Wilderness Study Area,Chihuahuan Desert,9,2041,,FALSE,561,TRUE
+900584,UL Bend National Wildlife Refuge,MT,32069,U.S. Fish & Wildlife Service,National Wildlife Refuge,Northern Great Plains Steppe,12,2051,306,TRUE,306,TRUE
+2521,Seven Blackfoot WSA - Miles City Field Office,MT,20714,Bureau of Land Management,Wilderness Study Area,Northern Great Plains Steppe,13,2095,,FALSE,971,TRUE
+1048,Catfish Lake South Wilderness - Croatan National Forest,NC,8490,US Forest Service,National Forest,Mid-Atlantic Coastal Plain,8,2105,,FALSE,624,TRUE
+2429,Bell Mountain Wilderness - Mark Twain National Forest,MO,9183,US Forest Service,National Forest,Ozarks,10,2110,,FALSE,436,TRUE
+4965,Fort Peck Recreation Area - Charles M. Russell NWR,MT,11148,Unknown,Wilderness Study Area,Northern Great Plains Steppe,14,2128,,FALSE,817,TRUE
+6071,Chickahominy Wildlife Management Area,VA,4657,VA Dept of Wildlife Resources,Wildlife Management Area,Chesapeake Bay Lowlands,4,2129,114,TRUE,114,TRUE
+1621,Delirium Wilderness - Hiawatha National Forest,MI,11951,US Forest Service,National Forest,Great Lakes,10,2165,,FALSE,562,TRUE
+3679,Greenhorn Creek IRA - Sequoia National Forest,CA,28080,US Forest Service,Inventoried Roadless Area,Great Central Valley,11,2181,,FALSE,741,TRUE
+2595,Bagby Serpentine ACEC - Mother Lode Field Office,CA,4888,Bureau of Land Management,Area of Critical Environmental Concern,Great Central Valley,12,2194,,FALSE,687,TRUE
+2518,Musselshell Breaks WSA - Miles City Field Office,MT,8532,Bureau of Land Management,Wilderness Study Area,Northern Great Plains Steppe,16,2210,,FALSE,625,TRUE
+900595,Valentine National Wildlife Refuge,NE,71728,U.S. Fish & Wildlife Service,National Wildlife Refuge / Wilderness Study Area,Central Mixed-Grass Prairie,2,2223,245,TRUE,245,TRUE
+2690,Necedah Wildlife Management Area,WI,50188,U.S. Fish & Wildlife Service,Conservation Area,Prairie-Forest Border,3,2237,178,TRUE,178,TRUE
+5261,Beartown NF Wilderness Area,VA,5610,USDA Forest Service,,Cumberlands And Southern Ridge And Valley,3,2239,246,TRUE,246,TRUE
+7324,OSSABAW ISLAND WMA - Ossabaw Island Wildlife Management Area,GA,27439,Georgia Department of Natural Resources,State Conservation Area,South Atlantic Coastal Plain,4,2258,179,TRUE,179,TRUE
+319,Big Bend Ranch State Park,TX,312716,Texas Parks and Wildlife Department,State Park,Chihuahuan Desert,10,2278,,FALSE,742,TRUE
+900281,Juniper Creek Game Land Nature Preserve,NC,17784,NC Wildlife Resources Commission,,Mid-Atlantic Coastal Plain,9,2294,,FALSE,688,TRUE
+2090,Florida Mountains - Las Cruces District Office,NM,15520,Bureau of Land Management,,Chihuahuan Desert,11,2299,,FALSE,626,TRUE
+5237,Loyalsock State Forest - Mcintyre Wild Area,PA,7227,PA Bureau of Forestry,State Forest,High Allegheny Plateau,19,2304,,FALSE,914,TRUE
+2433,Irish Wilderness - Mark Twain National Forest,MO,16416,US Forest Service,National Forest,Ozarks,11,2314,,FALSE,499,TRUE
+6450,Clinch Mountain Wildlife Management Area,VA,22256,VA Dept of Wildlife Resources,Wildlife Management Area,Cumberlands And Southern Ridge And Valley,4,2319,180,TRUE,180,TRUE
+3931,Sproul State Forest - Bucktail State Park Natural Area,PA,13653,PA Bureau of Forestry,State Forest,High Allegheny Plateau,20,2346,,FALSE,997,TRUE
+900587,Upper Buffalo Wilderness - Ozark National Forest,AR,10591,US Forest Service,National Forest / Wild and Scenic River,Ozarks,12,2352,,FALSE,818,TRUE
+1628,Wild and Scenic Rivers - Scenic - Hiawatha National Forest,MI,12591,US Forest Service,Wild and Scenic River,Great Lakes,11,2357,,FALSE,689,TRUE
+2435,Piney Creek Wilderness - Mark Twain National Forest,MO,8115,US Forest Service,National Forest,Ozarks,13,2373,,FALSE,690,TRUE
+1625,Mackinac Wilderness - Hiawatha National Forest,MI,10251,US Forest Service,National Forest,Great Lakes,12,2381,,FALSE,944,TRUE
+692,Carolina Sandhills National Wildlife Refuge,SC,45801,U.S. Fish & Wildlife Service,National Wildlife Refuge,Mid-Atlantic Coastal Plain,10,2387,181,TRUE,181,TRUE
+1495,Great Dismal Swamp National Wildlife Refuge,"NC, VA",27618,U.S. Fish & Wildlife Service,National Wildlife Refuge,Mid-Atlantic Coastal Plain,11,2404,,FALSE,743,TRUE
+900352,Mingo National Wildlife Refuge,MO,21426,U.S. Fish & Wildlife Service,National Wildlife Refuge,Mississippi River Alluvial Plain,2,2421,115,TRUE,115,TRUE
+3914,Jornada del Muerto WSA - Socorro Field Office,NM,26726,Bureau of Land Management,Wilderness Study Area,Chihuahuan Desert,12,2436,,FALSE,691,TRUE
+900138,Crescent Lake National Wildlife Refuge,NE,45828,U.S. Fish & Wildlife Service,National Wildlife Refuge / Wilderness Study Area,Central Mixed-Grass Prairie,3,2451,182,TRUE,182,TRUE
+6591,South Dakota Game Fish and Parks - Wildlife Division,SD,2962,South Dakota Game Fish and Parks - Wildlife Division,State Park,Black Hills,5,2480,307,TRUE,307,TRUE
+4045,Sabinoso Wilderness - Taos Field Office,NM,17926,Bureau of Land Management,National Public Lands,Southern Shortgrass Prairie,1,2483,55,TRUE,55,TRUE
+900377,Newberry State Forest Area,MI,330444,Michigan Department of Natural Resources,State Conservation Area,Great Lakes,13,2499,,FALSE,883,TRUE
+6975,Fort Peck Recreation Area - UL Bend NWR,MT,6654,Unknown,,Northern Great Plains Steppe,18,2530,,FALSE,884,TRUE
+2346,Lower Suwannee National Wildlife Refuge,FL,43719,U.S. Fish & Wildlife Service,National Wildlife Refuge,East Gulf Coastal Plain,3,2536,247,TRUE,247,TRUE
+6119,Bud Love Wildlife Habitat Management Area,WY,7897,State of Wyoming,State Conservation Area,Northern Great Plains Steppe,19,2542,,FALSE,850,TRUE
+2848,Big Gum Swamp Wilderness - Osceola National Forest,FL,13835,US Forest Service,National Forest,South Atlantic Coastal Plain,5,2575,,FALSE,372,TRUE
+2875,Overflow National Wildlife Refuge,"AR, LA",13106,U.S. Fish & Wildlife Service,National Wildlife Refuge,Mississippi River Alluvial Plain,3,2592,248,TRUE,248,TRUE
+2788,Juniper Prairie Wilderness - Ocala National Forest,FL,14293,US Forest Service,National Forest,Florida Peninsula,1,2605,56,TRUE,56,TRUE
+1083,Clifty Wilderness - Daniel Boone National Forest,KY,11089,US Forest Service,National Forest,Cumberlands And Southern Ridge And Valley,5,2636,,FALSE,437,TRUE
+5976,Suggs Mill Pond Game Land Nature Reserve,NC,9346,NC Wildlife Resources Commission,State Recreation Area,Mid-Atlantic Coastal Plain,12,2648,,FALSE,851,TRUE
+3074,Porcupine Mountains Wilderness State Park,MI,62178,Michigan Department of Natural Resources,State Park,Great Lakes,14,2649,,FALSE,819,TRUE
+3471,Sam D. Hamilton Noxubee National Wildlife Refuge,MS,47171,U.S. Fish & Wildlife Service,National Wildlife Refuge,Upper East Gulf Coastal Plain,1,2707,57,TRUE,57,TRUE
+325,Big South Fork National River and Recreation Area,"KY, TN",39181,National Park Service,,Cumberlands And Southern Ridge And Valley,6,2722,,FALSE,563,TRUE
+1589,Sweetgrass Hills ACEC - Havre Field Office,MT,4035,Bureau of Land Management,Area of Critical Environmental Concern,Northern Great Plains Steppe,21,2733,,FALSE,915,TRUE
+1274,Felsenthal National Wildlife Refuge,AR,64250,U.S. Fish & Wildlife Service,National Wildlife Refuge,Upper West Gulf Coastal Plain,2,2768,183,TRUE,183,TRUE
+2384,Nordhouse Dunes Wilderness - Manistee National Forest,MI,3245,US Forest Service,National Forest,Great Lakes,15,2771,,FALSE,627,TRUE
+2441,Mattamuskeet National Wildlife Refuge,NC,48835,U.S. Fish & Wildlife Service,National Wildlife Refuge,Mid-Atlantic Coastal Plain,13,2848,,FALSE,784,TRUE
+900529,Sipsey Wilderness - William B. Bankhead National Forest,AL,20275,US Forest Service,National Forest / Wild and Scenic River,Cumberlands And Southern Ridge And Valley,7,2858,308,TRUE,308,TRUE
+1052,Sheep Ridge Wilderness - Croatan National Forest,NC,9315,US Forest Service,National Forest,Mid-Atlantic Coastal Plain,14,2866,,FALSE,564,TRUE
+5997,Apalachicola River Wildlife and Environmental Area,FL,57080,Trustees of the Internal Improvement Trust Fund,State Conservation Area,East Gulf Coastal Plain,4,2871,309,TRUE,309,TRUE
+2861,Black Fork Mountain Wilderness - Ouachita National Forest,"AR, OK",13347,US Forest Service,National Forest,Ouachita Mountains,4,2875,,FALSE,373,TRUE
+66,Clear Lake WSA - Apalachicola National Forest,FL,5475,US Forest Service,,East Gulf Coastal Plain,5,2879,,FALSE,374,TRUE
+3468,Salt Plains National Wildlife Refuge,OK,19917,U.S. Fish & Wildlife Service,National Wildlife Refuge,Central Mixed-Grass Prairie,4,2883,310,TRUE,310,TRUE
+2436,Rockpile Mountain Wilderness - Mark Twain National Forest,MO,4236,US Forest Service,National Forest,Ozarks,14,2895,,FALSE,885,TRUE
+4031,Tahquamenon Falls State Park,MI,45424,Michigan Department of Natural Resources,State Park,Great Lakes,16,2923,,FALSE,852,TRUE
+2434,Paddy Creek Wilderness - Mark Twain National Forest,MO,7040,US Forest Service,National Forest,Ozarks,15,2952,,FALSE,945,TRUE
+6840,State Game Land 087,PA,17318,PA Game Commission,State Land,Western Allegheny Plateau,1,2957,58,TRUE,58,TRUE
+900006,Agassiz National Wildlife Refuge,MN,60093,U.S. Fish & Wildlife Service,National Wildlife Refuge,Northern Tallgrass Prairie,1,2961,59,TRUE,59,TRUE
+7905,Francis Case Recreation Area,SD,98652,Unknown,Recreation Area,Dakota Mixed-Grass Prairie,2,2970,249,TRUE,249,TRUE
+2865,Dry Creek Wilderness - Ouachita National Forest,AR,6301,US Forest Service,National Forest,Ouachita Mountains,5,2975,,FALSE,438,TRUE
+1626,Rock River Canyon Wilderness - Hiawatha National Forest,MI,4724,US Forest Service,National Forest,Great Lakes,17,2998,,FALSE,916,TRUE
+900313,Lewis And Clark Recreation Area,"NE, SD",38559,Unknown,Recreation Area,Northern Tallgrass Prairie,3,3010,311,TRUE,311,TRUE
+900102,Chassahowitzka National Wildlife Refuge,FL,23746,U.S. Fish & Wildlife Service,National Wildlife Refuge,Florida Peninsula,2,3022,116,TRUE,116,TRUE
+7916,Roper Island - Emily & Richardson Preyer Buckridge Coastal Reserve,NC,8959,"NC DENR, Division of Coastal Management",State Conservation Area,Mid-Atlantic Coastal Plain,15,3030,,FALSE,886,TRUE
+900542,Sparkleberry Swamp,SC,21983,South Carolina Public Service Authority,State Other,Mid-Atlantic Coastal Plain,16,3031,,FALSE,820,TRUE
+397,Beaver Park IRA - Black Hills National Forest,SD,5001,US Forest Service,Inventoried Roadless Area,Black Hills,6,3032,,FALSE,375,TRUE
+1623,Grand Island NRA - Hiawatha National Forest,MI,12995,US Forest Service,National Recreation Area,Great Lakes,18,3050,,FALSE,785,TRUE
+2522,Terry Badlands WSA - Miles City Field Office,MT,39645,Bureau of Land Management,Wilderness Study Area,Northern Great Plains Steppe,23,3058,,FALSE,786,TRUE
+2688,Soldier Creek Wilderness - Nebraska National Forest,NE,7804,US Forest Service,National Forest,Northern Great Plains Steppe,24,3064,,FALSE,998,TRUE
+5291,Grassland Reserve Program - Prairie Canyonlands,CO,5477,The Nature Conservancy,Grassland Reserve Program,Central Shortgrass Prairie,5,3091,312,TRUE,312,TRUE
+4793,Wolf Island National Wildlife Refuge,GA,3169,U.S. Fish & Wildlife Service,National Wildlife Refuge,South Atlantic Coastal Plain,6,3138,250,TRUE,250,TRUE
+69,Mud Swamp/New River Wilderness - Apalachicola National Forest,FL,7151,US Forest Service,National Forest,East Gulf Coastal Plain,6,3141,,FALSE,439,TRUE
+7078,Baraga State Forest Area,MI,8046,Michigan Department of Natural Resources,State Conservation Area,Great Lakes,21,3147,,FALSE,972,TRUE
+3730,Sherburne National Wildlife Refuge,MN,30136,U.S. Fish & Wildlife Service,National Wildlife Refuge,Prairie-Forest Border,4,3156,313,TRUE,313,TRUE
+2868,Poteau Mountain Wilderness - Ouachita National Forest,AR,11141,US Forest Service,National Forest,Ouachita Mountains,6,3162,,FALSE,565,TRUE
+900441,Quabbin Reservoir Watershed,MA,40645,DCR - Division of Water Supply Protection,Water Supply Land,Lower New England / Northern Piedmont,1,3198,60,TRUE,60,TRUE
+3725,Lusk Creek Wilderness - Shawnee National Forest,IL,6352,US Forest Service,National Forest,Interior Low Plateau,4,3202,,FALSE,628,TRUE
+4554,Waccasassa Bay Preserve State Park,FL,34290,Trustees of the Internal Improvement Trust Fund,State Conservation Area,Florida Peninsula,3,3204,251,TRUE,251,TRUE
+7054,Roseau River State Wildlife Management Area,MN,66943,Minnesota Department of Natural Resources,State Conservation Area,Northern Tallgrass Prairie,2,3232,117,TRUE,117,TRUE
+541,Buffalo National River,AR,53140,National Park Service,,Ozarks,16,3247,,FALSE,917,TRUE
+2431,Devils Backbone Wilderness - Mark Twain National Forest,MO,6691,US Forest Service,National Forest,Ozarks,17,3249,,FALSE,973,TRUE
+1809,J. Clark Salyer National Wildlife Refuge,ND,53908,U.S. Fish & Wildlife Service,National Wildlife Refuge,Dakota Mixed-Grass Prairie,4,3258,184,TRUE,184,TRUE
+5256,Garden Mountain NF Wilderness Area,VA,3294,USDA Forest Service,,Cumberlands And Southern Ridge And Valley,8,3260,,FALSE,692,TRUE
+900560,Tennessee National Wildlife Refuge,TN,11378,Unknown,National Wildlife Refuge,Interior Low Plateau,5,3277,314,TRUE,314,TRUE
+5856,Everglades and Francis S. Taylor Wildlife Management Area,FL,669421,Trustees of the Internal Improvement Trust Fund,State Conservation Area,Tropical Florida,8,3312,,FALSE,500,TRUE
+1920,Candian River - Kiowa National Grassland,NM,6175,US Forest Service,Inventoried Roadless Area,Southern Shortgrass Prairie,2,3314,252,TRUE,252,TRUE
+3724,Garden Of The Gods Wilderness - Shawnee National Forest,IL,3955,US Forest Service,National Forest,Interior Low Plateau,6,3332,,FALSE,440,TRUE
+5012,Natural Area High Island,MI,3584,Michigan Department of Natural Resources,State Conservation Area,Great Lakes,22,3342,,FALSE,999,TRUE
+900617,Wichita Mountains Wildlife Refuge,OK,59184,U.S. Fish & Wildlife Service,National Wildlife Refuge,Central Mixed-Grass Prairie,5,3360,118,TRUE,118,TRUE
+900146,Dale Hollow Recreation Area,"KY, TN",51056,Unknown,Recreation Area,Interior Low Plateau,7,3378,185,TRUE,185,TRUE
+900028,Bear Island Wildlife Management Area,SC,9205,South Carolina Department of Natural Resources,State Conservation Area,South Atlantic Coastal Plain,7,3406,,FALSE,501,TRUE
+5900,TOWNSEND WMA - Townsend Wildlife Management Area,GA,20505,Georgia Department of Natural Resources,State Conservation Area,South Atlantic Coastal Plain,8,3418,,FALSE,566,TRUE
+6879,Current River Fee,MO,4038,The Nature Conservancy,Private Conservation,Ozarks,18,3420,,FALSE,1000,TRUE
+900037,Beury Mountain Wildlife Management Area,WV,9263,WV Division of Natural Resources,Wildlife Management Area,Cumberlands And Southern Ridge And Valley,9,3421,,FALSE,502,TRUE
+7909,Buryanek Game Production Area,SD,4657,State Fish and Wildlife,State Conservation Area,Dakota Mixed-Grass Prairie,5,3429,119,TRUE,119,TRUE
+1082,Beaver Creek Wilderness - Daniel Boone National Forest,KY,4816,US Forest Service,National Forest,Cumberlands And Southern Ridge And Valley,10,3446,,FALSE,376,TRUE
+3054,Pisgah State Park - Critria 1 lands,NH,4594,State of New Hampshire - DNCR/DFL + DPR,State Park,Lower New England / Northern Piedmont,2,3468,186,TRUE,186,TRUE
+7251,Lake Okeechobee Sanctuaries,FL,8744,Trustees of the Internal Improvement Trust Fund,Private Conservation,Tropical Florida,9,3478,,FALSE,567,TRUE
+6020,Beartown State Forest,NY,5762,NYS Department of Environmental Conservation,State Forest,St. Lawrence - Champlain Valley,3,3486,253,TRUE,253,TRUE
+4033,Cheaha Wilderness - Talladega National Forest,AL,7314,US Forest Service,National Forest,Cumberlands And Southern Ridge And Valley,11,3523,,FALSE,787,TRUE
+2141,Las Vegas National Wildlife Refuge,NM,8711,U.S. Fish & Wildlife Service,National Wildlife Refuge,Southern Shortgrass Prairie,3,3526,,FALSE,377,TRUE
+900276,James D. Martin - Skyline Wildlife Management Area,AL,14220,"ADCNR, Division of Wildlife and Freshwater Fisheries / Alabama Forever Wild Land Trust",State Conservation Area,Cumberlands And Southern Ridge And Valley,12,3552,,FALSE,853,TRUE
+6474,Hidden Valley Wildlife Management Area,VA,6239,VA Dept of Wildlife Resources,Wildlife Management Area,Cumberlands And Southern Ridge And Valley,13,3581,,FALSE,629,TRUE
+3721,Burden Falls Wilderness - Shawnee National Forest,IL,3694,US Forest Service,National Forest,Interior Low Plateau,8,3587,,FALSE,693,TRUE
+5763,Martin National Wildlife Refuge,MD,3932,US Fish and Wildlife Service,National Wildlife Refuge,Chesapeake Bay Lowlands,5,3598,315,TRUE,315,TRUE
+4784,William L. Finley National Wildlife Refuge,OR,4734,U.S. Fish & Wildlife Service,National Wildlife Refuge,Willamette Valley - Puget Trough - Georgia Basin: Temperate Broadleaf And Mixed Forests,1,3637,61,TRUE,61,TRUE
+2894,Wild and Scenic Rivers - Scenic - Ozark National Forest,AR,10044,US Forest Service,Wild and Scenic River,Ozarks,19,3707,,FALSE,854,TRUE
+900032,Beartown State Forest,MA,7457,DCR - Division of State Parks and Recreation,State Forest,Lower New England / Northern Piedmont,3,3722,254,TRUE,254,TRUE
+3263,Rio Mora National Wildlife Refuge And Conservation Area,NM,4230,U.S. Fish & Wildlife Service,National Wildlife Refuge,Southern Shortgrass Prairie,4,3734,187,TRUE,187,TRUE
+900477,Saint Helena Sound Heritage Preserve / Wildlife Management Area,SC,8409,South Carolina Department of Natural Resources,State Conservation Area,South Atlantic Coastal Plain,9,3736,,FALSE,630,TRUE
+6755,Clearwater Lake - Clearwater Recreation Area,MO,16427,Unknown & Unknown,,Ozarks,20,3747,,FALSE,788,TRUE
+1572,Harris Neck National Wildlife Refuge,GA,2750,U.S. Fish & Wildlife Service,National Wildlife Refuge,South Atlantic Coastal Plain,10,3749,,FALSE,441,TRUE
+2867,Ouachita - Ouachita National Forest,AR,138038,US Forest Service,National Wildlife Refuge,Ouachita Mountains,7,3789,,FALSE,503,TRUE
+180,Babcock State Park,WV,3499,WV Division of Natural Resources,State Park,Cumberlands And Southern Ridge And Valley,14,3790,,FALSE,821,TRUE
+6018,Sand Flats State Forest,NY,2532,NYS Department of Environmental Conservation,State Forest,St. Lawrence - Champlain Valley,4,3795,316,TRUE,316,TRUE
+7815,Sharpe Recreation Area,SD,73729,Unknown,Recreation Area,Dakota Mixed-Grass Prairie,6,3803,,FALSE,568,TRUE
+4960,Saxis Wildlife Management Area,VA,3415,VA Dept of Wildlife Resources,Wildlife Management Area,Chesapeake Bay Lowlands,6,3807,,FALSE,378,TRUE
+1921,Catahoula - Kisatchie National Forest,LA,37628,US Forest Service,National Wildlife Refuge,West Gulf Coastal Plain,5,3814,317,TRUE,317,TRUE
+7826,Tennessee National Wildlife Refuge,TN,5245,Unknown,National Wildlife Refuge,Interior Low Plateau,9,3817,,FALSE,569,TRUE
+900132,Crab Orchard National Wildlife Refuge,IL,42792,U.S. Fish & Wildlife Service,National Wildlife Refuge,Interior Low Plateau,10,3828,,FALSE,379,TRUE
+6563,SAPELO ISLAND WMA - Sapelo Island Wildlife Management Area,GA,18437,Georgia Department of Natural Resources,State Conservation Area,South Atlantic Coastal Plain,11,3849,,FALSE,744,TRUE
+6472,The Channels State Forest,VA,4114,VA Dept of Forestry,State Forest,Cumberlands And Southern Ridge And Valley,15,3878,,FALSE,745,TRUE
+6427,Yellowwood State Forest,IN,5092,"Indiana DNR, Forestry Division",State Conservation Area,Interior Low Plateau,11,3881,,FALSE,822,TRUE
+2789,Little Lake George Wilderness - Ocala National Forest,FL,2827,US Forest Service,National Forest,Florida Peninsula,4,3895,,FALSE,380,TRUE
+5895,Picayune Strand State Forest,FL,73633,Trustees of the Internal Improvement Trust Fund,State Resource Management Area,Tropical Florida,10,3903,,FALSE,631,TRUE
+2787,Billies Bay Wilderness - Ocala National Forest,FL,3064,US Forest Service,National Forest,Florida Peninsula,5,3911,318,TRUE,318,TRUE
+3151,Quivira National Wildlife Refuge,KS,22163,U.S. Fish & Wildlife Service,National Wildlife Refuge,Central Mixed-Grass Prairie,6,3917,,FALSE,442,TRUE
+5899,PENHOLOWAY SWAMP WMA - Penholoway Swamp Wildlife Management Area,GA,10572,Georgia Department of Natural Resources,State Conservation Area,South Atlantic Coastal Plain,12,3922,,FALSE,694,TRUE
+900365,Mount Greylock State Reservation,MA,8336,DCR - Division of State Parks and Recreation,State Park,Lower New England / Northern Piedmont,4,3929,120,TRUE,120,TRUE
+5304,Sandhill Wildlife Area,WI,9483,Wisconsin Department of Natural Resources,State Conservation Area,Prairie-Forest Border,5,3931,,FALSE,570,TRUE
+900159,DIXON MEMORIAL WMA - Dixon Memorial Wildlife Management Area,GA,34065,Georgia Forestry Commission,State Conservation Area,South Atlantic Coastal Plain,13,3960,,FALSE,789,TRUE
+142,Arrowwood National Wildlife Refuge,ND,13262,U.S. Fish & Wildlife Service,National Wildlife Refuge,Dakota Mixed-Grass Prairie,7,3961,,FALSE,381,TRUE
+81,Aransas National Wildlife Refuge,TX,88877,U.S. Fish & Wildlife Service,National Wildlife Refuge,Gulf Coast Prairies And Marshes,1,3970,62,TRUE,62,TRUE
+1113,Delta National Wildlife Refuge,LA,50259,U.S. Fish & Wildlife Service,National Wildlife Refuge,Gulf Coast Prairies And Marshes,2,3974,121,TRUE,121,TRUE
+1988,Lake Alice National Wildlife Refuge,ND,8482,U.S. Fish & Wildlife Service,National Wildlife Refuge,Dakota Mixed-Grass Prairie,8,3987,,FALSE,504,TRUE
+900262,Hugo Wildlife Management Area,OK,12906,Department of Wildlife Conservation,State Conservation Area,Ouachita Mountains,8,3990,122,TRUE,122,TRUE
+853,Chickasaw National Wildlife Refuge,TN,16636,U.S. Fish & Wildlife Service,National Wildlife Refuge,Mississippi River Alluvial Plain,4,3993,,FALSE,382,TRUE
+5938,Sam Rayburn Recreation Area,TX,115483,Unknown,Recreation Area,West Gulf Coastal Plain,6,4000,,FALSE,383,TRUE
+4984,Holey Land Wildlife Management Area,FL,34929,Trustees of the Internal Improvement Trust Fund,State Conservation Area,Tropical Florida,11,4006,,FALSE,746,TRUE
+7372,White Earth State Forest,MN,6892,Minnesota Department of Natural Resources,State Resource Management Area,Prairie-Forest Border,6,4008,,FALSE,505,TRUE
+4034,Dugger Mountain Wilderness - Talladega National Forest,AL,8947,US Forest Service,National Forest,Cumberlands And Southern Ridge And Valley,16,4040,,FALSE,887,TRUE
+900017,Apishapa,CO,13422,Colorado Division of Wildlife,State Conservation Area,Central Shortgrass Prairie,6,4041,,FALSE,384,TRUE
+6634,Big Lazer Creek Wildlife Management Area,GA,5873,Georgia Department of Natural Resources,State Conservation Area,Piedmont,2,4051,123,TRUE,123,TRUE
+2231,Little River Canyon National Preserve,AL,10965,National Park Service,Conservation Area,Cumberlands And Southern Ridge And Valley,17,4069,,FALSE,946,TRUE
+6990,Cumberland Gap National Historical Park,"KY, TN, VA",7268,US National Park Service,National Park,Cumberlands And Southern Ridge And Valley,18,4079,,FALSE,974,TRUE
+3932,St. Catherine Creek National Wildlife Refuge,"LA, MS",24714,U.S. Fish & Wildlife Service,National Wildlife Refuge,Mississippi River Alluvial Plain,5,4086,188,TRUE,188,TRUE
+1633,Hillside National Wildlife Refuge,MS,15482,U.S. Fish & Wildlife Service,National Wildlife Refuge,Mississippi River Alluvial Plain,6,4094,319,TRUE,319,TRUE
+900557,Tate's Hell State Forest,FL,202306,Trustees of the Internal Improvement Trust Fund,State Resource Management Area,East Gulf Coastal Plain,7,4102,,FALSE,632,TRUE
+5279,Lynn Camp Creek NF Wilderness Study Area,VA,3227,USDA Forest Service,,Cumberlands And Southern Ridge And Valley,19,4129,,FALSE,918,TRUE
+67,Gum Bay IRA - Apalachicola National Forest,FL,11443,US Forest Service,Inventoried Roadless Area,East Gulf Coastal Plain,8,4131,,FALSE,571,TRUE
+1925,Kissimmee Prairie Preserve State Park,FL,53738,Trustees of the Internal Improvement Trust Fund,State Conservation Area,Florida Peninsula,6,4138,189,TRUE,189,TRUE
+7501,Audubon of Kansas Unknown,NE,4377,Audubon of Kansas,Unknown,Dakota Mixed-Grass Prairie,9,4148,,FALSE,443,TRUE
+5922,Big Bend Wildlife Management Area,FL,22595,Trustees of the Internal Improvement Trust Fund,State Conservation Area,East Gulf Coastal Plain,9,4157,,FALSE,506,TRUE
+900474,Sabine National Forest,TX,120428,US Forest Service,National Forest,West Gulf Coastal Plain,3,4181,124,TRUE,124,TRUE
+900181,Fishing Bay WMA,MD,22613,MD Department of Natural Resources,Wildlife Management Area,Chesapeake Bay Lowlands,7,4186,,FALSE,444,TRUE
+5473,Monadnock Reservation,NH,2953,Society for the Protection of NH Forests,Nature,Lower New England / Northern Piedmont,5,4190,,FALSE,445,TRUE
+3024,Pillsbury State Park,NH,4253,NH Department of Resources & Economic Development,State Park,Lower New England / Northern Piedmont,6,4195,320,TRUE,320,TRUE
+3720,Bay Creek Wilderness - Shawnee National Forest,IL,2757,US Forest Service,National Forest,Interior Low Plateau,12,4213,,FALSE,747,TRUE
+5885,Rookery Bay National Estuarine Research Reserve,FL,81039,Trustees of the Internal Improvement Trust Fund,State Conservation Area,Tropical Florida,12,4218,,FALSE,695,TRUE
+5777,Calcasieu River,LA,8144,State Fish and Wildlife,State Conservation Area,West Gulf Coastal Plain,7,4231,,FALSE,507,TRUE
+7627,Warwick State Forest,MA,3504,DCR - Division of State Parks and Recreation,State Forest,Lower New England / Northern Piedmont,7,4264,,FALSE,385,TRUE
+7973,Lost Maples State Natural Area,TX,2876,Texas Parks and Wildlife Department,State Conservation Area,Edwards Plateau,1,4279,63,TRUE,63,TRUE
+7163,State Game Land 311,PA,3766,PA Game Commission,State Land,Western Allegheny Plateau,2,4291,190,TRUE,190,TRUE
+5796,Coastal Big Bend,FL,3268,The Nature Conservancy,Private Conservation,East Gulf Coastal Plain,10,4299,,FALSE,748,TRUE
+2860,Beech Creek - Ouachita National Forest,"AR, OK",7276,US Forest Service,,Ouachita Mountains,9,4304,,FALSE,696,TRUE
+1984,Lacassine National Wildlife Refuge,LA,33203,U.S. Fish & Wildlife Service,National Wildlife Refuge,Gulf Coast Prairies And Marshes,3,4330,255,TRUE,255,TRUE
+68,Long Bay IRA - Apalachicola National Forest,FL,5726,US Forest Service,Inventoried Roadless Area,East Gulf Coastal Plain,11,4332,,FALSE,790,TRUE
+5114,Cedar Bluff Wildlife Area,KS,11336,State Fish and Wildlife,State Conservation Area,Central Mixed-Grass Prairie,7,4333,,FALSE,386,TRUE
+6219,City Greenspace,OR,3663,City of Forest Grove,Local Other,Willamette Valley - Puget Trough - Georgia Basin: Temperate Broadleaf And Mixed Forests,2,4357,125,TRUE,125,TRUE
+2862,Blue Mountain IRA - Ouachita National Forest,AR,9755,US Forest Service,Inventoried Roadless Area,Ouachita Mountains,10,4362,,FALSE,633,TRUE
+4069,Tensas River National Wildlife Refuge,LA,73226,U.S. Fish & Wildlife Service,National Wildlife Refuge,Mississippi River Alluvial Plain,7,4369,,FALSE,572,TRUE
+3073,Pond Creek National Wildlife Refuge,AR,24744,U.S. Fish & Wildlife Service,National Wildlife Refuge,Upper West Gulf Coastal Plain,4,4372,256,TRUE,256,TRUE
+6637,Hannahatchee Creek Wildlife Mgmt Area,GA,5207,Georgia Department of Natural Resources,State Conservation Area,East Gulf Coastal Plain,12,4381,126,TRUE,126,TRUE
+6731,Yellowwood State Forest,IN,8807,"Indiana DNR, Forestry Division",State Conservation Area,Interior Low Plateau,13,4387,,FALSE,855,TRUE
+2442,Maxwell National Wildlife Refuge,NM,2747,U.S. Fish & Wildlife Service,National Wildlife Refuge,Southern Shortgrass Prairie,5,4389,127,TRUE,127,TRUE
+4307,Trinity River National Wildlife Refuge,TX,12096,U.S. Fish & Wildlife Service,National Wildlife Refuge,Upper West Gulf Coastal Plain,5,4394,321,TRUE,321,TRUE
+6933,White Earth State Forest,MN,4337,Minnesota Department of Natural Resources,State Resource Management Area,Prairie-Forest Border,7,4399,,FALSE,446,TRUE
+2863,Brush Heap IRA - Ouachita National Forest,AR,3805,US Forest Service,Inventoried Roadless Area,Ouachita Mountains,11,4404,,FALSE,749,TRUE
+7507,McDonald-Dunn Research Forest,OR,13643,Oregon State University,State Resource Management Area,Willamette Valley - Puget Trough - Georgia Basin: Temperate Broadleaf And Mixed Forests,3,4410,257,TRUE,257,TRUE
+3405,Sabine National Wildlife Refuge,LA,123071,U.S. Fish & Wildlife Service,National Wildlife Refuge,Gulf Coast Prairies And Marshes,4,4429,323,TRUE,323,TRUE
+5532,Lake Greeson Wildlife Management Area,AR,31626,State Department of Natural Resources,State Conservation Area,Ouachita Mountains,12,4432,322,TRUE,322,TRUE
+900147,Davy Crockett National Forest,TX,155568,US Forest Service,National Forest,West Gulf Coastal Plain,6,4439,,FALSE,509,TRUE
+900400,October Mountain State Forest,MA,9355,DCR - Division of State Parks and Recreation,Area of Critical Environmental Concern,Lower New England / Northern Piedmont,8,4440,,FALSE,508,TRUE
+2691,Neches River National Wildlife Refuge,TX,4368,U.S. Fish & Wildlife Service,National Wildlife Refuge,Upper West Gulf Coastal Plain,7,4449,,FALSE,387,TRUE
+3734,Sheyenne - Sheyenne National Grassland,ND,14415,US Forest Service,Inventoried Roadless Area,Northern Tallgrass Prairie,3,4450,258,TRUE,258,TRUE
+6086,State Game Land 331,PA,5260,PA Game Commission,State Land,Western Allegheny Plateau,3,4475,259,TRUE,259,TRUE
+900097,Catahoula National Wildlife Refuge,LA,17825,U.S. Fish & Wildlife Service,National Wildlife Refuge,Mississippi River Alluvial Plain,8,4479,,FALSE,447,TRUE
+2992,Piedmont National Wildlife Refuge,GA,34667,U.S. Fish & Wildlife Service,National Wildlife Refuge,Piedmont,3,4483,260,TRUE,260,TRUE
+5576,Bridgestone/Firestone Wildlife Management Area,TN,7731,Tennessee Wildlife Resources Agency,State Conservation Area,Interior Low Plateau,14,4503,,FALSE,791,TRUE
+5443,Perdido River Wildlife Management Area,"AL, FL",3464,"ADCNR, State Lands Division",State Conservation Area,East Gulf Coastal Plain,13,4508,,FALSE,697,TRUE
+2426,Maplewood State Park,MN,8069,Minnesota Department of Natural Resources,State Park,Prairie-Forest Border,8,4509,261,TRUE,261,TRUE
+6353,Centennial Wilderness Wildlife Management Area,TN,5962,Tennessee Wildlife Resources Agency,State Conservation Area,Interior Low Plateau,15,4512,,FALSE,510,TRUE
+4088,Tewaukon National Wildlife Refuge,ND,4728,U.S. Fish & Wildlife Service,National Wildlife Refuge,Dakota Mixed-Grass Prairie,10,4526,,FALSE,634,TRUE
+5714,Chickasawhatchee Wildlife Mgmt Area,GA,19538,Georgia Department of Natural Resources,State Conservation Area,East Gulf Coastal Plain,14,4530,,FALSE,823,TRUE
+7871,Thief Lake State Wildlife Management Area,MN,49048,Minnesota Department of Natural Resources,State Conservation Area,Northern Tallgrass Prairie,4,4533,191,TRUE,191,TRUE
+3926,Fort Meade Recreation Area ACEC - South Dakota Field Office,SD,6382,Bureau of Land Management,Area of Critical Environmental Concern,Black Hills,7,4539,,FALSE,573,TRUE
+3928,South Mountains State Park Dedicated Nature Preserve - South Mountains State Park,NC,13626,"NC DENR, Division of Parks and Recreation",State Park,Piedmont,4,4565,192,TRUE,192,TRUE
+7901,Cardigan Mountain State Forest,NH,5943,NH Department of Resources & Economic Development,State Forest,Lower New England / Northern Piedmont,9,4576,,FALSE,574,TRUE
+2786,Alexander Springs Wilderness - Ocala National Forest,FL,7327,US Forest Service,National Forest,Florida Peninsula,7,4578,,FALSE,635,TRUE
+2232,Little River National Wildlife Refuge,OK,14180,U.S. Fish & Wildlife Service,National Wildlife Refuge,Upper West Gulf Coastal Plain,8,4602,,FALSE,448,TRUE
+7396,Quincy Bluff And Wetlands Natural Area,WI,2657,Wisconsin Department of Natural Resources,State Conservation Area,Prairie-Forest Border,9,4605,,FALSE,636,TRUE
+6678,Little River Wildlife Management Area,LA,4171,State Fish and Wildlife,State Conservation Area,West Gulf Coastal Plain,8,4615,,FALSE,637,TRUE
+2939,Panther Swamp National Wildlife Refuge,MS,33082,U.S. Fish & Wildlife Service,National Wildlife Refuge,Mississippi River Alluvial Plain,9,4617,,FALSE,638,TRUE
+5951,Apalachicola River Water Management Area,FL,36222,Northwest Florida Water Management District,Watershed Protection Area,East Gulf Coastal Plain,15,4619,,FALSE,856,TRUE
+620,Caddo Lake National Wildlife Refuge,TX,7163,U.S. Fish & Wildlife Service,National Wildlife Refuge,Upper West Gulf Coastal Plain,9,4641,,FALSE,575,TRUE
+4831,Wilson Recreation Area,KS,21035,Unknown,Recreation Area,Central Mixed-Grass Prairie,8,4644,,FALSE,576,TRUE
+6164,Sanganois State Fish and Wildlife Area,IL,10904,Other State Land,State Conservation Area,Central Tallgrass Prairie,1,4649,64,TRUE,64,TRUE
+6925,State Game Land 074,PA,6568,PA Game Commission,State Land,Western Allegheny Plateau,4,4651,324,TRUE,324,TRUE
+3160,Red River National Wildlife Refuge,LA,3098,U.S. Fish & Wildlife Service,National Wildlife Refuge,West Gulf Coastal Plain,9,4654,,FALSE,449,TRUE
+3589,Sand Lake National Wildlife Refuge,SD,19485,U.S. Fish & Wildlife Service,National Wildlife Refuge,Dakota Mixed-Grass Prairie,11,4655,,FALSE,750,TRUE
+5435,Apishapa,CO,11502,Colorado Division of Wildlife,State Conservation Area,Central Shortgrass Prairie,7,4676,,FALSE,511,TRUE
+1641,Mogan Ridge IRA - Hoosier National Forest,IN,8019,US Forest Service,Inventoried Roadless Area,Interior Low Plateau,16,4678,,FALSE,888,TRUE
+877,Clarence Cannon National Wildlife Refuge,MO,3734,U.S. Fish & Wildlife Service,National Wildlife Refuge,Central Tallgrass Prairie,2,4682,262,TRUE,262,TRUE
+900483,San Bernard National Wildlife Refuge,TX,37663,U.S. Fish & Wildlife Service,National Wildlife Refuge,Gulf Coast Prairies And Marshes,5,4685,,FALSE,388,TRUE
+6587,Friendshuh Game Production Area,SD,4544,State Fish and Wildlife,State Conservation Area,Black Hills,8,4688,,FALSE,512,TRUE
+900569,Tidal Lands,VA,6847,Commonwealth of Virginia,State Land,Chesapeake Bay Lowlands,8,4689,,FALSE,577,TRUE
+7013,Black Hills National Forest - Pactola Reservoir,SD,3515,Bureau of Reclamation & US Forest Service,National Forest,Black Hills,9,4691,,FALSE,450,TRUE
+3309,Rocky Flats National Wildlife Refuge,CO,3890,U.S. Fish & Wildlife Service,National Wildlife Refuge,Central Shortgrass Prairie,8,4699,,FALSE,451,TRUE
+900482,Sam Houston National Forest,TX,151423,US Forest Service,National Forest,Upper West Gulf Coastal Plain,10,4708,,FALSE,698,TRUE
+1114,Des Lacs National Wildlife Refuge,ND,13876,U.S. Fish & Wildlife Service,National Wildlife Refuge,Fescue-Mixed Grass Prairie,3,4714,263,TRUE,263,TRUE
+3733,Mcleod - Sheyenne National Grassland,ND,9088,US Forest Service,Inventoried Roadless Area,Northern Tallgrass Prairie,5,4723,,FALSE,452,TRUE
+6151,Mockhorn Wildlife Management Area,VA,7341,VA Dept of Wildlife Resources,Wildlife Management Area,Chesapeake Bay Lowlands,9,4730,,FALSE,699,TRUE
+7410,Mount Kearsarge State Forest,NH,3893,NH Department of Resources & Economic Development,State Forest,Lower New England / Northern Piedmont,10,4734,,FALSE,751,TRUE
+3731,Delamere - Sheyenne National Grassland,ND,5030,US Forest Service,Inventoried Roadless Area,Northern Tallgrass Prairie,6,4737,325,TRUE,325,TRUE
+6421,Mount Washington State Forest,"CT, MA, NY",3158,DCR - Division of State Parks and Recreation,Area of Critical Environmental Concern,Lower New England / Northern Piedmont,11,4749,,FALSE,639,TRUE
+2592,Morgan Brake National Wildlife Refuge,MS,7423,U.S. Fish & Wildlife Service,National Wildlife Refuge,Mississippi River Alluvial Plain,10,4762,,FALSE,700,TRUE
+8121,Wild and Scenic Rivers - Recreational - Lewis And Clark Recreation Area,"NE, SD",3143,Unknown,Wild and Scenic River,Dakota Mixed-Grass Prairie,12,4763,,FALSE,701,TRUE
+900332,Lower Rio Grande Valley National Wildlife Refuge,TX,40637,U.S. Fish & Wildlife Service,National Wildlife Refuge,Gulf Coast Prairies And Marshes,6,4764,193,TRUE,193,TRUE
+1501,Grulla National Wildlife Refuge,NM,3231,U.S. Fish & Wildlife Service,National Wildlife Refuge,Southern Shortgrass Prairie,6,4768,,FALSE,640,TRUE
+1079,D 'Arbonne National Wildlife Refuge,LA,17638,U.S. Fish & Wildlife Service,National Wildlife Refuge,Upper West Gulf Coastal Plain,11,4772,,FALSE,641,TRUE
+6605,Hill Country State Natural Area,TX,5382,Texas Parks and Wildlife Department,State Conservation Area,Edwards Plateau,2,4774,194,TRUE,194,TRUE
+900608,Wendell State Forest,MA,6140,DCR - Division of State Parks and Recreation,State Forest,Lower New England / Northern Piedmont,12,4777,,FALSE,702,TRUE
+5581,Brasher State Forest,NY,4537,NYS Department of Environmental Conservation,State Forest,St. Lawrence - Champlain Valley,5,4780,,FALSE,389,TRUE
+267,Bayou Cocodrie National Wildlife Refuge,LA,13613,U.S. Fish & Wildlife Service,National Wildlife Refuge,Mississippi River Alluvial Plain,11,4782,,FALSE,824,TRUE
+1444,Glacial Ridge National Wildlife Refuge,MN,7943,U.S. Fish & Wildlife Service,National Wildlife Refuge,Northern Tallgrass Prairie,7,4788,,FALSE,390,TRUE
+177,Atchafalaya National Wildlife Refuge,LA,15276,U.S. Fish & Wildlife Service,National Wildlife Refuge,Mississippi River Alluvial Plain,12,4792,,FALSE,752,TRUE
+197,Balcones Canyonlands National Wildlife Refuge,TX,14164,U.S. Fish & Wildlife Service,National Wildlife Refuge,Edwards Plateau,3,4795,264,TRUE,264,TRUE
+2240,Loess Bluffs National Wildlife Refuge,MO,7442,U.S. Fish & Wildlife Service,National Wildlife Refuge,Central Tallgrass Prairie,3,4797,195,TRUE,195,TRUE
+711,Cat Island National Wildlife Refuge,LA,10660,U.S. Fish & Wildlife Service,National Wildlife Refuge,Mississippi River Alluvial Plain,13,4805,,FALSE,792,TRUE
+4032,Blue Mountain IRA - Talladega National Forest,AL,4242,US Forest Service,Inventoried Roadless Area,Piedmont,5,4807,,FALSE,391,TRUE
+6467,Cimarron Bluff Wildlife Management Area,OK,3631,Department of Wildlife Conservation,State Conservation Area,Central Mixed-Grass Prairie,9,4811,,FALSE,642,TRUE
+3358,Lesser Prairie Chicken Habitat ACEC - Roswell Field Office,NM,48988,Bureau of Land Management,Area of Critical Environmental Concern,Southern Shortgrass Prairie,7,4813,,FALSE,453,TRUE
+1591,Haw Creek Preserve State Park,FL,2494,Trustees of the Internal Improvement Trust Fund,State Conservation Area,Florida Peninsula,8,4824,,FALSE,513,TRUE
+3735,Venlo - Sheyenne National Grassland,ND,5269,US Forest Service,Inventoried Roadless Area,Northern Tallgrass Prairie,8,4829,,FALSE,578,TRUE
+8028,South Mountains Game Land Dedicated Nature Preserve - South Mountains Game Land,NC,18177,NC Wildlife Resources Commission,,Piedmont,6,4837,,FALSE,579,TRUE
+320,Big Boggy National Wildlife Refuge,TX,4188,U.S. Fish & Wildlife Service,National Wildlife Refuge,Gulf Coast Prairies And Marshes,7,4844,,FALSE,454,TRUE
+1031,Coyote Creek State Park,NM,7306,State Park & Recreation,State Park,Southern Shortgrass Prairie,8,4845,,FALSE,580,TRUE
+13,Anahuac National Wildlife Refuge,TX,34911,U.S. Fish & Wildlife Service,National Wildlife Refuge,Gulf Coast Prairies And Marshes,8,4847,,FALSE,514,TRUE
+5308,Cimarron Bluff Wildlife Management Area,OK,3075,Department of Wildlife Conservation,State Conservation Area,Central Mixed-Grass Prairie,10,4850,,FALSE,515,TRUE
+6898,State Game Land 262,PA,5420,PA Game Commission,State Land,Western Allegheny Plateau,5,4861,,FALSE,455,TRUE
+7240,Okaloacoochee Slough State Forest,FL,32033,South Florida Water Management District,State Resource Management Area,Florida Peninsula,9,4862,,FALSE,703,TRUE
+6355,Freezout Lake Wildlife Management Area,MT,6449,Unknown,Conservation Area,Fescue-Mixed Grass Prairie,4,4867,196,TRUE,196,TRUE
+6285,West Bijou Site - Fee,CO,5711,West Arapahoe Conservation District,Private Conservation,Central Shortgrass Prairie,9,4871,,FALSE,581,TRUE
+5667,Rockefeller Wildlife Refuge,LA,85813,State Department of Natural Resources,State Conservation Area,Gulf Coast Prairies And Marshes,9,4881,,FALSE,582,TRUE
+3732,Durler - Sheyenne National Grassland,ND,12248,US Forest Service,Inventoried Roadless Area,Northern Tallgrass Prairie,9,4883,,FALSE,704,TRUE
+6842,Black River State Forest,WI,3242,Wisconsin Department of Natural Resources,State Conservation Area,Prairie-Forest Border,10,4888,,FALSE,753,TRUE
+1924,Saline Bayou W - Kisatchie National Forest,LA,3516,US Forest Service,Wild and Scenic River,Upper West Gulf Coastal Plain,12,4891,,FALSE,754,TRUE
+619,Cache River National Wildlife Refuge,AR,2940,U.S. Fish & Wildlife Service,National Wildlife Refuge,Mississippi River Alluvial Plain,14,4896,,FALSE,516,TRUE
+6837,State Game Land 174,PA,3957,PA Game Commission,State Land,Western Allegheny Plateau,6,4904,,FALSE,583,TRUE
+6469,Hulah Wildlife Management Area,"KS, OK",19828,Department of Wildlife Conservation,State Conservation Area,Osage Plains/Flint Hills Prairie,1,4906,65,TRUE,65,TRUE
+4446,Upper Mississippi River National Wildlife And Fish Refuge,"IL, MN, WI",29389,U.S. Fish & Wildlife Service,National Wildlife Refuge,Prairie-Forest Border,11,4917,,FALSE,705,TRUE
+5698,Marsh Island Wildlife Refuge,LA,70769,State Department of Natural Resources,State Conservation Area,Gulf Coast Prairies And Marshes,10,4921,,FALSE,643,TRUE
+618,Cache River National Wildlife Refuge,AR,35156,U.S. Fish & Wildlife Service,National Wildlife Refuge,Mississippi River Alluvial Plain,15,4923,,FALSE,889,TRUE
+2668,Muleshoe National Wildlife Refuge,TX,5746,U.S. Fish & Wildlife Service,National Wildlife Refuge,Southern Shortgrass Prairie,9,4939,,FALSE,706,TRUE
+6388,Caravelle Ranch Wildlife Management Area,FL,3701,Trustees of the Internal Improvement Trust Fund,State Conservation Area,Florida Peninsula,10,4941,,FALSE,825,TRUE
+7305,Big Lake,"AR, MO",10803,State Fish and Wildlife,State Recreation Area,Mississippi River Alluvial Plain,16,4951,,FALSE,857,TRUE
+1343,Flint Hills National Wildlife Refuge,KS,18552,U.S. Fish & Wildlife Service,National Wildlife Refuge,Osage Plains/Flint Hills Prairie,2,4972,197,TRUE,197,TRUE
+3169,Reelfoot National Wildlife Refuge,TN,3359,U.S. Fish & Wildlife Service,National Wildlife Refuge,Upper East Gulf Coastal Plain,2,4977,,FALSE,392,TRUE
+6953,Beaches Lake State Wildlife Management Area,MN,28009,Minnesota Department of Natural Resources,State Conservation Area,Northern Tallgrass Prairie,10,4984,,FALSE,644,TRUE
+1638,Sandy Creek Rare Ii Area IRA - Homochitto National Forest,MS,2618,US Forest Service,Inventoried Roadless Area,Upper East Gulf Coastal Plain,3,4996,198,TRUE,198,TRUE
+6610,Pass A Loutre Wildlife Management Area,LA,115322,State Fish and Wildlife,State Conservation Area,Gulf Coast Prairies And Marshes,11,4997,,FALSE,707,TRUE
+6771,Sauvie Island Wildlife Area,OR,11091,Unknown,State Conservation Area,Willamette Valley - Puget Trough - Georgia Basin: Temperate Broadleaf And Mixed Forests,4,5001,199,TRUE,199,TRUE
+5359,Deal Island WMA,MD,10340,MD Department of Natural Resources,Wildlife Management Area,Chesapeake Bay Lowlands,10,5002,,FALSE,755,TRUE
+5218,Cape Cod National Seashore,MA,8874,US Department of the Interior,Area of Critical Environmental Concern,North Atlantic Coast,1,5005,66,TRUE,66,TRUE
+3972,St. Sebastian River Preserve State Park,FL,21514,Trustees of the Internal Improvement Trust Fund,State Conservation Area,Florida Peninsula,11,5018,,FALSE,584,TRUE
+6094,Pocomoke River State Forest,MD,4281,MD Department of Natural Resources,State Forest,Chesapeake Bay Lowlands,11,5019,,FALSE,517,TRUE
+2785,Alexander Springs Creek IRA - Ocala National Forest,FL,2919,US Forest Service,Inventoried Roadless Area,Florida Peninsula,12,5025,,FALSE,890,TRUE
+816,Chautauqua National Wildlife Refuge,IL,4805,U.S. Fish & Wildlife Service,National Wildlife Refuge,Central Tallgrass Prairie,4,5028,,FALSE,393,TRUE
+651,Cameron Prairie National Wildlife Refuge,LA,23568,U.S. Fish & Wildlife Service,National Wildlife Refuge,Gulf Coast Prairies And Marshes,12,5042,,FALSE,756,TRUE
+4603,Waubay National Wildlife Refuge,SD,4631,U.S. Fish & Wildlife Service,National Wildlife Refuge,Northern Tallgrass Prairie,11,5044,,FALSE,518,TRUE
+5764,Shanks (Ted) Conservation Area,MO,4027,Unknown,State Conservation Area,Central Tallgrass Prairie,5,5052,326,TRUE,326,TRUE
+6682,Camp Beauregard Wildlife Management Area,LA,12606,State Department of Natural Resources,State Conservation Area,West Gulf Coastal Plain,10,5053,,FALSE,708,TRUE
+7134,Lake Okeechobee Sanctuaries,FL,17546,Trustees of the Internal Improvement Trust Fund,Private Conservation,Florida Peninsula,13,5062,,FALSE,858,TRUE
+2030,Lake Woodruff National Wildlife Refuge,FL,16439,U.S. Fish & Wildlife Service,National Wildlife Refuge,Florida Peninsula,14,5070,,FALSE,456,TRUE
+3722,Burke Branch IRA - Shawnee National Forest,IL,6192,US Forest Service,Inventoried Roadless Area,Upper East Gulf Coastal Plain,4,5082,327,TRUE,327,TRUE
+3360,Mescalero Sands ACEC - Roswell Field Office,NM,5757,Bureau of Land Management,Area of Critical Environmental Concern,Southern Shortgrass Prairie,10,5104,,FALSE,757,TRUE
+2427,Marais Des Cygnes National Wildlife Refuge,"KS, MO",6991,U.S. Fish & Wildlife Service,National Wildlife Refuge,Osage Plains/Flint Hills Prairie,3,5106,128,TRUE,128,TRUE
+3361,Roswell Cave Complex - Roswell Field Office,NM,4066,Bureau of Land Management,Area of Critical Environmental Concern,Southern Shortgrass Prairie,11,5107,328,TRUE,328,TRUE
+326,Big Stone National Wildlife Refuge,MN,11308,U.S. Fish & Wildlife Service,National Wildlife Refuge,Northern Tallgrass Prairie,12,5123,,FALSE,758,TRUE
+900074,Brasher State Forest,NY,11832,NYS Department of Environmental Conservation,State Forest,St. Lawrence - Champlain Valley,6,5125,,FALSE,519,TRUE
+5672,Alexander State Forest Wildlife Management Area,LA,8452,State Department of Agriculture,State Conservation Area,West Gulf Coastal Plain,11,5126,,FALSE,585,TRUE
+6623,Fish Creek Wma,NY,4558,NYS Department of Environmental Conservation,Wildlife Management Area,St. Lawrence - Champlain Valley,7,5136,,FALSE,457,TRUE
+8113,East Lynn Lake Wildlife Management Area,WV,24791,Army Corps of Engineers,Wildlife Management Area,Western Allegheny Plateau,7,5137,,FALSE,709,TRUE
+1585,Hatchie National Wildlife Refuge,TN,9437,U.S. Fish & Wildlife Service,National Wildlife Refuge,Upper East Gulf Coastal Plain,5,5153,,FALSE,458,TRUE
+900198,Freedom Hills Wildlife Management Area,AL,26711,"ADCNR, Division of Wildlife and Freshwater Fisheries / Alabama Forever Wild Land Trust",State Conservation Area,Upper East Gulf Coastal Plain,6,5155,129,TRUE,129,TRUE
+6619,Upper And Lower Lakes Wma,NY,8810,NYS Department of Environmental Conservation,Wildlife Management Area,St. Lawrence - Champlain Valley,8,5165,200,TRUE,200,TRUE
+900065,Bombay Hook National Wildlife Refuge,DE,12555,US Fish and Wildlife Service,National Wildlife Refuge,North Atlantic Coast,2,5199,130,TRUE,130,TRUE
+6204,Prime Hook National Wildlife Refuge,DE,2755,US Fish and Wildlife Service,National Wildlife Refuge,Chesapeake Bay Lowlands,12,5206,,FALSE,645,TRUE
+2982,Pee Dee National Wildlife Refuge,NC,7548,U.S. Fish & Wildlife Service,National Wildlife Refuge,Piedmont,8,5218,,FALSE,459,TRUE
+5325,Beaver River Wildlife Management Area,OK,18741,Department of Wildlife Conservation,State Conservation Area,Central Shortgrass Prairie,12,5224,,FALSE,646,TRUE
+7667,Fishing Creek Wildlife Management Area - J. Strom Thurmond Recreation Area,GA,2730,Unknown & Army Corps of Engineers,State Park,Piedmont,9,5227,,FALSE,520,TRUE
+5130,Burnsville Lake Wildlife Management Area,WV,13268,Army Corps of Engineers,Wildlife Management Area,Western Allegheny Plateau,11,5243,,FALSE,647,TRUE
+4826,Embro Game Land,NC,3865,NC Wildlife Resources Commission,Conservation Area,Piedmont,10,5246,,FALSE,648,TRUE
+2980,Pecos National Historical Park,NM,6026,National Park Service,Historic or Cultural Area,Southern Shortgrass Prairie,12,5248,,FALSE,521,TRUE
+3124,Prince Gallitzin State Park,PA,5637,PA Bureau of State Parks,State Park,Western Allegheny Plateau,13,5266,,FALSE,394,TRUE
+3216,Ridgefield National Wildlife Refuge,WA,2684,U.S. Fish & Wildlife Service,National Wildlife Refuge,Willamette Valley - Puget Trough - Georgia Basin: Temperate Broadleaf And Mixed Forests,5,5270,329,TRUE,329,TRUE
+2981,Pedernales Falls State Park,TX,4009,Texas Parks and Wildlife Department,State Park,Edwards Plateau,4,5275,,FALSE,586,TRUE
+5133,Lower Wisconsin State Riverway,WI,3693,Wisconsin Department of Natural Resources,State Conservation Area,Prairie-Forest Border,12,5288,,FALSE,395,TRUE
+4014,Swan Lake National Wildlife Refuge,MO,9891,U.S. Fish & Wildlife Service,National Wildlife Refuge,Central Tallgrass Prairie,6,5294,,FALSE,522,TRUE
+956,Colorado Bend State Park,TX,4749,Texas Parks and Wildlife Department,State Park,Edwards Plateau,5,5298,330,TRUE,330,TRUE
+2006,Lake Hope State Park,OH,2622,Ohio Department of Natural Resources,State Park,Western Allegheny Plateau,14,5310,,FALSE,523,TRUE
+4986,Deer Ridge Conservation Area,MO,6037,Unknown,State Conservation Area,Central Tallgrass Prairie,7,5344,,FALSE,460,TRUE
+5649,Tuttle Creek Recreation Area,KS,33531,Unknown,Recreation Area,Osage Plains/Flint Hills Prairie,4,5345,265,TRUE,265,TRUE
+7042,Mason Mountain Wildlife Management Area,TX,5307,Texas Parks and Wildlife Department,State Conservation Area,Edwards Plateau,6,5360,131,TRUE,131,TRUE
+2061,Land Between The Lakes - Land Between the Lakes Other,"KY, TN",168344,US Forest Service,National Recreation Area,Upper East Gulf Coastal Plain,7,5363,,FALSE,524,TRUE
+6621,Wilson Hill Wma,NY,4039,NYS Department of Environmental Conservation,Wildlife Management Area,St. Lawrence - Champlain Valley,9,5396,,FALSE,587,TRUE
+6297,Truman Reservoir Management Lands - Harry Truman Recreation Area,MO,6706,Unknown & Unknown,,Osage Plains/Flint Hills Prairie,5,5405,331,TRUE,331,TRUE
+1896,Kickapoo Cavern State Park,TX,6391,Texas Parks and Wildlife Department,State Park,Edwards Plateau,7,5410,,FALSE,396,TRUE
+6036,Rice Lake State Fish and Wildlife Area,IL,7061,Other State Land,State Conservation Area,Central Tallgrass Prairie,8,5417,,FALSE,588,TRUE
+7122,Clark Hill Wildlife Management Area - J. Strom Thurmond Recreation Area,GA,17597,Unknown & Army Corps of Engineers,State Park,Piedmont,13,5421,332,TRUE,332,TRUE
+7990,Kerr Wildlife Management Area,TX,6514,Texas Parks and Wildlife Department,State Conservation Area,Edwards Plateau,8,5439,,FALSE,461,TRUE
+7268,Lake Odessa Wildlife Management Area - Ms Rv Pools 11-22 Recreation Area,IA,3996,Unknown & Army Corps of Engineers,State Conservation Area,Central Tallgrass Prairie,9,5493,,FALSE,649,TRUE
+1078,Cypress Creek National Wildlife Refuge,IL,9265,U.S. Fish & Wildlife Service,National Wildlife Refuge,Upper East Gulf Coastal Plain,8,5497,,FALSE,650,TRUE
+4894,Skiatook Wildlife Management Area,OK,7263,Department of Wildlife Conservation,State Conservation Area,Osage Plains/Flint Hills Prairie,6,5518,,FALSE,462,TRUE
+5749,Peaslee Wildlife Management Area,NJ,2759,New Jersey Department of Environmental Protection,Wildlife Management Area,North Atlantic Coast,3,5529,201,TRUE,201,TRUE
+4954,Battle Mountain Game Production Area,SD,3066,State Fish and Wildlife,State Conservation Area,Black Hills,10,5538,,FALSE,651,TRUE
+5269,Erie National Wildlife Refuge,PA,9003,US Fish and Wildlife Service,National Wildlife Refuge,Western Allegheny Plateau,19,5542,132,TRUE,132,TRUE
+5157,Kaw Wildlife Management Area,OK,3047,Department of Wildlife Conservation,State Conservation Area,Osage Plains/Flint Hills Prairie,7,5561,,FALSE,397,TRUE
+5428,Oologah Wildlife Management Area,OK,15918,Department of Wildlife Conservation,State Conservation Area,Osage Plains/Flint Hills Prairie,8,5581,,FALSE,589,TRUE
+6024,Perch River Wma,NY,7124,NYS Department of Environmental Conservation,Wildlife Management Area,St. Lawrence - Champlain Valley,10,5652,,FALSE,652,TRUE
+900239,Greenwood Forest Wildlife Management Area,NJ,6806,New Jersey Department of Environmental Protection,Wildlife Management Area,North Atlantic Coast,4,5664,,FALSE,590,TRUE
+4964,Flat River State Game Area,MI,8614,Michigan Department of Natural Resources,State Conservation Area,North Central Tillplain,1,5666,67,TRUE,67,TRUE
+6142,Woodson State Fishing Lake And Wildlife Area,KS,2471,State Fish and Wildlife,State Recreation Area,Osage Plains/Flint Hills Prairie,9,5673,,FALSE,653,TRUE
+5545,Lauderdale Wildlife Management Area,AL,4568,Unknown,Conservation Area,Upper East Gulf Coastal Plain,10,5698,,FALSE,591,TRUE
+900579,Tuckahoe Wildlife Management Area,NJ,9874,New Jersey Department of Environmental Protection,Wildlife Management Area,North Atlantic Coast,5,5709,,FALSE,398,TRUE
+6598,Barry State Game Area,MI,15589,Michigan Department of Natural Resources,State Conservation Area,North Central Tillplain,2,5755,,FALSE,399,TRUE
+5070,Kaw Wildlife Management Area,OK,7433,Department of Wildlife Conservation,State Conservation Area,Osage Plains/Flint Hills Prairie,10,5758,,FALSE,525,TRUE
+4830,Union Ridge Conservation Area,MO,8208,Unknown,State Conservation Area,Central Tallgrass Prairie,11,5764,133,TRUE,133,TRUE
+5924,State-owned Submerged Lands - Millers Ferry Lock Recreation Area,AL,4788,Unknown & State of Alabama,,Upper East Gulf Coastal Plain,11,5779,266,TRUE,266,TRUE
+1646,Hugo Lake State Park,OK,6376,Tourism and Recreation Department,State Park,Crosstimbers And Southern Tallgrass Prairie,1,5787,68,TRUE,68,TRUE
+7047,Hords Creek Recreation Area,TX,2855,Unknown,Recreation Management Area,Edwards Plateau,9,5795,,FALSE,654,TRUE
+4876,Delaware Bayshore,NJ,2634,Wildlife Preserves,Nature,North Atlantic Coast,6,5823,,FALSE,526,TRUE
+621,Caddo National Grassland,TX,10772,US Forest Service,,Crosstimbers And Southern Tallgrass Prairie,2,5840,202,TRUE,202,TRUE
+5695,Makepeace Lake Wildlife Management Area,NJ,2525,New Jersey Department of Environmental Protection,Wildlife Management Area,North Atlantic Coast,7,5856,,FALSE,655,TRUE
+6603,Yankee Springs Recreation Area,MI,4595,Michigan Department of Natural Resources,State Recreation Area,North Central Tillplain,3,5859,333,TRUE,333,TRUE
+8011,Myles Standish State Forest,MA,4448,DCR - Division of State Parks and Recreation,State Forest,North Atlantic Coast,8,5871,267,TRUE,267,TRUE
+7749,Cross Timbers Wildlife Management Area,OK,8010,Department of Wildlife Conservation,State Conservation Area,Crosstimbers And Southern Tallgrass Prairie,3,5874,268,TRUE,268,TRUE
+7551,Tranquility Wildlife Area,OH,4469,Ohio Department of Natural Resources,State Conservation Area,North Central Tillplain,4,5882,203,TRUE,203,TRUE
+1091,Deep Fork National Wildlife Refuge,OK,7388,U.S. Fish & Wildlife Service,National Wildlife Refuge,Crosstimbers And Southern Tallgrass Prairie,4,5917,,FALSE,463,TRUE
+6190,Milford Neck Preserve,DE,3006,Delaware Wild Lands Inc,Nature,North Atlantic Coast,10,5919,334,TRUE,334,TRUE
+2902,Paint Creek State Park - Paint Creek Recreation Area,OH,2490,Unknown & Army Corps of Engineers,State Recreation Area,North Central Tillplain,5,5955,269,TRUE,269,TRUE
+7691,Lake Chickasha,OK,5100,City of Chickasha,Local Recreation Area,Crosstimbers And Southern Tallgrass Prairie,5,5987,134,TRUE,134,TRUE
+6572,Great Swamp Management Area,RI,2838,RI Department of Environmental Management,State Forest,North Atlantic Coast,12,6052,,FALSE,464,TRUE
+5266,Hunting Area - Blue River Public Fishing,OK,3216,Department of Wildlife Conservation,State Conservation Area,Crosstimbers And Southern Tallgrass Prairie,6,6139,,FALSE,400,TRUE
+6490,Rogue River State Game Area,MI,5719,Michigan Department of Natural Resources,State Conservation Area,North Central Tillplain,6,6156,,FALSE,527,TRUE
+7362,Brookville Recreation Area,IN,16834,Unknown,Recreation Area,North Central Tillplain,7,6157,135,TRUE,135,TRUE
+7388,Belton Recreation Area,TX,24797,Unknown,Recreation Management Area,Edwards Plateau,11,6169,,FALSE,528,TRUE
+7147,Langston State Game Area,MI,3259,Michigan Department of Natural Resources,State Conservation Area,North Central Tillplain,8,6172,,FALSE,592,TRUE
+6900,Proctor Recreation Area,TX,9118,Unknown,Recreation Management Area,Crosstimbers And Southern Tallgrass Prairie,7,6185,,FALSE,529,TRUE
+5319,Big Lake Bottom Wildlife Management Area,TX,3845,Texas Parks and Wildlife Department,State Conservation Area,Crosstimbers And Southern Tallgrass Prairie,9,6302,,FALSE,656,TRUE
+900461,Richland Creek Wildlife Management Area,TX,14345,Texas Parks and Wildlife Department,State Conservation Area,Crosstimbers And Southern Tallgrass Prairie,11,6323,,FALSE,593,TRUE
+7949,Whitney Point Recreation Area,TX,43345,Unknown,Recreation Management Area,Crosstimbers And Southern Tallgrass Prairie,12,6327,335,TRUE,335,TRUE
+3076,Potato Creek State Park,IN,3586,"Indiana DNR, State Parks and Reservoirs Division",State Park,North Central Tillplain,10,6331,,FALSE,657,TRUE
+6887,Chaparral Wildlife Management Area,TX,15190,Texas Parks and Wildlife Department,State Conservation Area,Tamaulipan Thorn Scrub,2,6345,136,TRUE,136,TRUE
+4881,Miller Peninsula,WA,2893,Washington State Parks and Recreation Commission (SPRC),State Park,Willamette Valley - Puget Trough - Georgia Basin: Temperate Conifer Forests,5,6351,336,TRUE,336,TRUE
+5410,Killdeer Plains Wildlife Area,OH,8456,Ohio Department of Natural Resources,State Conservation Area,North Central Tillplain,11,6386,,FALSE,465,TRUE
+7007,Fern Ridge Wildlife Area,OR,3038,Unknown,State Conservation Area,Willamette Valley - Puget Trough - Georgia Basin: Temperate Broadleaf And Mixed Forests,8,6400,,FALSE,401,TRUE
+6449,Skagit-Snoqualmie Wildlife Area Complex,WA,2498,Washington State Department of Fish & Wildlife (WDFW),State Conservation Area,Willamette Valley - Puget Trough - Georgia Basin: Temperate Conifer Forests,6,6727,270,TRUE,270,TRUE

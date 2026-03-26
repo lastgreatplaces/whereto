@@ -1,0 +1,492 @@
+create or replace function public.run_ecoregion_selection_iterative(
+    p_eco_id integer,
+    p_target integer default 20,
+    p_complementarity_weight numeric default 0.20,
+    p_footprint_max numeric default 0.400,
+    p_run_label varchar default 'iterative_landform_veg_top_pct_floor_v1'
+)
+returns bigint
+language plpgsql
+volatile
+parallel unsafe
+as $body$
+declare
+    v_run_id bigint;
+    v_run_ts timestamp without time zone;
+
+    v_iteration integer;
+    v_candidate_count integer;
+    v_cutoff_rank integer;
+
+    v_candidate_pct numeric;
+    v_candidate_floor integer;
+
+    v_weight_facets numeric;
+    v_weight_veg numeric;
+    v_weight_intact numeric;
+    v_weight_facet_pct_eco numeric;
+    v_weight_evt_pct_eco numeric;
+    v_weight_management numeric;
+
+    v_place_id bigint;
+    v_name varchar(254);
+    v_owner varchar(50);
+    v_acres numeric;
+    v_score_facets numeric;
+    v_score_veg numeric;
+    v_score_intact numeric;
+    v_landscape_score numeric;
+    v_national_rank integer;
+    v_ecoregion_rank integer;
+    v_comp_raw numeric;
+    v_comp_pct numeric;
+    v_selection_score numeric;
+begin
+    if p_target is null or p_target < 1 then
+        return null;
+    end if;
+
+    v_run_id := nextval('public.ecoregion_selection_run_id_seq');
+    v_run_ts := clock_timestamp();
+
+    select
+        facets_variety,
+        veg_variety,
+        footprint,
+        facets_pct_eco,
+        veg_pct_eco,
+        management,
+        candidate_pct,
+        candidate_floor
+    into
+        v_weight_facets,
+        v_weight_veg,
+        v_weight_intact,
+        v_weight_facet_pct_eco,
+        v_weight_evt_pct_eco,
+        v_weight_management,
+        v_candidate_pct,
+        v_candidate_floor
+    from weights
+    limit 1;
+
+    -- Candidate pool size within ecoregion after footprint screen
+    select count(*)
+    into v_candidate_count
+    from v_landscape_rankings_new v
+    where v.eco_id = p_eco_id
+      and v.footprint <= p_footprint_max;
+
+    if v_candidate_count = 0 then
+        return null;
+    end if;
+
+    v_cutoff_rank := greatest(
+        coalesce(v_candidate_floor, 0),
+        ceil(v_candidate_count * coalesce(v_candidate_pct, 0) / 100.0)::integer
+    );
+
+    -- ------------------------------------------------------------------
+    -- Candidate pool: top % + floor within ecoregion after footprint screen
+    -- ------------------------------------------------------------------
+    drop table if exists tmp_candidates;
+    create temporary table tmp_candidates on commit drop as
+    with eligible as (
+        select
+            v.*,
+            row_number() over (order by v.landscape_score desc, v.place_id) as eligible_rank
+        from v_landscape_rankings_new v
+        where v.eco_id = p_eco_id
+          and v.footprint <= p_footprint_max
+    )
+    select *
+    from eligible
+    where eligible_rank <= v_cutoff_rank;
+
+    if not exists (select 1 from tmp_candidates) then
+        return null;
+    end if;
+
+    -- ------------------------------------------------------------------
+    -- Landform composition for candidate pool
+    -- ------------------------------------------------------------------
+    drop table if exists tmp_landform_list;
+    create temporary table tmp_landform_list on commit drop as
+    select distinct ls.landform
+    from v_places_landform_summary ls
+    join tmp_candidates c
+      on c.place_id = ls.place_id;
+
+    drop table if exists tmp_landform_full;
+    create temporary table tmp_landform_full on commit drop as
+    select
+        c.place_id,
+        ll.landform,
+        coalesce(ls.pct_of_place, 0)::numeric as pct_of_place
+    from tmp_candidates c
+    cross join tmp_landform_list ll
+    left join v_places_landform_summary ls
+      on ls.place_id = c.place_id
+     and ls.landform = ll.landform;
+
+    -- ------------------------------------------------------------------
+    -- Vegetation structure composition for candidate pool
+    -- ------------------------------------------------------------------
+    drop table if exists tmp_veg_raw_base;
+    create temporary table tmp_veg_raw_base on commit drop as
+    select
+        c.place_id,
+        case
+            when ec.evt_class in (
+                'Herbaceous - grassland',
+                'Herbaceous - shrub-steppe',
+                'Non-vegetated',
+                'Sparsely vegetated',
+                'No Dominant Lifeform'
+            ) then 'open'
+            when ec.evt_class in (
+                'Open tree canopy',
+                'Sparse tree canopy',
+                'Closed tree canopy'
+            ) then 'wooded'
+            when ec.evt_class in (
+                'Shrubland',
+                'Dwarf-shrubland'
+            ) then 'shrub'
+            else 'other'
+        end as veg_structure,
+        eop.acres
+    from evt_occurs_places eop
+    join evt_codes ec
+      on ec.value = eop.evt_value::integer
+    join tmp_candidates c
+      on c.place_id = eop.place_id
+    where ec.lgp_class in ('native', 'open_water');
+
+    drop table if exists tmp_veg_summary;
+    create temporary table tmp_veg_summary on commit drop as
+    with veg_raw as (
+        select
+            place_id,
+            veg_structure,
+            sum(acres) as acres
+        from tmp_veg_raw_base
+        group by place_id, veg_structure
+    ),
+    veg_totals as (
+        select
+            place_id,
+            sum(acres) as total_acres
+        from veg_raw
+        group by place_id
+    )
+    select
+        vr.place_id,
+        vr.veg_structure,
+        round(100.0 * vr.acres / nullif(vt.total_acres, 0), 1) as pct_of_place
+    from veg_raw vr
+    join veg_totals vt
+      on vr.place_id = vt.place_id;
+
+    drop table if exists tmp_veg_list;
+    create temporary table tmp_veg_list on commit drop as
+    select distinct veg_structure
+    from tmp_veg_summary;
+
+    drop table if exists tmp_veg_full;
+    create temporary table tmp_veg_full on commit drop as
+    select
+        c.place_id,
+        vl.veg_structure,
+        coalesce(vs.pct_of_place, 0)::numeric as pct_of_place
+    from tmp_candidates c
+    cross join tmp_veg_list vl
+    left join tmp_veg_summary vs
+      on vs.place_id = c.place_id
+     and vs.veg_structure = vl.veg_structure;
+
+    -- ------------------------------------------------------------------
+    -- ITERATION 1: highest quality candidate
+    -- ------------------------------------------------------------------
+    select
+        c.place_id,
+        c.name,
+        c.owner,
+        c.acres,
+        c.score_facets,
+        c.score_veg,
+        c.score_intact,
+        c.landscape_score,
+        c.national_rank,
+        c.ecoregion_rank
+    into
+        v_place_id,
+        v_name,
+        v_owner,
+        v_acres,
+        v_score_facets,
+        v_score_veg,
+        v_score_intact,
+        v_landscape_score,
+        v_national_rank,
+        v_ecoregion_rank
+    from tmp_candidates c
+    order by c.landscape_score desc, c.place_id
+    limit 1;
+
+    if v_place_id is null then
+        return null;
+    end if;
+
+    insert into public.ecoregion_selection_log (
+        run_id,
+        eco_id,
+        iteration,
+        place_id,
+        name,
+        owner,
+        acres,
+        score_facets,
+        score_veg,
+        score_intact,
+        landscape_score,
+        national_rank,
+        ecoregion_rank,
+        complementarity_acres,
+        complementarity_pct,
+        selection_score,
+        weight_facets,
+        weight_veg,
+        weight_intact,
+        weight_quality,
+        weight_complementarity,
+        quality_floor_type,
+        run_label,
+        run_ts,
+        weight_facet_pct_eco,
+        weight_evt_pct_eco
+    )
+    values (
+        v_run_id,
+        p_eco_id,
+        1,
+        v_place_id,
+        v_name,
+        v_owner,
+        v_acres,
+        v_score_facets,
+        v_score_veg,
+        v_score_intact,
+        v_landscape_score,
+        v_national_rank,
+        v_ecoregion_rank,
+        null,
+        null,
+        v_landscape_score,
+        v_weight_facets,
+        v_weight_veg,
+        v_weight_intact,
+        1.00,
+        p_complementarity_weight,
+        'top_pct_plus_floor',
+        p_run_label,
+        v_run_ts,
+        v_weight_facet_pct_eco,
+        v_weight_evt_pct_eco
+    );
+
+    -- ------------------------------------------------------------------
+    -- ITERATION 2+
+    -- selection_score = landscape_score + weight * min_diff_to_selected
+    -- ------------------------------------------------------------------
+    if p_target < 2 then
+        return v_run_id;
+    end if;
+
+    for v_iteration in 2..p_target loop
+
+        with selected_places as (
+            select l.place_id
+            from public.ecoregion_selection_log l
+            where l.run_id = v_run_id
+        ),
+        remaining as (
+            select c.*
+            from tmp_candidates c
+            where c.place_id not in (
+                select place_id
+                from selected_places
+            )
+        ),
+        landform_pair_diff as (
+            select
+                cf.place_id as candidate_place_id,
+                sf.place_id as selected_place_id,
+                round(sum(abs(cf.pct_of_place - sf.pct_of_place)) / 2.0, 1) as landform_diff
+            from tmp_landform_full cf
+            join tmp_landform_full sf
+              on cf.landform = sf.landform
+            join remaining r
+              on r.place_id = cf.place_id
+            join selected_places sp
+              on sp.place_id = sf.place_id
+            group by cf.place_id, sf.place_id
+        ),
+        veg_pair_diff as (
+            select
+                cf.place_id as candidate_place_id,
+                sf.place_id as selected_place_id,
+                round(sum(abs(cf.pct_of_place - sf.pct_of_place)) / 2.0, 1) as veg_diff
+            from tmp_veg_full cf
+            join tmp_veg_full sf
+              on cf.veg_structure = sf.veg_structure
+            join remaining r
+              on r.place_id = cf.place_id
+            join selected_places sp
+              on sp.place_id = sf.place_id
+            group by cf.place_id, sf.place_id
+        ),
+        pair_diff as (
+            select
+                l.candidate_place_id as place_id,
+                l.selected_place_id,
+                round(
+                    0.5 * l.landform_diff +
+                    0.5 * coalesce(v.veg_diff, 0),
+                    1
+                ) as combined_diff
+            from landform_pair_diff l
+            left join veg_pair_diff v
+              on v.candidate_place_id = l.candidate_place_id
+             and v.selected_place_id = l.selected_place_id
+        ),
+        min_diff as (
+            select
+                pd.place_id,
+                min(pd.combined_diff) as min_diff_to_selected
+            from pair_diff pd
+            group by pd.place_id
+        ),
+        scored as (
+            select
+                r.place_id,
+                r.name,
+                r.owner,
+                r.acres,
+                r.score_facets,
+                r.score_veg,
+                r.score_intact,
+                r.landscape_score,
+                r.national_rank,
+                r.ecoregion_rank,
+                coalesce(md.min_diff_to_selected, 0) as min_diff_to_selected,
+                round(
+                    100.0 * percent_rank() over (
+                        order by coalesce(md.min_diff_to_selected, 0)
+                    ),
+                    1
+                ) as complementarity_pct,
+                round(
+                    r.landscape_score +
+                    p_complementarity_weight * coalesce(md.min_diff_to_selected, 0),
+                    2
+                ) as selection_score
+            from remaining r
+            left join min_diff md
+              on md.place_id = r.place_id
+        )
+        select
+            s.place_id,
+            s.name,
+            s.owner,
+            s.acres,
+            s.score_facets,
+            s.score_veg,
+            s.score_intact,
+            s.landscape_score,
+            s.national_rank,
+            s.ecoregion_rank,
+            s.min_diff_to_selected,
+            s.complementarity_pct,
+            s.selection_score
+        into
+            v_place_id,
+            v_name,
+            v_owner,
+            v_acres,
+            v_score_facets,
+            v_score_veg,
+            v_score_intact,
+            v_landscape_score,
+            v_national_rank,
+            v_ecoregion_rank,
+            v_comp_raw,
+            v_comp_pct,
+            v_selection_score
+        from scored s
+        order by s.selection_score desc, s.landscape_score desc, s.place_id
+        limit 1;
+
+        exit when v_place_id is null;
+
+        insert into public.ecoregion_selection_log (
+            run_id,
+            eco_id,
+            iteration,
+            place_id,
+            name,
+            owner,
+            acres,
+            score_facets,
+            score_veg,
+            score_intact,
+            landscape_score,
+            national_rank,
+            ecoregion_rank,
+            complementarity_acres,
+            complementarity_pct,
+            selection_score,
+            weight_facets,
+            weight_veg,
+            weight_intact,
+            weight_quality,
+            weight_complementarity,
+            quality_floor_type,
+            run_label,
+            run_ts,
+            weight_facet_pct_eco,
+            weight_evt_pct_eco
+        )
+        values (
+            v_run_id,
+            p_eco_id,
+            v_iteration,
+            v_place_id,
+            v_name,
+            v_owner,
+            v_acres,
+            v_score_facets,
+            v_score_veg,
+            v_score_intact,
+            v_landscape_score,
+            v_national_rank,
+            v_ecoregion_rank,
+            v_comp_raw,
+            v_comp_pct,
+            v_selection_score,
+            v_weight_facets,
+            v_weight_veg,
+            v_weight_intact,
+            1.00,
+            p_complementarity_weight,
+            'top_pct_plus_floor',
+            p_run_label,
+            v_run_ts,
+            v_weight_facet_pct_eco,
+            v_weight_evt_pct_eco
+        );
+    end loop;
+
+    return v_run_id;
+end;
+$body$;
