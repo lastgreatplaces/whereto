@@ -192,7 +192,7 @@ export default function Home() {
     if (type === "hikes") {
       return {
         path: "M -10,-10 L 10,-10 L 10,10 L -10,10 Z",
-        scale: baseSize / 25,
+        scale: baseSize / 21,
         fillColor: "#c4fcfe",
         fillOpacity: 1,
         strokeWeight: isFavorite ? 3 : 2,
