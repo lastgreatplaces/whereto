@@ -190,15 +190,16 @@ export default function Home() {
     }
 
     if (type === "hikes") {
-      return {
-        path: "M -10,-10 L 10,-10 L 10,10 L -10,10 Z",
-        scale: baseSize / 21,
-        fillColor: "#c4fcfe",
-        fillOpacity: 1,
-        strokeWeight: isFavorite ? 3 : 2,
-        strokeColor: isFavorite ? "#f3cf05" : "#f80808"
-      };
-    }
+  return {
+    path: "M -12,-12 L 12,-12 L 12,12 L -12,12 Z",
+    scale: baseSize / 18,
+    fillColor: "#c4fcfe",
+    fillOpacity: 1,
+    strokeWeight: isFavorite ? 3 : 2,
+    strokeColor: isFavorite ? "#f3cf05" : "#f80808",
+    labelOrigin: new google.maps.Point(0, 1)
+  };
+}
 
     const theme = CAMP_THEMES[subtype] || CAMP_THEMES.default;
     return {
@@ -222,25 +223,36 @@ export default function Home() {
       const isFav = (m as any).__isFavorite;
       m.setIcon(getMarkerStyle(google, type, (m as any).__subtype, z, isFav));
 
-      if (type === "birds") {
-        m.setLabel({
-          text: "🦅",
-          fontSize: z <= 8 ? "18px" : "26px",
-          color: "black",
+if (type === "birds") {
+  m.setLabel({
+    text: "🦅",
+    fontSize: z <= 8 ? "18px" : "26px",
+    color: "black",
+    fontWeight: "700"
+  });
+} else if (type === "hikes") {
+  m.setLabel(
+    z >= 6
+      ? {
+          text: "🥾",
+          fontSize: z <= 8 ? "16px" : z <= 11 ? "18px" : "20px",
+          color: "white",
           fontWeight: "700"
-        });
-      } else {
-        m.setLabel(
-          z > 7
-            ? {
-                text: (m as any).__emoji,
-                fontSize: z <= 11 ? "14px" : "18px",
-                color: "white",
-                fontWeight: "700"
-              }
-            : null
-        );
-      }
+        }
+      : null
+  );
+} else {
+  m.setLabel(
+    z > 7
+      ? {
+          text: (m as any).__emoji,
+          fontSize: z <= 11 ? "14px" : "18px",
+          color: "white",
+          fontWeight: "700"
+        }
+      : null
+  );
+}
     });
   };
 
