@@ -191,8 +191,8 @@ export default function Home() {
 
     if (type === "hikes") {
   return {
-    path: "M -12,-12 L 12,-12 L 12,12 L -12,12 Z",
-    scale: baseSize / 18,
+    path: "M -10,-10 L 10,-10 L 10,10 L -10,10 Z",
+    scale: baseSize / 20,
     fillColor: "#c4fcfe",
     fillOpacity: 1,
     strokeWeight: isFavorite ? 3 : 2,
@@ -232,11 +232,11 @@ if (type === "birds") {
   });
 } else if (type === "hikes") {
   m.setLabel(
-    z >= 6
+    z >= 5
       ? {
           text: "🥾",
-          fontSize: z <= 8 ? "16px" : z <= 11 ? "18px" : "20px",
-          color: "white",
+          fontSize: z <= 6 ? "18px" : z <= 8 ? "20px" : "22px",
+          color: "black",
           fontWeight: "700"
         }
       : null
