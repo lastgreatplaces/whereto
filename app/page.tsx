@@ -234,7 +234,7 @@ if (type === "birds") {
   m.setLabel(
     z >= 5
       ? {
-          text: "🥾",
+          text: "🏃",
           fontSize: z <= 6 ? "18px" : z <= 8 ? "20px" : "22px",
           color: "black",
           fontWeight: "700"
