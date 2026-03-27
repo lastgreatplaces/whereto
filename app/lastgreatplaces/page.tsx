@@ -22,6 +22,10 @@ type LandscapeRow = {
   acres: number | null;
   owner_name: string | null;
   designation: string | null;
+landscape_features:  number | null;
+ecosystems:  number | null;
+human_footprint:  number | null;
+
   ecoregion: string | null;
   ecoregion_rank: number | null;
   national_rank: number | null;
@@ -96,6 +100,12 @@ function buildPopupHtml(row: LandscapeRow, mode: PortfolioMode) {
         <div><span style="font-weight:700;">Ecoregion:</span> ${escapeHtml(row.ecoregion || "—")}</div>
         <div><span style="font-weight:700;">Ecoregion Rank:</span> ${escapeHtml(row.ecoregion_rank ?? "—")}</div>
        
+       <div><span style="font-weight:700;">Landscape Features:</span> ${escapeHtml(row.landscape_features || "—")}</div>
+       <div><span style="font-weight:700;">Ecosystems:</span> ${escapeHtml(row.ecosystems || "—")}</div>
+        <div><span style="font-weight:700;">Human Footprint:</span> ${escapeHtml(row.human_footprint || "—")}</div>
+
+
+
         <div><span style="font-weight:700;">${mode === "top500" ? "Top 500 Rank" : "Top 1000 Rank"}:</span> ${escapeHtml(portfolioRank)}</div>
        <div><span style="font-weight:300;">Raw National Rank 7100 Candidate Areas:</span> ${escapeHtml(row.national_rank ?? "—")}</div>
         </div>
@@ -188,7 +198,7 @@ export default function LastGreatPlacesPage() {
       const { data, error } = await supabase
         .from("whereto_top_portfolios_web")
         .select(
-          "place_id,name,states,acres,owner_name,designation,ecoregion,ecoregion_rank,national_rank,rank_top500,in_top500,rank_top1000,in_top1000,geom"
+          "place_id,name,states,acres,owner_name,designation,landscape_features, ecosystems, human_footprint, ecoregion,ecoregion_rank,national_rank,rank_top500,in_top500,rank_top1000,in_top1000,geom"
         )
         .or("in_top500.eq.true,in_top1000.eq.true")
         .order("rank_top1000", { ascending: true, nullsFirst: false });
