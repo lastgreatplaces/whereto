@@ -831,7 +831,7 @@ if (type === "birds") {
             boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
           }}
         >
-          Landscapes
+          Last Great Places
         </a>
       </div>
 
@@ -1305,7 +1305,7 @@ if (type === "birds") {
                   }}
                 >
                   <span>{isLandscapeSectionOpen ? "▼" : "▶"}</span>
-                  <span>LAST GREAT PLACES</span>
+                  <span>Landscapes</span>
                 </button>
               </div>
 

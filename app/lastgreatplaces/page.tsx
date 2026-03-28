@@ -42,9 +42,31 @@ type EcoregionRow = {
   geom: GeoJsonGeometry | string | null;
 };
 
+type PlaceEcosystemRow = {
+  place_id: number;
+  ecosystem: string | null;
+  acres: number | null;
+  percent: number | null;
+};
+
 function formatAcres(acres: number | null) {
   if (acres == null) return "—";
   return `${Math.round(acres).toLocaleString()} acres`;
+}
+
+function formatCompactAcres(acres: number | null) {
+  if (acres == null) return "";
+  return `${Math.round(acres).toLocaleString()} ac`;
+}
+
+function formatPercent(percent: number | null) {
+  if (percent == null) return "—";
+  return `${Math.round(percent)}%`;
+}
+
+function formatFootprint(value: number | null) {
+  if (value == null) return "—";
+  return Number(value).toFixed(3);
 }
 
 function escapeHtml(value: string | number | null | undefined) {
@@ -90,12 +112,104 @@ function parseGeometry(
   return null;
 }
 
-function buildLandscapePopupHtml(row: LandscapeRow, mode: PortfolioMode) {
+function buildLandscapePopupHtml(
+  row: LandscapeRow,
+  mode: PortfolioMode,
+  options?: {
+    ecosystemsOpen?: boolean;
+    ecosystemsLoading?: boolean;
+    ecosystemsError?: string;
+    ecosystems?: PlaceEcosystemRow[];
+  }
+) {
   const portfolioRank =
     mode === "top500" ? row.rank_top500 ?? "—" : row.rank_top1000 ?? "—";
 
+  const ecosystemsOpen = options?.ecosystemsOpen ?? false;
+  const ecosystemsLoading = options?.ecosystemsLoading ?? false;
+  const ecosystemsError = options?.ecosystemsError ?? "";
+  const ecosystems = options?.ecosystems ?? [];
+
+  let ecosystemsSection = `
+    <div style="margin-top:10px;">
+      <button
+        id="ecosystems-toggle-btn"
+        data-place-id="${row.place_id}"
+        style="
+          border:1px solid #c7c7c7;
+          border-radius:6px;
+          padding:6px 10px;
+          font-size:12px;
+          background:#f5f5f5;
+          cursor:pointer;
+          color:#222;
+          font-weight:600;
+        "
+      >
+        See Ecosystems
+      </button>
+    </div>
+  `;
+
+  if (ecosystemsOpen) {
+    let innerHtml = "";
+
+    if (ecosystemsLoading) {
+      innerHtml = `<div style="margin-top:8px; font-size:12px; color:#444;">Loading ecosystems...</div>`;
+    } else if (ecosystemsError) {
+      innerHtml = `<div style="margin-top:8px; font-size:12px; color:#c62828;">${escapeHtml(
+        ecosystemsError
+      )}</div>`;
+    } else if (!ecosystems.length) {
+      innerHtml = `<div style="margin-top:8px; font-size:12px; color:#444;">No ecosystems found for this place.</div>`;
+    } else {
+      innerHtml = `
+        <div style="margin-top:8px; border-top:1px solid #eee; padding-top:8px;">
+          <div style="font-size:12px; font-weight:700; margin-bottom:6px; color:#222;">
+            Top Ecosystems
+          </div>
+          <div style="font-size:11.5px; line-height:1.45; color:#222;">
+            ${ecosystems
+              .map((eco, i) => {
+                const acresText = eco.acres != null ? ` · ${formatCompactAcres(eco.acres)}` : "";
+                return `
+                  <div style="margin-bottom:${i === ecosystems.length - 1 ? 0 : 5}px;">
+                    <span style="font-weight:600;">${escapeHtml(eco.ecosystem || "—")}</span>
+                    <span style="color:#555;"> — ${escapeHtml(formatPercent(eco.percent))}${escapeHtml(acresText)}</span>
+                  </div>
+                `;
+              })
+              .join("")}
+          </div>
+        </div>
+      `;
+    }
+
+    ecosystemsSection = `
+      <div style="margin-top:10px;">
+        <button
+          id="ecosystems-toggle-btn"
+          data-place-id="${row.place_id}"
+          style="
+            border:1px solid #c7c7c7;
+            border-radius:6px;
+            padding:6px 10px;
+            font-size:12px;
+            background:#eef3fb;
+            cursor:pointer;
+            color:#222;
+            font-weight:700;
+          "
+        >
+          Hide Ecosystems
+        </button>
+        ${innerHtml}
+      </div>
+    `;
+  }
+
   return `
-    <div style="padding:10px; font-family:sans-serif; min-width:240px; max-width:280px;">
+    <div style="padding:10px; font-family:sans-serif; min-width:260px; max-width:320px;">
       <div style="font-weight:700; font-size:15px; margin-bottom:8px;">
         ${escapeHtml(row.name)}
       </div>
@@ -107,12 +221,14 @@ function buildLandscapePopupHtml(row: LandscapeRow, mode: PortfolioMode) {
         <div><span style="font-weight:700;">Designation:</span> ${escapeHtml(row.designation || "—")}</div>
         <div><span style="font-weight:700;">Ecoregion:</span> ${escapeHtml(row.ecoregion || "—")}</div>
         <div><span style="font-weight:700;">Ecoregion Rank:</span> ${escapeHtml(row.ecoregion_rank ?? "—")}</div>
-        <div><span style="font-weight:700;">Landscape Features:</span> ${escapeHtml(row.landscape_features || "—")}</div>
-        <div><span style="font-weight:700;">Ecosystems:</span> ${escapeHtml(row.ecosystems || "—")}</div>
-        <div><span style="font-weight:700;">Human Footprint:</span> ${escapeHtml(row.human_footprint || "—")}</div>
+        <div><span style="font-weight:700;">Landscape Features:</span> ${escapeHtml(row.landscape_features ?? "—")}</div>
+        <div><span style="font-weight:700;">Ecosystems:</span> ${escapeHtml(row.ecosystems ?? "—")}</div>
+        <div><span style="font-weight:700;">Human Footprint:</span> ${escapeHtml(formatFootprint(row.human_footprint))}</div>
         <div><span style="font-weight:700;">${mode === "top500" ? "Top 500 Rank" : "Top 1000 Rank"}:</span> ${escapeHtml(portfolioRank)}</div>
         <div><span style="font-weight:300;">Raw National Rank 7100 Candidate Areas:</span> ${escapeHtml(row.national_rank ?? "—")}</div>
       </div>
+
+      ${ecosystemsSection}
     </div>
   `;
 }
@@ -124,7 +240,6 @@ function buildEcoregionPopupHtml(row: EcoregionRow) {
         ${escapeHtml(row.eco_name || "Ecoregion")}
       </div>
       <div style="font-size:12px; line-height:1.55; color:#222;">
-        
         <div><span style="font-weight:700;">Acres:</span> ${escapeHtml(formatAcres(row.acres))}</div>
       </div>
     </div>
@@ -195,6 +310,15 @@ export default function LastGreatPlacesPage() {
   const ecoregionsLayerRef = useRef<any>(null);
   const hasFitBoundsRef = useRef(false);
 
+  const popupPlaceRef = useRef<LandscapeRow | null>(null);
+  const popupPositionRef = useRef<any>(null);
+  const popupModeRef = useRef<PortfolioMode>("top500");
+  const ecosystemsOpenRef = useRef(false);
+  const ecosystemsLoadingRef = useRef(false);
+  const ecosystemsErrorRef = useRef("");
+  const ecosystemsCacheRef = useRef<Record<number, PlaceEcosystemRow[]>>({});
+  const activePlaceIdRef = useRef<number | null>(null);
+
   const visibleRows = rows.filter((r) =>
     portfolioMode === "top500" ? r.in_top500 : r.in_top1000
   );
@@ -209,6 +333,90 @@ export default function LastGreatPlacesPage() {
     );
 
     mapRef.current.fitBounds(bounds);
+  };
+
+  const renderLandscapePopup = (
+    row: LandscapeRow,
+    position: any,
+    mode: PortfolioMode
+  ) => {
+    if (!infoWindowRef.current || !mapRef.current) return;
+
+    popupPlaceRef.current = row;
+    popupPositionRef.current = position;
+    popupModeRef.current = mode;
+
+    const cached = ecosystemsCacheRef.current[row.place_id] ?? [];
+
+    const html = buildLandscapePopupHtml(row, mode, {
+      ecosystemsOpen: ecosystemsOpenRef.current,
+      ecosystemsLoading: ecosystemsLoadingRef.current,
+      ecosystemsError: ecosystemsErrorRef.current,
+      ecosystems: ecosystemsOpenRef.current ? cached : [],
+    });
+
+    infoWindowRef.current.setContent(html);
+    infoWindowRef.current.setPosition(position);
+    infoWindowRef.current.open(mapRef.current);
+  };
+
+  const attachPopupButtonHandler = () => {
+    window.setTimeout(() => {
+      const btn = document.getElementById("ecosystems-toggle-btn");
+      if (!btn) return;
+
+      btn.onclick = async () => {
+        const place = popupPlaceRef.current;
+        const position = popupPositionRef.current;
+        const mode = popupModeRef.current;
+
+        if (!place || !position) return;
+
+        if (ecosystemsOpenRef.current) {
+          ecosystemsOpenRef.current = false;
+          ecosystemsLoadingRef.current = false;
+          ecosystemsErrorRef.current = "";
+          renderLandscapePopup(place, position, mode);
+          attachPopupButtonHandler();
+          return;
+        }
+
+        ecosystemsOpenRef.current = true;
+        ecosystemsLoadingRef.current = true;
+        ecosystemsErrorRef.current = "";
+        activePlaceIdRef.current = place.place_id;
+
+        renderLandscapePopup(place, position, mode);
+        attachPopupButtonHandler();
+
+        if (!ecosystemsCacheRef.current[place.place_id]) {
+          const result = await supabase
+            .from("ecosystems_at_places")
+            .select("place_id,ecosystem,acres,percent")
+            .eq("place_id", place.place_id)
+            .order("percent", { ascending: false, nullsFirst: false })
+            .limit(5);
+
+          if (activePlaceIdRef.current !== place.place_id) return;
+
+          ecosystemsLoadingRef.current = false;
+
+          if (result.error) {
+            ecosystemsErrorRef.current =
+              result.error.message || "Failed to load ecosystems.";
+          } else {
+            ecosystemsErrorRef.current = "";
+            ecosystemsCacheRef.current[place.place_id] =
+              (result.data as PlaceEcosystemRow[]) ?? [];
+          }
+        } else {
+          ecosystemsLoadingRef.current = false;
+        }
+
+        renderLandscapePopup(place, position, mode);
+        attachPopupButtonHandler();
+      };
+    }, 0);
   };
 
   useEffect(() => {
@@ -298,6 +506,15 @@ export default function LastGreatPlacesPage() {
       mapRef.current = map;
       infoWindowRef.current = new google.maps.InfoWindow();
 
+      infoWindowRef.current.addListener("closeclick", () => {
+        popupPlaceRef.current = null;
+        popupPositionRef.current = null;
+        ecosystemsOpenRef.current = false;
+        ecosystemsLoadingRef.current = false;
+        ecosystemsErrorRef.current = "";
+        activePlaceIdRef.current = null;
+      });
+
       ecoregionsLayerRef.current = new google.maps.Data({ map });
       landscapesLayerRef.current = new google.maps.Data({ map });
 
@@ -319,6 +536,12 @@ export default function LastGreatPlacesPage() {
 
         if (!position) return;
 
+        popupPlaceRef.current = null;
+        ecosystemsOpenRef.current = false;
+        ecosystemsLoadingRef.current = false;
+        ecosystemsErrorRef.current = "";
+        activePlaceIdRef.current = null;
+
         infoWindowRef.current.setContent(html);
         infoWindowRef.current.setPosition(position);
         infoWindowRef.current.open(map);
@@ -328,8 +551,6 @@ export default function LastGreatPlacesPage() {
         const feature = event.feature;
         const props = feature.getProperty("row") as LandscapeRow | undefined;
         if (!props || !infoWindowRef.current) return;
-
-        const html = buildLandscapePopupHtml(props, portfolioMode);
 
         let position = event.latLng;
 
@@ -343,9 +564,13 @@ export default function LastGreatPlacesPage() {
 
         if (!position) return;
 
-        infoWindowRef.current.setContent(html);
-        infoWindowRef.current.setPosition(position);
-        infoWindowRef.current.open(map);
+        ecosystemsOpenRef.current = false;
+        ecosystemsLoadingRef.current = false;
+        ecosystemsErrorRef.current = "";
+        activePlaceIdRef.current = null;
+
+        renderLandscapePopup(props, position, portfolioMode);
+        attachPopupButtonHandler();
       });
 
       setMapReady(true);
@@ -413,6 +638,13 @@ export default function LastGreatPlacesPage() {
     if (infoWindowRef.current) {
       infoWindowRef.current.close();
     }
+
+    popupPlaceRef.current = null;
+    popupPositionRef.current = null;
+    ecosystemsOpenRef.current = false;
+    ecosystemsLoadingRef.current = false;
+    ecosystemsErrorRef.current = "";
+    activePlaceIdRef.current = null;
 
     landscapesLayer.forEach((feature: any) => {
       landscapesLayer.remove(feature);
