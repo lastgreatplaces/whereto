@@ -122,8 +122,7 @@ function buildLandscapePopupHtml(
     ecosystems?: PlaceEcosystemRow[];
   }
 ) {
-  const portfolioRank =
-    mode === "top500" ? row.rank_top500 ?? "—" : row.rank_top1000 ?? "—";
+  const portfolioRank = row.rank_top1000 ?? "—";
 
   const ecosystemsOpen = options?.ecosystemsOpen ?? false;
   const ecosystemsLoading = options?.ecosystemsLoading ?? false;
@@ -225,7 +224,7 @@ function buildLandscapePopupHtml(
         <div><span style="font-weight:700;">Landscape Features:</span> ${escapeHtml(row.landscape_features ?? "—")}</div>
         <div><span style="font-weight:700;">Native Ecosystems:</span> ${escapeHtml(row.ecosystems ?? "—")}</div>
         <div><span style="font-weight:700;">Human Footprint:</span> ${escapeHtml(formatFootprint(row.human_footprint))}</div>
-        <div><span style="font-weight:700;">${mode === "top500" ? "Top 500 Rank" : "Top 1000 Rank"}:</span> ${escapeHtml(portfolioRank)}</div>
+       <div><span style="font-weight:700;">Top 1000 Rank:</span> ${escapeHtml(portfolioRank)}</div>
         <div><span style="font-weight:300; font-style:italic;">Raw Ranking:</span> ${escapeHtml(row.national_rank ?? "—")}</div>
       </div>
 
