@@ -22,6 +22,10 @@ type LandscapeRow = {
   acres: number | null;
   owner_name: string | null;
   designation: string | null;
+landscape_features:  number | null;
+ecosystems:  number | null;
+human_footprint:  number | null;
+
   ecoregion: string | null;
   ecoregion_rank: number | null;
   national_rank: number | null;
@@ -96,8 +100,14 @@ function buildPopupHtml(row: LandscapeRow, mode: PortfolioMode) {
         <div><span style="font-weight:700;">Ecoregion:</span> ${escapeHtml(row.ecoregion || "—")}</div>
         <div><span style="font-weight:700;">Ecoregion Rank:</span> ${escapeHtml(row.ecoregion_rank ?? "—")}</div>
        
+       <div><span style="font-weight:700;">Landscape Features:</span> ${escapeHtml(row.landscape_features || "—")}</div>
+       <div><span style="font-weight:700;">Ecosystems:</span> ${escapeHtml(row.ecosystems || "—")}</div>
+        <div><span style="font-weight:700;">Human Footprint:</span> ${escapeHtml(row.human_footprint || "—")}</div>
+
+
+
         <div><span style="font-weight:700;">${mode === "top500" ? "Top 500 Rank" : "Top 1000 Rank"}:</span> ${escapeHtml(portfolioRank)}</div>
-       <div><span style="font-weight:300;">Raw National Rank - 7100 Candidate Areas:</span> ${escapeHtml(row.national_rank ?? "—")}</div>
+       <div><span style="font-weight:300;">Raw National Rank 7100 Candidate Areas:</span> ${escapeHtml(row.national_rank ?? "—")}</div>
         </div>
     </div>
   `;
@@ -188,7 +198,7 @@ export default function LastGreatPlacesPage() {
       const { data, error } = await supabase
         .from("whereto_top_portfolios_web")
         .select(
-          "place_id,name,states,acres,owner_name,designation,ecoregion,ecoregion_rank,national_rank,rank_top500,in_top500,rank_top1000,in_top1000,geom"
+          "place_id,name,states,acres,owner_name,designation,landscape_features, ecosystems, human_footprint, ecoregion,ecoregion_rank,national_rank,rank_top500,in_top500,rank_top1000,in_top1000,geom"
         )
         .or("in_top500.eq.true,in_top1000.eq.true")
         .order("rank_top1000", { ascending: true, nullsFirst: false });
@@ -324,9 +334,9 @@ export default function LastGreatPlacesPage() {
 
       return {
         fillColor: isTop500Mode ? "#2e7d32" : "#66bb6a",
-        fillOpacity: isTop500Mode ? 0.8 : 0.72,
+        fillOpacity: isTop500Mode ? 0.5 : 0.5,
         strokeColor: isTop500Mode ? "#1b5e20" : "#2e7d32",
-        strokeWeight: isTop500Mode ? 2.2 : 1.6,
+        strokeWeight: isTop500Mode ? 1.0 : 1.0,
         strokeOpacity: 1,
         clickable: true,
         zIndex: isTop500Mode ? 3 : 2,
@@ -454,8 +464,9 @@ export default function LastGreatPlacesPage() {
             }}
           >
             A nationwide portfolio of public lands selected
-            for geophysical diversity, ecosystem diversity, low human modification,
-            and representation of America’s varied landscape features within and across 68 ecoregions.
+            for geophysical diversity, ecosystem diversity, low human modification, conservation management & designation,
+            and representation of America’s varied landscape features across 68 ecoregions. Top 500 and Top 1000
+              use distinct selection rules to capture high quality sites and diverse landscapes in all ecoregions.
           </div>
 
           <div
@@ -553,9 +564,7 @@ export default function LastGreatPlacesPage() {
                 lineHeight: 1.5,
               }}
             >
-              Click a landscape polygon to view details. Top 500 and Top 1000
-              use distinct portfolio-selection rules rather than simply showing
-              the first 500 places on one list.
+              Click a landscape polygon to view details. Close menu to see full map.
             </div>
           )}
         </div>
@@ -580,7 +589,7 @@ export default function LastGreatPlacesPage() {
           aria-label="Show landscapes menu"
           title="Show landscapes menu"
         >
-          Landscapes
+          Last Great Places
         </button>
       )}
 

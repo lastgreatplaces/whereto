@@ -22,10 +22,9 @@ type LandscapeRow = {
   acres: number | null;
   owner_name: string | null;
   designation: string | null;
-landscape_features:  number | null;
-ecosystems:  number | null;
-human_footprint:  number | null;
-
+  landscape_features: number | null;
+  ecosystems: number | null;
+  human_footprint: number | null;
   ecoregion: string | null;
   ecoregion_rank: number | null;
   national_rank: number | null;
@@ -33,6 +32,13 @@ human_footprint:  number | null;
   in_top500: boolean;
   rank_top1000: number | null;
   in_top1000: boolean;
+  geom: GeoJsonGeometry | string | null;
+};
+
+type EcoregionRow = {
+  eco_id: number;
+  eco_name: string | null;
+  acres: number | null;
   geom: GeoJsonGeometry | string | null;
 };
 
@@ -51,7 +57,9 @@ function escapeHtml(value: string | number | null | undefined) {
     .replaceAll("'", "&#039;");
 }
 
-function parseGeometry(input: LandscapeRow["geom"]): GeoJsonGeometry | null {
+function parseGeometry(
+  input: GeoJsonGeometry | string | null | undefined
+): GeoJsonGeometry | null {
   if (!input) return null;
 
   if (typeof input === "object") {
@@ -82,7 +90,7 @@ function parseGeometry(input: LandscapeRow["geom"]): GeoJsonGeometry | null {
   return null;
 }
 
-function buildPopupHtml(row: LandscapeRow, mode: PortfolioMode) {
+function buildLandscapePopupHtml(row: LandscapeRow, mode: PortfolioMode) {
   const portfolioRank =
     mode === "top500" ? row.rank_top500 ?? "—" : row.rank_top1000 ?? "—";
 
@@ -99,16 +107,26 @@ function buildPopupHtml(row: LandscapeRow, mode: PortfolioMode) {
         <div><span style="font-weight:700;">Designation:</span> ${escapeHtml(row.designation || "—")}</div>
         <div><span style="font-weight:700;">Ecoregion:</span> ${escapeHtml(row.ecoregion || "—")}</div>
         <div><span style="font-weight:700;">Ecoregion Rank:</span> ${escapeHtml(row.ecoregion_rank ?? "—")}</div>
-       
-       <div><span style="font-weight:700;">Landscape Features:</span> ${escapeHtml(row.landscape_features || "—")}</div>
-       <div><span style="font-weight:700;">Ecosystems:</span> ${escapeHtml(row.ecosystems || "—")}</div>
+        <div><span style="font-weight:700;">Landscape Features:</span> ${escapeHtml(row.landscape_features || "—")}</div>
+        <div><span style="font-weight:700;">Ecosystems:</span> ${escapeHtml(row.ecosystems || "—")}</div>
         <div><span style="font-weight:700;">Human Footprint:</span> ${escapeHtml(row.human_footprint || "—")}</div>
-
-
-
         <div><span style="font-weight:700;">${mode === "top500" ? "Top 500 Rank" : "Top 1000 Rank"}:</span> ${escapeHtml(portfolioRank)}</div>
-       <div><span style="font-weight:300;">Raw National Rank 7100 Candidate Areas:</span> ${escapeHtml(row.national_rank ?? "—")}</div>
-        </div>
+        <div><span style="font-weight:300;">Raw National Rank 7100 Candidate Areas:</span> ${escapeHtml(row.national_rank ?? "—")}</div>
+      </div>
+    </div>
+  `;
+}
+
+function buildEcoregionPopupHtml(row: EcoregionRow) {
+  return `
+    <div style="padding:10px; font-family:sans-serif; min-width:220px; max-width:260px;">
+      <div style="font-weight:700; font-size:15px; margin-bottom:8px;">
+        ${escapeHtml(row.eco_name || "Ecoregion")}
+      </div>
+      <div style="font-size:12px; line-height:1.55; color:#222;">
+        <div><span style="font-weight:700;">Eco ID:</span> ${escapeHtml(row.eco_id)}</div>
+        <div><span style="font-weight:700;">Acres:</span> ${escapeHtml(formatAcres(row.acres))}</div>
+      </div>
     </div>
   `;
 }
@@ -164,14 +182,17 @@ function getFeatureCenter(
 export default function LastGreatPlacesPage() {
   const [portfolioMode, setPortfolioMode] = useState<PortfolioMode>("top500");
   const [rows, setRows] = useState<LandscapeRow[]>([]);
+  const [ecoregions, setEcoregions] = useState<EcoregionRow[]>([]);
   const [loading, setLoading] = useState(false);
   const [mapReady, setMapReady] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [panelOpen, setPanelOpen] = useState(true);
+  const [showEcoregions, setShowEcoregions] = useState(false);
 
   const mapRef = useRef<any>(null);
   const infoWindowRef = useRef<any>(null);
-  const dataLayerRef = useRef<any>(null);
+  const landscapesLayerRef = useRef<any>(null);
+  const ecoregionsLayerRef = useRef<any>(null);
   const hasFitBoundsRef = useRef(false);
 
   const visibleRows = rows.filter((r) =>
@@ -191,31 +212,48 @@ export default function LastGreatPlacesPage() {
   };
 
   useEffect(() => {
-    const fetchLandscapes = async () => {
+    const fetchData = async () => {
       setLoading(true);
       setErrorMsg("");
 
-      const { data, error } = await supabase
-        .from("whereto_top_portfolios_web")
-        .select(
-          "place_id,name,states,acres,owner_name,designation,landscape_features, ecosystems, human_footprint, ecoregion,ecoregion_rank,national_rank,rank_top500,in_top500,rank_top1000,in_top1000,geom"
-        )
-        .or("in_top500.eq.true,in_top1000.eq.true")
-        .order("rank_top1000", { ascending: true, nullsFirst: false });
+      const [landscapeResult, ecoregionResult] = await Promise.all([
+        supabase
+          .from("whereto_top_portfolios_web")
+          .select(
+            "place_id,name,states,acres,owner_name,designation,landscape_features,ecosystems,human_footprint,ecoregion,ecoregion_rank,national_rank,rank_top500,in_top500,rank_top1000,in_top1000,geom"
+          )
+          .or("in_top500.eq.true,in_top1000.eq.true")
+          .order("rank_top1000", { ascending: true, nullsFirst: false }),
 
-      if (error) {
-        console.error(error);
-        setErrorMsg(error.message || "Failed to load landscapes.");
+        supabase
+          .from("ecoregions_web_map")
+          .select("eco_id,eco_name,acres,geom")
+          .order("eco_id", { ascending: true }),
+      ]);
+
+      if (landscapeResult.error) {
+        console.error(landscapeResult.error);
+        setErrorMsg(landscapeResult.error.message || "Failed to load landscapes.");
         setRows([]);
         setLoading(false);
         return;
       }
 
-      setRows((data ?? []) as LandscapeRow[]);
+      if (ecoregionResult.error) {
+        console.error(ecoregionResult.error);
+        setErrorMsg(ecoregionResult.error.message || "Failed to load ecoregions.");
+        setRows((landscapeResult.data ?? []) as LandscapeRow[]);
+        setEcoregions([]);
+        setLoading(false);
+        return;
+      }
+
+      setRows((landscapeResult.data ?? []) as LandscapeRow[]);
+      setEcoregions((ecoregionResult.data ?? []) as EcoregionRow[]);
       setLoading(false);
     };
 
-    fetchLandscapes();
+    fetchData();
   }, []);
 
   useEffect(() => {
@@ -259,14 +297,39 @@ export default function LastGreatPlacesPage() {
 
       mapRef.current = map;
       infoWindowRef.current = new google.maps.InfoWindow();
-      dataLayerRef.current = new google.maps.Data({ map });
 
-      dataLayerRef.current.addListener("click", (event: any) => {
+      ecoregionsLayerRef.current = new google.maps.Data({ map });
+      landscapesLayerRef.current = new google.maps.Data({ map });
+
+      ecoregionsLayerRef.current.addListener("click", (event: any) => {
+        const feature = event.feature;
+        const props = feature.getProperty("row") as EcoregionRow | undefined;
+        if (!props || !infoWindowRef.current) return;
+
+        const html = buildEcoregionPopupHtml(props);
+
+        let position = event.latLng;
+        if (!position) {
+          const geom = parseGeometry(props.geom);
+          const center = geom ? getFeatureCenter(geom) : null;
+          if (center) {
+            position = new google.maps.LatLng(center.lat, center.lng);
+          }
+        }
+
+        if (!position) return;
+
+        infoWindowRef.current.setContent(html);
+        infoWindowRef.current.setPosition(position);
+        infoWindowRef.current.open(map);
+      });
+
+      landscapesLayerRef.current.addListener("click", (event: any) => {
         const feature = event.feature;
         const props = feature.getProperty("row") as LandscapeRow | undefined;
         if (!props || !infoWindowRef.current) return;
 
-        const html = buildPopupHtml(props, portfolioMode);
+        const html = buildLandscapePopupHtml(props, portfolioMode);
 
         let position = event.latLng;
 
@@ -288,21 +351,71 @@ export default function LastGreatPlacesPage() {
       setMapReady(true);
       fitToUs();
     }
-  }, []);
+  }, [portfolioMode]);
 
   useEffect(() => {
     const google = (window as any).google;
-    if (!mapReady || !google || !dataLayerRef.current) return;
+    if (!mapReady || !google || !ecoregionsLayerRef.current) return;
 
-    const dataLayer = dataLayerRef.current;
+    const ecoregionsLayer = ecoregionsLayerRef.current;
+
+    ecoregionsLayer.forEach((feature: any) => {
+      ecoregionsLayer.remove(feature);
+    });
+
+    if (!showEcoregions) {
+      return;
+    }
+
+    const featureCollection = {
+      type: "FeatureCollection",
+      features: ecoregions
+        .map((row) => {
+          const geometry = parseGeometry(row.geom);
+          if (!geometry) return null;
+
+          return {
+            type: "Feature",
+            id: String(row.eco_id),
+            properties: {
+              eco_id: row.eco_id,
+              row,
+            },
+            geometry,
+          };
+        })
+        .filter(Boolean),
+    };
+
+    if (!featureCollection.features.length) return;
+
+    ecoregionsLayer.addGeoJson(featureCollection as any);
+
+    ecoregionsLayer.setStyle(() => {
+      return {
+        fillOpacity: 0,
+        strokeColor: "#444444",
+        strokeWeight: 1.2,
+        strokeOpacity: 0.75,
+        clickable: true,
+        zIndex: 1,
+      };
+    });
+  }, [mapReady, ecoregions, showEcoregions]);
+
+  useEffect(() => {
+    const google = (window as any).google;
+    if (!mapReady || !google || !landscapesLayerRef.current) return;
+
+    const landscapesLayer = landscapesLayerRef.current;
     const map = mapRef.current;
 
     if (infoWindowRef.current) {
       infoWindowRef.current.close();
     }
 
-    dataLayer.forEach((feature: any) => {
-      dataLayer.remove(feature);
+    landscapesLayer.forEach((feature: any) => {
+      landscapesLayer.remove(feature);
     });
 
     const featureCollection = {
@@ -327,19 +440,19 @@ export default function LastGreatPlacesPage() {
 
     if (!featureCollection.features.length) return;
 
-    dataLayer.addGeoJson(featureCollection as any);
+    landscapesLayer.addGeoJson(featureCollection as any);
 
-    dataLayer.setStyle(() => {
+    landscapesLayer.setStyle(() => {
       const isTop500Mode = portfolioMode === "top500";
 
       return {
         fillColor: isTop500Mode ? "#2e7d32" : "#66bb6a",
-        fillOpacity: isTop500Mode ? 0.5 : 0.5,
+        fillOpacity: 0.5,
         strokeColor: isTop500Mode ? "#1b5e20" : "#2e7d32",
-        strokeWeight: isTop500Mode ? 1.0 : 1.0,
+        strokeWeight: 1.0,
         strokeOpacity: 1,
         clickable: true,
-        zIndex: isTop500Mode ? 3 : 2,
+        zIndex: 3,
       };
     });
 
@@ -392,11 +505,11 @@ export default function LastGreatPlacesPage() {
           background: "white",
           border: "1px solid #ccc",
           borderRadius: 8,
-          padding: "10px 14px",
+          padding: "8px 12px",
           textDecoration: "none",
           color: "#333",
           fontWeight: 700,
-          fontSize: 14,
+          fontSize: 13,
           boxShadow: "0 2px 10px rgba(0,0,0,0.12)",
         }}
       >
@@ -410,7 +523,7 @@ export default function LastGreatPlacesPage() {
             left: 12,
             top: 72,
             zIndex: 11,
-            width: 350,
+            width: 360,
             maxWidth: "calc(100vw - 24px)",
             background: "white",
             border: "1px solid #ccc",
@@ -429,7 +542,7 @@ export default function LastGreatPlacesPage() {
               paddingRight: 4,
             }}
           >
-            <div style={{ fontWeight: 700, fontSize: 16, color: "#222" }}>
+            <div style={{ fontWeight: 700, fontSize: 15, color: "#222" }}>
               Last Great Places
             </div>
 
@@ -438,12 +551,12 @@ export default function LastGreatPlacesPage() {
               style={{
                 border: "1px solid #ccc",
                 borderRadius: 6,
-                width: 32,
-                height: 32,
+                width: 30,
+                height: 30,
                 background: "#f5f5f5",
                 cursor: "pointer",
                 color: "#333",
-                fontSize: 18,
+                fontSize: 17,
                 lineHeight: 1,
                 fontWeight: 700,
                 flexShrink: 0,
@@ -457,24 +570,27 @@ export default function LastGreatPlacesPage() {
 
           <div
             style={{
-              fontSize: 12,
+              fontSize: 11.5,
               color: "#555",
               marginBottom: 10,
               lineHeight: 1.45,
             }}
           >
-            A nationwide portfolio of public lands selected
-            for geophysical diversity, ecosystem diversity, low human modification, conservation management & designation,
-            and representation of America’s varied landscape features across 68 ecoregions. Top 500 and Top 1000
-              use distinct selection rules to capture high quality sites and diverse landscapes in all ecoregions.
+            A nationwide portfolio of public lands selected for
+            geophysical diversity, ecosystem diversity, low human
+            modification, conservation management & designation, and
+            representation of America’s varied landscape features across
+            68 ecoregions. Top 500 and Top 1000 use distinct selection
+            rules to capture high quality sites and diverse landscapes in
+            all ecoregions.
           </div>
 
           <div
             style={{
               display: "grid",
               gridTemplateColumns: "1fr 1fr",
-              gap: 8,
-              marginBottom: 10,
+              gap: 6,
+              marginBottom: 8,
             }}
           >
             <button
@@ -482,12 +598,12 @@ export default function LastGreatPlacesPage() {
               style={{
                 border: "1px solid #ccc",
                 borderRadius: 6,
-                padding: "10px 0",
-                fontSize: 13,
+                padding: "8px 0",
+                fontSize: 12,
                 cursor: "pointer",
                 background: portfolioMode === "top500" ? "#1a73e8" : "white",
                 color: portfolioMode === "top500" ? "white" : "#333",
-                fontWeight: portfolioMode === "top500" ? 700 : 400,
+                fontWeight: portfolioMode === "top500" ? 700 : 500,
               }}
             >
               Top 500
@@ -498,15 +614,34 @@ export default function LastGreatPlacesPage() {
               style={{
                 border: "1px solid #ccc",
                 borderRadius: 6,
-                padding: "10px 0",
-                fontSize: 13,
+                padding: "8px 0",
+                fontSize: 12,
                 cursor: "pointer",
                 background: portfolioMode === "top1000" ? "#1a73e8" : "white",
                 color: portfolioMode === "top1000" ? "white" : "#333",
-                fontWeight: portfolioMode === "top1000" ? 700 : 400,
+                fontWeight: portfolioMode === "top1000" ? 700 : 500,
               }}
             >
               Top 1000
+            </button>
+          </div>
+
+          <div style={{ marginBottom: 8 }}>
+            <button
+              onClick={() => setShowEcoregions((prev) => !prev)}
+              style={{
+                width: "100%",
+                border: "1px solid #ccc",
+                borderRadius: 6,
+                padding: "8px 10px",
+                fontSize: 12,
+                cursor: "pointer",
+                background: showEcoregions ? "#eef3fb" : "#f8f8f8",
+                color: "#333",
+                fontWeight: showEcoregions ? 700 : 500,
+              }}
+            >
+              {showEcoregions ? "Hide Ecoregions" : "Show Ecoregions"}
             </button>
           </div>
 
@@ -523,8 +658,8 @@ export default function LastGreatPlacesPage() {
               style={{
                 border: "1px solid #ccc",
                 borderRadius: 6,
-                padding: "8px 10px",
-                fontSize: 12,
+                padding: "7px 10px",
+                fontSize: 11.5,
                 cursor: "pointer",
                 background: "#f5f5f5",
                 color: "#333",
@@ -535,7 +670,7 @@ export default function LastGreatPlacesPage() {
 
             <div
               style={{
-                fontSize: 12,
+                fontSize: 11.5,
                 color: "#555",
                 alignSelf: "center",
               }}
@@ -559,12 +694,14 @@ export default function LastGreatPlacesPage() {
               style={{
                 borderTop: "1px solid #eee",
                 paddingTop: 10,
-                fontSize: 12,
+                fontSize: 11.5,
                 color: "#444",
                 lineHeight: 1.5,
               }}
             >
-              Click a landscape polygon to view details. Close menu to see full map.
+              Click a landscape polygon to view details. With ecoregions turned
+              on, you can also click an ecoregion outline for its name and ID.
+              Close menu to see full map.
             </div>
           )}
         </div>
@@ -579,10 +716,10 @@ export default function LastGreatPlacesPage() {
             background: "white",
             border: "1px solid #ccc",
             borderRadius: 8,
-            padding: "10px 14px",
+            padding: "8px 12px",
             boxShadow: "0 2px 10px rgba(0,0,0,0.12)",
             fontWeight: 700,
-            fontSize: 14,
+            fontSize: 13,
             color: "#333",
             cursor: "pointer",
           }}
