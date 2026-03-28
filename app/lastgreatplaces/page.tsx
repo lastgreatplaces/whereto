@@ -124,7 +124,7 @@ function buildEcoregionPopupHtml(row: EcoregionRow) {
         ${escapeHtml(row.eco_name || "Ecoregion")}
       </div>
       <div style="font-size:12px; line-height:1.55; color:#222;">
-        <div><span style="font-weight:700;">Eco ID:</span> ${escapeHtml(row.eco_id)}</div>
+        
         <div><span style="font-weight:700;">Acres:</span> ${escapeHtml(formatAcres(row.acres))}</div>
       </div>
     </div>
@@ -394,7 +394,7 @@ export default function LastGreatPlacesPage() {
     ecoregionsLayer.setStyle(() => {
       return {
         fillOpacity: 0,
-        strokeColor: "#444444",
+        strokeColor: "#e57373",
         strokeWeight: 1.2,
         strokeOpacity: 0.75,
         clickable: true,
