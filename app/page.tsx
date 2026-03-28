@@ -32,8 +32,7 @@ type LandscapeRow = {
   designation: string | null;
   ecoregion: string | null;
   ecoregion_rank: number | null;
-  national_rank: number | null;
-  rank_top500: number | null;
+   rank_top500: number | null;
   in_top500: boolean;
   rank_top1000: number | null;
   in_top1000: boolean;
@@ -301,8 +300,7 @@ if (type === "birds") {
               <div><span style="font-weight:700;">Designation:</span> ${escapeHtml(row.designation || "—")}</div>
               <div><span style="font-weight:700;">Ecoregion:</span> ${escapeHtml(row.ecoregion || "—")}</div>
               <div><span style="font-weight:700;">Ecoregion Rank:</span> ${escapeHtml(row.ecoregion_rank ?? "—")}</div>
-              <div><span style="font-weight:700;">National Rank:</span> ${escapeHtml(row.national_rank ?? "—")}</div>
-              <div><span style="font-weight:700;">Top 1000 Rank:</span> ${escapeHtml(portfolioRank)}</div>
+                           <div><span style="font-weight:700;">Top 1000 Rank:</span> ${escapeHtml(portfolioRank)}</div>
             </div>
           </div>
         `);
@@ -339,7 +337,7 @@ if (type === "birds") {
     let query = supabase
       .from("whereto_top_portfolios_web")
       .select(
-        "place_id,name,states,acres,owner_name,designation,ecoregion,ecoregion_rank,national_rank,rank_top1000,in_top1000,geom"
+        "place_id,name,states,acres,owner_name,designation,ecoregion,ecoregion_rank,rank_top1000,in_top1000,geom"
       )
       .eq("in_top1000", true)
       .order("rank_top1000", { ascending: true });
