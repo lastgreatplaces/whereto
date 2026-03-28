@@ -164,10 +164,10 @@ function buildLandscapePopupHtml(
       innerHtml = `<div style="margin-top:8px; font-size:12px; color:#444;">No ecosystems found for this place.</div>`;
     } else {
       innerHtml = `
-        <div style="margin-top:8px; border-top:1px solid #eee; padding-top:8px;">
-          <div style="font-size:12px; font-weight:700; "margin-bottom:6px; color:#222;">
-            Top Ecosystems
-
+  <div style="margin-top:8px; border-top:1px solid #eee; padding-top:8px;">
+    <div style="font-size:12px; font-weight:700; margin-bottom:8px; color:#222; text-decoration:underline;">
+      Top Ecosystems:
+    </div>
           </div>
           <div style="font-size:11.5px; line-height:1.45; color:#222;">
             ${ecosystems
