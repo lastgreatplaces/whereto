@@ -1092,7 +1092,7 @@ if (type === "birds") {
                 paddingBottom: 4
               }}
             >
-              CATEGORIES
+              Catergories
             </div>
 
             {([
@@ -1394,7 +1394,7 @@ if (type === "birds") {
                 }}
               >
                 <span>{isRegionsOpen ? "▼" : "▶"}</span>
-                <span>REGIONS & STATES</span>
+                <span>Regions & States</span>
               </button>
 
               <button
@@ -1530,7 +1530,7 @@ if (type === "birds") {
             >
               {categoryCount === 0 && !hasAnySelectedStates
                 ? "Choose categories, landscapes, and regions to display on the map."
-                : "Tap icons, roads, or landscape polygons for details."}
+                : "Tap icons, roads, or landscape polygons for details. Close menu to view full map"}
             </div>
           </div>
         )}

@@ -222,10 +222,10 @@ function buildLandscapePopupHtml(
         <div><span style="font-weight:700;">Ecoregion:</span> ${escapeHtml(row.ecoregion || "—")}</div>
         <div><span style="font-weight:700;">Ecoregion Rank:</span> ${escapeHtml(row.ecoregion_rank ?? "—")}</div>
         <div><span style="font-weight:700;">Landscape Features:</span> ${escapeHtml(row.landscape_features ?? "—")}</div>
-        <div><span style="font-weight:700;">Ecosystems:</span> ${escapeHtml(row.ecosystems ?? "—")}</div>
+        <div><span style="font-weight:700;">Native Ecosystems:</span> ${escapeHtml(row.ecosystems ?? "—")}</div>
         <div><span style="font-weight:700;">Human Footprint:</span> ${escapeHtml(formatFootprint(row.human_footprint))}</div>
         <div><span style="font-weight:700;">${mode === "top500" ? "Top 500 Rank" : "Top 1000 Rank"}:</span> ${escapeHtml(portfolioRank)}</div>
-        <div><span style="font-weight:300;">Raw National Rank 7100 Candidate Areas:</span> ${escapeHtml(row.national_rank ?? "—")}</div>
+        <div><span style="font-weight:300;">Raw Ranking:</span> ${escapeHtml(row.national_rank ?? "—")}</div>
       </div>
 
       ${ecosystemsSection}
@@ -812,8 +812,7 @@ export default function LastGreatPlacesPage() {
             geophysical diversity, ecosystem diversity, low human
             modification, conservation management & designation, and
             representation of America’s varied landscape features across
-            68 ecoregions. Top 500 and Top 1000 use distinct selection
-            rules to capture high quality sites and diverse landscapes in
+            68 ecoregions. Distinct selection rules capture high quality sites and diverse landscapes in
             all ecoregions.
           </div>
 
@@ -932,7 +931,7 @@ export default function LastGreatPlacesPage() {
               }}
             >
               Click a landscape polygon to view details. With ecoregions turned
-              on, you can also click an ecoregion outline for its name and ID.
+              on, click within an ecoregion outline for its name and size.
               Close menu to see full map.
             </div>
           )}
