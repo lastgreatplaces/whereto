@@ -225,7 +225,7 @@ function buildLandscapePopupHtml(
         <div><span style="font-weight:700;">Native Ecosystems:</span> ${escapeHtml(row.ecosystems ?? "—")}</div>
         <div><span style="font-weight:700;">Human Footprint:</span> ${escapeHtml(formatFootprint(row.human_footprint))}</div>
         <div><span style="font-weight:700;">${mode === "top500" ? "Top 500 Rank" : "Top 1000 Rank"}:</span> ${escapeHtml(portfolioRank)}</div>
-        <div><span style="font-weight:300;">Raw Ranking:</span> ${escapeHtml(row.national_rank ?? "—")}</div>
+        <div><span style="font-weight:300; font-style:italic;">Raw Ranking:</span> ${escapeHtml(row.national_rank ?? "—")}</div>
       </div>
 
       ${ecosystemsSection}
