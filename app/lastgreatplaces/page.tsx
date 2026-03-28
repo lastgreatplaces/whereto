@@ -165,8 +165,8 @@ function buildLandscapePopupHtml(
     } else {
       innerHtml = `
         <div style="margin-top:8px; border-top:1px solid #eee; padding-top:8px;">
-          <div style="font-size:12px; font-weight:700; margin-bottom:6px; color:#222;">
-            Top Ecosystems
+          <div style="font-size:12px; font-weight:700; "text-decoration: underline;"margin-bottom:6px; color:#222;">
+            Top Ecosystems:
           </div>
           <div style="font-size:11.5px; line-height:1.45; color:#222;">
             ${ecosystems
