@@ -1529,8 +1529,8 @@ if (type === "birds") {
               }}
             >
               {categoryCount === 0 && !hasAnySelectedStates
-                ? "Choose categories, landscapes, and regions to display on the map."
-                : "Tap icons, roads, or landscape polygons for details. Close menu to view full map"}
+                ? "Choose categories, landscapes, and regions to display on the map. Close menu to view full map."
+                : "Tap icons, roads, or landscape polygons for details."}
             </div>
           </div>
         )}
