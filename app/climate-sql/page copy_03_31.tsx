@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient(
@@ -20,7 +20,8 @@ type ClimateSqlRow = {
   day_label: string;
   night_label: string;
   precip_label: string;
-  mosquito_label_display: string;
+  mosquito_label: string;
+  mosquito_label_display?: string;
   travel_score: number;
   score_band: string;
 };
@@ -51,8 +52,12 @@ const MONTHS = [
   { num: 12, label: "Dec" },
 ];
 
+const MONTH_LABEL_BY_NUM: Record<number, string> = Object.fromEntries(
+  MONTHS.map((m) => [m.num, m.label])
+);
+
 const CONUS_STATES = [
-  "AL","AZ","AR","CA","CO","CT","DE","FL","GA","ID","IL","IN","IA","KS","KY","LA",
+  "AK","AL","AZ","AR","CA","CO","CT","DE","FL","GA","ID","IL","IN","IA","KS","KY","LA",
   "ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND",
   "OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"
 ];
@@ -60,21 +65,30 @@ const CONUS_STATES = [
 function getMosquitoCategory(score: number) {
   if (score <= 2.4) return { label: "Very Low", color: "#2e7d32" };
   if (score <= 4.4) return { label: "Low", color: "#558b2f" };
-  if (score <= 6.4) return { label: "Moderate", color: "#f9a825" };
+  if (score <= 6.4) return { label: "Moderate", color: "#d18203" };
   if (score <= 8.4) return { label: "High", color: "#ef6c00" };
   return { label: "Very High", color: "#c62828" };
 }
 
 function getTravelColor(label: string) {
   switch (label) {
+    case "Optimal":
+      return "#0e5711";
     case "Desirable":
-      return "#2e7d32";
+      return "#38823b";
+
     case "Acceptable":
       return "#1565c0";
     case "Undesirable":
       return "#ef6c00";
     case "Unacceptable":
       return "#c62828";
+case "minor factor":
+      return "#4e4d4d";
+case "n/a most areas":
+      return "#4e4d4d";
+
+
     default:
       return "#333";
   }
@@ -90,11 +104,12 @@ export default function ClimateSqlPage() {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [clickedLatLng, setClickedLatLng] = useState<{ lat: number; lng: number } | null>(null);
-  const [panelOpen, setPanelOpen] = useState(true);
 
-  const [showTravelLayer, setShowTravelLayer] = useState(false);
-  const [layerState, setLayerState] = useState<string>("");
-  const [layerMonth, setLayerMonth] = useState<number | "">("");
+  const [panelOpen, setPanelOpen] = useState(true);
+  const [travelSectionOpen, setTravelSectionOpen] = useState(false);
+
+  const [selectedLayerStates, setSelectedLayerStates] = useState<string[]>([]);
+  const [activeLayerMonth, setActiveLayerMonth] = useState<number | null>(null);
 
   const selectedMonthsRef = useRef<number[]>([]);
   const mapRef = useRef<any>(null);
@@ -105,6 +120,22 @@ export default function ClimateSqlPage() {
   useEffect(() => {
     selectedMonthsRef.current = selectedMonths;
   }, [selectedMonths]);
+
+  const selectedLayerMonthOptions = useMemo(
+    () => selectedMonths.map((m) => ({ num: m, label: MONTH_LABEL_BY_NUM[m] })),
+    [selectedMonths]
+  );
+
+  useEffect(() => {
+    if (!selectedMonths.length) {
+      setActiveLayerMonth(null);
+      return;
+    }
+
+    if (activeLayerMonth == null || !selectedMonths.includes(activeLayerMonth)) {
+      setActiveLayerMonth(selectedMonths[selectedMonths.length - 1]);
+    }
+  }, [selectedMonths, activeLayerMonth]);
 
   const toggleMonth = (monthNum: number) => {
     setSelectedMonths((prev) =>
@@ -126,9 +157,10 @@ export default function ClimateSqlPage() {
     setErrorMsg("");
     setLoading(false);
 
-    setShowTravelLayer(false);
-    setLayerState("");
-    setLayerMonth("");
+    setSelectedLayerStates([]);
+    setActiveLayerMonth(null);
+    setTravelSectionOpen(false);
+
     clearTravelLayer();
 
     if (markerRef.current) {
@@ -191,6 +223,8 @@ export default function ClimateSqlPage() {
       const body = rows
         .map((r) => {
           const mosq = getMosquitoCategory(Number(r.mosquito_score));
+          const mosquitoDisplay = r.mosquito_label_display || r.mosquito_label;
+
           return `
             <div style="font-size:12px; line-height:1.5; margin-bottom:12px; padding-bottom:10px; border-bottom:1px solid #f0f0f0;">
               <div style="font-weight:700;">${r.month_name}</div>
@@ -198,6 +232,7 @@ export default function ClimateSqlPage() {
               <div>Early: ${r.tmax_f - 6}° / ${r.tmin_f - 6}°</div>
               <div>Mid: ${r.tmax_f}° / ${r.tmin_f}°</div>
               <div>Late: ${r.tmax_f + 6}° / ${r.tmin_f + 6}°</div>
+              <div>Precip: ${r.precip}"</div>
 
               <div style="margin-top:4px; font-weight:700; color:${mosq.color};">
                 Mosquito Risk: ${mosq.label}
@@ -224,8 +259,8 @@ export default function ClimateSqlPage() {
                 </div>
                 <div>
                   Mosquito:
-                  <span style="font-weight:700; color:${getTravelColor(r.mosquito_label_display)};">
-                    ${r.mosquito_label_display}
+                  <span style="font-weight:700; color:${getTravelColor(r.mosquito_label)};">
+                    ${mosquitoDisplay}
                   </span>
                 </div>
                 <div style="margin-top:4px; font-size:13px;">
@@ -306,30 +341,35 @@ export default function ClimateSqlPage() {
   const loadTravelLayer = async () => {
     clearTravelLayer();
 
-    if (!showTravelLayer || !layerState || !layerMonth || !mapRef.current) return;
+    if (!selectedLayerStates.length || !activeLayerMonth || !mapRef.current) return;
 
     const google = (window as any).google;
     if (!google) return;
 
-    const { data, error } = await supabase.rpc("get_state_travel_score_layer_sql", {
-      p_state: layerState,
-      p_month: layerMonth,
-    });
+    const responses = await Promise.all(
+      selectedLayerStates.map((state) =>
+        supabase.rpc("get_state_travel_score_layer_sql", {
+          p_state: state,
+          p_month: activeLayerMonth,
+        })
+      )
+    );
 
-    if (error) {
-      console.error("Travel layer error:", error);
-      return;
+    for (const response of responses) {
+      if (response.error) {
+        console.error("Travel layer error:", response.error);
+        continue;
+      }
+      const rows = (response.data ?? []) as TravelLayerRow[];
+      rows.forEach((row) => {
+        addPolygonFeature(google, mapRef.current, row.geom_geojson, row);
+      });
     }
-
-    const rows = (data ?? []) as TravelLayerRow[];
-    rows.forEach((row) => {
-      addPolygonFeature(google, mapRef.current, row.geom_geojson, row);
-    });
   };
 
   useEffect(() => {
     loadTravelLayer();
-  }, [showTravelLayer, layerState, layerMonth]);
+  }, [selectedLayerStates, activeLayerMonth]);
 
   useEffect(() => {
     const key = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY;
@@ -417,11 +457,11 @@ export default function ClimateSqlPage() {
           boxShadow: "0 2px 10px rgba(0,0,0,0.12)",
         }}
       >
-        Places Map
+       Home
       </a>
 
       <a
-        href="/climate"
+        href="/lastgreatplaces"
         style={{
           position: "absolute",
           right: 12,
@@ -438,7 +478,7 @@ export default function ClimateSqlPage() {
           boxShadow: "0 2px 10px rgba(0,0,0,0.12)",
         }}
       >
-        Current Climate Page
+        Landscapes
       </a>
 
       {panelOpen ? (
@@ -457,36 +497,33 @@ export default function ClimateSqlPage() {
             boxShadow: "0 2px 10px rgba(0,0,0,0.12)",
           }}
         >
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10, gap: 10, paddingRight: 4 }}>
-            <div style={{ fontWeight: 700, fontSize: 16, color: "#222" }}>
-              Climate SQL Test
+          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 10, gap: 10 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <button
+                onClick={() => setPanelOpen(false)}
+                style={{
+                  border: "1px solid #ccc",
+                  borderRadius: 6,
+                  width: 32,
+                  height: 32,
+                  background: "#f5f5f5",
+                  cursor: "pointer",
+                  color: "#333",
+                  fontSize: 18,
+                  lineHeight: 1,
+                  fontWeight: 700,
+                  flexShrink: 0,
+                }}
+                aria-label="Close climate menu"
+                title="Close climate menu"
+              >
+                ×
+              </button>
+              <div style={{ fontWeight: 700, fontSize: 16, color: "#222" }}>
+                Climate
+              </div>
             </div>
 
-            <button
-              onClick={() => setPanelOpen(false)}
-              style={{
-                border: "1px solid #ccc",
-                borderRadius: 6,
-                width: 32,
-                height: 32,
-                background: "#f5f5f5",
-                cursor: "pointer",
-                color: "#333",
-                fontSize: 18,
-                lineHeight: 1,
-                fontWeight: 700,
-                flexShrink: 0,
-              }}
-            >
-              ×
-            </button>
-          </div>
-
-          <div style={{ fontSize: 12, color: "#555", marginBottom: 8, lineHeight: 1.4 }}>
-            Parallel test page using SQL-based travel scoring.
-          </div>
-
-          <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 8 }}>
             <button
               onClick={clearAll}
               style={{
@@ -497,24 +534,40 @@ export default function ClimateSqlPage() {
                 cursor: "pointer",
                 background: "#f5f5f5",
                 color: "#333",
+                flexShrink: 0,
               }}
             >
-              Clear
+              Reset
             </button>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 6, marginBottom: 12 }}>
+          <div style={{ fontSize: 12, color: "#555", marginBottom: 8, lineHeight: 1.4 }}>
+            Select month(s), then tap the map. For state shading, choose one or more states and months below.
+          </div>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(4, 1fr)",
+              gap: 5,
+              marginBottom: 10,
+            }}
+          >
             {MONTHS.map((m) => {
               const selected = selectedMonths.includes(m.num);
+              const isActiveLayerMonth =
+                activeLayerMonth === m.num &&
+                selectedLayerStates.length > 0 &&
+                selected;
               return (
                 <button
                   key={m.num}
                   onClick={() => toggleMonth(m.num)}
                   style={{
-                    border: "1px solid #ccc",
+                    border: isActiveLayerMonth ? "2px solid #333" : "1px solid #ccc",
                     borderRadius: 6,
-                    padding: "8px 0",
-                    fontSize: 12,
+                    padding: "6px 0",
+                    fontSize: 11,
                     cursor: "pointer",
                     background: selected ? "#1a73e8" : "white",
                     color: selected ? "white" : "#333",
@@ -527,65 +580,6 @@ export default function ClimateSqlPage() {
             })}
           </div>
 
-          <div style={{ borderTop: "1px solid #eee", paddingTop: 10, marginTop: 4, marginBottom: 12 }}>
-            <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 8, color: "#333" }}>
-              Travel Score Layer
-            </div>
-
-            <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, marginBottom: 10, cursor: "pointer" }}>
-              <input
-                type="checkbox"
-                checked={showTravelLayer}
-                onChange={(e) => setShowTravelLayer(e.target.checked)}
-              />
-              Show state travel score shading
-            </label>
-
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-              <div>
-                <div style={{ fontSize: 11, color: "#555", marginBottom: 4 }}>State</div>
-                <select
-                  value={layerState}
-                  onChange={(e) => setLayerState(e.target.value)}
-                  style={{
-                    width: "100%",
-                    padding: "8px",
-                    borderRadius: 6,
-                    border: "1px solid #ccc",
-                    fontSize: 12,
-                    background: "white",
-                  }}
-                >
-                  <option value="">Select state</option>
-                  {CONUS_STATES.map((st) => (
-                    <option key={st} value={st}>{st}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <div style={{ fontSize: 11, color: "#555", marginBottom: 4 }}>Month</div>
-                <select
-                  value={layerMonth}
-                  onChange={(e) => setLayerMonth(e.target.value ? Number(e.target.value) : "")}
-                  style={{
-                    width: "100%",
-                    padding: "8px",
-                    borderRadius: 6,
-                    border: "1px solid #ccc",
-                    fontSize: 12,
-                    background: "white",
-                  }}
-                >
-                  <option value="">Select month</option>
-                  {MONTHS.map((m) => (
-                    <option key={m.num} value={m.num}>{m.label}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-          </div>
-
           {loading && <div style={{ fontSize: 12, marginBottom: 8 }}>Loading...</div>}
           {errorMsg && <div style={{ fontSize: 12, color: "#c62828", marginBottom: 8 }}>{errorMsg}</div>}
 
@@ -595,15 +589,160 @@ export default function ClimateSqlPage() {
             </div>
           )}
 
+          <div style={{ borderTop: "1px solid #eee", paddingTop: 10, marginTop: 4, marginBottom: 10 }}>
+            <button
+              onClick={() => setTravelSectionOpen((v) => !v)}
+              style={{
+                width: "100%",
+                background: "none",
+                border: "none",
+                padding: 0,
+                margin: 0,
+                textAlign: "left",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                color: "#333",
+              }}
+            >
+              <span style={{ fontWeight: 700, fontSize: 13 }}>State Travel Map</span>
+              <span style={{ fontSize: 14 }}>{travelSectionOpen ? "▲" : "▼"}</span>
+            </button>
+
+            {travelSectionOpen && (
+              <div style={{ marginTop: 10 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                  <div style={{ fontSize: 11, color: "#555" }}>States</div>
+                  {selectedLayerStates.length > 0 && (
+                    <button
+                      onClick={() => setSelectedLayerStates([])}
+                      style={{
+                        border: "none",
+                        background: "none",
+                        color: "#1565c0",
+                        fontSize: 11,
+                        cursor: "pointer",
+                        padding: 0,
+                        fontWeight: 700,
+                      }}
+                    >
+                      Clear states
+                    </button>
+                  )}
+                </div>
+
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(4, 1fr)",
+                    gap: 4,
+                    maxHeight: "120px",
+                    overflowY: "auto",
+                    border: "1px solid #e5e5e5",
+                    borderRadius: 6,
+                    padding: 6,
+                    marginBottom: 10,
+                    background: "#fafafa",
+                  }}
+                >
+                  {CONUS_STATES.map((st) => (
+                    <label
+                      key={st}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 4,
+                        fontSize: 11,
+                        cursor: "pointer",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedLayerStates.includes(st)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedLayerStates((prev) =>
+                              prev.includes(st) ? prev : [...prev, st]
+                            );
+                          } else {
+                            setSelectedLayerStates((prev) => prev.filter((s) => s !== st));
+                          }
+                        }}
+                      />
+                      <span>{st}</span>
+                    </label>
+                  ))}
+                </div>
+
+                <div style={{ fontSize: 11, color: "#555", marginBottom: 6 }}>
+                  Map month
+                </div>
+
+                {!selectedLayerMonthOptions.length ? (
+                  <div style={{ fontSize: 11, color: "#777", marginBottom: 8 }}>
+                    Select one or more months above.
+                  </div>
+                ) : (
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: 6,
+                      flexWrap: "wrap",
+                      marginBottom: 8,
+                    }}
+                  >
+                    {selectedLayerMonthOptions.map((m) => {
+                      const active = activeLayerMonth === m.num;
+                      return (
+                        <button
+                          key={m.num}
+                          onClick={() => setActiveLayerMonth(m.num)}
+                          style={{
+                            border: active ? "2px solid #333" : "1px solid #ccc",
+                            borderRadius: 14,
+                            padding: "5px 10px",
+                            fontSize: 11,
+                            cursor: "pointer",
+                            background: active ? "#1a73e8" : "white",
+                            color: active ? "white" : "#333",
+                            fontWeight: active ? 700 : 400,
+                          }}
+                        >
+                          {m.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+
+                <div style={{ fontSize: 11, color: "#666", lineHeight: 1.4 }}>
+                  Shading appears automatically when one or more states and an active selected month are chosen.
+                </div>
+                <div style={{ marginTop: 6, fontSize: 11, color: "#666", lineHeight: 1.4 }}>
+                  Map colors: 8–10 dark green, 6–8 light green, 4–6 yellow, 2–4 orange, 0–2 red.
+                </div>
+                {selectedLayerStates.length > 0 && activeLayerMonth && (
+                  <div style={{ marginTop: 6, fontSize: 11, color: "#444", fontWeight: 700 }}>
+                    Showing {selectedLayerStates.join(", ")} • {MONTH_LABEL_BY_NUM[activeLayerMonth]}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
           {results.length > 0 && (
             <div style={{ borderTop: "1px solid #eee", paddingTop: 10 }}>
               <div style={{ fontWeight: 700, marginBottom: 6 }}>
                 {results[0].state_abbr} — {results[0].division_name}
               </div>
 
-              <div style={{ display: "grid", gap: 8, maxHeight: "34vh", overflowY: "auto", paddingRight: 4 }}>
+              <div style={{ display: "grid", gap: 8, maxHeight: "32vh", overflowY: "auto", paddingRight: 4 }}>
                 {results.map((r) => {
                   const mosq = getMosquitoCategory(Number(r.mosquito_score));
+                  const mosquitoDisplay = r.mosquito_label_display || r.mosquito_label;
+
                   return (
                     <div
                       key={r.month_name}
@@ -627,22 +766,38 @@ export default function ClimateSqlPage() {
                         Late&nbsp;&nbsp;&nbsp; High {r.tmax_f + 6}° &nbsp;&nbsp; Low {r.tmin_f + 6}°
                       </div>
 
+                      <div>
+                        Late&nbsp;&nbsp;&nbsp; Precip {r.precip}" 
+                      </div>
+
                       <div style={{ marginTop: 4, fontWeight: 700, color: mosq.color }}>
                         Mosquito Risk: {mosq.label}
                       </div>
 
                       <div style={{ marginTop: 6, paddingTop: 6, borderTop: "1px solid #f7f7f7" }}>
                         <div>
-                          Day: <span style={{ fontWeight: 700, color: getTravelColor(r.day_label) }}>{r.day_label}</span>
+                          Day:{" "}
+                          <span style={{ fontWeight: 700, color: getTravelColor(r.day_label) }}>
+                            {r.day_label}
+                          </span>
                         </div>
                         <div>
-                          Night: <span style={{ fontWeight: 700, color: getTravelColor(r.night_label) }}>{r.night_label}</span>
+                          Night:{" "}
+                          <span style={{ fontWeight: 700, color: getTravelColor(r.night_label) }}>
+                            {r.night_label}
+                          </span>
                         </div>
                         <div>
-                          Precip: <span style={{ fontWeight: 700, color: getTravelColor(r.precip_label) }}>{r.precip_label}</span>
+                          Precip:{" "}
+                          <span style={{ fontWeight: 700, color: getTravelColor(r.precip_label) }}>
+                            {r.precip_label}
+                          </span>
                         </div>
                         <div>
-                          Mosquito: <span style={{ fontWeight: 700, color: getTravelColor(r.mosquito_label_display) }}>{r.mosquito_label_display}</span>
+                          Mosquito:{" "}
+                          <span style={{ fontWeight: 700, color: getTravelColor(r.mosquito_label) }}>
+                            {mosquitoDisplay}
+                          </span>
                         </div>
                         <div style={{ marginTop: 4 }}>
                           <span style={{ fontWeight: 700 }}>Travel Score:</span>{" "}
@@ -660,6 +815,19 @@ export default function ClimateSqlPage() {
               </div>
             </div>
           )}
+
+          <div
+            style={{
+              marginTop: 10,
+              paddingTop: 8,
+              borderTop: "1px solid #eee",
+              fontSize: 11,
+              color: "#666",
+              lineHeight: 1.4,
+            }}
+          >
+            Mosquito risk is a climate-based monthly estimate, not a real-time forecast based on local conditions and habitats. Average temperatures do not reflect elevation differences in western states. Travel score ratings are experimental.
+          </div>
         </div>
       ) : (
         <button
@@ -680,7 +848,7 @@ export default function ClimateSqlPage() {
             cursor: "pointer",
           }}
         >
-          Climate SQL
+          Climate
         </button>
       )}
 
