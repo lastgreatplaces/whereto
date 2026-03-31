@@ -83,11 +83,10 @@ function getTravelColor(label: string) {
       return "#ef6c00";
     case "Unacceptable":
       return "#c62828";
-case "minor factor":
+    case "minor factor":
       return "#4e4d4d";
-case "n/a most areas":
+    case "n/a most areas":
       return "#4e4d4d";
-
 
     default:
       return "#333";
@@ -96,6 +95,79 @@ case "n/a most areas":
 
 function formatTravelScore(score: number) {
   return Math.max(0, Math.min(10, score)).toFixed(1);
+}
+
+function getMonthPhaseTemps(monthName: string, tmax: number, tmin: number) {
+  const m = (monthName || "").trim().toLowerCase();
+
+  let earlyOffset = 0;
+  let lateOffset = 0;
+
+  switch (m) {
+    // winter / summer
+    case "jan":
+    case "january":
+    case "feb":
+    case "february":
+      earlyOffset = -1;
+      lateOffset = 1;
+      break;
+
+    case "jul":
+    case "july":
+    case "aug":
+    case "august":
+      earlyOffset = 1;
+      lateOffset = -1;
+      break;
+
+    // shoulder months
+    case "mar":
+    case "march":
+    case "jun":
+    case "june":
+      earlyOffset = -3;
+      lateOffset = 3;
+      break;
+
+    case "sep":
+    case "sept":
+    case "september":
+    case "dec":
+    case "december":
+      earlyOffset = 3;
+      lateOffset = -3;
+      break;
+
+    // peak transition
+    case "apr":
+    case "april":
+    case "may":
+      earlyOffset = -5;
+      lateOffset = 5;
+      break;
+
+    case "oct":
+    case "october":
+    case "nov":
+    case "november":
+      earlyOffset = 5;
+      lateOffset = -5;
+      break;
+
+    default:
+      earlyOffset = 0;
+      lateOffset = 0;
+  }
+
+  return {
+    earlyMax: Math.round(tmax + earlyOffset),
+    earlyMin: Math.round(tmin + earlyOffset),
+    midMax: Math.round(tmax),
+    midMin: Math.round(tmin),
+    lateMax: Math.round(tmax + lateOffset),
+    lateMin: Math.round(tmin + lateOffset),
+  };
 }
 
 export default function ClimateSqlPage() {
@@ -224,14 +296,19 @@ export default function ClimateSqlPage() {
         .map((r) => {
           const mosq = getMosquitoCategory(Number(r.mosquito_score));
           const mosquitoDisplay = r.mosquito_label_display || r.mosquito_label;
+          const temps = getMonthPhaseTemps(
+            r.month_name,
+            Number(r.tmax_f),
+            Number(r.tmin_f)
+          );
 
           return `
             <div style="font-size:12px; line-height:1.5; margin-bottom:12px; padding-bottom:10px; border-bottom:1px solid #f0f0f0;">
               <div style="font-weight:700;">${r.month_name}</div>
 
-              <div>Early: ${r.tmax_f - 6}° / ${r.tmin_f - 6}°</div>
-              <div>Mid: ${r.tmax_f}° / ${r.tmin_f}°</div>
-              <div>Late: ${r.tmax_f + 6}° / ${r.tmin_f + 6}°</div>
+              <div>Early: ${temps.earlyMax}° / ${temps.earlyMin}°</div>
+              <div>Mid: ${temps.midMax}° / ${temps.midMin}°</div>
+              <div>Late: ${temps.lateMax}° / ${temps.lateMin}°</div>
               <div>Precip: ${r.precip}"</div>
 
               <div style="margin-top:4px; font-weight:700; color:${mosq.color};">
@@ -742,6 +819,11 @@ export default function ClimateSqlPage() {
                 {results.map((r) => {
                   const mosq = getMosquitoCategory(Number(r.mosquito_score));
                   const mosquitoDisplay = r.mosquito_label_display || r.mosquito_label;
+                  const temps = getMonthPhaseTemps(
+                    r.month_name,
+                    Number(r.tmax_f),
+                    Number(r.tmin_f)
+                  );
 
                   return (
                     <div
@@ -757,17 +839,17 @@ export default function ClimateSqlPage() {
                       </div>
 
                       <div>
-                        Early&nbsp;&nbsp; High {r.tmax_f - 6}° &nbsp;&nbsp; Low {r.tmin_f - 6}°
+                        Early&nbsp;&nbsp; High {temps.earlyMax}° &nbsp;&nbsp; Low {temps.earlyMin}°
                       </div>
                       <div>
-                        Mid&nbsp;&nbsp;&nbsp;&nbsp; High {r.tmax_f}° &nbsp;&nbsp; Low {r.tmin_f}°
+                        Mid&nbsp;&nbsp;&nbsp;&nbsp; High {temps.midMax}° &nbsp;&nbsp; Low {temps.midMin}°
                       </div>
                       <div>
-                        Late&nbsp;&nbsp;&nbsp; High {r.tmax_f + 6}° &nbsp;&nbsp; Low {r.tmin_f + 6}°
+                        Late&nbsp;&nbsp;&nbsp; High {temps.lateMax}° &nbsp;&nbsp; Low {temps.lateMin}°
                       </div>
 
                       <div>
-                        Late&nbsp;&nbsp;&nbsp; Precip {r.precip}" 
+                        Precip {r.precip}"
                       </div>
 
                       <div style={{ marginTop: 4, fontWeight: 700, color: mosq.color }}>
