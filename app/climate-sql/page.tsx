@@ -1052,7 +1052,7 @@ export default function ClimateSqlPage() {
             cursor: "pointer",
           }}
         >
-          Climate
+          Climate 
         </button>
       )}
 
