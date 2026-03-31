@@ -12,6 +12,7 @@ type ClimateSqlRow = {
   climdiv_id: string;
   state_abbr: string;
   division_name: string;
+  month: number;
   month_name: string;
   tmax_f: number;
   tmin_f: number;
@@ -80,7 +81,6 @@ function getTravelColor(label: string) {
       return "#0e5711";
     case "Desirable":
       return "#38823b";
-
     case "Acceptable":
       return "#1565c0";
     case "Undesirable":
@@ -91,7 +91,6 @@ function getTravelColor(label: string) {
       return "#4e4d4d";
     case "n/a most areas":
       return "#4e4d4d";
-
     default:
       return "#333";
   }
@@ -99,6 +98,65 @@ function getTravelColor(label: string) {
 
 function formatTravelScore(score: number) {
   return Math.max(0, Math.min(10, score)).toFixed(1);
+}
+
+function getMonthPhaseTemps(monthNum: number, tmax: number, tmin: number) {
+  let earlyOffset = 0;
+  let lateOffset = 0;
+
+  switch (monthNum) {
+    // winter / summer: minimal intra-month change
+    case 1:
+    case 2:
+      earlyOffset = -1;
+      lateOffset = 1;
+      break;
+
+    case 7:
+    case 8:
+      earlyOffset = 1;
+      lateOffset = -1;
+      break;
+
+    // shoulder months: moderate change
+    case 3:
+    case 6:
+      earlyOffset = -3;
+      lateOffset = 3;
+      break;
+
+    case 9:
+    case 12:
+      earlyOffset = 3;
+      lateOffset = -3;
+      break;
+
+    // peak transition months: strongest change
+    case 4:
+    case 5:
+      earlyOffset = -5;
+      lateOffset = 5;
+      break;
+
+    case 10:
+    case 11:
+      earlyOffset = 5;
+      lateOffset = -5;
+      break;
+
+    default:
+      earlyOffset = 0;
+      lateOffset = 0;
+  }
+
+  return {
+    earlyMax: Math.round(tmax + earlyOffset),
+    earlyMin: Math.round(tmin + earlyOffset),
+    midMax: Math.round(tmax),
+    midMin: Math.round(tmin),
+    lateMax: Math.round(tmax + lateOffset),
+    lateMin: Math.round(tmin + lateOffset),
+  };
 }
 
 export default function ClimateSqlPage() {
@@ -110,6 +168,8 @@ export default function ClimateSqlPage() {
 
   const [panelOpen, setPanelOpen] = useState(true);
   const [travelSectionOpen, setTravelSectionOpen] = useState(false);
+  const [statesSectionOpen, setStatesSectionOpen] = useState(true);
+  const [provincesSectionOpen, setProvincesSectionOpen] = useState(true);
 
   const [selectedLayerStates, setSelectedLayerStates] = useState<string[]>([]);
   const [selectedLayerProvinces, setSelectedLayerProvinces] = useState<string[]>([]);
@@ -170,6 +230,8 @@ export default function ClimateSqlPage() {
     setSelectedLayerProvinces([]);
     setActiveLayerMonth(null);
     setTravelSectionOpen(false);
+    setStatesSectionOpen(true);
+    setProvincesSectionOpen(true);
 
     clearTravelLayer();
 
@@ -234,14 +296,19 @@ export default function ClimateSqlPage() {
         .map((r) => {
           const mosq = getMosquitoCategory(Number(r.mosquito_score));
           const mosquitoDisplay = r.mosquito_label_display || r.mosquito_label;
+          const temps = getMonthPhaseTemps(
+            Number(r.month),
+            Number(r.tmax_f),
+            Number(r.tmin_f)
+          );
 
           return `
             <div style="font-size:12px; line-height:1.5; margin-bottom:12px; padding-bottom:10px; border-bottom:1px solid #f0f0f0;">
               <div style="font-weight:700;">${r.month_name}</div>
 
-              <div>Early: ${r.tmax_f - 6}° / ${r.tmin_f - 6}°</div>
-              <div>Mid: ${r.tmax_f}° / ${r.tmin_f}°</div>
-              <div>Late: ${r.tmax_f + 6}° / ${r.tmin_f + 6}°</div>
+              <div>Early: ${temps.earlyMax}° / ${temps.earlyMin}°</div>
+              <div>Mid: ${temps.midMax}° / ${temps.midMin}°</div>
+              <div>Late: ${temps.lateMax}° / ${temps.lateMin}°</div>
               <div>Precip: ${r.precip}"</div>
 
               <div style="margin-top:4px; font-weight:700; color:${mosq.color};">
@@ -569,6 +636,7 @@ export default function ClimateSqlPage() {
                 activeLayerMonth === m.num &&
                 allSelectedRegions.length > 0 &&
                 selected;
+
               return (
                 <button
                   key={m.num}
@@ -622,142 +690,188 @@ export default function ClimateSqlPage() {
 
             {travelSectionOpen && (
               <div style={{ marginTop: 10 }}>
-                <div style={{ fontSize: 11, color: "#555", marginBottom: 6, fontWeight: 700 }}>
-                  U.S. States
-                </div>
+                <div style={{ border: "1px solid #e8e8e8", borderRadius: 6, marginBottom: 8, overflow: "hidden" }}>
+                  <button
+                    onClick={() => setStatesSectionOpen((v) => !v)}
+                    style={{
+                      width: "100%",
+                      background: "#fafafa",
+                      border: "none",
+                      borderBottom: statesSectionOpen ? "1px solid #e8e8e8" : "none",
+                      padding: "8px 10px",
+                      textAlign: "left",
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      color: "#333",
+                    }}
+                  >
+                    <span style={{ fontSize: 11, color: "#555", fontWeight: 700 }}>
+                      U.S. States
+                    </span>
+                    <span style={{ fontSize: 12 }}>{statesSectionOpen ? "▲" : "▼"}</span>
+                  </button>
 
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-                  <div style={{ fontSize: 11, color: "#555" }}>States</div>
-                  {selectedLayerStates.length > 0 && (
-                    <button
-                      onClick={() => setSelectedLayerStates([])}
-                      style={{
-                        border: "none",
-                        background: "none",
-                        color: "#1565c0",
-                        fontSize: 11,
-                        cursor: "pointer",
-                        padding: 0,
-                        fontWeight: 700,
-                      }}
-                    >
-                      Clear states
-                    </button>
+                  {statesSectionOpen && (
+                    <div style={{ padding: 8 }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                        <div style={{ fontSize: 11, color: "#555" }}>States</div>
+                        {selectedLayerStates.length > 0 && (
+                          <button
+                            onClick={() => setSelectedLayerStates([])}
+                            style={{
+                              border: "none",
+                              background: "none",
+                              color: "#1565c0",
+                              fontSize: 11,
+                              cursor: "pointer",
+                              padding: 0,
+                              fontWeight: 700,
+                            }}
+                          >
+                            Clear states
+                          </button>
+                        )}
+                      </div>
+
+                      <div
+                        style={{
+                          display: "grid",
+                          gridTemplateColumns: "repeat(4, 1fr)",
+                          gap: 4,
+                          maxHeight: "120px",
+                          overflowY: "auto",
+                          border: "1px solid #e5e5e5",
+                          borderRadius: 6,
+                          padding: 6,
+                          background: "#fafafa",
+                        }}
+                      >
+                        {US_STATES.map((st) => (
+                          <label
+                            key={st}
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 4,
+                              fontSize: 11,
+                              cursor: "pointer",
+                              whiteSpace: "nowrap",
+                            }}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={selectedLayerStates.includes(st)}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setSelectedLayerStates((prev) =>
+                                    prev.includes(st) ? prev : [...prev, st]
+                                  );
+                                } else {
+                                  setSelectedLayerStates((prev) => prev.filter((s) => s !== st));
+                                }
+                              }}
+                            />
+                            <span>{st}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
                   )}
                 </div>
 
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(4, 1fr)",
-                    gap: 4,
-                    maxHeight: "120px",
-                    overflowY: "auto",
-                    border: "1px solid #e5e5e5",
-                    borderRadius: 6,
-                    padding: 6,
-                    marginBottom: 10,
-                    background: "#fafafa",
-                  }}
-                >
-                  {US_STATES.map((st) => (
-                    <label
-                      key={st}
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 4,
-                        fontSize: 11,
-                        cursor: "pointer",
-                        whiteSpace: "nowrap",
-                      }}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={selectedLayerStates.includes(st)}
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            setSelectedLayerStates((prev) =>
-                              prev.includes(st) ? prev : [...prev, st]
-                            );
-                          } else {
-                            setSelectedLayerStates((prev) => prev.filter((s) => s !== st));
-                          }
+                <div style={{ border: "1px solid #e8e8e8", borderRadius: 6, marginBottom: 10, overflow: "hidden" }}>
+                  <button
+                    onClick={() => setProvincesSectionOpen((v) => !v)}
+                    style={{
+                      width: "100%",
+                      background: "#fafafa",
+                      border: "none",
+                      borderBottom: provincesSectionOpen ? "1px solid #e8e8e8" : "none",
+                      padding: "8px 10px",
+                      textAlign: "left",
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      color: "#333",
+                    }}
+                  >
+                    <span style={{ fontSize: 11, color: "#555", fontWeight: 700 }}>
+                      Canada Provinces / Territories
+                    </span>
+                    <span style={{ fontSize: 12 }}>{provincesSectionOpen ? "▲" : "▼"}</span>
+                  </button>
+
+                  {provincesSectionOpen && (
+                    <div style={{ padding: 8 }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                        <div style={{ fontSize: 11, color: "#555" }}>Provinces</div>
+                        {selectedLayerProvinces.length > 0 && (
+                          <button
+                            onClick={() => setSelectedLayerProvinces([])}
+                            style={{
+                              border: "none",
+                              background: "none",
+                              color: "#1565c0",
+                              fontSize: 11,
+                              cursor: "pointer",
+                              padding: 0,
+                              fontWeight: 700,
+                            }}
+                          >
+                            Clear provinces
+                          </button>
+                        )}
+                      </div>
+
+                      <div
+                        style={{
+                          display: "grid",
+                          gridTemplateColumns: "repeat(4, 1fr)",
+                          gap: 4,
+                          maxHeight: "120px",
+                          overflowY: "auto",
+                          border: "1px solid #e5e5e5",
+                          borderRadius: 6,
+                          padding: 6,
+                          background: "#fafafa",
                         }}
-                      />
-                      <span>{st}</span>
-                    </label>
-                  ))}
-                </div>
-
-                <div style={{ fontSize: 11, color: "#555", marginBottom: 6, fontWeight: 700 }}>
-                  Canada Provinces / Territories
-                </div>
-
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-                  <div style={{ fontSize: 11, color: "#555" }}>Provinces</div>
-                  {selectedLayerProvinces.length > 0 && (
-                    <button
-                      onClick={() => setSelectedLayerProvinces([])}
-                      style={{
-                        border: "none",
-                        background: "none",
-                        color: "#1565c0",
-                        fontSize: 11,
-                        cursor: "pointer",
-                        padding: 0,
-                        fontWeight: 700,
-                      }}
-                    >
-                      Clear provinces
-                    </button>
+                      >
+                        {CANADA_PROVINCES.map((prov) => (
+                          <label
+                            key={prov}
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 4,
+                              fontSize: 11,
+                              cursor: "pointer",
+                              whiteSpace: "nowrap",
+                            }}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={selectedLayerProvinces.includes(prov)}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setSelectedLayerProvinces((prev) =>
+                                    prev.includes(prov) ? prev : [...prev, prov]
+                                  );
+                                } else {
+                                  setSelectedLayerProvinces((prev) =>
+                                    prev.filter((p) => p !== prov)
+                                  );
+                                }
+                              }}
+                            />
+                            <span>{prov}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
                   )}
-                </div>
-
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(4, 1fr)",
-                    gap: 4,
-                    maxHeight: "120px",
-                    overflowY: "auto",
-                    border: "1px solid #e5e5e5",
-                    borderRadius: 6,
-                    padding: 6,
-                    marginBottom: 10,
-                    background: "#fafafa",
-                  }}
-                >
-                  {CANADA_PROVINCES.map((prov) => (
-                    <label
-                      key={prov}
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 4,
-                        fontSize: 11,
-                        cursor: "pointer",
-                        whiteSpace: "nowrap",
-                      }}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={selectedLayerProvinces.includes(prov)}
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            setSelectedLayerProvinces((prev) =>
-                              prev.includes(prov) ? prev : [...prev, prov]
-                            );
-                          } else {
-                            setSelectedLayerProvinces((prev) =>
-                              prev.filter((p) => p !== prov)
-                            );
-                          }
-                        }}
-                      />
-                      <span>{prov}</span>
-                    </label>
-                  ))}
                 </div>
 
                 <div style={{ fontSize: 11, color: "#555", marginBottom: 6 }}>
@@ -827,10 +941,15 @@ export default function ClimateSqlPage() {
                 {results.map((r) => {
                   const mosq = getMosquitoCategory(Number(r.mosquito_score));
                   const mosquitoDisplay = r.mosquito_label_display || r.mosquito_label;
+                  const temps = getMonthPhaseTemps(
+                    Number(r.month),
+                    Number(r.tmax_f),
+                    Number(r.tmin_f)
+                  );
 
                   return (
                     <div
-                      key={r.month_name}
+                      key={`${r.month}-${r.month_name}`}
                       style={{
                         fontSize: 12,
                         padding: "6px 0",
@@ -842,17 +961,17 @@ export default function ClimateSqlPage() {
                       </div>
 
                       <div>
-                        Early&nbsp;&nbsp; High {r.tmax_f - 6}° &nbsp;&nbsp; Low {r.tmin_f - 6}°
+                        Early&nbsp;&nbsp; High {temps.earlyMax}° &nbsp;&nbsp; Low {temps.earlyMin}°
                       </div>
                       <div>
-                        Mid&nbsp;&nbsp;&nbsp;&nbsp; High {r.tmax_f}° &nbsp;&nbsp; Low {r.tmin_f}°
+                        Mid&nbsp;&nbsp;&nbsp;&nbsp; High {temps.midMax}° &nbsp;&nbsp; Low {temps.midMin}°
                       </div>
                       <div>
-                        Late&nbsp;&nbsp;&nbsp; High {r.tmax_f + 6}° &nbsp;&nbsp; Low {r.tmin_f + 6}°
+                        Late&nbsp;&nbsp;&nbsp; High {temps.lateMax}° &nbsp;&nbsp; Low {temps.lateMin}°
                       </div>
 
                       <div>
-                        Late&nbsp;&nbsp;&nbsp; Precip {r.precip}"
+                        Precip {r.precip}"
                       </div>
 
                       <div style={{ marginTop: 4, fontWeight: 700, color: mosq.color }}>
