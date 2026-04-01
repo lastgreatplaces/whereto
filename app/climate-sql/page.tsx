@@ -56,10 +56,14 @@ const MONTH_LABEL_BY_NUM: Record<number, string> = Object.fromEntries(
   MONTHS.map((m) => [m.num, m.label])
 );
 
-const CONUS_STATES = [
+const US_STATES = [
   "AK","AL","AZ","AR","CA","CO","CT","DE","FL","GA","ID","IL","IN","IA","KS","KY","LA",
   "ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND",
   "OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"
+];
+
+const CANADA_PROVINCES = [
+  "AB","BC","MB","NB","NL","NS","NT","NU","ON","PE","QC","SK","YT"
 ];
 
 function getMosquitoCategory(score: number) {
@@ -76,7 +80,6 @@ function getTravelColor(label: string) {
       return "#0e5711";
     case "Desirable":
       return "#38823b";
-
     case "Acceptable":
       return "#1565c0";
     case "Undesirable":
@@ -87,7 +90,6 @@ function getTravelColor(label: string) {
       return "#4e4d4d";
     case "n/a most areas":
       return "#4e4d4d";
-
     default:
       return "#333";
   }
@@ -141,8 +143,11 @@ export default function ClimateSqlPage() {
 
   const [panelOpen, setPanelOpen] = useState(true);
   const [travelSectionOpen, setTravelSectionOpen] = useState(false);
+  const [statesSectionOpen, setStatesSectionOpen] = useState(true);
+  const [provincesSectionOpen, setProvincesSectionOpen] = useState(true);
 
   const [selectedLayerStates, setSelectedLayerStates] = useState<string[]>([]);
+  const [selectedLayerProvinces, setSelectedLayerProvinces] = useState<string[]>([]);
   const [activeLayerMonth, setActiveLayerMonth] = useState<number | null>(null);
 
   const selectedMonthsRef = useRef<number[]>([]);
@@ -158,6 +163,11 @@ export default function ClimateSqlPage() {
   const selectedLayerMonthOptions = useMemo(
     () => selectedMonths.map((m) => ({ num: m, label: MONTH_LABEL_BY_NUM[m] })),
     [selectedMonths]
+  );
+
+  const allSelectedRegions = useMemo(
+    () => [...selectedLayerStates, ...selectedLayerProvinces],
+    [selectedLayerStates, selectedLayerProvinces]
   );
 
   useEffect(() => {
@@ -192,8 +202,11 @@ export default function ClimateSqlPage() {
     setLoading(false);
 
     setSelectedLayerStates([]);
+    setSelectedLayerProvinces([]);
     setActiveLayerMonth(null);
     setTravelSectionOpen(false);
+    setStatesSectionOpen(true);
+    setProvincesSectionOpen(true);
 
     clearTravelLayer();
 
@@ -380,15 +393,15 @@ export default function ClimateSqlPage() {
   const loadTravelLayer = async () => {
     clearTravelLayer();
 
-    if (!selectedLayerStates.length || !activeLayerMonth || !mapRef.current) return;
+    if (!allSelectedRegions.length || !activeLayerMonth || !mapRef.current) return;
 
     const google = (window as any).google;
     if (!google) return;
 
     const responses = await Promise.all(
-      selectedLayerStates.map((state) =>
+      allSelectedRegions.map((region) =>
         supabase.rpc("get_state_travel_score_layer_sql", {
-          p_state: state,
+          p_state: region,
           p_month: activeLayerMonth,
         })
       )
@@ -408,7 +421,7 @@ export default function ClimateSqlPage() {
 
   useEffect(() => {
     loadTravelLayer();
-  }, [selectedLayerStates, activeLayerMonth]);
+  }, [selectedLayerStates, selectedLayerProvinces, activeLayerMonth]);
 
   useEffect(() => {
     const key = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY;
@@ -435,7 +448,7 @@ export default function ClimateSqlPage() {
       const map = new google.maps.Map(
         document.getElementById("climate-sql-map") as HTMLElement,
         {
-          center: { lat: 39.5, lng: -98.35 },
+          center: { lat: 44.5, lng: -101.0 },
           zoom: 4,
           mapTypeControl: false,
           streetViewControl: false,
@@ -496,7 +509,7 @@ export default function ClimateSqlPage() {
           boxShadow: "0 2px 10px rgba(0,0,0,0.12)",
         }}
       >
-       Home
+        Home
       </a>
 
       <a
@@ -581,7 +594,7 @@ export default function ClimateSqlPage() {
           </div>
 
           <div style={{ fontSize: 12, color: "#555", marginBottom: 8, lineHeight: 1.4 }}>
-            Select month(s), then tap the map. For state shading, choose one or more states and months below.
+            Select month(s), then tap the map. For travel-map shading, choose one or more U.S. states and/or Canada provinces below.
           </div>
 
           <div
@@ -596,8 +609,9 @@ export default function ClimateSqlPage() {
               const selected = selectedMonths.includes(m.num);
               const isActiveLayerMonth =
                 activeLayerMonth === m.num &&
-                selectedLayerStates.length > 0 &&
+                allSelectedRegions.length > 0 &&
                 selected;
+
               return (
                 <button
                   key={m.num}
@@ -645,74 +659,194 @@ export default function ClimateSqlPage() {
                 color: "#333",
               }}
             >
-              <span style={{ fontWeight: 700, fontSize: 13 }}>State Travel Map</span>
+              <span style={{ fontWeight: 700, fontSize: 13 }}>Travel Map</span>
               <span style={{ fontSize: 14 }}>{travelSectionOpen ? "▲" : "▼"}</span>
             </button>
 
             {travelSectionOpen && (
               <div style={{ marginTop: 10 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-                  <div style={{ fontSize: 11, color: "#555" }}>States</div>
-                  {selectedLayerStates.length > 0 && (
-                    <button
-                      onClick={() => setSelectedLayerStates([])}
-                      style={{
-                        border: "none",
-                        background: "none",
-                        color: "#1565c0",
-                        fontSize: 11,
-                        cursor: "pointer",
-                        padding: 0,
-                        fontWeight: 700,
-                      }}
-                    >
-                      Clear states
-                    </button>
+                <div style={{ border: "1px solid #e8e8e8", borderRadius: 6, marginBottom: 8, overflow: "hidden" }}>
+                  <button
+                    onClick={() => setStatesSectionOpen((v) => !v)}
+                    style={{
+                      width: "100%",
+                      background: "#fafafa",
+                      border: "none",
+                      borderBottom: statesSectionOpen ? "1px solid #e8e8e8" : "none",
+                      padding: "8px 10px",
+                      textAlign: "left",
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      color: "#333",
+                    }}
+                  >
+                    <span style={{ fontSize: 11, color: "#555", fontWeight: 700 }}>
+                      U.S. States
+                    </span>
+                    <span style={{ fontSize: 12 }}>{statesSectionOpen ? "▲" : "▼"}</span>
+                  </button>
+
+                  {statesSectionOpen && (
+                    <div style={{ padding: 8 }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                        <div style={{ fontSize: 11, color: "#555" }}>States</div>
+                        {selectedLayerStates.length > 0 && (
+                          <button
+                            onClick={() => setSelectedLayerStates([])}
+                            style={{
+                              border: "none",
+                              background: "none",
+                              color: "#1565c0",
+                              fontSize: 11,
+                              cursor: "pointer",
+                              padding: 0,
+                              fontWeight: 700,
+                            }}
+                          >
+                            Clear states
+                          </button>
+                        )}
+                      </div>
+
+                      <div
+                        style={{
+                          display: "grid",
+                          gridTemplateColumns: "repeat(4, 1fr)",
+                          gap: 4,
+                          maxHeight: "120px",
+                          overflowY: "auto",
+                          border: "1px solid #e5e5e5",
+                          borderRadius: 6,
+                          padding: 6,
+                          background: "#fafafa",
+                        }}
+                      >
+                        {US_STATES.map((st) => (
+                          <label
+                            key={st}
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 4,
+                              fontSize: 11,
+                              cursor: "pointer",
+                              whiteSpace: "nowrap",
+                            }}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={selectedLayerStates.includes(st)}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setSelectedLayerStates((prev) =>
+                                    prev.includes(st) ? prev : [...prev, st]
+                                  );
+                                } else {
+                                  setSelectedLayerStates((prev) => prev.filter((s) => s !== st));
+                                }
+                              }}
+                            />
+                            <span>{st}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
                   )}
                 </div>
 
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(4, 1fr)",
-                    gap: 4,
-                    maxHeight: "120px",
-                    overflowY: "auto",
-                    border: "1px solid #e5e5e5",
-                    borderRadius: 6,
-                    padding: 6,
-                    marginBottom: 10,
-                    background: "#fafafa",
-                  }}
-                >
-                  {CONUS_STATES.map((st) => (
-                    <label
-                      key={st}
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 4,
-                        fontSize: 11,
-                        cursor: "pointer",
-                        whiteSpace: "nowrap",
-                      }}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={selectedLayerStates.includes(st)}
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            setSelectedLayerStates((prev) =>
-                              prev.includes(st) ? prev : [...prev, st]
-                            );
-                          } else {
-                            setSelectedLayerStates((prev) => prev.filter((s) => s !== st));
-                          }
+                <div style={{ border: "1px solid #e8e8e8", borderRadius: 6, marginBottom: 10, overflow: "hidden" }}>
+                  <button
+                    onClick={() => setProvincesSectionOpen((v) => !v)}
+                    style={{
+                      width: "100%",
+                      background: "#fafafa",
+                      border: "none",
+                      borderBottom: provincesSectionOpen ? "1px solid #e8e8e8" : "none",
+                      padding: "8px 10px",
+                      textAlign: "left",
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      color: "#333",
+                    }}
+                  >
+                    <span style={{ fontSize: 11, color: "#555", fontWeight: 700 }}>
+                      Canada Provinces / Territories
+                    </span>
+                    <span style={{ fontSize: 12 }}>{provincesSectionOpen ? "▲" : "▼"}</span>
+                  </button>
+
+                  {provincesSectionOpen && (
+                    <div style={{ padding: 8 }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                        <div style={{ fontSize: 11, color: "#555" }}>Provinces</div>
+                        {selectedLayerProvinces.length > 0 && (
+                          <button
+                            onClick={() => setSelectedLayerProvinces([])}
+                            style={{
+                              border: "none",
+                              background: "none",
+                              color: "#1565c0",
+                              fontSize: 11,
+                              cursor: "pointer",
+                              padding: 0,
+                              fontWeight: 700,
+                            }}
+                          >
+                            Clear provinces
+                          </button>
+                        )}
+                      </div>
+
+                      <div
+                        style={{
+                          display: "grid",
+                          gridTemplateColumns: "repeat(4, 1fr)",
+                          gap: 4,
+                          maxHeight: "120px",
+                          overflowY: "auto",
+                          border: "1px solid #e5e5e5",
+                          borderRadius: 6,
+                          padding: 6,
+                          background: "#fafafa",
                         }}
-                      />
-                      <span>{st}</span>
-                    </label>
-                  ))}
+                      >
+                        {CANADA_PROVINCES.map((prov) => (
+                          <label
+                            key={prov}
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 4,
+                              fontSize: 11,
+                              cursor: "pointer",
+                              whiteSpace: "nowrap",
+                            }}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={selectedLayerProvinces.includes(prov)}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setSelectedLayerProvinces((prev) =>
+                                    prev.includes(prov) ? prev : [...prev, prov]
+                                  );
+                                } else {
+                                  setSelectedLayerProvinces((prev) =>
+                                    prev.filter((p) => p !== prov)
+                                  );
+                                }
+                              }}
+                            />
+                            <span>{prov}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div style={{ fontSize: 11, color: "#555", marginBottom: 6 }}>
@@ -757,14 +891,21 @@ export default function ClimateSqlPage() {
                 )}
 
                 <div style={{ fontSize: 11, color: "#666", lineHeight: 1.4 }}>
-                  Shading appears automatically when one or more states and an active selected month are chosen.
+                  Shading appears automatically when one or more states or provinces and an active selected month are chosen.
                 </div>
                 <div style={{ marginTop: 6, fontSize: 11, color: "#666", lineHeight: 1.4 }}>
                   Map colors: 8–10 dark green, 6–8 light green, 4–6 yellow, 2–4 orange, 0–2 red.
                 </div>
-                {selectedLayerStates.length > 0 && activeLayerMonth && (
-                  <div style={{ marginTop: 6, fontSize: 11, color: "#444", fontWeight: 700 }}>
-                    Showing {selectedLayerStates.join(", ")} • {MONTH_LABEL_BY_NUM[activeLayerMonth]}
+
+                {allSelectedRegions.length > 0 && activeLayerMonth && (
+                  <div style={{ marginTop: 6, fontSize: 11, color: "#444", fontWeight: 700, lineHeight: 1.5 }}>
+                    {selectedLayerStates.length > 0 && (
+                      <div>US: {selectedLayerStates.join(", ")}</div>
+                    )}
+                    {selectedLayerProvinces.length > 0 && (
+                      <div>Canada: {selectedLayerProvinces.join(", ")}</div>
+                    )}
+                    <div>{MONTH_LABEL_BY_NUM[activeLayerMonth]}</div>
                   </div>
                 )}
               </div>
