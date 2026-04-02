@@ -47,6 +47,7 @@ type PlaceEcosystemRow = {
   ecosystem: string | null;
   acres: number | null;
   percent: number | null;
+  description?: string | null;
 };
 
 function formatAcres(acres: number | null) {
@@ -120,6 +121,7 @@ function buildLandscapePopupHtml(
     ecosystemsLoading?: boolean;
     ecosystemsError?: string;
     ecosystems?: PlaceEcosystemRow[];
+    ecosystemDescriptionOpen?: string | null;
   }
 ) {
   const portfolioRank = row.rank_top1000 ?? "—";
@@ -128,6 +130,7 @@ function buildLandscapePopupHtml(
   const ecosystemsLoading = options?.ecosystemsLoading ?? false;
   const ecosystemsError = options?.ecosystemsError ?? "";
   const ecosystems = options?.ecosystems ?? [];
+  const ecosystemDescriptionOpen = options?.ecosystemDescriptionOpen ?? null;
 
   let ecosystemsSection = `
     <div style="margin-top:10px;">
@@ -163,19 +166,65 @@ function buildLandscapePopupHtml(
       innerHtml = `<div style="margin-top:8px; font-size:12px; color:#444;">No ecosystems found for this place.</div>`;
     } else {
       innerHtml = `
-  <div style="margin-top:8px; border-top:1px solid #eee; padding-top:8px;">
-    <div style="font-size:12px; font-weight:700; margin-bottom:8px; color:#222; text-decoration:underline;">
-      Top Ecosystems:
-    </div>
+        <div style="margin-top:8px; border-top:1px solid #eee; padding-top:8px;">
+          <div style="font-size:12px; font-weight:700; margin-bottom:8px; color:#222; text-decoration:underline;">
+            Top Ecosystems:
           </div>
+
           <div style="font-size:11.5px; line-height:1.45; color:#222;">
             ${ecosystems
               .map((eco, i) => {
-                const acresText = eco.acres != null ? ` · ${formatCompactAcres(eco.acres)}` : "";
+                const acresText =
+                  eco.acres != null ? ` · ${formatCompactAcres(eco.acres)}` : "";
+                const ecoName = eco.ecosystem || "—";
+                const isOpen = ecosystemDescriptionOpen === ecoName;
+
                 return `
-                  <div style="margin-bottom:${i === ecosystems.length - 1 ? 0 : 5}px;">
-                    <span style="font-weight:600;">${escapeHtml(eco.ecosystem || "—")}</span>
-                    <span style="color:#555;"> — ${escapeHtml(formatPercent(eco.percent))}${escapeHtml(acresText)}</span>
+                  <div style="margin-bottom:${i === ecosystems.length - 1 && !isOpen ? 0 : 8}px;">
+                    <div>
+                      <button
+                        class="ecosystem-desc-toggle-btn"
+                        data-place-id="${row.place_id}"
+                        data-ecosystem="${encodeURIComponent(ecoName)}"
+                        style="
+                          background:none;
+                          border:none;
+                          padding:0;
+                          margin:0;
+                          font-size:11.5px;
+                          font-weight:600;
+                          color:#222;
+                          text-decoration:underline;
+                          cursor:pointer;
+                        "
+                      >
+                        ${escapeHtml(ecoName)}
+                      </button>
+                      <span style="color:#555;"> — ${escapeHtml(
+                        formatPercent(eco.percent)
+                      )}${escapeHtml(acresText)}</span>
+                    </div>
+
+                    ${
+                      isOpen
+                        ? `
+                      <div style="
+                        margin-top:6px;
+                        padding:8px 10px;
+                        background:#f7f7f7;
+                        border:1px solid #ddd;
+                        border-radius:8px;
+                        font-size:11.5px;
+                        line-height:1.45;
+                        color:#333;
+                      ">
+                        ${escapeHtml(
+                          eco.description || "Description not available."
+                        )}
+                      </div>
+                    `
+                        : ""
+                    }
                   </div>
                 `;
               })
@@ -224,7 +273,7 @@ function buildLandscapePopupHtml(
         <div><span style="font-weight:700;">Landscape Features:</span> ${escapeHtml(row.landscape_features ?? "—")}</div>
         <div><span style="font-weight:700;">Native Ecosystems:</span> ${escapeHtml(row.ecosystems ?? "—")}</div>
         <div><span style="font-weight:700;">Human Footprint:</span> ${escapeHtml(formatFootprint(row.human_footprint))}</div>
-       <div><span style="font-weight:700;">Top 1000 Rank:</span> ${escapeHtml(portfolioRank)}</div>
+        <div><span style="font-weight:700;">Top 1000 Rank:</span> ${escapeHtml(portfolioRank)}</div>
         <div><span style="font-weight:300; font-style:italic;">Raw Ranking:</span> ${escapeHtml(row.national_rank ?? "—")}</div>
       </div>
 
@@ -317,6 +366,7 @@ export default function LastGreatPlacesPage() {
   const ecosystemsLoadingRef = useRef(false);
   const ecosystemsErrorRef = useRef("");
   const ecosystemsCacheRef = useRef<Record<number, PlaceEcosystemRow[]>>({});
+  const ecosystemDescriptionOpenRef = useRef<string | null>(null);
   const activePlaceIdRef = useRef<number | null>(null);
 
   const visibleRows = rows.filter((r) =>
@@ -353,6 +403,7 @@ export default function LastGreatPlacesPage() {
       ecosystemsLoading: ecosystemsLoadingRef.current,
       ecosystemsError: ecosystemsErrorRef.current,
       ecosystems: ecosystemsOpenRef.current ? cached : [],
+      ecosystemDescriptionOpen: ecosystemDescriptionOpenRef.current,
     });
 
     infoWindowRef.current.setContent(html);
@@ -362,60 +413,85 @@ export default function LastGreatPlacesPage() {
 
   const attachPopupButtonHandler = () => {
     window.setTimeout(() => {
-      const btn = document.getElementById("ecosystems-toggle-btn");
-      if (!btn) return;
+      const ecosystemsToggleBtn = document.getElementById("ecosystems-toggle-btn");
 
-      btn.onclick = async () => {
-        const place = popupPlaceRef.current;
-        const position = popupPositionRef.current;
-        const mode = popupModeRef.current;
+      if (ecosystemsToggleBtn) {
+        ecosystemsToggleBtn.onclick = async () => {
+          const place = popupPlaceRef.current;
+          const position = popupPositionRef.current;
+          const mode = popupModeRef.current;
 
-        if (!place || !position) return;
+          if (!place || !position) return;
 
-        if (ecosystemsOpenRef.current) {
-          ecosystemsOpenRef.current = false;
-          ecosystemsLoadingRef.current = false;
+          if (ecosystemsOpenRef.current) {
+            ecosystemsOpenRef.current = false;
+            ecosystemsLoadingRef.current = false;
+            ecosystemsErrorRef.current = "";
+            ecosystemDescriptionOpenRef.current = null;
+            renderLandscapePopup(place, position, mode);
+            attachPopupButtonHandler();
+            return;
+          }
+
+          ecosystemsOpenRef.current = true;
+          ecosystemsLoadingRef.current = true;
           ecosystemsErrorRef.current = "";
+          ecosystemDescriptionOpenRef.current = null;
+          activePlaceIdRef.current = place.place_id;
+
           renderLandscapePopup(place, position, mode);
           attachPopupButtonHandler();
-          return;
-        }
 
-        ecosystemsOpenRef.current = true;
-        ecosystemsLoadingRef.current = true;
-        ecosystemsErrorRef.current = "";
-        activePlaceIdRef.current = place.place_id;
+          if (!ecosystemsCacheRef.current[place.place_id]) {
+            const result = await supabase
+              .from("v_ecosystems_at_places_desc")
+              .select("place_id,ecosystem,acres,percent,description")
+              .eq("place_id", place.place_id)
+              .order("percent", { ascending: false, nullsFirst: false })
+              .limit(5);
 
-        renderLandscapePopup(place, position, mode);
-        attachPopupButtonHandler();
+            if (activePlaceIdRef.current !== place.place_id) return;
 
-        if (!ecosystemsCacheRef.current[place.place_id]) {
-          const result = await supabase
-            .from("ecosystems_at_places")
-            .select("place_id,ecosystem,acres,percent")
-            .eq("place_id", place.place_id)
-            .order("percent", { ascending: false, nullsFirst: false })
-            .limit(5);
+            ecosystemsLoadingRef.current = false;
 
-          if (activePlaceIdRef.current !== place.place_id) return;
-
-          ecosystemsLoadingRef.current = false;
-
-          if (result.error) {
-            ecosystemsErrorRef.current =
-              result.error.message || "Failed to load ecosystems.";
+            if (result.error) {
+              ecosystemsErrorRef.current =
+                result.error.message || "Failed to load ecosystems.";
+            } else {
+              ecosystemsErrorRef.current = "";
+              ecosystemsCacheRef.current[place.place_id] =
+                (result.data as PlaceEcosystemRow[]) ?? [];
+            }
           } else {
-            ecosystemsErrorRef.current = "";
-            ecosystemsCacheRef.current[place.place_id] =
-              (result.data as PlaceEcosystemRow[]) ?? [];
+            ecosystemsLoadingRef.current = false;
           }
-        } else {
-          ecosystemsLoadingRef.current = false;
-        }
 
-        renderLandscapePopup(place, position, mode);
-        attachPopupButtonHandler();
-      };
+          renderLandscapePopup(place, position, mode);
+          attachPopupButtonHandler();
+        };
+      }
+
+      const descButtons = Array.from(
+        document.querySelectorAll(".ecosystem-desc-toggle-btn")
+      ) as HTMLButtonElement[];
+
+      descButtons.forEach((btn) => {
+        btn.onclick = () => {
+          const place = popupPlaceRef.current;
+          const position = popupPositionRef.current;
+          const mode = popupModeRef.current;
+
+          if (!place || !position) return;
+
+          const ecosystem = decodeURIComponent(btn.dataset.ecosystem || "");
+
+          ecosystemDescriptionOpenRef.current =
+            ecosystemDescriptionOpenRef.current === ecosystem ? null : ecosystem;
+
+          renderLandscapePopup(place, position, mode);
+          attachPopupButtonHandler();
+        };
+      });
     }, 0);
   };
 
@@ -512,6 +588,7 @@ export default function LastGreatPlacesPage() {
         ecosystemsOpenRef.current = false;
         ecosystemsLoadingRef.current = false;
         ecosystemsErrorRef.current = "";
+        ecosystemDescriptionOpenRef.current = null;
         activePlaceIdRef.current = null;
       });
 
@@ -540,6 +617,7 @@ export default function LastGreatPlacesPage() {
         ecosystemsOpenRef.current = false;
         ecosystemsLoadingRef.current = false;
         ecosystemsErrorRef.current = "";
+        ecosystemDescriptionOpenRef.current = null;
         activePlaceIdRef.current = null;
 
         infoWindowRef.current.setContent(html);
@@ -567,6 +645,7 @@ export default function LastGreatPlacesPage() {
         ecosystemsOpenRef.current = false;
         ecosystemsLoadingRef.current = false;
         ecosystemsErrorRef.current = "";
+        ecosystemDescriptionOpenRef.current = null;
         activePlaceIdRef.current = null;
 
         renderLandscapePopup(props, position, portfolioMode);
@@ -644,6 +723,7 @@ export default function LastGreatPlacesPage() {
     ecosystemsOpenRef.current = false;
     ecosystemsLoadingRef.current = false;
     ecosystemsErrorRef.current = "";
+    ecosystemDescriptionOpenRef.current = null;
     activePlaceIdRef.current = null;
 
     landscapesLayer.forEach((feature: any) => {
