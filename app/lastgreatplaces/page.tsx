@@ -167,8 +167,8 @@ function buildLandscapePopupHtml(
     } else {
       innerHtml = `
         <div style="margin-top:8px; border-top:1px solid #eee; padding-top:8px;">
-          <div style="font-size:12px; font-weight:700; margin-bottom:8px; color:#222; text-decoration:underline;">
-            Top Ecosystems:
+          <div style="font-size:11px; color:#666; margin-bottom:8px;">
+            Hint: click on ecosystem for description
           </div>
 
           <div style="font-size:11.5px; line-height:1.45; color:#222;">
@@ -181,7 +181,7 @@ function buildLandscapePopupHtml(
 
                 return `
                   <div style="margin-bottom:${i === ecosystems.length - 1 && !isOpen ? 0 : 8}px;">
-                    <div>
+                    <div style="text-align:left;">
                       <button
                         class="ecosystem-desc-toggle-btn"
                         data-place-id="${row.place_id}"
@@ -196,6 +196,9 @@ function buildLandscapePopupHtml(
                           color:#222;
                           text-decoration:underline;
                           cursor:pointer;
+                          text-align:left;
+                          display:inline;
+                          line-height:1.35;
                         "
                       >
                         ${escapeHtml(ecoName)}
@@ -217,6 +220,7 @@ function buildLandscapePopupHtml(
                         font-size:11.5px;
                         line-height:1.45;
                         color:#333;
+                        text-align:left;
                       ">
                         ${escapeHtml(
                           eco.description || "Description not available."
