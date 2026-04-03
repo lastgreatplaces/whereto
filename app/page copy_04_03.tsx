@@ -8,7 +8,7 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? ""
 );
 
-type PlaceType = "birds" | "hikes" | "camps" | "highways" | "targets";
+type PlaceType = "birds" | "hikes" | "camps" | "highways";
 type LandscapeRegion = "all" | "west" | "midwest" | "south" | "east";
 
 interface Theme {
@@ -32,7 +32,7 @@ type LandscapeRow = {
   designation: string | null;
   ecoregion: string | null;
   ecoregion_rank: number | null;
-  rank_top500: number | null;
+   rank_top500: number | null;
   in_top500: boolean;
   rank_top1000: number | null;
   in_top1000: boolean;
@@ -56,7 +56,6 @@ const CAMP_THEMES: Record<string, Theme> = {
   SRA: { color: "#8d6e63", emoji: "🏕️" },
   CP: { color: "#9b989b", emoji: "🏙️" },
   BD: { color: "#1a0328", emoji: "✴️" },
-  landscapes: { color: "#fff3cd", emoji: "🎯" },
   default: { color: "#607d8b", emoji: "⛺" }
 };
 
@@ -72,8 +71,7 @@ const CAMP_SUBTYPE_LABELS: Record<string, string> = {
   CP: "Local Park",
   BD: "Boondock",
   SFW: "Fish/Wild",
-  RES: "Other/Res",
-  landscapes: "Target Area"
+  RES: "Other/Res"
 };
 
 const UI_CAMP_SUBTYPES = ["COE", "NF", "NP", "SP", "SF", "BLM", "BD", "NRA", "CP", "SFW", "RES"];
@@ -86,8 +84,6 @@ const STATE_GROUPS: Record<string, string[]> = {
   West: ["AK", "AZ", "CA", "CO", "ID", "MT", "NV", "NM", "OR", "UT", "WA", "WY"],
   Canada: ["AB", "BC", "MB", "NB", "NL", "NS", "ON", "PE", "QC", "SK"]
 };
-
-const ALL_STATES = Array.from(new Set(Object.values(STATE_GROUPS).flat()));
 
 const LANDSCAPE_REGION_STATES: Record<LandscapeRegion, string[]> = {
   all: [],
@@ -169,54 +165,6 @@ export default function Home() {
       .replace(/"/g, "&quot;")
       .replace(/'/g, "&#39;");
 
-  const togglePlaceType = (type: PlaceType) => {
-    setPlaceTypes((prev) =>
-      prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
-    );
-  };
-
-  const toggleFavOnly = (type: PlaceType) => {
-    setFavOnlyCategories((prev) =>
-      prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
-    );
-  };
-
-  const toggleOpenGroup = (group: string) => {
-    setOpenGroups((prev) =>
-      prev.includes(group) ? prev.filter((g) => g !== group) : [...prev, group]
-    );
-  };
-
-  const toggleState = (state: string) => {
-    setStates((prev) =>
-      prev.includes(state) ? prev.filter((s) => s !== state) : [...prev, state]
-    );
-  };
-
-  const toggleStateGroup = (groupName: string) => {
-    const groupStates = STATE_GROUPS[groupName] || [];
-    const allInGroupSelected = groupStates.every((st) => states.includes(st));
-
-    setStates((prev) => {
-      if (allInGroupSelected) {
-        return prev.filter((st) => !groupStates.includes(st));
-      }
-      return Array.from(new Set([...prev, ...groupStates]));
-    });
-  };
-
-  const toggleCampSubtype = (subtype: string) => {
-    setSelectedCampSubtypes((prev) =>
-      prev.includes(subtype) ? prev.filter((s) => s !== subtype) : [...prev, subtype]
-    );
-  };
-
-  const toggleHighwaySubtype = (subtype: string) => {
-    setSelectedHighwaySubtypes((prev) =>
-      prev.includes(subtype) ? prev.filter((s) => s !== subtype) : [...prev, subtype]
-    );
-  };
-
   const getMarkerStyle = (
     google: any,
     type: PlaceType,
@@ -241,28 +189,16 @@ export default function Home() {
     }
 
     if (type === "hikes") {
-      return {
-        path: "M -10,-10 L 10,-10 L 10,10 L -10,10 Z",
-        scale: baseSize / 20,
-        fillColor: "#c4fcfe",
-        fillOpacity: 1,
-        strokeWeight: isFavorite ? 3 : 2,
-        strokeColor: isFavorite ? "#f3cf05" : "#f80808",
-        labelOrigin: new google.maps.Point(0, 1)
-      };
-    }
-
-    if (type === "targets") {
-      return {
-        path: google.maps.SymbolPath.CIRCLE,
-        scale: baseSize / 2.2,
-        fillColor: "#fff3cd",
-        fillOpacity: 1,
-        strokeWeight: isFavorite ? 3 : 2,
-        strokeColor: isFavorite ? "#f3cf05" : "#8a6d1d",
-        labelOrigin: new google.maps.Point(0, 0)
-      };
-    }
+  return {
+    path: "M -10,-10 L 10,-10 L 10,10 L -10,10 Z",
+    scale: baseSize / 20,
+    fillColor: "#c4fcfe",
+    fillOpacity: 1,
+    strokeWeight: isFavorite ? 3 : 2,
+    strokeColor: isFavorite ? "#f3cf05" : "#f80808",
+    labelOrigin: new google.maps.Point(0, 1)
+  };
+}
 
     const theme = CAMP_THEMES[subtype] || CAMP_THEMES.default;
     return {
@@ -286,47 +222,36 @@ export default function Home() {
       const isFav = (m as any).__isFavorite;
       m.setIcon(getMarkerStyle(google, type, (m as any).__subtype, z, isFav));
 
-      if (type === "birds") {
-        m.setLabel({
-          text: "🦅",
-          fontSize: z <= 8 ? "18px" : "26px",
+if (type === "birds") {
+  m.setLabel({
+    text: "🦅",
+    fontSize: z <= 8 ? "18px" : "26px",
+    color: "black",
+    fontWeight: "700"
+  });
+} else if (type === "hikes") {
+  m.setLabel(
+    z >= 5
+      ? {
+          text: "🥾",
+          fontSize: z <= 6 ? "18px" : z <= 8 ? "20px" : "22px",
           color: "black",
           fontWeight: "700"
-        });
-      } else if (type === "hikes") {
-        m.setLabel(
-          z >= 5
-            ? {
-                text: "🥾",
-                fontSize: z <= 6 ? "18px" : z <= 8 ? "20px" : "22px",
-                color: "black",
-                fontWeight: "700"
-              }
-            : null
-        );
-      } else if (type === "targets") {
-        m.setLabel(
-          z >= 4
-            ? {
-                text: "🎯",
-                fontSize: z <= 6 ? "16px" : z <= 8 ? "18px" : "20px",
-                color: "black",
-                fontWeight: "700"
-              }
-            : null
-        );
-      } else {
-        m.setLabel(
-          z > 7
-            ? {
-                text: (m as any).__emoji,
-                fontSize: z <= 11 ? "14px" : "18px",
-                color: "white",
-                fontWeight: "700"
-              }
-            : null
-        );
-      }
+        }
+      : null
+  );
+} else {
+  m.setLabel(
+    z > 7
+      ? {
+          text: (m as any).__emoji,
+          fontSize: z <= 11 ? "14px" : "18px",
+          color: "white",
+          fontWeight: "700"
+        }
+      : null
+  );
+}
     });
   };
 
@@ -375,7 +300,7 @@ export default function Home() {
               <div><span style="font-weight:700;">Designation:</span> ${escapeHtml(row.designation || "—")}</div>
               <div><span style="font-weight:700;">Ecoregion:</span> ${escapeHtml(row.ecoregion || "—")}</div>
               <div><span style="font-weight:700;">Ecoregion Rank:</span> ${escapeHtml(row.ecoregion_rank ?? "—")}</div>
-              <div><span style="font-weight:700;">Top 1000 Rank:</span> ${escapeHtml(portfolioRank)}</div>
+                           <div><span style="font-weight:700;">Top 1000 Rank:</span> ${escapeHtml(portfolioRank)}</div>
             </div>
           </div>
         `);
@@ -451,28 +376,19 @@ export default function Home() {
   const loadHighways = async () => {
     clearHighways();
 
-    if (!filtersRef.current.types.has("highways")) {
-      setLoadedHighways([]);
-      return;
-    }
+    if (!filtersRef.current.types.has("highways") || filtersRef.current.states.size === 0) return;
 
     let query = supabase
       .from("byways")
-      .select("geom_geojson, name, designats, favorite, subtype");
-
-    if (filtersRef.current.states.size > 0) {
-      query = query.in("state", Array.from(filtersRef.current.states));
-    }
+      .select("geom_geojson, name, designats, favorite, subtype")
+      .in("state", Array.from(filtersRef.current.states));
 
     if (filtersRef.current.favOnlyCategories.has("highways")) {
       query = query.eq("favorite", true);
     }
 
     const { data, error } = await query;
-    if (error || !data) {
-      setLoadedHighways([]);
-      return;
-    }
+    if (error || !data) return;
 
     const filteredHighways = data.filter((h) =>
       filtersRef.current.highwaySubtypes.has(h.subtype || "Scenic")
@@ -563,9 +479,9 @@ export default function Home() {
       .map((s) => `${s.lat},${s.lon}`)
       .join("|");
 
-    let url = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(
-      origin
-    )}&destination=${encodeURIComponent(destination)}&travelmode=driving`;
+    let url = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(
+      destination
+    )}&travelmode=driving`;
 
     if (waypoints) {
       url += `&waypoints=${encodeURIComponent(waypoints)}`;
@@ -596,19 +512,13 @@ export default function Home() {
     const isAlreadyInRoute = routeStops.some((s) => s.id === String(place.id));
     const canAddStop = routeStops.length < 8 && !isAlreadyInRoute;
 
-    let popup = `<div style="padding:5px; font-family:sans-serif; min-width:190px; max-width:280px;">
+    let popup = `<div style="padding:5px; font-family:sans-serif; min-width:190px;">
       <div style="display:flex; align-items:center; gap:5px;">
         <b>${escapeHtml(place.name)}</b>${place.favorite ? "⭐" : ""}
       </div>
       <span style="color:#666; font-size:11px; font-weight:bold;">
         ${escapeHtml(CAMP_SUBTYPE_LABELS[sub] || sub || "N/A")}
       </span>`;
-
-    if (t === "targets" && place.notes) {
-      popup += `<div style="font-size:12px; margin-top:6px; line-height:1.45; color:#333; border-top:1px solid #f0f0f0; padding-top:6px;">
-        ${escapeHtml(place.notes)}
-      </div>`;
-    }
 
     if (t === "camps" || t === "hikes") {
       const labels =
@@ -684,27 +594,14 @@ export default function Home() {
     const statesArr = Array.from(filtersRef.current.states);
     const typesArr = Array.from(filtersRef.current.types).filter((t) => t !== "highways");
 
-    if (!typesArr.length && !filtersRef.current.types.has("highways")) {
+    if (!statesArr.length || (!typesArr.length && !filtersRef.current.types.has("highways"))) {
       setLoadedPlaces([]);
       return;
     }
 
-    if (!typesArr.length) {
-      setLoadedPlaces([]);
-      return;
-    }
-
-    let query = supabase.from("places").select("*").in("place_type", typesArr);
-
-    if (statesArr.length > 0) {
-      query = query.in("state", statesArr);
-    }
-
+    let query = supabase.from("places").select("*").in("state", statesArr).in("place_type", typesArr);
     const { data, error } = await query;
-    if (error || !data) {
-      setLoadedPlaces([]);
-      return;
-    }
+    if (error || !data) return;
 
     const filteredData = data.filter((r) => {
       const type = r.place_type as PlaceType;
@@ -736,11 +633,7 @@ export default function Home() {
       (marker as any).__type = t;
       (marker as any).__subtype = sub;
       (marker as any).__isFavorite = r.favorite === true;
-      (marker as any).__emoji =
-        t === "birds" ? "🦅" :
-        t === "hikes" ? "🥾" :
-        t === "targets" ? "🎯" :
-        theme.emoji;
+      (marker as any).__emoji = t === "birds" ? "🦅" : t === "hikes" ? "🥾" : theme.emoji;
 
       marker.addListener("click", () => triggerPlacePopup(r));
       markersMapRef.current.set(String(r.id), marker);
@@ -870,11 +763,6 @@ export default function Home() {
   return (
     <div style={{ position: "relative", height: "100vh", overflow: "hidden", fontFamily: "sans-serif" }}>
       <div
-        id="map"
-        style={{ position: "absolute", inset: 0 }}
-      />
-
-      <div
         style={{
           position: "absolute",
           right: 12,
@@ -988,475 +876,638 @@ export default function Home() {
               Tap a place marker, then choose <b>Add Stop</b>.
             </div>
           ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 10 }}>
-              {routeStops.map((stop, idx) => (
+            <div style={{ maxHeight: "180px", overflowY: "auto", marginBottom: 10 }}>
+              {routeStops.map((stop, i) => (
                 <div
                   key={stop.id}
                   style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    gap: 8,
                     fontSize: 12,
-                    border: "1px solid #eee",
-                    borderRadius: 6,
-                    padding: "6px 8px"
+                    padding: "6px 0",
+                    borderBottom: i < routeStops.length - 1 ? "1px solid #eee" : "none"
                   }}
                 >
-                  <div style={{ minWidth: 0 }}>
-                    <span style={{ fontWeight: 700 }}>{idx + 1}.</span>{" "}
-                    <span>{stop.name}</span>
-                  </div>
-                  <button
-                    onClick={() =>
-                      setRouteStops((prev) => prev.filter((s) => s.id !== stop.id))
-                    }
-                    style={{
-                      border: "none",
-                      background: "none",
-                      color: "#d93025",
-                      cursor: "pointer",
-                      fontSize: 12,
-                      fontWeight: 700
-                    }}
-                  >
-                    Remove
-                  </button>
+                  <b>{i + 1}.</b> {stop.name}
                 </div>
               ))}
             </div>
           )}
 
-          <div style={{ display: "flex", gap: 8 }}>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
             <button
               onClick={openRouteInGoogleMaps}
               style={{
                 flex: 1,
+                minWidth: 110,
                 background: "#1a73e8",
                 color: "white",
                 border: "none",
-                borderRadius: 8,
+                borderRadius: 6,
                 padding: "9px 10px",
                 fontWeight: 700,
                 fontSize: 12,
                 cursor: "pointer"
               }}
             >
-              Open Route
+              Open in Google Maps
             </button>
+
             <button
-              onClick={() => setRouteStops([])}
+              onClick={() => {
+                setRouteStops([]);
+                setRouteMessage("Route cleared");
+              }}
               style={{
                 background: "#f1f3f4",
                 color: "#333",
                 border: "1px solid #ddd",
-                borderRadius: 8,
+                borderRadius: 6,
                 padding: "9px 10px",
                 fontWeight: 700,
                 fontSize: 12,
                 cursor: "pointer"
               }}
             >
-              Clear
+              Clear Route
             </button>
           </div>
         </div>
       )}
 
-      {isFilterOpen && (
+      <div
+        style={{
+          position: "absolute",
+          left: 12,
+          top: 12,
+          zIndex: 10,
+          background: "white",
+          border: "1px solid #ccc",
+          borderRadius: 8,
+          width: isFilterOpen ? "min(340px, calc(100vw - 24px - 130px))" : 48,
+          minWidth: isFilterOpen ? 240 : 48,
+          maxWidth: "calc(100vw - 154px)",
+          maxHeight: "calc(100vh - 24px)",
+          overflowY: isFilterOpen ? "auto" : "visible",
+          padding: isFilterOpen ? 12 : 4,
+          boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
+          transition: "width 0.2s"
+        }}
+      >
         <div
           style={{
-            position: "absolute",
-            left: 16,
-            top: 16,
-            zIndex: 20,
-            width: 410,
-            maxWidth: "calc(100vw - 32px)",
-            maxHeight: "calc(100vh - 32px)",
-            overflowY: "auto",
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            marginBottom: 10,
+            position: "sticky",
+            top: 0,
             background: "white",
-            border: "1px solid #d9d9d9",
-            borderRadius: 14,
-            boxShadow: "0 6px 20px rgba(0,0,0,0.12)",
-            padding: 16
+            zIndex: 2,
+            paddingBottom: 8
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
+          {isFilterOpen ? (
+            <>
+              <button
+                onClick={() => setIsFilterOpen(false)}
+                style={{
+                  border: "1px solid #ccc",
+                  borderRadius: 6,
+                  width: 32,
+                  height: 32,
+                  background: "#f5f5f5",
+                  cursor: "pointer",
+                  color: "#333",
+                  fontSize: 18,
+                  lineHeight: 1,
+                  fontWeight: 700,
+                  flexShrink: 0
+                }}
+                aria-label="Close filters"
+                title="Close filters"
+              >
+                ×
+              </button>
+
+              <div style={{ fontWeight: 700, fontSize: 16, color: "#222" }}>
+                Filters
+              </div>
+            </>
+          ) : (
             <button
-              onClick={() => setIsFilterOpen(false)}
+              onClick={() => setIsFilterOpen(true)}
               style={{
                 width: 40,
                 height: 40,
-                borderRadius: 8,
-                border: "1px solid #d9d9d9",
-                background: "#f6f6f6",
+                border: "1px solid #ccc",
+                borderRadius: 6,
+                background: "#f5f5f5",
                 cursor: "pointer",
-                fontSize: 26,
-                lineHeight: 1
+                color: "#333",
+                fontSize: 20,
+                lineHeight: 1,
+                fontWeight: 700
               }}
+              aria-label="Show filters"
+              title="Show filters"
             >
-              ×
+              ☰
             </button>
-            <div style={{ fontSize: 22, fontWeight: 700 }}>Filters</div>
-          </div>
+          )}
+        </div>
 
-          <input
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search..."
-            style={{
-              width: "100%",
-              boxSizing: "border-box",
-              padding: "14px 14px",
-              fontSize: 16,
-              borderRadius: 10,
-              border: "1px solid #d9d9d9",
-              marginBottom: 18
-            }}
-          />
+        {isFilterOpen && (
+          <div style={{ fontSize: 13 }}>
+            <div style={{ marginBottom: 15, position: "relative" }}>
+              <input
+                type="text"
+                placeholder="Search..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                style={{
+                  width: "100%",
+                  padding: "10px 10px",
+                  borderRadius: "6px",
+                  border: "1px solid #ddd",
+                  fontSize: "13px",
+                  outline: "none"
+                }}
+              />
 
-          {(placeResults.length > 0 || highwayResults.length > 0) && (
+              {(placeResults.length > 0 || highwayResults.length > 0) && (
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "100%",
+                    left: 0,
+                    right: 0,
+                    background: "white",
+                    border: "1px solid #ddd",
+                    borderRadius: "0 0 4px 4px",
+                    zIndex: 20,
+                    boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+                    maxHeight: "250px",
+                    overflowY: "auto"
+                  }}
+                >
+                  {placeResults.map((p) => (
+                    <div
+                      key={p.id}
+                      onClick={() => {
+                        triggerPlacePopup(p);
+                        setSearchQuery("");
+                      }}
+                      style={{ padding: "8px", cursor: "pointer", borderBottom: "1px solid #eee", fontSize: "11px" }}
+                    >
+                      <b>📍 {p.name}</b> <span style={{ color: "#888", fontSize: "10px" }}>{p.state}</span>
+                    </div>
+                  ))}
+
+                  {highwayResults.map((h, i) => (
+                    <div
+                      key={i}
+                      onClick={() => {
+                        const firstCoord =
+                          h.geom_geojson.type === "MultiLineString"
+                            ? h.geom_geojson.coordinates[0][0]
+                            : h.geom_geojson.coordinates[0];
+                        mapRef.current.setZoom(10);
+                        mapRef.current.panTo({ lat: firstCoord[1], lng: firstCoord[0] });
+                        setSearchQuery("");
+                      }}
+                      style={{ padding: "8px", cursor: "pointer", borderBottom: "1px solid #eee", fontSize: "11px" }}
+                    >
+                      <b>🛣️ {h.name}</b>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
             <div
               style={{
-                marginBottom: 16,
-                border: "1px solid #eee",
-                borderRadius: 10,
-                padding: 10,
-                background: "#fafafa"
+                fontWeight: 700,
+                color: "#666",
+                marginBottom: 8,
+                borderBottom: "1px solid #eee",
+                paddingBottom: 4
               }}
             >
-              {placeResults.map((p) => (
-                <div
-                  key={`p-${p.id}`}
-                  onClick={() => triggerPlacePopup(p)}
-                  style={{
-                    padding: "7px 6px",
-                    cursor: "pointer",
-                    borderBottom: "1px solid #eee",
-                    fontSize: 14
-                  }}
-                >
-                  {p.name}
-                </div>
-              ))}
-              {highwayResults.map((h, idx) => (
-                <div
-                  key={`h-${idx}`}
-                  style={{
-                    padding: "7px 6px",
-                    fontSize: 14,
-                    borderBottom: idx === highwayResults.length - 1 ? "none" : "1px solid #eee"
-                  }}
-                >
-                  {h.name}
-                </div>
-              ))}
+              Catergories
             </div>
-          )}
 
-          <div style={{ fontSize: 14, fontWeight: 700, color: "#555", marginBottom: 10 }}>
-            Categories
-          </div>
-
-          <div style={{ borderTop: "1px solid #eee", borderBottom: "1px solid #eee", padding: "8px 0 10px 0" }}>
             {([
               { key: "birds" as PlaceType, label: "🪺 Birds" },
               { key: "hikes" as PlaceType, label: "🥾 Hikes" },
               { key: "camps" as PlaceType, label: "⛺ Camps" },
-              { key: "highways" as PlaceType, label: "🛣️ Highways" },
-              { key: "targets" as PlaceType, label: "🎯 Targets" }
-            ]).map((item) => {
-              const checked = placeTypes.includes(item.key);
-              const favOnly = favOnlyCategories.includes(item.key);
-              const showArrow = item.key === "camps" || item.key === "highways";
+              { key: "highways" as PlaceType, label: "🛣️ Highways" }
+            ]).map((item) => (
+              <div key={item.key}>
+                <div style={{ display: "flex", alignItems: "center", marginBottom: 8 }}>
+                  <input
+                    type="checkbox"
+                    checked={placeTypes.includes(item.key)}
+                    onChange={() =>
+                      setPlaceTypes((prev) =>
+                        prev.includes(item.key)
+                          ? prev.filter((x) => x !== item.key)
+                          : [...prev, item.key]
+                      )
+                    }
+                  />
+                  <span style={{ marginLeft: 8, flexGrow: 1 }}>{item.label}</span>
 
-              return (
-                <div key={item.key} style={{ marginBottom: 6 }}>
+                  {(item.key === "camps" || item.key === "highways") && (
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        item.key === "camps"
+                          ? setIsCampSubmenuOpen(!isCampSubmenuOpen)
+                          : setIsHighwaySubmenuOpen(!isHighwaySubmenuOpen);
+                      }}
+                      style={{
+                        fontSize: 10,
+                        background: "none",
+                        border: "none",
+                        cursor: "pointer",
+                        padding: "0 5px"
+                      }}
+                    >
+                      {item.key === "camps"
+                        ? isCampSubmenuOpen ? "▲" : "▼"
+                        : isHighwaySubmenuOpen ? "▲" : "▼"}
+                    </button>
+                  )}
+
+                  <button
+                    onClick={() =>
+                      setFavOnlyCategories((prev) =>
+                        prev.includes(item.key)
+                          ? prev.filter((x) => x !== item.key)
+                          : [...prev, item.key]
+                      )
+                    }
+                    style={{
+                      background: favOnlyCategories.includes(item.key) ? "#fff8dc" : "transparent",
+                      border: favOnlyCategories.includes(item.key) ? "1px solid #d4af37" : "1px solid transparent",
+                      borderRadius: 4,
+                      cursor: "pointer",
+                      fontSize: "16px",
+                      lineHeight: 1,
+                      padding: "2px 4px",
+                      color: favOnlyCategories.includes(item.key) ? "#b8860b" : "#999"
+                    }}
+                    title="Favorites only"
+                  >
+                    ★
+                  </button>
+                </div>
+
+                {item.key === "camps" && isCampSubmenuOpen && (
                   <div
                     style={{
-                      display: "grid",
-                      gridTemplateColumns: "24px 1fr 24px 24px",
+                      padding: "8px",
+                      background: "#f1f3f5",
+                      borderRadius: "4px",
+                      marginBottom: "10px",
+                      marginLeft: 15
+                    }}
+                  >
+                    <div style={{ display: "flex", gap: "8px", marginBottom: "8px" }}>
+                      <button
+                        onClick={() => setSelectedCampSubtypes(UI_CAMP_SUBTYPES)}
+                        style={{ flex: 1, fontSize: "9px", fontWeight: "bold", padding: "2px", cursor: "pointer" }}
+                      >
+                        ALL
+                      </button>
+                      <button
+                        onClick={() => setSelectedCampSubtypes([])}
+                        style={{ flex: 1, fontSize: "9px", fontWeight: "bold", padding: "2px", cursor: "pointer" }}
+                      >
+                        NONE
+                      </button>
+                    </div>
+
+                    {UI_CAMP_SUBTYPES.map((sub) => (
+                      <label
+                        key={sub}
+                        style={{
+                          fontSize: 11,
+                          display: "flex",
+                          alignItems: "center",
+                          cursor: "pointer",
+                          marginBottom: 2
+                        }}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={
+                            selectedCampSubtypes.includes(sub) ||
+                            (sub === "NRA" && selectedCampSubtypes.includes("SRA"))
+                          }
+                          onChange={() => {
+                            setSelectedCampSubtypes((prev) => {
+                              const targets = sub === "NRA" ? ["NRA", "SRA"] : [sub];
+                              const isAdding = !prev.includes(sub);
+                              return isAdding
+                                ? Array.from(new Set([...prev, ...targets]))
+                                : prev.filter((x) => !targets.includes(x));
+                            });
+                          }}
+                        />
+                        <span style={{ marginLeft: 6 }}>{CAMP_SUBTYPE_LABELS[sub] || sub}</span>
+                      </label>
+                    ))}
+                  </div>
+                )}
+
+                {item.key === "highways" && isHighwaySubmenuOpen && (
+                  <div
+                    style={{
+                      padding: "8px",
+                      background: "#f1f3f5",
+                      borderRadius: "4px",
+                      marginBottom: "10px",
+                      marginLeft: 15
+                    }}
+                  >
+                    <div style={{ display: "flex", gap: "8px", marginBottom: "8px" }}>
+                      <button
+                        onClick={() => setSelectedHighwaySubtypes(UI_HIGHWAY_SUBTYPES)}
+                        style={{ flex: 1, fontSize: "9px", fontWeight: "bold", padding: "2px", cursor: "pointer" }}
+                      >
+                        ALL
+                      </button>
+                      <button
+                        onClick={() => setSelectedHighwaySubtypes([])}
+                        style={{ flex: 1, fontSize: "9px", fontWeight: "bold", padding: "2px", cursor: "pointer" }}
+                      >
+                        NONE
+                      </button>
+                    </div>
+
+                    {UI_HIGHWAY_SUBTYPES.map((sub) => (
+                      <label
+                        key={sub}
+                        style={{
+                          fontSize: 11,
+                          display: "flex",
+                          alignItems: "center",
+                          cursor: "pointer",
+                          marginBottom: 2
+                        }}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={selectedHighwaySubtypes.includes(sub)}
+                          onChange={() => {
+                            setSelectedHighwaySubtypes((prev) =>
+                              prev.includes(sub) ? prev.filter((x) => x !== sub) : [...prev, sub]
+                            );
+                          }}
+                        />
+                        <span style={{ marginLeft: 6 }}>{sub}</span>
+                      </label>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+
+            <div
+              style={{
+                marginTop: 10,
+                marginBottom: 8,
+                borderTop: "1px solid #eee",
+                paddingTop: 10
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginBottom: 8
+                }}
+              >
+                <button
+                  onClick={() => setIsLandscapeSectionOpen((prev) => !prev)}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                    background: "none",
+                    border: "none",
+                    padding: 0,
+                    cursor: "pointer",
+                    fontWeight: 700,
+                    color: "#666",
+                    fontSize: 13
+                  }}
+                >
+                  <span>{isLandscapeSectionOpen ? "▼" : "▶"}</span>
+                  <span>Landscapes</span>
+                </button>
+              </div>
+
+              {isLandscapeSectionOpen && (
+                <>
+                  <label
+                    style={{
+                      display: "flex",
                       alignItems: "center",
                       gap: 8,
-                      minHeight: 34
+                      fontSize: 12,
+                      marginBottom: 10,
+                      cursor: "pointer"
                     }}
                   >
                     <input
                       type="checkbox"
-                      checked={checked}
-                      onChange={() => togglePlaceType(item.key)}
-                      style={{ width: 22, height: 22 }}
+                      checked={showLandscapes}
+                      onChange={(e) => setShowLandscapes(e.target.checked)}
                     />
+                    Show Top 1000 Landscapes
+                  </label>
 
-                    <div style={{ fontSize: 14 }}>{item.label}</div>
-
-                    <button
-                      onClick={() => {
-                        if (item.key === "camps") setIsCampSubmenuOpen((v) => !v);
-                        if (item.key === "highways") setIsHighwaySubmenuOpen((v) => !v);
-                      }}
+                  <div style={{ marginBottom: 8 }}>
+                    <div style={{ fontSize: 12, color: "#555", marginBottom: 4 }}>
+                      Region
+                    </div>
+                    <select
+                      value={landscapeRegion}
+                      onChange={(e) => setLandscapeRegion(e.target.value as LandscapeRegion)}
                       style={{
-                        background: "none",
-                        border: "none",
-                        cursor: showArrow ? "pointer" : "default",
-                        fontSize: 14,
-                        color: "#222",
-                        visibility: showArrow ? "visible" : "hidden"
+                        width: "100%",
+                        border: "1px solid #ccc",
+                        borderRadius: 6,
+                        padding: "8px",
+                        fontSize: 12,
+                        background: "white",
+                        color: "#333"
                       }}
                     >
-                      {item.key === "camps"
-                        ? isCampSubmenuOpen ? "▾" : "▸"
-                        : item.key === "highways"
-                        ? isHighwaySubmenuOpen ? "▾" : "▸"
-                        : ""}
-                    </button>
-
-                    <button
-                      onClick={() => toggleFavOnly(item.key)}
-                      style={{
-                        background: "none",
-                        border: "none",
-                        cursor: "pointer",
-                        fontSize: 22,
-                        color: favOnly ? "#d0a100" : "#999",
-                        lineHeight: 1
-                      }}
-                      title="Favorites only"
-                    >
-                      ★
-                    </button>
+                      <option value="all">All regions</option>
+                      <option value="west">West</option>
+                      <option value="midwest">Midwest</option>
+                      <option value="south">South</option>
+                      <option value="east">East</option>
+                    </select>
                   </div>
 
-                  {item.key === "camps" && isCampSubmenuOpen && (
-                    <div style={{ paddingLeft: 34, paddingTop: 4, display: "grid", gap: 4 }}>
-                      {UI_CAMP_SUBTYPES.map((sub) => (
-                        <label
-                          key={sub}
-                          style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#444" }}
-                        >
-                          <input
-                            type="checkbox"
-                            checked={selectedCampSubtypes.includes(sub)}
-                            onChange={() => toggleCampSubtype(sub)}
-                          />
-                          {CAMP_SUBTYPE_LABELS[sub] || sub}
-                        </label>
-                      ))}
-                    </div>
-                  )}
+                  <div
+                    style={{
+                      fontSize: 11,
+                      color: "#666",
+                      lineHeight: 1.4
+                    }}
+                  >
+                    Landscape polygons are filtered separately from camps, birds, hikes, and highways.
+                  </div>
+                </>
+              )}
+            </div>
 
-                  {item.key === "highways" && isHighwaySubmenuOpen && (
-                    <div style={{ paddingLeft: 34, paddingTop: 4, display: "grid", gap: 4 }}>
-                      {UI_HIGHWAY_SUBTYPES.map((sub) => (
-                        <label
-                          key={sub}
-                          style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#444" }}
-                        >
-                          <input
-                            type="checkbox"
-                            checked={selectedHighwaySubtypes.includes(sub)}
-                            onChange={() => toggleHighwaySubtype(sub)}
-                          />
-                          {sub}
-                        </label>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-
-          <div style={{ marginTop: 14, borderBottom: "1px solid #eee", paddingBottom: 12 }}>
-            <button
-              onClick={() => setIsLandscapeSectionOpen((v) => !v)}
+            <div
               style={{
-                background: "none",
-                border: "none",
-                padding: 0,
-                cursor: "pointer",
                 display: "flex",
-                alignItems: "center",
-                gap: 8,
-                fontSize: 16,
-                fontWeight: 700,
-                color: "#666"
-              }}
-            >
-              <span>{isLandscapeSectionOpen ? "▼" : "▶"}</span>
-              <span>Landscapes</span>
-            </button>
-
-            {isLandscapeSectionOpen && (
-              <div style={{ marginTop: 10 }}>
-                <label style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10, fontSize: 14 }}>
-                  <input
-                    type="checkbox"
-                    checked={showLandscapes}
-                    onChange={() => setShowLandscapes((v) => !v)}
-                    style={{ width: 22, height: 22 }}
-                  />
-                  Show Top 1000 Landscapes
-                </label>
-
-                <div style={{ marginBottom: 6, fontSize: 14, color: "#666" }}>Region</div>
-                <select
-                  value={landscapeRegion}
-                  onChange={(e) => setLandscapeRegion(e.target.value as LandscapeRegion)}
-                  style={{
-                    width: "100%",
-                    padding: "10px 12px",
-                    borderRadius: 8,
-                    border: "1px solid #d9d9d9",
-                    fontSize: 14
-                  }}
-                >
-                  <option value="all">All regions</option>
-                  <option value="west">West</option>
-                  <option value="midwest">Midwest</option>
-                  <option value="south">South</option>
-                  <option value="east">East</option>
-                </select>
-
-                <div style={{ fontSize: 12, color: "#666", marginTop: 10, lineHeight: 1.45 }}>
-                  Landscape polygons are filtered separately from camps, birds, hikes, highways, and targets.
-                </div>
-              </div>
-            )}
-          </div>
-
-          <div style={{ marginTop: 14 }}>
-            <button
-              onClick={() => setIsRegionsOpen((v) => !v)}
-              style={{
-                background: "none",
-                border: "none",
-                padding: 0,
-                cursor: "pointer",
-                width: "100%",
-                display: "flex",
-                alignItems: "center",
                 justifyContent: "space-between",
-                fontSize: 16,
-                fontWeight: 700,
-                color: "#666"
+                alignItems: "center",
+                marginTop: 16,
+                marginBottom: 8,
+                borderBottom: "1px solid #eee",
+                paddingBottom: 4
               }}
             >
-              <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <button
+                onClick={() => setIsRegionsOpen((prev) => !prev)}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                  background: "none",
+                  border: "none",
+                  padding: 0,
+                  cursor: "pointer",
+                  fontWeight: 700,
+                  color: "#666",
+                  fontSize: 13
+                }}
+              >
                 <span>{isRegionsOpen ? "▼" : "▶"}</span>
                 <span>Regions & States</span>
-              </span>
-              <span style={{ fontSize: 12, color: "#999", fontWeight: 600 }}>
-                {hasAnySelectedStates ? `${states.length} selected` : "none selected"}
-              </span>
-            </button>
+              </button>
 
- {isRegionsOpen && (
-  <div style={{ marginTop: 10 }}>
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        marginBottom: 10
-      }}
-    >
-      <div style={{ fontSize: 12, color: "#666" }}>
-        Leave all unchecked for nationwide display.
-      </div>
+              <button
+                onClick={() => setStates([])}
+                style={{
+                  fontSize: 10,
+                  cursor: "pointer",
+                  color: "#f44336",
+                  background: "none",
+                  border: "none",
+                  padding: 0,
+                  fontWeight: 700
+                }}
+              >
+                Clear All
+              </button>
+            </div>
 
-      <div style={{ display: "flex", gap: 12, fontSize: 12, fontWeight: 700 }}>
-        <button
-          onClick={() => setStates(ALL_STATES)}
-          style={{
-            background: "none",
-            border: "none",
-            color: "#1a73e8",
-            cursor: "pointer",
-            padding: 0
-          }}
-        >
-          Select All
-        </button>
-
-        <button
-          onClick={() => setStates([])}
-          style={{
-            background: "none",
-            border: "none",
-            color: "#d93025",
-            cursor: "pointer",
-            padding: 0
-          }}
-        >
-          Clear All
-        </button>
-      </div>
-    </div>
-
-
-               {Object.entries(STATE_GROUPS).map(([group, vals]) => {
-                  const isOpen = openGroups.includes(group);
+            {isRegionsOpen && (
+              <div style={{ maxHeight: "40vh", overflowY: "auto" }}>
+                {Object.entries(STATE_GROUPS).map(([groupName, groupStates]) => {
+                  const groupSelected = groupStates.length > 0 && groupStates.every((st) => states.includes(st));
 
                   return (
-                    <div key={group} style={{ marginBottom: 10 }}>
-                      <button
-                        onClick={() =>
-                          setOpenGroups((prev) =>
-                            prev.includes(group)
-                              ? prev.filter((g) => g !== group)
-                              : [...prev, group]
-                          )
-                        }
+                    <div
+                      key={groupName}
+                      style={{
+                        marginBottom: 6,
+                        background: groupSelected ? "#eef5ff" : "#f8f9fa",
+                        borderRadius: 6,
+                        padding: "2px 0"
+                      }}
+                    >
+                      <div
                         style={{
-                          width: "100%",
-                          textAlign: "left",
-                          background: "#f7f7f7",
-                          border: "1px solid #e5e5e5",
-                          borderRadius: 6,
+                          display: "flex",
+                          alignItems: "center",
                           padding: "6px 8px",
-                          fontSize: 12,
-                          fontWeight: 700,
-                          color: "#444",
-                          cursor: "pointer"
+                          borderRadius: 4
                         }}
                       >
-                        {isOpen ? "▼" : "▶"} {group}
-                      </button>
-
-                      {isOpen && (
-                        <div
+                        <button
+                          onClick={() =>
+                            setOpenGroups((prev) =>
+                              prev.includes(groupName)
+                                ? prev.filter((g) => g !== groupName)
+                                : [...prev, groupName]
+                            )
+                          }
                           style={{
-                            paddingLeft: 10,
-                            paddingTop: 8,
-                            display: "grid",
-                            gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-                            gap: 4
+                            border: "none",
+                            background: "none",
+                            cursor: "pointer",
+                            padding: 0,
+                            marginRight: 6,
+                            fontSize: 10
                           }}
                         >
-                          {vals.map((st) => (
+                          {openGroups.includes(groupName) ? "▼" : "▶"}
+                        </button>
+
+                        <span
+                          style={{
+                            flexGrow: 1,
+                            fontWeight: groupSelected ? 700 : 600,
+                            fontSize: 12
+                          }}
+                        >
+                          {groupName}
+                        </span>
+
+                        {groupStates.length > 0 && (
+                          <button
+                            onClick={() =>
+                              setStates((prev) =>
+                                groupSelected
+                                  ? prev.filter((st) => !groupStates.includes(st))
+                                  : Array.from(new Set([...prev, ...groupStates]))
+                              )
+                            }
+                            style={{
+                              fontSize: 10,
+                              cursor: "pointer",
+                              color: "#007bff",
+                              background: "#e7f1ff",
+                              border: "none",
+                              padding: "4px 6px",
+                              borderRadius: 4,
+                              fontWeight: 700
+                            }}
+                          >
+                            Select All
+                          </button>
+                        )}
+                      </div>
+
+                      {openGroups.includes(groupName) && (
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4px", padding: "0 12px 8px 12px" }}>
+                          {groupStates.map((st) => (
                             <label
                               key={st}
-                              style={{
-                                fontSize: 12,
-                                display: "flex",
-                                alignItems: "center",
-                                gap: 6,
-                                cursor: "pointer"
-                              }}
+                              style={{ display: "flex", alignItems: "center", fontSize: 11, cursor: "pointer" }}
                             >
                               <input
                                 type="checkbox"
                                 checked={states.includes(st)}
                                 onChange={() =>
                                   setStates((prev) =>
-                                    prev.includes(st)
-                                      ? prev.filter((x) => x !== st)
-                                      : [...prev, st]
+                                    prev.includes(st) ? prev.filter((x) => x !== st) : [...prev, st]
                                   )
                                 }
                               />
-                              <span>{st}</span>
+                              <span style={{ marginLeft: 4 }}>{st}</span>
                             </label>
                           ))}
                         </div>
@@ -1470,195 +1521,22 @@ export default function Home() {
             <div
               style={{
                 marginTop: 12,
-                paddingTop: 12,
+                paddingTop: 8,
                 borderTop: "1px solid #eee",
-                fontSize: 11,
+                fontSize: 12,
                 color: "#666",
-                lineHeight: 1.45
+                lineHeight: 1.35
               }}
             >
-              Choose categories, landscapes, and regions to display on the map. Close menu to view full map.
+              {categoryCount === 0 && !hasAnySelectedStates
+                ? "Choose categories, landscapes, and regions to display on the map. Close menu to view full map."
+                : "Tap icons, roads, or landscape polygons for details."}
             </div>
-
-            {(placeResults.length > 0 || highwayResults.length > 0) && (
-              <div
-                style={{
-                  marginTop: 12,
-                  borderTop: "1px solid #eee",
-                  paddingTop: 10
-                }}
-              >
-                <div style={{ fontSize: 12, fontWeight: 700, color: "#555", marginBottom: 6 }}>
-                  Search Results
-                </div>
-
-                {placeResults.map((p) => (
-                  <button
-                    key={`place-${p.id}`}
-                    onClick={() => {
-                      setSearchQuery("");
-                      triggerPlacePopup(p);
-                    }}
-                    style={{
-                      width: "100%",
-                      textAlign: "left",
-                      background: "#fff",
-                      border: "1px solid #e6e6e6",
-                      borderRadius: 6,
-                      padding: "7px 8px",
-                      marginBottom: 6,
-                      cursor: "pointer"
-                    }}
-                  >
-                    <div style={{ fontSize: 12, fontWeight: 700, color: "#222" }}>
-                      {p.name}
-                    </div>
-                    <div style={{ fontSize: 11, color: "#666" }}>
-                      {p.state || "—"} · {p.place_type || "place"}
-                    </div>
-                  </button>
-                ))}
-
-                {highwayResults.map((h, idx) => (
-                  <div
-                    key={`highway-${idx}`}
-                    style={{
-                      background: "#fff",
-                      border: "1px solid #e6e6e6",
-                      borderRadius: 6,
-                      padding: "7px 8px",
-                      marginBottom: 6
-                    }}
-                  >
-                    <div style={{ fontSize: 12, fontWeight: 700, color: "#222" }}>
-                      {h.name}
-                    </div>
-                    <div style={{ fontSize: 11, color: "#666" }}>
-                      {h.designats || h.subtype || "Highway"}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
-      {(isRouteMode || routeStops.length > 0) && (
-        <div
-          style={{
-            position: "absolute",
-            right: 12,
-            bottom: 12,
-            zIndex: 20,
-            width: "min(320px, calc(100vw - 24px))",
-            background: "white",
-            border: "1px solid #ccc",
-            borderRadius: 10,
-            padding: 12,
-            boxShadow: "0 2px 10px rgba(0,0,0,0.15)"
-          }}
-        >
-          <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 8 }}>
-            Route Builder
-          </div>
-
-          {routeStops.length === 0 ? (
-            <div style={{ fontSize: 12, color: "#666", lineHeight: 1.4 }}>
-              Tap a place marker, then choose <b>Add Stop</b>.
-            </div>
-          ) : (
-            <>
-              <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 10 }}>
-                {routeStops.map((stop, idx) => (
-                  <div
-                    key={stop.id}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      gap: 8,
-                      border: "1px solid #e5e5e5",
-                      borderRadius: 6,
-                      padding: "6px 8px"
-                    }}
-                  >
-                    <div style={{ minWidth: 0 }}>
-                      <div style={{ fontSize: 11, color: "#777" }}>Stop {idx + 1}</div>
-                      <div
-                        style={{
-                          fontSize: 12,
-                          fontWeight: 700,
-                          color: "#222",
-                          whiteSpace: "nowrap",
-                          overflow: "hidden",
-                          textOverflow: "ellipsis"
-                        }}
-                      >
-                        {stop.name}
-                      </div>
-                    </div>
-
-                    <button
-                      onClick={() =>
-                        setRouteStops((prev) => prev.filter((s) => s.id !== stop.id))
-                      }
-                      style={{
-                        background: "none",
-                        border: "none",
-                        color: "#d93025",
-                        cursor: "pointer",
-                        fontSize: 12,
-                        fontWeight: 700
-                      }}
-                    >
-                      Remove
-                    </button>
-                  </div>
-                ))}
-              </div>
-
-              <div style={{ display: "flex", gap: 8 }}>
-                <button
-                  onClick={openRouteInGoogleMaps}
-                  style={{
-                    flex: 1,
-                    background: "#188038",
-                    color: "white",
-                    border: "none",
-                    borderRadius: 6,
-                    padding: "8px 10px",
-                    fontSize: 12,
-                    fontWeight: 700,
-                    cursor: "pointer"
-                  }}
-                >
-                  Open Route
-                </button>
-
-                <button
-                  onClick={() => setRouteStops([])}
-                  style={{
-                    background: "#f1f3f4",
-                    color: "#333",
-                    border: "1px solid #d0d0d0",
-                    borderRadius: 6,
-                    padding: "8px 10px",
-                    fontSize: 12,
-                    fontWeight: 700,
-                    cursor: "pointer"
-                  }}
-                >
-                  Clear
-                </button>
-              </div>
-            </>
-          )}
-        </div>
-      )}
-
-      <div id="map" style={{ width: "100%", height: "100%" }} />
+      <div id="map" style={{ height: "100%", width: "100%" }} />
     </div>
   );
 }
-
