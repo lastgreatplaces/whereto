@@ -1063,201 +1063,423 @@ export default function Home() {
         </div>
       )}
 
-      {isFilterOpen && (
+     <div
+  style={{
+    position: "absolute",
+    left: 16,
+    top: 16,
+    zIndex: 20,
+    width: isFilterOpen ? 410 : 56,
+    maxWidth: "calc(100vw - 32px)",
+    maxHeight: "calc(100vh - 32px)",
+    overflowY: isFilterOpen ? "auto" : "visible",
+    background: "white",
+    border: "1px solid #d9d9d9",
+    borderRadius: 14,
+    boxShadow: "0 6px 20px rgba(0,0,0,0.12)",
+    padding: isFilterOpen ? 16 : 8,
+    transition: "width 0.2s ease, padding 0.2s ease"
+  }}
+>
+  <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: isFilterOpen ? 16 : 0 }}>
+    {isFilterOpen ? (
+      <>
+        <button
+          onClick={() => setIsFilterOpen(false)}
+          style={{
+            width: 40,
+            height: 40,
+            borderRadius: 8,
+            border: "1px solid #d9d9d9",
+            background: "#f6f6f6",
+            cursor: "pointer",
+            fontSize: 26,
+            lineHeight: 1
+          }}
+          title="Close filters"
+        >
+          ×
+        </button>
+        <div style={{ fontSize: 22, fontWeight: 700 }}>Filters</div>
+      </>
+    ) : (
+      <button
+        onClick={() => setIsFilterOpen(true)}
+        style={{
+          width: 40,
+          height: 40,
+          borderRadius: 8,
+          border: "1px solid #d9d9d9",
+          background: "#f6f6f6",
+          cursor: "pointer",
+          fontSize: 22,
+          lineHeight: 1
+        }}
+        title="Open filters"
+      >
+        ☰
+      </button>
+    )}
+  </div>
+
+  {isFilterOpen && (
+    <>
+      <input
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        placeholder="Search..."
+        style={{
+          width: "100%",
+          boxSizing: "border-box",
+          padding: "14px 14px",
+          fontSize: 16,
+          borderRadius: 10,
+          border: "1px solid #d9d9d9",
+          marginBottom: 18
+        }}
+      />
+
+      {(placeResults.length > 0 || highwayResults.length > 0) && (
         <div
           style={{
-            position: "absolute",
-            left: 16,
-            top: 16,
-            zIndex: 20,
-            width: 410,
-            maxWidth: "calc(100vw - 32px)",
-            maxHeight: "calc(100vh - 32px)",
-            overflowY: "auto",
-            background: "white",
-            border: "1px solid #d9d9d9",
-            borderRadius: 14,
-            boxShadow: "0 6px 20px rgba(0,0,0,0.12)",
-            padding: 16
+            marginBottom: 16,
+            border: "1px solid #eee",
+            borderRadius: 10,
+            padding: 10,
+            background: "#fafafa"
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
-            <button
-              onClick={() => setIsFilterOpen(false)}
+          {placeResults.map((p) => (
+            <div
+              key={`p-${p.id}`}
+              onClick={() => triggerPlacePopup(p)}
               style={{
-                width: 40,
-                height: 40,
+                padding: "7px 6px",
+                cursor: "pointer",
+                borderBottom: "1px solid #eee",
+                fontSize: 14
+              }}
+            >
+              {p.name}
+            </div>
+          ))}
+          {highwayResults.map((h, idx) => (
+            <div
+              key={`h-${idx}`}
+              style={{
+                padding: "7px 6px",
+                fontSize: 14,
+                borderBottom: idx === highwayResults.length - 1 ? "none" : "1px solid #eee"
+              }}
+            >
+              {h.name}
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div style={{ fontSize: 14, fontWeight: 700, color: "#555", marginBottom: 10 }}>
+        Categories
+      </div>
+
+      <div style={{ borderTop: "1px solid #eee", borderBottom: "1px solid #eee", padding: "8px 0 10px 0" }}>
+        {([
+          { key: "birds" as PlaceType, label: "🪺 Birds" },
+          { key: "hikes" as PlaceType, label: "🥾 Hikes" },
+          { key: "camps" as PlaceType, label: "⛺ Camps" },
+          { key: "highways" as PlaceType, label: "🛣️ Highways" },
+          { key: "targets" as PlaceType, label: "🎯 Targets" }
+        ]).map((item) => {
+          const checked = placeTypes.includes(item.key);
+          const favOnly = favOnlyCategories.includes(item.key);
+          const showArrow = item.key === "camps" || item.key === "highways";
+
+          return (
+            <div key={item.key} style={{ marginBottom: 6 }}>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "24px 1fr 24px 24px",
+                  alignItems: "center",
+                  gap: 8,
+                  minHeight: 34
+                }}
+              >
+                <input
+                  type="checkbox"
+                  checked={checked}
+                  onChange={() => togglePlaceType(item.key)}
+                  style={{ width: 22, height: 22 }}
+                />
+
+                <div style={{ fontSize: 14 }}>{item.label}</div>
+
+                <button
+                  onClick={() => {
+                    if (item.key === "camps") setIsCampSubmenuOpen((v) => !v);
+                    if (item.key === "highways") setIsHighwaySubmenuOpen((v) => !v);
+                  }}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    cursor: showArrow ? "pointer" : "default",
+                    fontSize: 14,
+                    color: "#222",
+                    visibility: showArrow ? "visible" : "hidden"
+                  }}
+                >
+                  {item.key === "camps"
+                    ? isCampSubmenuOpen ? "▾" : "▸"
+                    : item.key === "highways"
+                    ? isHighwaySubmenuOpen ? "▾" : "▸"
+                    : ""}
+                </button>
+
+                <button
+                  onClick={() => toggleFavOnly(item.key)}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                    fontSize: 22,
+                    color: favOnly ? "#d0a100" : "#999",
+                    lineHeight: 1
+                  }}
+                  title="Favorites only"
+                >
+                  ★
+                </button>
+              </div>
+
+              {item.key === "camps" && isCampSubmenuOpen && (
+                <div style={{ paddingLeft: 34, paddingTop: 4, display: "grid", gap: 4 }}>
+                  {UI_CAMP_SUBTYPES.map((sub) => (
+                    <label
+                      key={sub}
+                      style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#444" }}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedCampSubtypes.includes(sub)}
+                        onChange={() => toggleCampSubtype(sub)}
+                      />
+                      {CAMP_SUBTYPE_LABELS[sub] || sub}
+                    </label>
+                  ))}
+                </div>
+              )}
+
+              {item.key === "highways" && isHighwaySubmenuOpen && (
+                <div style={{ paddingLeft: 34, paddingTop: 4, display: "grid", gap: 4 }}>
+                  {UI_HIGHWAY_SUBTYPES.map((sub) => (
+                    <label
+                      key={sub}
+                      style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#444" }}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedHighwaySubtypes.includes(sub)}
+                        onChange={() => toggleHighwaySubtype(sub)}
+                      />
+                      {sub}
+                    </label>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      <div style={{ marginTop: 14, borderBottom: "1px solid #eee", paddingBottom: 12 }}>
+        <button
+          onClick={() => setIsLandscapeSectionOpen((v) => !v)}
+          style={{
+            background: "none",
+            border: "none",
+            padding: 0,
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            fontSize: 16,
+            fontWeight: 700,
+            color: "#666"
+          }}
+        >
+          <span>{isLandscapeSectionOpen ? "▼" : "▶"}</span>
+          <span>Landscapes</span>
+        </button>
+
+        {isLandscapeSectionOpen && (
+          <div style={{ marginTop: 10 }}>
+            <label style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10, fontSize: 14 }}>
+              <input
+                type="checkbox"
+                checked={showLandscapes}
+                onChange={() => setShowLandscapes((v) => !v)}
+                style={{ width: 22, height: 22 }}
+              />
+              Show Top 1000 Landscapes
+            </label>
+
+            <div style={{ marginBottom: 6, fontSize: 14, color: "#666" }}>Region</div>
+            <select
+              value={landscapeRegion}
+              onChange={(e) => setLandscapeRegion(e.target.value as LandscapeRegion)}
+              style={{
+                width: "100%",
+                padding: "10px 12px",
                 borderRadius: 8,
                 border: "1px solid #d9d9d9",
-                background: "#f6f6f6",
-                cursor: "pointer",
-                fontSize: 26,
-                lineHeight: 1
+                fontSize: 14
               }}
             >
-              ×
-            </button>
-            <div style={{ fontSize: 22, fontWeight: 700 }}>Filters</div>
+              <option value="all">All regions</option>
+              <option value="west">West</option>
+              <option value="midwest">Midwest</option>
+              <option value="south">South</option>
+              <option value="east">East</option>
+            </select>
+
+            <div style={{ fontSize: 12, color: "#666", marginTop: 10, lineHeight: 1.45 }}>
+              Landscape polygons are filtered separately from camps, birds, hikes, highways, and targets.
+            </div>
           </div>
+        )}
+      </div>
 
-          <input
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search..."
-            style={{
-              width: "100%",
-              boxSizing: "border-box",
-              padding: "14px 14px",
-              fontSize: 16,
-              borderRadius: 10,
-              border: "1px solid #d9d9d9",
-              marginBottom: 18
-            }}
-          />
+      <div style={{ marginTop: 14 }}>
+        <button
+          onClick={() => setIsRegionsOpen((v) => !v)}
+          style={{
+            background: "none",
+            border: "none",
+            padding: 0,
+            cursor: "pointer",
+            width: "100%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            fontSize: 16,
+            fontWeight: 700,
+            color: "#666"
+          }}
+        >
+          <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <span>{isRegionsOpen ? "▼" : "▶"}</span>
+            <span>Regions & States</span>
+          </span>
+          <span style={{ fontSize: 12, color: "#999", fontWeight: 600 }}>
+            {hasAnySelectedStates ? `${states.length} selected` : "none selected"}
+          </span>
+        </button>
 
-          {(placeResults.length > 0 || highwayResults.length > 0) && (
+        {isRegionsOpen && (
+          <div style={{ marginTop: 10 }}>
             <div
               style={{
-                marginBottom: 16,
-                border: "1px solid #eee",
-                borderRadius: 10,
-                padding: 10,
-                background: "#fafafa"
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: 10
               }}
             >
-              {placeResults.map((p) => (
-                <div
-                  key={`p-${p.id}`}
-                  onClick={() => triggerPlacePopup(p)}
+              <div style={{ fontSize: 12, color: "#666" }}>
+                Leave all unchecked for nationwide display.
+              </div>
+
+              <div style={{ display: "flex", gap: 12, fontSize: 12, fontWeight: 700 }}>
+                <button
+                  onClick={() => setStates(ALL_STATES)}
                   style={{
-                    padding: "7px 6px",
+                    background: "none",
+                    border: "none",
+                    color: "#1a73e8",
                     cursor: "pointer",
-                    borderBottom: "1px solid #eee",
-                    fontSize: 14
+                    padding: 0
                   }}
                 >
-                  {p.name}
-                </div>
-              ))}
-              {highwayResults.map((h, idx) => (
-                <div
-                  key={`h-${idx}`}
+                  Select All
+                </button>
+
+                <button
+                  onClick={() => setStates([])}
                   style={{
-                    padding: "7px 6px",
-                    fontSize: 14,
-                    borderBottom: idx === highwayResults.length - 1 ? "none" : "1px solid #eee"
+                    background: "none",
+                    border: "none",
+                    color: "#d93025",
+                    cursor: "pointer",
+                    padding: 0
                   }}
                 >
-                  {h.name}
-                </div>
-              ))}
+                  Clear All
+                </button>
+              </div>
             </div>
-          )}
 
-          <div style={{ fontSize: 14, fontWeight: 700, color: "#555", marginBottom: 10 }}>
-            Categories
-          </div>
-
-          <div style={{ borderTop: "1px solid #eee", borderBottom: "1px solid #eee", padding: "8px 0 10px 0" }}>
-            {([
-              { key: "birds" as PlaceType, label: "🪺 Birds" },
-              { key: "hikes" as PlaceType, label: "🥾 Hikes" },
-              { key: "camps" as PlaceType, label: "⛺ Camps" },
-              { key: "highways" as PlaceType, label: "🛣️ Highways" },
-              { key: "targets" as PlaceType, label: "🎯 Targets" }
-            ]).map((item) => {
-              const checked = placeTypes.includes(item.key);
-              const favOnly = favOnlyCategories.includes(item.key);
-              const showArrow = item.key === "camps" || item.key === "highways";
+            {Object.entries(STATE_GROUPS).map(([group, vals]) => {
+              const isOpen = openGroups.includes(group);
 
               return (
-                <div key={item.key} style={{ marginBottom: 6 }}>
-                  <div
+                <div key={group} style={{ marginBottom: 10 }}>
+                  <button
+                    onClick={() =>
+                      setOpenGroups((prev) =>
+                        prev.includes(group)
+                          ? prev.filter((g) => g !== group)
+                          : [...prev, group]
+                      )
+                    }
                     style={{
-                      display: "grid",
-                      gridTemplateColumns: "24px 1fr 24px 24px",
-                      alignItems: "center",
-                      gap: 8,
-                      minHeight: 34
+                      width: "100%",
+                      textAlign: "left",
+                      background: "#f7f7f7",
+                      border: "1px solid #e5e5e5",
+                      borderRadius: 6,
+                      padding: "6px 8px",
+                      fontSize: 12,
+                      fontWeight: 700,
+                      color: "#444",
+                      cursor: "pointer"
                     }}
                   >
-                    <input
-                      type="checkbox"
-                      checked={checked}
-                      onChange={() => togglePlaceType(item.key)}
-                      style={{ width: 22, height: 22 }}
-                    />
+                    {isOpen ? "▼" : "▶"} {group}
+                  </button>
 
-                    <div style={{ fontSize: 14 }}>{item.label}</div>
-
-                    <button
-                      onClick={() => {
-                        if (item.key === "camps") setIsCampSubmenuOpen((v) => !v);
-                        if (item.key === "highways") setIsHighwaySubmenuOpen((v) => !v);
-                      }}
+                  {isOpen && (
+                    <div
                       style={{
-                        background: "none",
-                        border: "none",
-                        cursor: showArrow ? "pointer" : "default",
-                        fontSize: 14,
-                        color: "#222",
-                        visibility: showArrow ? "visible" : "hidden"
+                        paddingLeft: 10,
+                        paddingTop: 8,
+                        display: "grid",
+                        gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+                        gap: 4
                       }}
                     >
-                      {item.key === "camps"
-                        ? isCampSubmenuOpen ? "▾" : "▸"
-                        : item.key === "highways"
-                        ? isHighwaySubmenuOpen ? "▾" : "▸"
-                        : ""}
-                    </button>
-
-                    <button
-                      onClick={() => toggleFavOnly(item.key)}
-                      style={{
-                        background: "none",
-                        border: "none",
-                        cursor: "pointer",
-                        fontSize: 22,
-                        color: favOnly ? "#d0a100" : "#999",
-                        lineHeight: 1
-                      }}
-                      title="Favorites only"
-                    >
-                      ★
-                    </button>
-                  </div>
-
-                  {item.key === "camps" && isCampSubmenuOpen && (
-                    <div style={{ paddingLeft: 34, paddingTop: 4, display: "grid", gap: 4 }}>
-                      {UI_CAMP_SUBTYPES.map((sub) => (
+                      {vals.map((st) => (
                         <label
-                          key={sub}
-                          style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#444" }}
+                          key={st}
+                          style={{
+                            fontSize: 12,
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 6,
+                            cursor: "pointer"
+                          }}
                         >
                           <input
                             type="checkbox"
-                            checked={selectedCampSubtypes.includes(sub)}
-                            onChange={() => toggleCampSubtype(sub)}
+                            checked={states.includes(st)}
+                            onChange={() =>
+                              setStates((prev) =>
+                                prev.includes(st)
+                                  ? prev.filter((x) => x !== st)
+                                  : [...prev, st]
+                              )
+                            }
                           />
-                          {CAMP_SUBTYPE_LABELS[sub] || sub}
-                        </label>
-                      ))}
-                    </div>
-                  )}
-
-                  {item.key === "highways" && isHighwaySubmenuOpen && (
-                    <div style={{ paddingLeft: 34, paddingTop: 4, display: "grid", gap: 4 }}>
-                      {UI_HIGHWAY_SUBTYPES.map((sub) => (
-                        <label
-                          key={sub}
-                          style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#444" }}
-                        >
-                          <input
-                            type="checkbox"
-                            checked={selectedHighwaySubtypes.includes(sub)}
-                            onChange={() => toggleHighwaySubtype(sub)}
-                          />
-                          {sub}
+                          <span>{st}</span>
                         </label>
                       ))}
                     </div>
@@ -1266,283 +1488,85 @@ export default function Home() {
               );
             })}
           </div>
+        )}
 
-          <div style={{ marginTop: 14, borderBottom: "1px solid #eee", paddingBottom: 12 }}>
-            <button
-              onClick={() => setIsLandscapeSectionOpen((v) => !v)}
-              style={{
-                background: "none",
-                border: "none",
-                padding: 0,
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
-                fontSize: 16,
-                fontWeight: 700,
-                color: "#666"
-              }}
-            >
-              <span>{isLandscapeSectionOpen ? "▼" : "▶"}</span>
-              <span>Landscapes</span>
-            </button>
-
-            {isLandscapeSectionOpen && (
-              <div style={{ marginTop: 10 }}>
-                <label style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10, fontSize: 14 }}>
-                  <input
-                    type="checkbox"
-                    checked={showLandscapes}
-                    onChange={() => setShowLandscapes((v) => !v)}
-                    style={{ width: 22, height: 22 }}
-                  />
-                  Show Top 1000 Landscapes
-                </label>
-
-                <div style={{ marginBottom: 6, fontSize: 14, color: "#666" }}>Region</div>
-                <select
-                  value={landscapeRegion}
-                  onChange={(e) => setLandscapeRegion(e.target.value as LandscapeRegion)}
-                  style={{
-                    width: "100%",
-                    padding: "10px 12px",
-                    borderRadius: 8,
-                    border: "1px solid #d9d9d9",
-                    fontSize: 14
-                  }}
-                >
-                  <option value="all">All regions</option>
-                  <option value="west">West</option>
-                  <option value="midwest">Midwest</option>
-                  <option value="south">South</option>
-                  <option value="east">East</option>
-                </select>
-
-                <div style={{ fontSize: 12, color: "#666", marginTop: 10, lineHeight: 1.45 }}>
-                  Landscape polygons are filtered separately from camps, birds, hikes, highways, and targets.
-                </div>
-              </div>
-            )}
-          </div>
-
-          <div style={{ marginTop: 14 }}>
-            <button
-              onClick={() => setIsRegionsOpen((v) => !v)}
-              style={{
-                background: "none",
-                border: "none",
-                padding: 0,
-                cursor: "pointer",
-                width: "100%",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                fontSize: 16,
-                fontWeight: 700,
-                color: "#666"
-              }}
-            >
-              <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <span>{isRegionsOpen ? "▼" : "▶"}</span>
-                <span>Regions & States</span>
-              </span>
-              <span style={{ fontSize: 12, color: "#999", fontWeight: 600 }}>
-                {hasAnySelectedStates ? `${states.length} selected` : "none selected"}
-              </span>
-            </button>
-
- {isRegionsOpen && (
-  <div style={{ marginTop: 10 }}>
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        marginBottom: 10
-      }}
-    >
-      <div style={{ fontSize: 12, color: "#666" }}>
-        Leave all unchecked for nationwide display.
-      </div>
-
-      <div style={{ display: "flex", gap: 12, fontSize: 12, fontWeight: 700 }}>
-        <button
-          onClick={() => setStates(ALL_STATES)}
+        <div
           style={{
-            background: "none",
-            border: "none",
-            color: "#1a73e8",
-            cursor: "pointer",
-            padding: 0
+            marginTop: 12,
+            paddingTop: 12,
+            borderTop: "1px solid #eee",
+            fontSize: 11,
+            color: "#666",
+            lineHeight: 1.45
           }}
         >
-          Select All
-        </button>
+          Choose categories, landscapes, and regions to display on the map. Close menu to view full map.
+        </div>
 
-        <button
-          onClick={() => setStates([])}
-          style={{
-            background: "none",
-            border: "none",
-            color: "#d93025",
-            cursor: "pointer",
-            padding: 0
-          }}
-        >
-          Clear All
-        </button>
-      </div>
-    </div>
-
-
-               {Object.entries(STATE_GROUPS).map(([group, vals]) => {
-                  const isOpen = openGroups.includes(group);
-
-                  return (
-                    <div key={group} style={{ marginBottom: 10 }}>
-                      <button
-                        onClick={() =>
-                          setOpenGroups((prev) =>
-                            prev.includes(group)
-                              ? prev.filter((g) => g !== group)
-                              : [...prev, group]
-                          )
-                        }
-                        style={{
-                          width: "100%",
-                          textAlign: "left",
-                          background: "#f7f7f7",
-                          border: "1px solid #e5e5e5",
-                          borderRadius: 6,
-                          padding: "6px 8px",
-                          fontSize: 12,
-                          fontWeight: 700,
-                          color: "#444",
-                          cursor: "pointer"
-                        }}
-                      >
-                        {isOpen ? "▼" : "▶"} {group}
-                      </button>
-
-                      {isOpen && (
-                        <div
-                          style={{
-                            paddingLeft: 10,
-                            paddingTop: 8,
-                            display: "grid",
-                            gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-                            gap: 4
-                          }}
-                        >
-                          {vals.map((st) => (
-                            <label
-                              key={st}
-                              style={{
-                                fontSize: 12,
-                                display: "flex",
-                                alignItems: "center",
-                                gap: 6,
-                                cursor: "pointer"
-                              }}
-                            >
-                              <input
-                                type="checkbox"
-                                checked={states.includes(st)}
-                                onChange={() =>
-                                  setStates((prev) =>
-                                    prev.includes(st)
-                                      ? prev.filter((x) => x !== st)
-                                      : [...prev, st]
-                                  )
-                                }
-                              />
-                              <span>{st}</span>
-                            </label>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-
-            <div
-              style={{
-                marginTop: 12,
-                paddingTop: 12,
-                borderTop: "1px solid #eee",
-                fontSize: 11,
-                color: "#666",
-                lineHeight: 1.45
-              }}
-            >
-              Choose categories, landscapes, and regions to display on the map. Close menu to view full map.
+        {(placeResults.length > 0 || highwayResults.length > 0) && (
+          <div
+            style={{
+              marginTop: 12,
+              borderTop: "1px solid #eee",
+              paddingTop: 10
+            }}
+          >
+            <div style={{ fontSize: 12, fontWeight: 700, color: "#555", marginBottom: 6 }}>
+              Search Results
             </div>
 
-            {(placeResults.length > 0 || highwayResults.length > 0) && (
-              <div
+            {placeResults.map((p) => (
+              <button
+                key={`place-${p.id}`}
+                onClick={() => {
+                  setSearchQuery("");
+                  triggerPlacePopup(p);
+                }}
                 style={{
-                  marginTop: 12,
-                  borderTop: "1px solid #eee",
-                  paddingTop: 10
+                  width: "100%",
+                  textAlign: "left",
+                  background: "#fff",
+                  border: "1px solid #e6e6e6",
+                  borderRadius: 6,
+                  padding: "7px 8px",
+                  marginBottom: 6,
+                  cursor: "pointer"
                 }}
               >
-                <div style={{ fontSize: 12, fontWeight: 700, color: "#555", marginBottom: 6 }}>
-                  Search Results
+                <div style={{ fontSize: 12, fontWeight: 700, color: "#222" }}>
+                  {p.name}
                 </div>
+                <div style={{ fontSize: 11, color: "#666" }}>
+                  {p.state || "—"} · {p.place_type || "place"}
+                </div>
+              </button>
+            ))}
 
-                {placeResults.map((p) => (
-                  <button
-                    key={`place-${p.id}`}
-                    onClick={() => {
-                      setSearchQuery("");
-                      triggerPlacePopup(p);
-                    }}
-                    style={{
-                      width: "100%",
-                      textAlign: "left",
-                      background: "#fff",
-                      border: "1px solid #e6e6e6",
-                      borderRadius: 6,
-                      padding: "7px 8px",
-                      marginBottom: 6,
-                      cursor: "pointer"
-                    }}
-                  >
-                    <div style={{ fontSize: 12, fontWeight: 700, color: "#222" }}>
-                      {p.name}
-                    </div>
-                    <div style={{ fontSize: 11, color: "#666" }}>
-                      {p.state || "—"} · {p.place_type || "place"}
-                    </div>
-                  </button>
-                ))}
-
-                {highwayResults.map((h, idx) => (
-                  <div
-                    key={`highway-${idx}`}
-                    style={{
-                      background: "#fff",
-                      border: "1px solid #e6e6e6",
-                      borderRadius: 6,
-                      padding: "7px 8px",
-                      marginBottom: 6
-                    }}
-                  >
-                    <div style={{ fontSize: 12, fontWeight: 700, color: "#222" }}>
-                      {h.name}
-                    </div>
-                    <div style={{ fontSize: 11, color: "#666" }}>
-                      {h.designats || h.subtype || "Highway"}
-                    </div>
-                  </div>
-                ))}
+            {highwayResults.map((h, idx) => (
+              <div
+                key={`highway-${idx}`}
+                style={{
+                  background: "#fff",
+                  border: "1px solid #e6e6e6",
+                  borderRadius: 6,
+                  padding: "7px 8px",
+                  marginBottom: 6
+                }}
+              >
+                <div style={{ fontSize: 12, fontWeight: 700, color: "#222" }}>
+                  {h.name}
+                </div>
+                <div style={{ fontSize: 11, color: "#666" }}>
+                  {h.designats || h.subtype || "Highway"}
+                </div>
               </div>
-            )}
+            ))}
           </div>
-        </div>
-      )}
+        )}
+      </div>
+    </>
+  )}
+</div>
 
       {(isRouteMode || routeStops.length > 0) && (
         <div
