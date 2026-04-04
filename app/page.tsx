@@ -501,7 +501,7 @@ const clearAllStates = () => {
 
   let query = supabase
     .from("byways")
-    .select("geom_geojson, name, designats, favorite, subtype");
+    .select("geom_geojson, name, state, description, designats, favorite, subtype");
 
   if (stateMode === "filtered") {
     query = query.in("state", statesArr);
@@ -547,16 +547,26 @@ const clearAllStates = () => {
       });
 
       poly.addListener("click", (e: any) => {
-        infoWindowRef.current.setContent(
-          `<div style="padding:10px; font-family:sans-serif;">
-            <b>${escapeHtml(h.name || "Scenic Byway")}</b>${h.favorite ? " ⭐" : ""}
-            <br/>
-            <span style="font-size:12px; color:#555;">${escapeHtml(h.designats || "")}</span>
-          </div>`
-        );
-        infoWindowRef.current.setPosition(e.latLng);
-        infoWindowRef.current.open(mapRef.current);
-      });
+  infoWindowRef.current.setContent(
+    '<div style="padding:10px; font-family:sans-serif; min-width:220px; max-width:300px;">' +
+      '<div style="font-weight:700; font-size:14px; margin-bottom:4px;">' +
+        escapeHtml(h.name || "Scenic Byway") +
+        (h.favorite ? " ⭐" : "") +
+      '</div>' +
+      '<div style="font-size:12px; color:#555; margin-bottom:6px;">' +
+        'State: ' + escapeHtml(h.state || "—") +
+      '</div>' +
+      '<div style="font-size:12px; line-height:1.45; color:#333; margin-bottom:6px;">' +
+        escapeHtml(h.description || "") +
+      '</div>' +
+      '<div style="font-size:12px; color:#666;">' +
+        escapeHtml(h.designats || "") +
+      '</div>' +
+    '</div>'
+  );
+  infoWindowRef.current.setPosition(e.latLng);
+  infoWindowRef.current.open(mapRef.current);
+});
 
       highwayLinesRef.current.push(poly);
     });
@@ -1232,7 +1242,7 @@ const clearAllStates = () => {
 
       <div style={{ borderTop: "1px solid #eee", borderBottom: "1px solid #eee", padding: "8px 0 10px 0" }}>
         {([
-          { key: "birds" as PlaceType, label: "🪺 Birds" },
+          { key: "birds" as PlaceType, label: "🦅 Birds" },
           { key: "hikes" as PlaceType, label: "🥾 Hikes" },
           { key: "camps" as PlaceType, label: "⛺ Camps" },
           { key: "highways" as PlaceType, label: "🛣️ Highways" },
@@ -1439,7 +1449,7 @@ const clearAllStates = () => {
         }}
       >
         <div style={{ fontSize: 12, color: "#666" }}>
-          Nationwide shows all places. Clear All shows none.
+          Nationwide shows all places; Select All allows filtered.
         </div>
 
         <div style={{ display: "flex", gap: 12, fontSize: 12, fontWeight: 700 }}>
