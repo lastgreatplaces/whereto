@@ -500,8 +500,8 @@ const clearAllStates = () => {
   }
 
   let query = supabase
-    .from("byways")
-    .select("geom_geojson, name, state, description, designats, favorite, subtype");
+  .from("byways")
+  .select("geom_geojson, name, state, description, designats, favorite, subtype, scenic_score, distinctive_score, integrity_score, interest_score, landscape_score, landscape_rank, interest_badge");
 
   if (stateMode === "filtered") {
     query = query.in("state", statesArr);
@@ -546,24 +546,69 @@ const clearAllStates = () => {
         zIndex: h.favorite ? 50 : h.subtype === "Backcountry" ? 10 : 5
       });
 
-      poly.addListener("click", (e: any) => {
+ poly.addListener("click", (e: any) => {
+  const rank = h.landscape_rank || "";
+  let rankColor = "#999";
+
+  if (rank === "Exceptional") rankColor = "#1b5e20";
+  else if (rank === "Very Good") rankColor = "#388e3c";
+  else if (rank === "Good") rankColor = "#7cb342";
+  else if (rank === "Worthwhile") rankColor = "#fbc02d";
+  else if (rank === "Fair") rankColor = "#ef6c00";
+  else if (rank === "Low") rankColor = "#e57373";
+
+  const scoreDisplay =
+    h.landscape_score !== null && h.landscape_score !== undefined
+      ? Number(h.landscape_score).toFixed(1)
+      : "—";
+
   infoWindowRef.current.setContent(
-    '<div style="padding:10px; font-family:sans-serif; min-width:220px; max-width:300px;">' +
+    '<div style="padding:10px; font-family:sans-serif; min-width:240px; max-width:320px;">' +
+
       '<div style="font-weight:700; font-size:14px; margin-bottom:4px;">' +
         escapeHtml(h.name || "Scenic Byway") +
         (h.favorite ? " ⭐" : "") +
       '</div>' +
-      '<div style="font-size:12px; color:#555; margin-bottom:6px;">' +
+
+      '<div style="font-size:12px; color:#555; margin-bottom:8px;">' +
         'State: ' + escapeHtml(h.state || "—") +
       '</div>' +
-      '<div style="font-size:12px; line-height:1.45; color:#333; margin-bottom:6px;">' +
+
+      '<div style="margin-bottom:8px;">' +
+        '<div style="font-size:13px; font-weight:700; color:#222; margin-bottom:2px;">' +
+          'Score: ' + escapeHtml(scoreDisplay) +
+        '</div>' +
+        '<div style="font-size:13px; font-weight:700; color:' + rankColor + ';">' +
+          escapeHtml(rank) +
+        '</div>' +
+      '</div>' +
+
+      (
+        h.interest_badge
+          ? '<div style="display:inline-block; margin-bottom:8px; padding:3px 8px; border-radius:999px; background:#e3f2fd; color:#1565c0; font-size:11px; font-weight:700;">' +
+              escapeHtml(h.interest_badge) +
+            '</div>'
+          : ''
+      ) +
+
+      '<div style="font-size:12px; line-height:1.45; color:#333; margin-bottom:8px;">' +
         escapeHtml(h.description || "") +
       '</div>' +
-      '<div style="font-size:12px; color:#666;">' +
+
+      '<div style="font-size:11px; color:#666; margin-bottom:6px;">' +
         escapeHtml(h.designats || "") +
       '</div>' +
+
+      '<div style="font-size:11px; color:#666; line-height:1.4;">' +
+        'Scenic ' + escapeHtml(h.scenic_score ?? "—") +
+        ' · Distinctive ' + escapeHtml(h.distinctive_score ?? "—") +
+        ' · Integrity ' + escapeHtml(h.integrity_score ?? "—") +
+        ' · Interests ' + escapeHtml(h.interest_score ?? "—") +
+      '</div>' +
+
     '</div>'
   );
+
   infoWindowRef.current.setPosition(e.latLng);
   infoWindowRef.current.open(mapRef.current);
 });
