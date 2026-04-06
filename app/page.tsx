@@ -708,6 +708,17 @@ const clearAllStates = () => {
       </div>`;
     }
 
+if (t === "birds") {
+  const birdVal = (str: any) => (str && str.toString().trim() !== "" ? str : "—");
+
+  popup += `<div style="font-size:12px; margin-top:6px; line-height:1.5; border-top:1px solid #f0f0f0; padding-top:4px;">
+    <span style="font-weight:700;">Winter:</span> ${escapeHtml(birdVal(place.winter_rating))}<br/>
+    <span style="font-weight:700;">Spring:</span> ${escapeHtml(birdVal(place.spring_rating))}<br/>
+    <span style="font-weight:700;">Summer:</span> ${escapeHtml(birdVal(place.summer_rating))}<br/>
+    <span style="font-weight:700;">Fall:</span> ${escapeHtml(birdVal(place.fall_rating))}
+  </div>`;
+}
+
     if (t === "camps" || t === "hikes") {
       const labels =
         t === "camps"
