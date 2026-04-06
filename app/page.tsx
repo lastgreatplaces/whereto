@@ -711,11 +711,42 @@ const clearAllStates = () => {
 if (t === "birds") {
   const birdVal = (str: any) => (str && str.toString().trim() !== "" ? str : "—");
 
-  popup += `<div style="font-size:12px; margin-top:6px; line-height:1.5; border-top:1px solid #f0f0f0; padding-top:4px;">
-    <span style="font-weight:700;">Winter:</span> ${escapeHtml(birdVal(place.winter_rating))}<br/>
-    <span style="font-weight:700;">Spring:</span> ${escapeHtml(birdVal(place.spring_rating))}<br/>
-    <span style="font-weight:700;">Summer:</span> ${escapeHtml(birdVal(place.summer_rating))}<br/>
-    <span style="font-weight:700;">Fall:</span> ${escapeHtml(birdVal(place.fall_rating))}
+  const ratingColor = (rating: any) => {
+    const r = String(rating || "").trim();
+    if (r === "Exceptional") return "#1b5e20";
+    if (r === "Very Good") return "#388e3c";
+    if (r === "Good") return "#7cb342";
+    if (r === "Fair") return "#fbc02d";
+    if (r === "Low") return "#e57373";
+    return "#444";
+  };
+
+  const seasonRow = (label: string, rating: any, count: any) => {
+    const safeRating = birdVal(rating);
+    const safeCount = birdVal(count);
+
+    return `
+      <div style="display:grid; grid-template-columns:64px 1fr 42px; column-gap:6px; align-items:baseline; margin-bottom:2px;">
+        <div style="font-weight:700;">${label}:</div>
+        <div style="color:${ratingColor(safeRating)}; font-weight:700;">${escapeHtml(safeRating)}</div>
+        <div style="text-align:right; color:#666;">${escapeHtml(safeCount)}</div>
+      </div>
+    `;
+  };
+
+  popup = `<div style="padding:5px; font-family:sans-serif; min-width:210px; max-width:295px;">
+    <div style="display:flex; align-items:center; gap:5px;">
+      <b>${escapeHtml(place.name)}</b>${place.favorite ? "⭐" : ""}
+    </div>
+    <div style="color:#666; font-size:11px; font-weight:bold; margin-top:2px;">
+      ${escapeHtml(place.state || "—")} · ${escapeHtml(CAMP_SUBTYPE_LABELS[sub] || sub || "N/A")}
+    </div>`;
+
+  popup += `<div style="font-size:12px; margin-top:6px; line-height:1.45; border-top:1px solid #f0f0f0; padding-top:6px;">
+    ${seasonRow("Winter", place.winter_rating, place.winter)}
+    ${seasonRow("Spring", place.spring_rating, place.spring)}
+    ${seasonRow("Summer", place.summer_rating, place.summer)}
+    ${seasonRow("Fall", place.fall_rating, place.fall)}
   </div>`;
 }
 
