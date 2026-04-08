@@ -183,7 +183,7 @@ begin
     select
         vr.place_id,
         vr.veg_structure,
-        round(100.0 * vr.acres / nullif(vt.total_acres, 0), 1) as pct_of_place
+        round(100.0 * vr.acres / nullif(vt.total_acres, 0)::numeric, 1) as pct_of_place
     from veg_raw vr
     join veg_totals vt
       on vr.place_id = vt.place_id;
@@ -322,7 +322,7 @@ begin
             select
                 cf.place_id as candidate_place_id,
                 sf.place_id as selected_place_id,
-                round(sum(abs(cf.pct_of_place - sf.pct_of_place)) / 2.0, 1) as landform_diff
+                round(sum(abs(cf.pct_of_place - sf.pct_of_place)) / 2.0::numeric, 1) as landform_diff
             from tmp_landform_full cf
             join tmp_landform_full sf
               on cf.landform = sf.landform
@@ -336,7 +336,7 @@ begin
             select
                 cf.place_id as candidate_place_id,
                 sf.place_id as selected_place_id,
-                round(sum(abs(cf.pct_of_place - sf.pct_of_place)) / 2.0, 1) as veg_diff
+                round(sum(abs(cf.pct_of_place - sf.pct_of_place)) / 2.0::numeric, 1) as veg_diff
             from tmp_veg_full cf
             join tmp_veg_full sf
               on cf.veg_structure = sf.veg_structure
@@ -352,7 +352,7 @@ begin
                 l.selected_place_id,
                 round(
                     0.5 * l.landform_diff +
-                    0.5 * coalesce(v.veg_diff, 0),
+                    0.5 * coalesce(v.veg_diff, 0)::numeric,
                     1
                 ) as combined_diff
             from landform_pair_diff l
@@ -383,12 +383,12 @@ begin
                 round(
                     100.0 * percent_rank() over (
                         order by coalesce(md.min_diff_to_selected, 0)
-                    ),
+                    )::numeric,
                     1
                 ) as complementarity_pct,
                 round(
                     r.landscape_score +
-                    p_complementarity_weight * coalesce(md.min_diff_to_selected, 0),
+                    p_complementarity_weight * coalesce(md.min_diff_to_selected, 0)::numeric,
                     2
                 ) as selection_score
             from remaining r

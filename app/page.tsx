@@ -716,7 +716,7 @@ if (t === "birds") {
     if (r === "Exceptional") return "#1b5e20";
     if (r === "Very Good") return "#388e3c";
     if (r === "Good") return "#7cb342";
-    if (r === "Fair") return "#fbc02d";
+    if (r === "Fair") return "#ecaa04";
     if (r === "Low") return "#e57373";
     return "#444";
   };
