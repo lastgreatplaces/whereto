@@ -533,45 +533,45 @@ filteredHighways.forEach((h) => {
 
   let lineColor = "#75736f"; // scenic
   if (subtype === "Backcountry") lineColor = "#e46a13"; // backcountry
-  if (h.favorite) lineColor = "#FFD700"; // favorite
+  if (h.favorite) lineColor = "#e6c716"; // favorite
 
   let strokeWeight = 3.0;
   let strokeOpacity = 0.62;
   let zIndex = subtype === "Backcountry" ? 10 : 5;
 
   if (rank === "Exceptional") {
-    strokeWeight = 4.2;
-    strokeOpacity = 0.95;
+    strokeWeight = 3.5;
+    strokeOpacity = 0.85;
     zIndex = 40;
   } else if (rank === "Excellent") {
-    strokeWeight = 3.8;
-    strokeOpacity = 0.88;
+    strokeWeight = 3.5;
+    strokeOpacity = 0.80;
     zIndex = 30;
   } else if (rank === "Very Good") {
-    strokeWeight = 3.4;
-    strokeOpacity = 0.78;
+    strokeWeight = 3.5;
+    strokeOpacity = 0.75;
     zIndex = 20;
   } else if (rank === "Good") {
     strokeWeight = 3.0;
-    strokeOpacity = 0.62;
+    strokeOpacity = 0.65;
     zIndex = subtype === "Backcountry" ? 10 : 5;
   } else if (rank === "Worthwhile") {
     strokeWeight = 2.7;
-    strokeOpacity = 0.48;
+    strokeOpacity = 0.50;
     zIndex = 4;
   } else if (rank === "Fair") {
-    strokeWeight = 2.4;
-    strokeOpacity = 0.36;
+    strokeWeight = 2.7;
+    strokeOpacity = 0.50;
     zIndex = 3;
   } else {
-    strokeWeight = 2.1;
-    strokeOpacity = 0.24;
+    strokeWeight = 2.5;
+    strokeOpacity = 0.35;
     zIndex = 2;
   }
 
   if (h.favorite) {
-    strokeWeight = Math.max(strokeWeight, 4.4);
-    strokeOpacity = 0.95;
+    strokeWeight = Math.max(strokeWeight, 4.0);
+    strokeOpacity = 0.85;
     zIndex = 50;
   }
 
