@@ -540,16 +540,16 @@ filteredHighways.forEach((h) => {
   let zIndex = subtype === "Backcountry" ? 10 : 5;
 
   if (rank === "Exceptional") {
-    strokeWeight = 3.5;
-    strokeOpacity = 0.85;
+    strokeWeight = 3.3;
+    strokeOpacity = 0.80;
     zIndex = 40;
   } else if (rank === "Excellent") {
-    strokeWeight = 3.5;
-    strokeOpacity = 0.80;
+    strokeWeight = 3.3;
+    strokeOpacity = 0.75;
     zIndex = 30;
   } else if (rank === "Very Good") {
-    strokeWeight = 3.5;
-    strokeOpacity = 0.75;
+    strokeWeight = 3.3;
+    strokeOpacity = 0.70;
     zIndex = 20;
   } else if (rank === "Good") {
     strokeWeight = 3.0;
