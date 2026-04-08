@@ -517,42 +517,88 @@ const clearAllStates = () => {
     return;
   }
 
-  const filteredHighways = data.filter((h) =>
-    filtersRef.current.highwaySubtypes.has(h.subtype || "Scenic")
-  );
+const filteredHighways = data.filter((h) =>
+  filtersRef.current.highwaySubtypes.has(h.subtype || "Scenic")
+);
 
-  setLoadedHighways(filteredHighways);
-  const google = (window as any).google;
+setLoadedHighways(filteredHighways);
+const google = (window as any).google;
 
-  filteredHighways.forEach((h) => {
-    const geo = h.geom_geojson;
-    if (!geo || !geo.coordinates) return;
+filteredHighways.forEach((h) => {
+  const geo = h.geom_geojson;
+  if (!geo || !geo.coordinates) return;
 
-    let lineColor = "#75736f";
-    if (h.favorite) lineColor = "#FFD700";
-    else if (h.subtype === "Backcountry") lineColor = "#e46a13";
+  const subtype = h.subtype || "Scenic";
+  const rank = h.landscape_rank || "Good";
 
-    const segments = geo.type === "MultiLineString" ? geo.coordinates : [geo.coordinates];
+  let lineColor = "#75736f"; // scenic
+  if (subtype === "Backcountry") lineColor = "#e46a13"; // backcountry
+  if (h.favorite) lineColor = "#FFD700"; // favorite
 
-    segments.forEach((segment: any[]) => {
-      const path = segment.map((c) => ({ lat: c[1], lng: c[0] }));
-      const poly = new google.maps.Polyline({
-        path,
-        geodesic: true,
-        strokeColor: lineColor,
-        strokeOpacity: 0.7,
-        strokeWeight: h.favorite ? 7 : 3.5,
-        map: mapRef.current,
-        zIndex: h.favorite ? 50 : h.subtype === "Backcountry" ? 10 : 5
-      });
+  let strokeWeight = 3.0;
+  let strokeOpacity = 0.62;
+  let zIndex = subtype === "Backcountry" ? 10 : 5;
 
- poly.addListener("click", (e: any) => {
+  if (rank === "Exceptional") {
+    strokeWeight = 4.2;
+    strokeOpacity = 0.95;
+    zIndex = 40;
+  } else if (rank === "Excellent") {
+    strokeWeight = 3.8;
+    strokeOpacity = 0.88;
+    zIndex = 30;
+  } else if (rank === "Very Good") {
+    strokeWeight = 3.4;
+    strokeOpacity = 0.78;
+    zIndex = 20;
+  } else if (rank === "Good") {
+    strokeWeight = 3.0;
+    strokeOpacity = 0.62;
+    zIndex = subtype === "Backcountry" ? 10 : 5;
+  } else if (rank === "Worthwhile") {
+    strokeWeight = 2.7;
+    strokeOpacity = 0.48;
+    zIndex = 4;
+  } else if (rank === "Fair") {
+    strokeWeight = 2.4;
+    strokeOpacity = 0.36;
+    zIndex = 3;
+  } else {
+    strokeWeight = 2.1;
+    strokeOpacity = 0.24;
+    zIndex = 2;
+  }
+
+  if (h.favorite) {
+    strokeWeight = Math.max(strokeWeight, 4.4);
+    strokeOpacity = 0.95;
+    zIndex = 50;
+  }
+
+  const segments =
+    geo.type === "MultiLineString" ? geo.coordinates : [geo.coordinates];
+
+  segments.forEach((segment: any[]) => {
+    const path = segment.map((c) => ({ lat: c[1], lng: c[0] }));
+
+    const poly = new google.maps.Polyline({
+      path,
+      geodesic: true,
+      strokeColor: lineColor,
+      strokeOpacity,
+      strokeWeight,
+      map: mapRef.current,
+      zIndex
+    });
+
+   poly.addListener("click", (e: any) => {
   const rank = h.landscape_rank || "";
   let rankColor = "#999";
 
   if (rank === "Exceptional") rankColor = "#1b5e20";
-  else if (rank === "Very Good") rankColor = "#388e3c";
-  else if (rank === "Good") rankColor = "#7cb342";
+  else if (rank === "Excellent") rankColor = "#227e28";
+  else if (rank === "Very Good") rankColor = "#3ba441";
+  else if (rank === "Good") rankColor = "#83c53d";
   else if (rank === "Worthwhile") rankColor = "#fbc02d";
   else if (rank === "Fair") rankColor = "#ef6c00";
   else if (rank === "Low") rankColor = "#e57373";
