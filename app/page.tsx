@@ -767,6 +767,17 @@ if (t === "birds") {
     return "#444";
   };
 
+  const integrityColor = (rank: any) => {
+  const r = String(rank || "").trim();
+  if (r === "Excellent") return "#1b5e20";   // dark green
+  if (r === "Very High") return "#388e3c";   // medium green
+  if (r === "High") return "#7cb342";        // light green
+  if (r === "Good") return "#c1ec04";        // yellow-green
+  if (r === "Moderate") return "#ebb176";    // orange
+  if (r === "Impaired") return "#c62828";    // red
+  return "#444";
+};
+
   const seasonRow = (label: string, rating: any, count: any) => {
     const safeRating = birdVal(rating);
     const safeCount = birdVal(count);
@@ -795,7 +806,9 @@ if (t === "birds") {
     ${seasonRow("Fall", place.fall_rating, place.fall)}
  <div style="display:grid; grid-template-columns:64px 1fr 42px; column-gap:6px; align-items:baseline; margin-top:6px; padding-top:6px; border-top:1px solid #f0f0f0;">
   <div style="font-weight:700;">Integrity:</div>
-  <div style="color:#444;">${escapeHtml(birdVal(place.integrity_rank))}</div>
+  <div style="color:${integrityColor(place.integrity_rank)}; font-weight:700;">
+  ${escapeHtml(birdVal(place.integrity_rank))}
+</div>
   <div style="text-align:right; color:#666;">${escapeHtml(birdVal(place.footprint))}</div>
 </div>
   </div>`;
