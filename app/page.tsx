@@ -791,9 +791,7 @@ if (t === "birds") {
     `;
   };
 
-  const birdsSpeciesUrl =
-    `https://birds.lastgreatplaces.us/explore/species_at_places?state=${encodeURIComponent(place.state || "")}&name=${encodeURIComponent(place.name || "")}`;
-
+  
   popup = `<div style="padding:5px; font-family:sans-serif; min-width:210px; max-width:295px;">
     <div style="display:flex; align-items:center; gap:5px;">
       <b>${escapeHtml(place.name)}</b>${place.favorite ? "⭐" : ""}
@@ -816,29 +814,7 @@ if (t === "birds") {
     </div>
   </div>`;
 
-  popup += `
-    <div style="margin-top:10px;">
-      <a
-        href="${birdsSpeciesUrl}"
-        target="_blank"
-        rel="noopener noreferrer"
-        style="
-          display:block;
-          width:100%;
-          box-sizing:border-box;
-          text-align:center;
-          background:#2b5a34;
-          color:white;
-          text-decoration:none;
-          font-weight:700;
-          padding:10px 12px;
-          border-radius:6px;
-        "
-      >
-        🦅 Bird Species by Week
-      </a>
-    </div>
-  `;
+  
 }
 
     if (t === "camps" || t === "hikes") {
