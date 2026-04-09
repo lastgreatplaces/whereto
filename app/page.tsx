@@ -793,10 +793,11 @@ if (t === "birds") {
     ${seasonRow("Spring", place.spring_rating, place.spring)}
     ${seasonRow("Summer", place.summer_rating, place.summer)}
     ${seasonRow("Fall", place.fall_rating, place.fall)}
- <div style="margin-top:6px; padding-top:6px; border-top:1px solid #f0f0f0;">
-      <span style="font-weight:700;">Integrity:</span>
-      <span style="color:#444;"> ${escapeHtml(birdVal(place.integrity_rank))}</span>
-    </div>
+ <div style="display:grid; grid-template-columns:64px 1fr 42px; column-gap:6px; align-items:baseline; margin-top:6px; padding-top:6px; border-top:1px solid #f0f0f0;">
+  <div style="font-weight:700;">Integrity:</div>
+  <div style="color:#444;">${escapeHtml(birdVal(place.integrity_rank))}</div>
+  <div style="text-align:right; color:#666;">${escapeHtml(birdVal(place.footprint))}</div>
+</div>
   </div>`;
 }
 
