@@ -759,11 +759,11 @@ if (t === "birds") {
 
   const ratingColor = (rating: any) => {
     const r = String(rating || "").trim();
-    if (r === "Excellent") return "#1b5e20";
-    if (r === "Very Good") return "#388e3c";
-    if (r === "Good") return "#7cb342";
-    if (r === "Fair") return "#c1ec04";
-    if (r === "Low") return "#ebb176";
+    if (r === "Excellent") return "#225625";
+    if (r === "Very Good") return "#408043";
+    if (r === "Good") return "#6b8d47";
+    if (r === "Fair") return "#95b01e";
+    if (r === "Low") return "#c87a2d";
     return "#444";
   };
 
@@ -771,10 +771,10 @@ if (t === "birds") {
   const r = String(rank || "").trim();
   if (r === "Excellent") return "#1b5e20";   // dark green
   if (r === "Very High") return "#388e3c";   // medium green
-  if (r === "High") return "#7cb342";        // light green
-  if (r === "Good") return "#c1ec04";        // yellow-green
+  if (r === "High") return "#76a345";        // light green
+  if (r === "Good") return "#abd104";        // yellow-green
   if (r === "Moderate") return "#ebb176";    // orange
-  if (r === "Impaired") return "#c62828";    // red
+  if (r === "Modified") return "#fd4e4e";    // red
   return "#444";
 };
 
