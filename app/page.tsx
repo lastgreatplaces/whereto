@@ -769,11 +769,11 @@ if (t === "birds") {
 
   const integrityColor = (rank: any) => {
   const r = String(rank || "").trim();
-  if (r === "Excellent") return "#1b5e20";   // dark green
-  if (r === "Very High") return "#388e3c";   // medium green
-  if (r === "High") return "#76a345";        // light green
-  if (r === "Good") return "#abd104";        // yellow-green
-  if (r === "Moderate") return "#ebb176";    // orange
+  if (r === "Excellent") return "#225625";   // dark green
+  if (r === "Very High") return "#408043";   // medium green
+  if (r === "High") return "#6b8d47";        // light green
+  if (r === "Good") return "#7fa457";        // yellow-green
+  if (r === "Moderate") return "#c87a2d";    // orange
   if (r === "Modified") return "#fd4e4e";    // red
   return "#444";
 };
