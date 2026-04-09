@@ -649,7 +649,7 @@ filteredHighways.forEach((h) => {
         'Scenic ' + escapeHtml(h.scenic_score ?? "—") +
         ' · Distinctive ' + escapeHtml(h.distinctive_score ?? "—") +
         ' · Integrity ' + escapeHtml(h.integrity_score ?? "—") +
-        ' · Interests ' + escapeHtml(h.interest_score ?? "—") +
+        ' · Interest ' + escapeHtml(h.interest_score ?? "—") +
       '</div>' +
 
     '</div>'
@@ -759,11 +759,11 @@ if (t === "birds") {
 
   const ratingColor = (rating: any) => {
     const r = String(rating || "").trim();
-    if (r === "Exceptional") return "#1b5e20";
+    if (r === "Excellent") return "#1b5e20";
     if (r === "Very Good") return "#388e3c";
     if (r === "Good") return "#7cb342";
-    if (r === "Fair") return "#ecaa04";
-    if (r === "Low") return "#e57373";
+    if (r === "Fair") return "#c1ec04";
+    if (r === "Low") return "#ebb176";
     return "#444";
   };
 
