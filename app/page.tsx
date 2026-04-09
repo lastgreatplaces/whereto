@@ -768,15 +768,15 @@ if (t === "birds") {
   };
 
   const integrityColor = (rank: any) => {
-  const r = String(rank || "").trim();
-  if (r === "Excellent") return "#225625";   // dark green
-  if (r === "Very High") return "#408043";   // medium green
-  if (r === "High") return "#6b8d47";        // light green
-  if (r === "Good") return "#7fa457";        // yellow-green
-  if (r === "Moderate") return "#c87a2d";    // orange
-  if (r === "Modified") return "#fd4e4e";    // red
-  return "#444";
-};
+    const r = String(rank || "").trim();
+    if (r === "Excellent") return "#225625";
+    if (r === "Very High") return "#408043";
+    if (r === "High") return "#6b8d47";
+    if (r === "Good") return "#7fa457";
+    if (r === "Moderate") return "#c87a2d";
+    if (r === "Modified") return "#fd4e4e";
+    return "#444";
+  };
 
   const seasonRow = (label: string, rating: any, count: any) => {
     const safeRating = birdVal(rating);
@@ -791,6 +791,9 @@ if (t === "birds") {
     `;
   };
 
+  const birdsSpeciesUrl =
+    `https://birds.lastgreatplaces.us/explore/species_at_places?state=${encodeURIComponent(place.state || "")}&name=${encodeURIComponent(place.name || "")}`;
+
   popup = `<div style="padding:5px; font-family:sans-serif; min-width:210px; max-width:295px;">
     <div style="display:flex; align-items:center; gap:5px;">
       <b>${escapeHtml(place.name)}</b>${place.favorite ? "⭐" : ""}
@@ -804,14 +807,38 @@ if (t === "birds") {
     ${seasonRow("Spring", place.spring_rating, place.spring)}
     ${seasonRow("Summer", place.summer_rating, place.summer)}
     ${seasonRow("Fall", place.fall_rating, place.fall)}
- <div style="display:grid; grid-template-columns:64px 1fr 42px; column-gap:6px; align-items:baseline; margin-top:6px; padding-top:6px; border-top:1px solid #f0f0f0;">
-  <div style="font-weight:700;">Integrity:</div>
-  <div style="color:${integrityColor(place.integrity_rank)}; font-weight:700;">
-  ${escapeHtml(birdVal(place.integrity_rank))}
-</div>
-  <div style="text-align:right; color:#666;">${escapeHtml(birdVal(place.footprint))}</div>
-</div>
+    <div style="display:grid; grid-template-columns:64px 1fr 42px; column-gap:6px; align-items:baseline; margin-top:6px; padding-top:6px; border-top:1px solid #f0f0f0;">
+      <div style="font-weight:700;">Integrity:</div>
+      <div style="color:${integrityColor(place.integrity_rank)}; font-weight:700;">
+        ${escapeHtml(birdVal(place.integrity_rank))}
+      </div>
+      <div style="text-align:right; color:#666;">${escapeHtml(birdVal(place.footprint))}</div>
+    </div>
   </div>`;
+
+  popup += `
+    <div style="margin-top:10px;">
+      <a
+        href="${birdsSpeciesUrl}"
+        target="_blank"
+        rel="noopener noreferrer"
+        style="
+          display:block;
+          width:100%;
+          box-sizing:border-box;
+          text-align:center;
+          background:#2b5a34;
+          color:white;
+          text-decoration:none;
+          font-weight:700;
+          padding:10px 12px;
+          border-radius:6px;
+        "
+      >
+        🦅 Bird Species by Week
+      </a>
+    </div>
+  `;
 }
 
     if (t === "camps" || t === "hikes") {
@@ -831,27 +858,36 @@ if (t === "birds") {
 
     popup += `<div style="margin-top:10px; border-top:1px solid #eee; padding-top:8px; display:flex; flex-direction:column; gap:6px;">`;
 
-    if (!isRouteMode) {
-      popup += `<a href="${navUrl}" target="_blank" style="background:#1a73e8; color:white; text-decoration:none; font-size:11px; font-weight:bold; padding:8px; border-radius:4px; text-align:center;">
-        🚗 Navigate
-      </a>`;
-    }
+if (!isRouteMode) {
+  popup += `<a href="${navUrl}" target="_blank" style="background:#1a73e8; color:white; text-decoration:none; font-size:11px; font-weight:bold; padding:8px; border-radius:4px; text-align:center;">
+    🚗 Navigate
+  </a>`;
+}
 
-    popup += `<button id="add-stop-btn-${place.id}" ${
-      canAddStop ? "" : "disabled"
-    } style="background:${canAddStop ? "#188038" : "#bdbdbd"}; color:white; border:none; font-size:11px; font-weight:bold; padding:8px; border-radius:4px; text-align:center; cursor:${
-      canAddStop ? "pointer" : "default"
-    };">
-      ${isAlreadyInRoute ? "✓ Already in Route" : "➕ Add Stop"}
-    </button>`;
+popup += `<button id="add-stop-btn-${place.id}" ${
+  canAddStop ? "" : "disabled"
+} style="background:${canAddStop ? "#188038" : "#bdbdbd"}; color:white; border:none; font-size:11px; font-weight:bold; padding:8px; border-radius:4px; text-align:center; cursor:${
+  canAddStop ? "pointer" : "default"
+};">
+  ${isAlreadyInRoute ? "✓ Already in Route" : "➕ Add Stop"}
+</button>`;
 
-    if (place.website && place.website.startsWith("http")) {
-      popup += `<a href="${place.website}" target="_blank" style="background:#f1f3f4; color:#3c4043; text-decoration:none; font-size:11px; font-weight:bold; padding:8px; border-radius:4px; text-align:center;">
-        🌐 Website
-      </a>`;
-    }
+if (t === "birds") {
+  const birdsSpeciesUrl =
+    `https://birds.lastgreatplaces.us/explore/species_at_places?state=${encodeURIComponent(place.state || "")}&name=${encodeURIComponent(place.name || "")}`;
 
-    popup += `</div></div>`;
+  popup += `<a href="${birdsSpeciesUrl}" target="_blank" rel="noopener noreferrer" style="background:#2b5a34; color:white; text-decoration:none; font-size:11px; font-weight:bold; padding:8px; border-radius:4px; text-align:center;">
+    🦅 Bird Species by Week
+  </a>`;
+}
+
+if (place.website && place.website.startsWith("http")) {
+  popup += `<a href="${place.website}" target="_blank" style="background:#f1f3f4; color:#3c4043; text-decoration:none; font-size:11px; font-weight:bold; padding:8px; border-radius:4px; text-align:center;">
+    🌐 Website
+  </a>`;
+}
+
+popup += `</div></div>`;
 
     mapRef.current.setZoom(12);
     mapRef.current.panTo(marker.getPosition());
