@@ -1022,18 +1022,16 @@ popup += `</div></div>`;
     }
 
     const name = blockName.trim() || `Block ${new Date().toLocaleDateString()}`;
-    const geom = boundsToWktPolygon(bounds);
+    const geomWkt = boundsToWktPolygon(bounds).replace(/^SRID=4326;/, "");
 
-    const payload: any = {
-      name,
-      status: blockStatus || "draft",
-      geom
-    };
-
-    const { error } = await supabase.from("trip_blocks").insert(payload);
+    const { error } = await supabase.rpc("insert_trip_block", {
+      p_name: name,
+      p_status: blockStatus || "draft",
+      p_geom_wkt: geomWkt
+    });
 
     if (error) {
-      console.error("trip_blocks insert error:", error);
+      console.error("insert_trip_block rpc error:", error);
       setBlockMessage("Block save failed");
       return;
     }
