@@ -1158,7 +1158,8 @@ popup += `</div></div>`;
             activeBlockRectRef.current = rect;
             drawingManagerRef.current.setDrawingMode(null);
             setIsBlockMode(false);
-            await saveTripBlock(rect);
+            setBlockMessage("Rectangle ready — click Save");
+            setIsBlockPanelOpen(true);
           }
         );
 
@@ -1270,19 +1271,22 @@ popup += `</div></div>`;
 
         <button
           onClick={() => {
-            setIsBlockMode((prev) => !prev);
-            setBlockMessage(!isBlockMode ? "Rectangle mode on" : "Rectangle mode off");
+            setIsBlockPanelOpen((prev) => {
+              const next = !prev;
+              if (!next) setIsBlockMode(false);
+              return next;
+            });
             if (infoWindowRef.current) {
               infoWindowRef.current.close();
               isPopupOpenRef.current = false;
             }
           }}
           style={{
-            background: isBlockMode ? "#0288d1" : "white",
+            background: isBlockPanelOpen ? "#0288d1" : "white",
             border: "1px solid #ccc",
             borderRadius: 8,
             padding: "8px 10px",
-            color: isBlockMode ? "white" : "#333",
+            color: isBlockPanelOpen ? "white" : "#333",
             fontWeight: 700,
             fontSize: 13,
             boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
@@ -1458,6 +1462,29 @@ popup += `</div></div>`;
 
             <button
               onClick={() => {
+                if (!activeBlockRectRef.current) {
+                  setBlockMessage("Draw a rectangle first");
+                  return;
+                }
+                saveTripBlock(activeBlockRectRef.current);
+              }}
+              style={{
+                flex: 1,
+                background: "#188038",
+                color: "white",
+                border: "1px solid #188038",
+                borderRadius: 8,
+                padding: "8px 10px",
+                fontSize: 12,
+                fontWeight: 700,
+                cursor: "pointer"
+              }}
+            >
+              Save
+            </button>
+
+            <button
+              onClick={() => {
                 clearActiveBlockRectangle();
                 setIsBlockMode(false);
                 setBlockMessage("Rectangle cleared");
@@ -1479,7 +1506,7 @@ popup += `</div></div>`;
           </div>
 
           <div style={{ fontSize: 11, color: "#666", lineHeight: 1.4 }}>
-            Draw a rectangle on the map to save a new trip block.
+            Enter details, click Draw, drag a rectangle on the map, then click Save.
           </div>
         </div>
       )}
@@ -2233,4 +2260,6 @@ popup += `</div></div>`;
     </div>
   );
 }
+
+
 
