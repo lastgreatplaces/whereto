@@ -125,6 +125,11 @@ const [isRouteMode, setIsRouteMode] = useState(false);
 const [routeStops, setRouteStops] = useState<RouteStop[]>([]);
 const [routeMessage, setRouteMessage] = useState("");
 
+const [isBlockMode, setIsBlockMode] = useState(false);
+const [blockMessage, setBlockMessage] = useState("");
+const [blockName, setBlockName] = useState("");
+const [blockStatus, setBlockStatus] = useState("draft");
+
 const [showLandscapes, setShowLandscapes] = useState(false);
 const [landscapeRegion, setLandscapeRegion] = useState<LandscapeRegion>("all");
 
@@ -139,6 +144,8 @@ const campMarkersRef = useRef<any[]>([]);
 const nonClusterMarkersRef = useRef<any[]>([]);
 const highwayLinesRef = useRef<any[]>([]);
 const landscapePolygonsRef = useRef<any[]>([]);
+const drawingManagerRef = useRef<any>(null);
+const activeBlockRectRef = useRef<any>(null);
 
 const filtersRef = useRef({
   stateFilterMode,
@@ -178,6 +185,12 @@ useEffect(() => {
     const timer = setTimeout(() => setRouteMessage(""), 2200);
     return () => clearTimeout(timer);
   }, [routeMessage]);
+
+  useEffect(() => {
+    if (!blockMessage) return;
+    const timer = setTimeout(() => setBlockMessage(""), 2600);
+    return () => clearTimeout(timer);
+  }, [blockMessage]);
 
   const escapeHtml = (value: any) =>
     String(value ?? "")
@@ -981,6 +994,54 @@ popup += `</div></div>`;
   clustererRef.current.addMarkers(campMarkersRef.current);
   applyMarkerSizing();
 };
+
+  const clearActiveBlockRectangle = () => {
+    if (activeBlockRectRef.current) {
+      activeBlockRectRef.current.setMap(null);
+      activeBlockRectRef.current = null;
+    }
+  };
+
+  const boundsToWktPolygon = (bounds: any) => {
+    const ne = bounds.getNorthEast();
+    const sw = bounds.getSouthWest();
+
+    const north = ne.lat();
+    const east = ne.lng();
+    const south = sw.lat();
+    const west = sw.lng();
+
+    return `SRID=4326;POLYGON((${west} ${south}, ${east} ${south}, ${east} ${north}, ${west} ${north}, ${west} ${south}))`;
+  };
+
+  const saveTripBlock = async (rect: any) => {
+    const bounds = rect?.getBounds?.();
+    if (!bounds) {
+      setBlockMessage("Rectangle has no bounds");
+      return;
+    }
+
+    const name = blockName.trim() || `Block ${new Date().toLocaleDateString()}`;
+    const geom = boundsToWktPolygon(bounds);
+
+    const payload: any = {
+      name,
+      status: blockStatus || "draft",
+      geom
+    };
+
+    const { error } = await supabase.from("trip_blocks").insert(payload);
+
+    if (error) {
+      console.error("trip_blocks insert error:", error);
+      setBlockMessage("Block save failed");
+      return;
+    }
+
+    setBlockName("");
+    setBlockMessage("Block saved");
+  };
+
   const scheduleLoad = () => {
     if (lastFetchTimerRef.current) clearTimeout(lastFetchTimerRef.current);
     lastFetchTimerRef.current = setTimeout(() => loadPlaces(), 400);
@@ -993,7 +1054,7 @@ popup += `</div></div>`;
 
     const script = document.createElement("script");
     script.id = "google-maps-script";
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${key}`;
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${key}&libraries=drawing`;
 
     const clusterScript = document.createElement("script");
     clusterScript.src = "https://unpkg.com/@googlemaps/markerclusterer/dist/index.min.js";
@@ -1052,6 +1113,36 @@ popup += `</div></div>`;
           }
         });
 
+        drawingManagerRef.current = new google.maps.drawing.DrawingManager({
+          drawingMode: null,
+          drawingControl: false,
+          rectangleOptions: {
+            fillColor: "#4fc3f7",
+            fillOpacity: 0.15,
+            strokeColor: "#0288d1",
+            strokeOpacity: 1,
+            strokeWeight: 2,
+            clickable: true,
+            editable: true,
+            draggable: true,
+            zIndex: 900
+          }
+        });
+
+        drawingManagerRef.current.setMap(map);
+
+        google.maps.event.addListener(
+          drawingManagerRef.current,
+          "rectanglecomplete",
+          async (rect: any) => {
+            clearActiveBlockRectangle();
+            activeBlockRectRef.current = rect;
+            drawingManagerRef.current.setDrawingMode(null);
+            setIsBlockMode(false);
+            await saveTripBlock(rect);
+          }
+        );
+
         map.addListener("idle", scheduleLoad);
         map.addListener("zoom_changed", applyMarkerSizing);
         map.addListener("click", () => {
@@ -1063,6 +1154,15 @@ popup += `</div></div>`;
 
     document.head.appendChild(script);
   }, []);
+
+  useEffect(() => {
+    const google = (window as any).google;
+    if (!google || !drawingManagerRef.current) return;
+
+    drawingManagerRef.current.setDrawingMode(
+      isBlockMode ? google.maps.drawing.OverlayType.RECTANGLE : null
+    );
+  }, [isBlockMode]);
 
   useEffect(() => {
     isPopupOpenRef.current = false;
@@ -1149,6 +1249,30 @@ popup += `</div></div>`;
           {isRouteMode ? "Route ✓" : "Build Route"}
         </button>
 
+        <button
+          onClick={() => {
+            setIsBlockMode((prev) => !prev);
+            setBlockMessage(!isBlockMode ? "Rectangle mode on" : "Rectangle mode off");
+            if (infoWindowRef.current) {
+              infoWindowRef.current.close();
+              isPopupOpenRef.current = false;
+            }
+          }}
+          style={{
+            background: isBlockMode ? "#0288d1" : "white",
+            border: "1px solid #ccc",
+            borderRadius: 8,
+            padding: "8px 10px",
+            color: isBlockMode ? "white" : "#333",
+            fontWeight: 700,
+            fontSize: 13,
+            boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+            cursor: "pointer"
+          }}
+        >
+          {isBlockMode ? "Block ✓" : "Draw Block"}
+        </button>
+
         <a
           href="/lastgreatplaces"
           style={{
@@ -1186,6 +1310,123 @@ popup += `</div></div>`;
           {routeMessage}
         </div>
       )}
+
+      {blockMessage && (
+        <div
+          style={{
+            position: "absolute",
+            right: 12,
+            top: routeMessage ? 220 : 176,
+            zIndex: 20,
+            background: "rgba(2,136,209,0.9)",
+            color: "white",
+            padding: "8px 10px",
+            borderRadius: 8,
+            fontSize: 12,
+            boxShadow: "0 2px 8px rgba(0,0,0,0.25)"
+          }}
+        >
+          {blockMessage}
+        </div>
+      )}
+
+      <div
+        style={{
+          position: "absolute",
+          right: 12,
+          top: 220,
+          zIndex: 20,
+          width: 220,
+          background: "white",
+          border: "1px solid #ccc",
+          borderRadius: 10,
+          padding: 10,
+          boxShadow: "0 2px 10px rgba(0,0,0,0.15)"
+        }}
+      >
+        <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 8 }}>Trip Block</div>
+
+        <input
+          type="text"
+          value={blockName}
+          onChange={(e) => setBlockName(e.target.value)}
+          placeholder="Block name"
+          style={{
+            width: "100%",
+            boxSizing: "border-box",
+            padding: "8px 9px",
+            borderRadius: 8,
+            border: "1px solid #d0d0d0",
+            fontSize: 12,
+            marginBottom: 8
+          }}
+        />
+
+        <select
+          value={blockStatus}
+          onChange={(e) => setBlockStatus(e.target.value)}
+          style={{
+            width: "100%",
+            boxSizing: "border-box",
+            padding: "8px 9px",
+            borderRadius: 8,
+            border: "1px solid #d0d0d0",
+            fontSize: 12,
+            marginBottom: 8,
+            background: "white"
+          }}
+        >
+          <option value="draft">draft</option>
+          <option value="active">active</option>
+          <option value="done">done</option>
+        </select>
+
+        <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
+          <button
+            onClick={() => {
+              setIsBlockMode((prev) => !prev);
+              setBlockMessage(!isBlockMode ? "Rectangle mode on" : "Rectangle mode off");
+            }}
+            style={{
+              flex: 1,
+              background: isBlockMode ? "#0288d1" : "#f5fbfe",
+              color: isBlockMode ? "white" : "#036b88",
+              border: "1px solid #90caf9",
+              borderRadius: 8,
+              padding: "8px 10px",
+              fontSize: 12,
+              fontWeight: 700,
+              cursor: "pointer"
+            }}
+          >
+            {isBlockMode ? "Cancel" : "Draw"}
+          </button>
+
+          <button
+            onClick={() => {
+              clearActiveBlockRectangle();
+              setBlockMessage("Rectangle cleared");
+            }}
+            style={{
+              flex: 1,
+              background: "#f1f3f4",
+              color: "#333",
+              border: "1px solid #d0d0d0",
+              borderRadius: 8,
+              padding: "8px 10px",
+              fontSize: 12,
+              fontWeight: 700,
+              cursor: "pointer"
+            }}
+          >
+            Clear
+          </button>
+        </div>
+
+        <div style={{ fontSize: 11, color: "#666", lineHeight: 1.4 }}>
+          Draw a rectangle on the map to save a new trip block.
+        </div>
+      </div>
 
       {(isRouteMode || routeStops.length > 0) && (
         <div
