@@ -129,6 +129,9 @@ const [isBlockMode, setIsBlockMode] = useState(false);
 const [blockMessage, setBlockMessage] = useState("");
 const [blockName, setBlockName] = useState("");
 const [blockStatus, setBlockStatus] = useState("draft");
+const [blockDaysEstimate, setBlockDaysEstimate] = useState("");
+const [blockNotes, setBlockNotes] = useState("");
+const [isBlockPanelOpen, setIsBlockPanelOpen] = useState(false);
 
 const [showLandscapes, setShowLandscapes] = useState(false);
 const [landscapeRegion, setLandscapeRegion] = useState<LandscapeRegion>("all");
@@ -1011,7 +1014,7 @@ popup += `</div></div>`;
     const south = sw.lat();
     const west = sw.lng();
 
-    return `POLYGON((${west} ${south}, ${east} ${south}, ${east} ${north}, ${west} ${north}, ${west} ${south}))`;
+    return `SRID=4326;POLYGON((${west} ${south}, ${east} ${south}, ${east} ${north}, ${west} ${north}, ${west} ${south}))`;
   };
 
   const saveTripBlock = async (rect: any) => {
@@ -1021,23 +1024,41 @@ popup += `</div></div>`;
       return;
     }
 
-    const name = blockName.trim() || `Block ${new Date().toLocaleDateString()}`;
+    const name = blockName.trim();
+    if (!name) {
+      setBlockMessage("Enter a block name");
+      setIsBlockPanelOpen(true);
+      return;
+    }
+
+    const daysEstimate =
+      blockDaysEstimate.trim() === "" ? null : Number(blockDaysEstimate);
+
+    if (daysEstimate !== null && !Number.isFinite(daysEstimate)) {
+      setBlockMessage("Days estimate must be a number");
+      setIsBlockPanelOpen(true);
+      return;
+    }
+
     const geomWkt = boundsToWktPolygon(bounds).replace(/^SRID=4326;/, "");
 
     const { error } = await supabase.rpc("insert_trip_block", {
       p_name: name,
       p_status: blockStatus || "draft",
-      p_geom_wkt: geomWkt
+      p_geom_wkt: geomWkt,
+      p_days_estimate: daysEstimate,
+      p_notes: blockNotes.trim() || null
     });
 
     if (error) {
-      console.error("insert_trip_block rpc error:", JSON.stringify(error, null, 2));
+      console.error("insert_trip_block rpc error:", error);
       setBlockMessage("Block save failed");
       return;
     }
 
-    setBlockName("");
     setBlockMessage("Block saved");
+    setIsBlockMode(false);
+    setIsBlockPanelOpen(false);
   };
 
   const scheduleLoad = () => {
@@ -1268,7 +1289,7 @@ popup += `</div></div>`;
             cursor: "pointer"
           }}
         >
-          {isBlockMode ? "Block ✓" : "Draw Block"}
+          {isBlockPanelOpen ? "Hide Block" : "Draw Block"}
         </button>
 
         <a
@@ -1328,104 +1349,140 @@ popup += `</div></div>`;
         </div>
       )}
 
-      <div
-        style={{
-          position: "absolute",
-          right: 12,
-          top: 220,
-          zIndex: 20,
-          width: 220,
-          background: "white",
-          border: "1px solid #ccc",
-          borderRadius: 10,
-          padding: 10,
-          boxShadow: "0 2px 10px rgba(0,0,0,0.15)"
-        }}
-      >
-        <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 8 }}>Trip Block</div>
-
-        <input
-          type="text"
-          value={blockName}
-          onChange={(e) => setBlockName(e.target.value)}
-          placeholder="Block name"
+      {isBlockPanelOpen && (
+        <div
           style={{
-            width: "100%",
-            boxSizing: "border-box",
-            padding: "8px 9px",
-            borderRadius: 8,
-            border: "1px solid #d0d0d0",
-            fontSize: 12,
-            marginBottom: 8
-          }}
-        />
-
-        <select
-          value={blockStatus}
-          onChange={(e) => setBlockStatus(e.target.value)}
-          style={{
-            width: "100%",
-            boxSizing: "border-box",
-            padding: "8px 9px",
-            borderRadius: 8,
-            border: "1px solid #d0d0d0",
-            fontSize: 12,
-            marginBottom: 8,
-            background: "white"
+            position: "absolute",
+            right: 12,
+            top: 220,
+            zIndex: 20,
+            width: 290,
+            background: "white",
+            border: "1px solid #ccc",
+            borderRadius: 10,
+            padding: 12,
+            boxShadow: "0 2px 10px rgba(0,0,0,0.15)"
           }}
         >
-          <option value="draft">draft</option>
-          <option value="active">active</option>
-          <option value="done">done</option>
-        </select>
+          <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 8 }}>Trip Block</div>
 
-        <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
-          <button
-            onClick={() => {
-              setIsBlockMode((prev) => !prev);
-              setBlockMessage(!isBlockMode ? "Rectangle mode on" : "Rectangle mode off");
-            }}
+          <input
+            type="text"
+            value={blockName}
+            onChange={(e) => setBlockName(e.target.value)}
+            placeholder="Block name"
             style={{
-              flex: 1,
-              background: isBlockMode ? "#0288d1" : "#f5fbfe",
-              color: isBlockMode ? "white" : "#036b88",
-              border: "1px solid #90caf9",
+              width: "100%",
+              boxSizing: "border-box",
+              padding: "8px 9px",
               borderRadius: 8,
-              padding: "8px 10px",
-              fontSize: 12,
-              fontWeight: 700,
-              cursor: "pointer"
-            }}
-          >
-            {isBlockMode ? "Cancel" : "Draw"}
-          </button>
-
-          <button
-            onClick={() => {
-              clearActiveBlockRectangle();
-              setBlockMessage("Rectangle cleared");
-            }}
-            style={{
-              flex: 1,
-              background: "#f1f3f4",
-              color: "#333",
               border: "1px solid #d0d0d0",
-              borderRadius: 8,
-              padding: "8px 10px",
               fontSize: 12,
-              fontWeight: 700,
-              cursor: "pointer"
+              marginBottom: 8
+            }}
+          />
+
+          <select
+            value={blockStatus}
+            onChange={(e) => setBlockStatus(e.target.value)}
+            style={{
+              width: "100%",
+              boxSizing: "border-box",
+              padding: "8px 9px",
+              borderRadius: 8,
+              border: "1px solid #d0d0d0",
+              fontSize: 12,
+              marginBottom: 8,
+              background: "white"
             }}
           >
-            Clear
-          </button>
-        </div>
+            <option value="draft">draft</option>
+            <option value="active">active</option>
+            <option value="done">done</option>
+          </select>
 
-        <div style={{ fontSize: 11, color: "#666", lineHeight: 1.4 }}>
-          Draw a rectangle on the map to save a new trip block.
-        </div>
-      </div>
+          <input
+            type="number"
+            value={blockDaysEstimate}
+            onChange={(e) => setBlockDaysEstimate(e.target.value)}
+            placeholder="Days estimate"
+            style={{
+              width: "100%",
+              boxSizing: "border-box",
+              padding: "8px 9px",
+              borderRadius: 8,
+              border: "1px solid #d0d0d0",
+              fontSize: 12,
+              marginBottom: 8
+            }}
+          />
 
+          <textarea
+            value={blockNotes}
+            onChange={(e) => setBlockNotes(e.target.value)}
+            placeholder="Notes"
+            rows={3}
+            style={{
+              width: "100%",
+              boxSizing: "border-box",
+              padding: "8px 9px",
+              borderRadius: 8,
+              border: "1px solid #d0d0d0",
+              fontSize: 12,
+              marginBottom: 10,
+              fontFamily: "inherit",
+              resize: "vertical"
+            }}
+          />
+
+          <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
+            <button
+              onClick={() => {
+                setIsBlockMode((prev) => !prev);
+                setBlockMessage("");
+              }}
+              style={{
+                flex: 1,
+                background: isBlockMode ? "#0288d1" : "#f5fbfe",
+                color: isBlockMode ? "white" : "#036b88",
+                border: "1px solid #90caf9",
+                borderRadius: 8,
+                padding: "8px 10px",
+                fontSize: 12,
+                fontWeight: 700,
+                cursor: "pointer"
+              }}
+            >
+              {isBlockMode ? "Cancel" : "Draw"}
+            </button>
+
+            <button
+              onClick={() => {
+                clearActiveBlockRectangle();
+                setIsBlockMode(false);
+                setBlockMessage("Rectangle cleared");
+              }}
+              style={{
+                flex: 1,
+                background: "#f1f3f4",
+                color: "#333",
+                border: "1px solid #d0d0d0",
+                borderRadius: 8,
+                padding: "8px 10px",
+                fontSize: 12,
+                fontWeight: 700,
+                cursor: "pointer"
+              }}
+            >
+              Clear
+            </button>
+          </div>
+
+          <div style={{ fontSize: 11, color: "#666", lineHeight: 1.4 }}>
+            Draw a rectangle on the map to save a new trip block.
+          </div>
+        </div>
+      )}
       {(isRouteMode || routeStops.length > 0) && (
         <div
           style={{
