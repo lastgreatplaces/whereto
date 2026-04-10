@@ -1011,7 +1011,7 @@ popup += `</div></div>`;
     const south = sw.lat();
     const west = sw.lng();
 
-    return `SRID=4326;POLYGON((${west} ${south}, ${east} ${south}, ${east} ${north}, ${west} ${north}, ${west} ${south}))`;
+    return `POLYGON((${west} ${south}, ${east} ${south}, ${east} ${north}, ${west} ${north}, ${west} ${south}))`;
   };
 
   const saveTripBlock = async (rect: any) => {
@@ -1031,7 +1031,7 @@ popup += `</div></div>`;
     });
 
     if (error) {
-      console.error("insert_trip_block rpc error:", error);
+      console.error("insert_trip_block rpc error:", JSON.stringify(error, null, 2));
       setBlockMessage("Block save failed");
       return;
     }
