@@ -33,6 +33,7 @@ type LandscapeRow = {
   rank_top1000: number | null;
   in_top1000: boolean;
   geom: GeoJsonGeometry | string | null;
+  favorite: boolean;
 };
 
 type EcoregionRow = {
@@ -124,7 +125,8 @@ function buildLandscapePopupHtml(
     ecosystemDescriptionOpen?: string | null;
   }
 ) {
-  const portfolioRank = row.rank_top1000 ?? "—";
+  const portfolioRank =
+  mode === "top500" ? (row.rank_top500 ?? "—") : (row.rank_top1000 ?? "—");
 
   const ecosystemsOpen = options?.ecosystemsOpen ?? false;
   const ecosystemsLoading = options?.ecosystemsLoading ?? false;
@@ -277,7 +279,7 @@ function buildLandscapePopupHtml(
         <div><span style="font-weight:700;">Landscape Features:</span> ${escapeHtml(row.landscape_features ?? "—")}</div>
         <div><span style="font-weight:700;">Native Ecosystems:</span> ${escapeHtml(row.ecosystems ?? "—")}</div>
         <div><span style="font-weight:700;">Human Footprint:</span> ${escapeHtml(formatFootprint(row.human_footprint))}</div>
-        <div><span style="font-weight:700;">Top 1000 Rank:</span> ${escapeHtml(portfolioRank)}</div>
+        <div><span style="font-weight:700;">${mode === "top500" ? "Top 500 Rank" : "Top 1000 Rank"}:</span> ${escapeHtml(portfolioRank)}</div>
         <div><span style="font-weight:300; font-style:italic;">Raw Ranking:</span> ${escapeHtml(row.national_rank ?? "—")}</div>
       </div>
 
@@ -356,6 +358,7 @@ export default function LastGreatPlacesPage() {
   const [errorMsg, setErrorMsg] = useState("");
   const [panelOpen, setPanelOpen] = useState(true);
   const [showEcoregions, setShowEcoregions] = useState(false);
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
 
   const mapRef = useRef<any>(null);
   const infoWindowRef = useRef<any>(null);
@@ -373,9 +376,12 @@ export default function LastGreatPlacesPage() {
   const ecosystemDescriptionOpenRef = useRef<string | null>(null);
   const activePlaceIdRef = useRef<number | null>(null);
 
-  const visibleRows = rows.filter((r) =>
-    portfolioMode === "top500" ? r.in_top500 : r.in_top1000
-  );
+  const visibleRows = rows.filter((r) => {
+  const inPortfolio = portfolioMode === "top500" ? r.in_top500 : r.in_top1000;
+  if (!inPortfolio) return false;
+  if (showFavoritesOnly && !Boolean(r.favorite)) return false;
+  return true;
+});
 
   const fitToUs = () => {
     if (!mapRef.current || !(window as any).google) return;
@@ -508,7 +514,7 @@ export default function LastGreatPlacesPage() {
         supabase
           .from("whereto_top_portfolios_web")
           .select(
-            "place_id,name,states,acres,owner_name,designation,landscape_features,ecosystems,human_footprint,ecoregion,ecoregion_rank,national_rank,rank_top500,in_top500,rank_top1000,in_top1000,geom"
+            "place_id,name,states,acres,owner_name,designation,landscape_features,ecosystems,human_footprint,ecoregion,ecoregion_rank,national_rank,rank_top500,in_top500,rank_top1000,in_top1000,geom,favorite"
           )
           .or("in_top500.eq.true,in_top1000.eq.true")
           .order("rank_top1000", { ascending: true, nullsFirst: false }),
@@ -758,17 +764,19 @@ export default function LastGreatPlacesPage() {
 
     landscapesLayer.addGeoJson(featureCollection as any);
 
-    landscapesLayer.setStyle(() => {
+    landscapesLayer.setStyle((feature: any) => {
+      const row = feature.getProperty("row") as LandscapeRow;
       const isTop500Mode = portfolioMode === "top500";
+      const isFavorite = Boolean(row?.favorite);
 
       return {
         fillColor: isTop500Mode ? "#2e7d32" : "#66bb6a",
         fillOpacity: 0.5,
-        strokeColor: isTop500Mode ? "#1b5e20" : "#2e7d32",
-        strokeWeight: 1.0,
+        strokeColor: isFavorite ? "#d4af37" : (isTop500Mode ? "#1b5e20" : "#2e7d32"),
+        strokeWeight: isFavorite ? 3.0 : 1.0,
         strokeOpacity: 1,
         clickable: true,
-        zIndex: 3,
+        zIndex: isFavorite ? 5 : 3,
       };
     });
 
@@ -941,6 +949,26 @@ export default function LastGreatPlacesPage() {
             </button>
           </div>
 
+<div style={{ marginBottom: 8 }}>
+  <button
+    onClick={() => setShowFavoritesOnly((prev) => !prev)}
+    style={{
+      width: "100%",
+      border: "1px solid #ccc",
+      borderRadius: 6,
+      padding: "8px 10px",
+      fontSize: 12,
+      cursor: "pointer",
+      background: showFavoritesOnly ? "#fff8e1" : "#f8f8f8",
+      color: "#333",
+      fontWeight: showFavoritesOnly ? 700 : 500,
+    }}
+  >
+    {showFavoritesOnly ? "Showing Favorites Only" : "Show Favorites Only"}
+  </button>
+</div>
+
+
           <div style={{ marginBottom: 8 }}>
             <button
               onClick={() => setShowEcoregions((prev) => !prev)}
@@ -1032,22 +1060,19 @@ export default function LastGreatPlacesPage() {
             border: "1px solid #ccc",
             borderRadius: 8,
             padding: "8px 12px",
-            boxShadow: "0 2px 10px rgba(0,0,0,0.12)",
+            cursor: "pointer",
             fontWeight: 700,
             fontSize: 13,
-            color: "#333",
-            cursor: "pointer",
+            boxShadow: "0 2px 10px rgba(0,0,0,0.12)",
           }}
-          aria-label="Show landscapes menu"
-          title="Show landscapes menu"
         >
-          Last Great Places
+          Open Menu
         </button>
       )}
 
       <div
         id="last-great-places-map"
-        style={{ height: "100%", width: "100%" }}
+        style={{ height: "100%", width: "100%", zIndex: 1 }}
       />
     </div>
   );
