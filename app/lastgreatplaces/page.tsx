@@ -359,6 +359,7 @@ export default function LastGreatPlacesPage() {
   const [panelOpen, setPanelOpen] = useState(true);
   const [showEcoregions, setShowEcoregions] = useState(false);
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
+  const [highlightFavorites, setHighlightFavorites] = useState(false);
 
   const mapRef = useRef<any>(null);
   const infoWindowRef = useRef<any>(null);
@@ -767,17 +768,20 @@ export default function LastGreatPlacesPage() {
     landscapesLayer.setStyle((feature: any) => {
       const row = feature.getProperty("row") as LandscapeRow;
       const isTop500Mode = portfolioMode === "top500";
-      const isFavorite = Boolean(row?.favorite);
+    const isFavorite = Boolean(row?.favorite);
+const useFavoriteHighlight = highlightFavorites && isFavorite;
 
-      return {
-        fillColor: isTop500Mode ? "#2e7d32" : "#66bb6a",
-        fillOpacity: 0.5,
-        strokeColor: isFavorite ? "#d4af37" : (isTop500Mode ? "#1b5e20" : "#2e7d32"),
-        strokeWeight: isFavorite ? 3.0 : 1.0,
-        strokeOpacity: 1,
-        clickable: true,
-        zIndex: isFavorite ? 5 : 3,
-      };
+return {
+  fillColor: isTop500Mode ? "#2e7d32" : "#66bb6a",
+  fillOpacity: 0.5,
+  strokeColor: useFavoriteHighlight
+    ? "#d4af37"
+    : (isTop500Mode ? "#1b5e20" : "#2e7d32"),
+  strokeWeight: useFavoriteHighlight ? 3.5 : 1.0,
+  strokeOpacity: 1,
+  clickable: true,
+  zIndex: useFavoriteHighlight ? 10 : 3,
+};
     });
 
     if (!hasFitBoundsRef.current) {
@@ -968,6 +972,24 @@ export default function LastGreatPlacesPage() {
   </button>
 </div>
 
+<div style={{ marginBottom: 8 }}>
+  <button
+    onClick={() => setHighlightFavorites((prev) => !prev)}
+    style={{
+      width: "100%",
+      border: "1px solid #ccc",
+      borderRadius: 6,
+      padding: "8px 10px",
+      fontSize: 12,
+      cursor: "pointer",
+      background: highlightFavorites ? "#fff8e1" : "#f8f8f8",
+      color: "#333",
+      fontWeight: highlightFavorites ? 700 : 500,
+    }}
+  >
+    {highlightFavorites ? "Hide Favorite Highlight" : "Highlight Favorites"}
+  </button>
+</div>
 
           <div style={{ marginBottom: 8 }}>
             <button
