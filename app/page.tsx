@@ -129,9 +129,6 @@ const [routeMessage, setRouteMessage] = useState("");
 const [isBlockMode, setIsBlockMode] = useState(false);
 const [blockMessage, setBlockMessage] = useState("");
 const [blockName, setBlockName] = useState("");
-const [blockStatus, setBlockStatus] = useState("draft");
-const [blockDaysEstimate, setBlockDaysEstimate] = useState("");
-const [blockNotes, setBlockNotes] = useState("");
 const [isBlockPanelOpen, setIsBlockPanelOpen] = useState(false);
 const [activeBlockId, setActiveBlockId] = useState<number | null>(null);
 const [bywayMinScore, setBywayMinScore] = useState("3.0");
@@ -1072,7 +1069,7 @@ popup += `</div></div>`;
 
     const { data, error } = await supabase.rpc("insert_trip_block", {
       p_name: name,
-      p_status: blockStatus || "draft",
+      p_status: "draft",
       p_geom_wkt: geomWkt,
       p_days_estimate: null,
       p_notes: null
@@ -1087,7 +1084,7 @@ popup += `</div></div>`;
     const newBlockId = Number(data);
     if (Number.isFinite(newBlockId)) {
       setActiveBlockId(newBlockId);
-      await supabase.from("trip_block_filter_settings").upsert({
+      const { error: settingsError } = await supabase.from("trip_block_filter_settings").upsert({
         block_id: newBlockId,
         byway_min_score: Number(bywayMinScore),
         lgp_top_ecoregion: Number(lgpTopEcoregion),
@@ -1098,6 +1095,10 @@ popup += `</div></div>`;
         show_effective_favorites: showEffectiveFavorites,
         updated_at: new Date().toISOString()
       }, { onConflict: "block_id" });
+
+      if (settingsError) {
+        console.error("trip_block_filter_settings upsert error:", settingsError);
+      }
     }
 
     effectiveFavoritesRef.current = {
@@ -1109,7 +1110,7 @@ popup += `</div></div>`;
 
     setBlockMessage("Block saved");
     setIsBlockMode(false);
-    setIsBlockPanelOpen(false);
+    setIsBlockPanelOpen(true);
   };
 
   const loadBlockFilterSettings = async (blockId: number) => {
@@ -2481,6 +2482,5 @@ useEffect(() => {
     </div>
   );
 }
-
 
 
