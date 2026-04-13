@@ -1639,7 +1639,7 @@ useEffect(() => {
           </div>
 
           <div style={{ fontSize: 11, color: "#666", lineHeight: 1.4, marginBottom: 10 }}>
-            Draw a playpen rectangle, save it, then apply favorites filters to the active block.
+            DRAW a planning rectangle, SAVE it, then APPLY FAVORITES filters to the active block.
           </div>
 
           <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 8, paddingTop: 8, borderTop: "1px solid #eee" }}>
