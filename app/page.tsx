@@ -36,7 +36,8 @@ type LandscapeRow = {
   in_top500: boolean;
   rank_top1000: number | null;
   in_top1000: boolean;
-  geom: any;
+  geom: any
+  favorite: boolean | null;
 };
 
 const CAMP_THEMES: Record<string, Theme> = {
@@ -127,6 +128,7 @@ const [routeMessage, setRouteMessage] = useState("");
 
 const [showLandscapes, setShowLandscapes] = useState(false);
 const [landscapeRegion, setLandscapeRegion] = useState<LandscapeRegion>("all");
+const [highlightLandscapeFavorites, setHighlightLandscapeFavorites] = useState(false);
 
 const mapRef = useRef<any>(null);
 const clustererRef = useRef<any>(null);
@@ -381,17 +383,22 @@ const clearAllStates = () => {
     geometry: any,
     row: LandscapeRow
   ) => {
+    
     const createPolygon = (paths: any[]) => {
+
+const isFavorite = Boolean(row.favorite);
+const useFavoriteHighlight = highlightLandscapeFavorites && isFavorite;
+
       const poly = new google.maps.Polygon({
-        paths,
-        strokeColor: "#2e7d32",
-        strokeOpacity: 1,
-        strokeWeight: 1.5,
-        fillColor: "#66bb6a",
-        fillOpacity: 0.65,
-        map,
-        zIndex: 2
-      });
+  paths,
+  strokeColor: useFavoriteHighlight ? "#d4af37" : "#2e7d32",
+  strokeOpacity: 1,
+  strokeWeight: useFavoriteHighlight ? 3.2 : 1.5,
+  fillColor: "#66bb6a",
+  fillOpacity: 0.65,
+  map,
+  zIndex: useFavoriteHighlight ? 8 : 2
+});
 
       poly.addListener("click", (e: any) => {
         if (!infoWindowRef.current) return;
@@ -447,7 +454,7 @@ const clearAllStates = () => {
     let query = supabase
       .from("whereto_top_portfolios_web")
       .select(
-        "place_id,name,states,acres,owner_name,designation,ecoregion,ecoregion_rank,rank_top1000,in_top1000,geom"
+        "place_id,name,states,acres,owner_name,designation,ecoregion,ecoregion_rank,rank_top1000,in_top1000,geom,favorite"
       )
       .eq("in_top1000", true)
       .order("rank_top1000", { ascending: true });
@@ -1073,7 +1080,7 @@ popup += `</div></div>`;
     if (mapRef.current) {
       loadLandscapes();
     }
-  }, [showLandscapes, landscapeRegion]);
+  }, [showLandscapes, landscapeRegion, highlightLandscapeFavorites]);
 
   const placeResults =
     searchQuery.length > 1
@@ -1534,15 +1541,47 @@ popup += `</div></div>`;
 
         {isLandscapeSectionOpen && (
           <div style={{ marginTop: 10 }}>
-            <label style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10, fontSize: 14 }}>
-              <input
-                type="checkbox"
-                checked={showLandscapes}
-                onChange={() => setShowLandscapes((v) => !v)}
-                style={{ width: 22, height: 22 }}
-              />
-              Show Top 1000 Landscapes
-            </label>
+
+
+        <div
+  style={{
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 10,
+    marginBottom: 10
+  }}
+>
+  <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14 }}>
+    <input
+      type="checkbox"
+      checked={showLandscapes}
+      onChange={() => setShowLandscapes((v) => !v)}
+      style={{ width: 22, height: 22 }}
+    />
+    Show Top 1000 Landscapes
+  </label>
+
+  <button
+    type="button"
+    onClick={() => setHighlightLandscapeFavorites((v) => !v)}
+    title={highlightLandscapeFavorites ? "Hide favorite highlights" : "Highlight favorites"}
+    aria-label={highlightLandscapeFavorites ? "Hide favorite highlights" : "Highlight favorites"}
+    style={{
+      background: "none",
+      border: "none",
+      cursor: "pointer",
+      fontSize: 28,
+      lineHeight: 1,
+      color: highlightLandscapeFavorites ? "#d4af37" : "#9e9e9e",
+      padding: 0
+    }}
+  >
+    ★
+  </button>
+</div>
+
+
 
             <div style={{ marginBottom: 6, fontSize: 14, color: "#666" }}>Region</div>
             <select
