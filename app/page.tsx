@@ -1089,7 +1089,7 @@ popup += `</div></div>`;
         byway_min_score: Number(bywayMinScore),
         lgp_top_ecoregion: Number(lgpTopEcoregion),
         lgp_top_national: Number(lgpTopNational),
-        bird_season: birdSeason,
+        bird_season: birdSeason.toLowerCase(),
         bird_min_species: Number(birdMinSpecies),
         camp_lgp_distance_miles: Number(campLgpDistanceMiles),
         show_effective_favorites: showEffectiveFavorites,
@@ -1107,6 +1107,8 @@ popup += `</div></div>`;
       byways: new Set(),
       landscapes: new Set()
     };
+
+    await loadEffectiveFavoriteSets();
 
     setBlockMessage("Block saved");
     setIsBlockMode(false);
@@ -1142,7 +1144,7 @@ popup += `</div></div>`;
       byway_min_score: Number(bywayMinScore),
       lgp_top_ecoregion: Number(lgpTopEcoregion),
       lgp_top_national: Number(lgpTopNational),
-      bird_season: birdSeason,
+      bird_season: birdSeason.toLowerCase(),
       bird_min_species: Number(birdMinSpecies),
       camp_lgp_distance_miles: Number(campLgpDistanceMiles),
       show_effective_favorites: showEffectiveFavorites,
@@ -1165,6 +1167,8 @@ popup += `</div></div>`;
       byways: new Set(),
       landscapes: new Set()
     };
+
+    await loadEffectiveFavoriteSets();
 
     setBlockMessage("Filters applied");
     if (mapRef.current) scheduleLoad();
@@ -2482,5 +2486,9 @@ useEffect(() => {
     </div>
   );
 }
+
+
+
+
 
 
