@@ -420,6 +420,7 @@ const clearAllStates = () => {
       const isFavorite = Boolean(row.favorite);
 const useFavoriteHighlight = highlightLandscapeFavorites && isFavorite;
 
+
 const poly = new google.maps.Polygon({
   paths,
   strokeColor: useFavoriteHighlight ? "#d4af37" : "#2e7d32",
@@ -1660,12 +1661,7 @@ useEffect(() => {
               <option value="10">10</option>
             </select>
 
-            <div style={{ fontSize: 12, color: "#444" }}>Top national</div>
-            <select value={lgpTopNational} onChange={(e) => setLgpTopNational(e.target.value)} style={{ padding: "6px 8px", borderRadius: 8, border: "1px solid #d0d0d0", fontSize: 12, background: "white" }}>
-              <option value="100">100</option>
-              <option value="250">250</option>
-              <option value="500">500</option>
-            </select>
+            
 
             <div style={{ fontSize: 12, color: "#444" }}>Bird season</div>
             <select value={birdSeason} onChange={(e) => setBirdSeason(e.target.value)} style={{ padding: "6px 8px", borderRadius: 8, border: "1px solid #d0d0d0", fontSize: 12, background: "white" }}>
