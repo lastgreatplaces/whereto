@@ -1110,6 +1110,16 @@ popup += `</div></div>`;
 
     await loadEffectiveFavoriteSets();
 
+    if (activeBlockRectRef.current) {
+  activeBlockRectRef.current.setEditable(false);
+  activeBlockRectRef.current.setDraggable(false);
+  activeBlockRectRef.current.setOptions({
+    clickable: false,
+    strokeOpacity: 0.9,
+    fillOpacity: 0.08
+  });
+}
+
     setBlockMessage("Block saved");
     setIsBlockMode(false);
     setIsBlockPanelOpen(true);
@@ -2486,7 +2496,6 @@ useEffect(() => {
     </div>
   );
 }
-
 
 
 
