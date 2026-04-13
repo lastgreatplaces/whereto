@@ -133,6 +133,14 @@ const [blockStatus, setBlockStatus] = useState("draft");
 const [blockDaysEstimate, setBlockDaysEstimate] = useState("");
 const [blockNotes, setBlockNotes] = useState("");
 const [isBlockPanelOpen, setIsBlockPanelOpen] = useState(false);
+const [activeBlockId, setActiveBlockId] = useState<number | null>(null);
+const [bywayMinScore, setBywayMinScore] = useState("3.0");
+const [lgpTopEcoregion, setLgpTopEcoregion] = useState("5");
+const [lgpTopNational, setLgpTopNational] = useState("100");
+const [birdSeason, setBirdSeason] = useState("spring");
+const [birdMinSpecies, setBirdMinSpecies] = useState("20");
+const [campLgpDistanceMiles, setCampLgpDistanceMiles] = useState("5");
+const [showEffectiveFavorites, setShowEffectiveFavorites] = useState(true);
 
 const [showLandscapes, setShowLandscapes] = useState(false);
 const [landscapeRegion, setLandscapeRegion] = useState<LandscapeRegion>("all");
@@ -151,6 +159,17 @@ const highwayLinesRef = useRef<any[]>([]);
 const landscapePolygonsRef = useRef<any[]>([]);
 const drawingManagerRef = useRef<any>(null);
 const activeBlockRectRef = useRef<any>(null);
+const effectiveFavoritesRef = useRef<{
+  cacheKey: string;
+  places: Set<number>;
+  byways: Set<number>;
+  landscapes: Set<number>;
+}>({
+  cacheKey: "",
+  places: new Set(),
+  byways: new Set(),
+  landscapes: new Set()
+});
 
 const filtersRef = useRef({
   stateFilterMode,
@@ -466,6 +485,8 @@ const poly = new google.maps.Polygon({
 
     if (!showLandscapes || !mapRef.current) return;
 
+    const effectiveFavorites = await loadEffectiveFavoriteSets();
+
     let query = supabase
       .from("whereto_top_portfolios_web")
       .select(
@@ -501,7 +522,10 @@ const poly = new google.maps.Polygon({
 
     rows.forEach((row) => {
       if (!row.geom) return;
-      addLandscapeFeature(google, mapRef.current, row.geom, row);
+      addLandscapeFeature(google, mapRef.current, row.geom, {
+        ...row,
+        favorite: Boolean(row.favorite) || effectiveFavorites.landscapes.has(Number(row.place_id))
+      });
     });
   };
 
@@ -523,7 +547,7 @@ const poly = new google.maps.Polygon({
 
   let query = supabase
   .from("byways")
-  .select("geom_geojson, name, state, description, designats, favorite, subtype, scenic_score, distinctive_score, integrity_score, interest_score, landscape_score, landscape_rank, interest_badge");
+  .select("byway_id, geom_geojson, name, state, description, designats, favorite, subtype, scenic_score, distinctive_score, integrity_score, interest_score, landscape_score, landscape_rank, interest_badge");
 
   if (stateMode === "filtered") {
     query = query.in("state", statesArr);
@@ -545,8 +569,10 @@ const filteredHighways = data.filter((h) =>
 
 setLoadedHighways(filteredHighways);
 const google = (window as any).google;
+const effectiveFavorites = await loadEffectiveFavoriteSets();
 
 filteredHighways.forEach((h) => {
+  const isEffectiveFavorite = effectiveFavorites.byways.has(Number(h.byway_id));
   const geo = h.geom_geojson;
   if (!geo || !geo.coordinates) return;
 
@@ -555,7 +581,7 @@ filteredHighways.forEach((h) => {
 
   let lineColor = "#75736f"; // scenic
   if (subtype === "Backcountry") lineColor = "#e46a13"; // backcountry
-  if (h.favorite) lineColor = "#e6c716"; // favorite
+  if (h.favorite || isEffectiveFavorite) lineColor = "#e6c716"; // favorite
 
   let strokeWeight = 3.0;
   let strokeOpacity = 0.62;
@@ -591,7 +617,7 @@ filteredHighways.forEach((h) => {
     zIndex = 2;
   }
 
-  if (h.favorite) {
+  if (h.favorite || isEffectiveFavorite) {
     strokeWeight = Math.max(strokeWeight, 4.0);
     strokeOpacity = 0.85;
     zIndex = 50;
@@ -635,7 +661,7 @@ filteredHighways.forEach((h) => {
 
       '<div style="font-weight:700; font-size:14px; margin-bottom:4px;">' +
         escapeHtml(h.name || "Scenic Byway") +
-        (h.favorite ? " ⭐" : "") +
+        ((h.favorite || isEffectiveFavorite) ? " ⭐" : "") +
       '</div>' +
 
       '<div style="font-size:12px; color:#555; margin-bottom:8px;">' +
@@ -950,9 +976,12 @@ popup += `</div></div>`;
     return;
   }
 
+  const effectiveFavorites = await loadEffectiveFavoriteSets();
+
   const filteredData = data.filter((r) => {
     const type = r.place_type as PlaceType;
-    if (filtersRef.current.favOnlyCategories.has(type) && !r.favorite) return false;
+    const isEffectiveFavorite = effectiveFavorites.places.has(Number(r.id));
+    if (filtersRef.current.favOnlyCategories.has(type) && !(r.favorite || isEffectiveFavorite)) return false;
     if (type === "camps" && !filtersRef.current.campSubtypes.has(r.subtype)) return false;
     return true;
   });
@@ -968,9 +997,11 @@ popup += `</div></div>`;
     const lonVal = Number(r.lon);
     if (!Number.isFinite(latVal) || !Number.isFinite(lonVal)) return;
 
+    const isEffectiveFavorite = effectiveFavorites.places.has(Number(r.id));
+
     const marker = new google.maps.Marker({
       position: { lat: latVal, lng: lonVal },
-      zIndex: r.favorite ? 1000 : 1
+      zIndex: (r.favorite || isEffectiveFavorite) ? 1000 : 1
     });
 
     const t = r.place_type as PlaceType;
@@ -979,7 +1010,7 @@ popup += `</div></div>`;
 
     (marker as any).__type = t;
     (marker as any).__subtype = sub;
-    (marker as any).__isFavorite = r.favorite === true;
+    (marker as any).__isFavorite = r.favorite === true || isEffectiveFavorite;
     (marker as any).__emoji =
       t === "birds" ? "🦅" :
       t === "hikes" ? "🥾" :
@@ -1037,23 +1068,14 @@ popup += `</div></div>`;
       return;
     }
 
-    const daysEstimate =
-      blockDaysEstimate.trim() === "" ? null : Number(blockDaysEstimate);
-
-    if (daysEstimate !== null && !Number.isFinite(daysEstimate)) {
-      setBlockMessage("Days estimate must be a number");
-      setIsBlockPanelOpen(true);
-      return;
-    }
-
     const geomWkt = boundsToWktPolygon(bounds).replace(/^SRID=4326;/, "");
 
-    const { error } = await supabase.rpc("insert_trip_block", {
+    const { data, error } = await supabase.rpc("insert_trip_block", {
       p_name: name,
       p_status: blockStatus || "draft",
       p_geom_wkt: geomWkt,
-      p_days_estimate: daysEstimate,
-      p_notes: blockNotes.trim() || null
+      p_days_estimate: null,
+      p_notes: null
     });
 
     if (error) {
@@ -1062,10 +1084,155 @@ popup += `</div></div>`;
       return;
     }
 
+    const newBlockId = Number(data);
+    if (Number.isFinite(newBlockId)) {
+      setActiveBlockId(newBlockId);
+      await supabase.from("trip_block_filter_settings").upsert({
+        block_id: newBlockId,
+        byway_min_score: Number(bywayMinScore),
+        lgp_top_ecoregion: Number(lgpTopEcoregion),
+        lgp_top_national: Number(lgpTopNational),
+        bird_season: birdSeason,
+        bird_min_species: Number(birdMinSpecies),
+        camp_lgp_distance_miles: Number(campLgpDistanceMiles),
+        show_effective_favorites: showEffectiveFavorites,
+        updated_at: new Date().toISOString()
+      }, { onConflict: "block_id" });
+    }
+
+    effectiveFavoritesRef.current = {
+      cacheKey: "",
+      places: new Set(),
+      byways: new Set(),
+      landscapes: new Set()
+    };
+
     setBlockMessage("Block saved");
     setIsBlockMode(false);
     setIsBlockPanelOpen(false);
   };
+
+  const loadBlockFilterSettings = async (blockId: number) => {
+    const { data, error } = await supabase
+      .from("trip_block_filter_settings")
+      .select("*")
+      .eq("block_id", blockId)
+      .single();
+
+    if (error || !data) return;
+
+    setBywayMinScore(String(data.byway_min_score ?? 3.0));
+    setLgpTopEcoregion(String(data.lgp_top_ecoregion ?? 5));
+    setLgpTopNational(String(data.lgp_top_national ?? 100));
+    setBirdSeason(String(data.bird_season ?? "spring"));
+    setBirdMinSpecies(String(data.bird_min_species ?? 20));
+    setCampLgpDistanceMiles(String(data.camp_lgp_distance_miles ?? 5));
+    setShowEffectiveFavorites(Boolean(data.show_effective_favorites ?? true));
+  };
+
+  const saveBlockFilterSettings = async () => {
+    if (!activeBlockId) {
+      setBlockMessage("Save a block first");
+      return;
+    }
+
+    const payload = {
+      block_id: activeBlockId,
+      byway_min_score: Number(bywayMinScore),
+      lgp_top_ecoregion: Number(lgpTopEcoregion),
+      lgp_top_national: Number(lgpTopNational),
+      bird_season: birdSeason,
+      bird_min_species: Number(birdMinSpecies),
+      camp_lgp_distance_miles: Number(campLgpDistanceMiles),
+      show_effective_favorites: showEffectiveFavorites,
+      updated_at: new Date().toISOString()
+    };
+
+    const { error } = await supabase
+      .from("trip_block_filter_settings")
+      .upsert(payload, { onConflict: "block_id" });
+
+    if (error) {
+      console.error("trip_block_filter_settings upsert error:", error);
+      setBlockMessage("Filter save failed");
+      return;
+    }
+
+    effectiveFavoritesRef.current = {
+      cacheKey: "",
+      places: new Set(),
+      byways: new Set(),
+      landscapes: new Set()
+    };
+
+    setBlockMessage("Filters applied");
+    if (mapRef.current) scheduleLoad();
+    if (showLandscapes) loadLandscapes();
+  };
+
+  const loadEffectiveFavoriteSets = async () => {
+    if (!activeBlockId || !showEffectiveFavorites) {
+      effectiveFavoritesRef.current = {
+        cacheKey: "",
+        places: new Set(),
+        byways: new Set(),
+        landscapes: new Set()
+      };
+      return effectiveFavoritesRef.current;
+    }
+
+    const cacheKey = [
+      activeBlockId,
+      bywayMinScore,
+      lgpTopEcoregion,
+      lgpTopNational,
+      birdSeason,
+      birdMinSpecies,
+      campLgpDistanceMiles,
+      showEffectiveFavorites
+    ].join("|");
+
+    if (effectiveFavoritesRef.current.cacheKey === cacheKey) {
+      return effectiveFavoritesRef.current;
+    }
+
+    const { data, error } = await supabase
+      .from("v_trip_block_effective_favorites_all")
+      .select("source_id, asset_type")
+      .eq("block_id", activeBlockId);
+
+    if (error || !data) {
+      console.error("effective favorites load error:", error);
+      effectiveFavoritesRef.current = {
+        cacheKey,
+        places: new Set(),
+        byways: new Set(),
+        landscapes: new Set()
+      };
+      return effectiveFavoritesRef.current;
+    }
+
+    const places = new Set<number>();
+    const byways = new Set<number>();
+    const landscapes = new Set<number>();
+
+    data.forEach((row: any) => {
+      const id = Number(row.source_id);
+      if (!Number.isFinite(id)) return;
+      if (["birds", "targets", "camps"].includes(row.asset_type)) places.add(id);
+      else if (row.asset_type === "highways") byways.add(id);
+      else if (row.asset_type === "landscapes") landscapes.add(id);
+    });
+
+    effectiveFavoritesRef.current = { cacheKey, places, byways, landscapes };
+    return effectiveFavoritesRef.current;
+  };
+
+  useEffect(() => {
+    if (activeBlockId) {
+      loadBlockFilterSettings(activeBlockId);
+    }
+  }, [activeBlockId]);
 
   const scheduleLoad = () => {
     if (lastFetchTimerRef.current) clearTimeout(lastFetchTimerRef.current);
@@ -1193,11 +1360,11 @@ popup += `</div></div>`;
   useEffect(() => {
     isPopupOpenRef.current = false;
     if (mapRef.current) scheduleLoad();
-  }, [states, placeTypes, selectedCampSubtypes, selectedHighwaySubtypes, favOnlyCategories]);
+  }, [states, placeTypes, selectedCampSubtypes, selectedHighwaySubtypes, favOnlyCategories, activeBlockId, showEffectiveFavorites]);
 
 useEffect(() => {
   loadLandscapes();
-}, [showLandscapes, landscapeRegion, highlightLandscapeFavorites]);
+}, [showLandscapes, landscapeRegion, highlightLandscapeFavorites, activeBlockId, showEffectiveFavorites]);
 
   const placeResults =
     searchQuery.length > 1
@@ -1364,7 +1531,7 @@ useEffect(() => {
             right: 12,
             top: 220,
             zIndex: 20,
-            width: 290,
+            width: 310,
             background: "white",
             border: "1px solid #ccc",
             borderRadius: 10,
@@ -1390,60 +1557,7 @@ useEffect(() => {
             }}
           />
 
-          <select
-            value={blockStatus}
-            onChange={(e) => setBlockStatus(e.target.value)}
-            style={{
-              width: "100%",
-              boxSizing: "border-box",
-              padding: "8px 9px",
-              borderRadius: 8,
-              border: "1px solid #d0d0d0",
-              fontSize: 12,
-              marginBottom: 8,
-              background: "white"
-            }}
-          >
-            <option value="draft">draft</option>
-            <option value="active">active</option>
-            <option value="done">done</option>
-          </select>
-
-          <input
-            type="number"
-            value={blockDaysEstimate}
-            onChange={(e) => setBlockDaysEstimate(e.target.value)}
-            placeholder="Days estimate"
-            style={{
-              width: "100%",
-              boxSizing: "border-box",
-              padding: "8px 9px",
-              borderRadius: 8,
-              border: "1px solid #d0d0d0",
-              fontSize: 12,
-              marginBottom: 8
-            }}
-          />
-
-          <textarea
-            value={blockNotes}
-            onChange={(e) => setBlockNotes(e.target.value)}
-            placeholder="Notes"
-            rows={3}
-            style={{
-              width: "100%",
-              boxSizing: "border-box",
-              padding: "8px 9px",
-              borderRadius: 8,
-              border: "1px solid #d0d0d0",
-              fontSize: 12,
-              marginBottom: 10,
-              fontFamily: "inherit",
-              resize: "vertical"
-            }}
-          />
-
-          <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
+          <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
             <button
               onClick={() => {
                 setIsBlockMode((prev) => !prev);
@@ -1509,8 +1623,83 @@ useEffect(() => {
             </button>
           </div>
 
+          <div style={{ fontSize: 11, color: "#666", lineHeight: 1.4, marginBottom: 10 }}>
+            Draw a playpen rectangle, save it, then apply favorites filters to the active block.
+          </div>
+
+          <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 8, paddingTop: 8, borderTop: "1px solid #eee" }}>
+            Filters
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 8, alignItems: "center", marginBottom: 8 }}>
+            <div style={{ fontSize: 12, color: "#444" }}>Byways min score</div>
+            <select value={bywayMinScore} onChange={(e) => setBywayMinScore(e.target.value)} style={{ padding: "6px 8px", borderRadius: 8, border: "1px solid #d0d0d0", fontSize: 12, background: "white" }}>
+              <option value="3.0">3.0</option>
+              <option value="3.3">3.3</option>
+              <option value="3.6">3.6</option>
+            </select>
+
+            <div style={{ fontSize: 12, color: "#444" }}>Top ecoregion</div>
+            <select value={lgpTopEcoregion} onChange={(e) => setLgpTopEcoregion(e.target.value)} style={{ padding: "6px 8px", borderRadius: 8, border: "1px solid #d0d0d0", fontSize: 12, background: "white" }}>
+              <option value="5">5</option>
+              <option value="10">10</option>
+            </select>
+
+            <div style={{ fontSize: 12, color: "#444" }}>Top national</div>
+            <select value={lgpTopNational} onChange={(e) => setLgpTopNational(e.target.value)} style={{ padding: "6px 8px", borderRadius: 8, border: "1px solid #d0d0d0", fontSize: 12, background: "white" }}>
+              <option value="100">100</option>
+              <option value="250">250</option>
+              <option value="500">500</option>
+            </select>
+
+            <div style={{ fontSize: 12, color: "#444" }}>Bird season</div>
+            <select value={birdSeason} onChange={(e) => setBirdSeason(e.target.value)} style={{ padding: "6px 8px", borderRadius: 8, border: "1px solid #d0d0d0", fontSize: 12, background: "white" }}>
+              <option value="winter">Winter</option>
+              <option value="spring">Spring</option>
+              <option value="summer">Summer</option>
+              <option value="fall">Fall</option>
+            </select>
+
+            <div style={{ fontSize: 12, color: "#444" }}>Min bird species</div>
+            <select value={birdMinSpecies} onChange={(e) => setBirdMinSpecies(e.target.value)} style={{ padding: "6px 8px", borderRadius: 8, border: "1px solid #d0d0d0", fontSize: 12, background: "white" }}>
+              <option value="20">20</option>
+              <option value="25">25</option>
+              <option value="30">30</option>
+            </select>
+
+            <div style={{ fontSize: 12, color: "#444" }}>Camps near LGP</div>
+            <select value={campLgpDistanceMiles} onChange={(e) => setCampLgpDistanceMiles(e.target.value)} style={{ padding: "6px 8px", borderRadius: 8, border: "1px solid #d0d0d0", fontSize: 12, background: "white" }}>
+              <option value="5">5 miles</option>
+              <option value="10">10 miles</option>
+            </select>
+          </div>
+
+          <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: "#333", marginBottom: 10 }}>
+            <input type="checkbox" checked={showEffectiveFavorites} onChange={(e) => setShowEffectiveFavorites(e.target.checked)} />
+            Show Effective Favorites
+          </label>
+
+          <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
+            <button
+              onClick={saveBlockFilterSettings}
+              style={{
+                flex: 1,
+                background: "#fff8e1",
+                color: "#8a6d1d",
+                border: "1px solid #e0c46c",
+                borderRadius: 8,
+                padding: "8px 10px",
+                fontSize: 12,
+                fontWeight: 700,
+                cursor: "pointer"
+              }}
+            >
+              Apply Favorites
+            </button>
+          </div>
+
           <div style={{ fontSize: 11, color: "#666", lineHeight: 1.4 }}>
-            Enter details, click Draw, drag a rectangle on the map, then click Save.
+            Active block: {activeBlockId ?? "save a block first"}. Targets are always favorites.
           </div>
         </div>
       )}
