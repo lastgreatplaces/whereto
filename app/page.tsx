@@ -1655,13 +1655,7 @@ useEffect(() => {
               <option value="3.6">3.6</option>
             </select>
 
-            <div style={{ fontSize: 12, color: "#444" }}>Top ecoregion</div>
-            <select value={lgpTopEcoregion} onChange={(e) => setLgpTopEcoregion(e.target.value)} style={{ padding: "6px 8px", borderRadius: 8, border: "1px solid #d0d0d0", fontSize: 12, background: "white" }}>
-              <option value="5">5</option>
-              <option value="10">10</option>
-            </select>
-
-            
+                      
 
             <div style={{ fontSize: 12, color: "#444" }}>Bird season</div>
             <select value={birdSeason} onChange={(e) => setBirdSeason(e.target.value)} style={{ padding: "6px 8px", borderRadius: 8, border: "1px solid #d0d0d0", fontSize: 12, background: "white" }}>
