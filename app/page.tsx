@@ -217,11 +217,16 @@ useEffect(() => {
   };
 
   const togglePlaceHeart = async (place: any) => {
-    if (!currentUserId) return;
+    if (!currentUserId) {
+      console.error("No currentUserId set for heart toggle");
+      alert("No user is selected for hearts.");
+      return;
+    }
 
     const isHearted = heartedPlaceIdsRef.current.has(place.id);
 
     if (isHearted) {
+      console.log("Removing heart", { currentUserId, placeId: place.id });
       const { error } = await supabase
         .from("user_hearts_places")
         .delete()
@@ -238,15 +243,15 @@ useEffect(() => {
       heartedPlaceIdsRef.current = next;
       setHeartedPlaceIds(next);
     } else {
+      console.log("Adding heart", { currentUserId, placeId: place.id });
       const { error } = await supabase
         .from("user_hearts_places")
         .insert([{ user_id: currentUserId, id: place.id }]);
 
       if (error) {
-  console.error("Error adding heart:", error);
-  alert(`Heart save failed: ${error.message}`);
-  return;
-}
+        console.error("Error adding heart:", error);
+        return;
+      }
 
       const next = new Set(heartedPlaceIdsRef.current);
       next.add(place.id);
@@ -254,6 +259,7 @@ useEffect(() => {
       setHeartedPlaceIds(next);
     }
 
+    setRouteMessage(isHearted ? "Heart removed" : "Heart added");
     scheduleLoad();
     triggerPlacePopup(place);
   };
@@ -931,7 +937,7 @@ if (place.website && place.website.startsWith("http")) {
   </a>`;
 }
 
-popup += `<button id="toggle-heart-btn-${place.id}" style="background:${isHearted ? "#fde7e9" : "#fff5f5"}; color:#b3261e; border:1px solid #ef9a9a; font-size:11px; font-weight:bold; padding:8px; border-radius:4px; text-align:center; cursor:pointer;">
+popup += `<button type="button" id="toggle-heart-btn-${place.id}" style="background:${isHearted ? "#fde7e9" : "#fff5f5"}; color:#b3261e; border:1px solid #ef9a9a; font-size:11px; font-weight:bold; padding:8px; border-radius:4px; text-align:center; cursor:pointer; position:relative; z-index:9999; pointer-events:auto;">
   ${isHearted ? "♥ Remove Heart" : "♡ Add Heart"}
 </button>`;
 
@@ -951,9 +957,25 @@ popup += `</div></div>`;
 
       const heartBtn = document.getElementById(`toggle-heart-btn-${place.id}`);
       if (heartBtn) {
-        heartBtn.addEventListener("click", () => {
-          togglePlaceHeart(place);
-        }, { once: true });
+        const heartHandler = (ev: Event) => {
+          ev.preventDefault();
+          ev.stopPropagation();
+          console.log("Heart button clicked", { placeId: place.id });
+          void togglePlaceHeart(place);
+        };
+
+        heartBtn.addEventListener("mousedown", (ev) => {
+          ev.preventDefault();
+          ev.stopPropagation();
+        });
+        heartBtn.addEventListener("touchstart", (ev) => {
+          ev.preventDefault();
+          ev.stopPropagation();
+        }, { passive: false });
+        heartBtn.addEventListener("click", heartHandler, { once: true });
+        heartBtn.addEventListener("touchend", heartHandler, { once: true, passive: false });
+      } else {
+        console.error("Heart button not found in InfoWindow DOM", { placeId: place.id });
       }
     });
   };
@@ -2144,5 +2166,8 @@ popup += `</div></div>`;
     </div>
   );
 }
+
+
+
 
 
