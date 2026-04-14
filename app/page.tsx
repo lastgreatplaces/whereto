@@ -260,9 +260,13 @@ useEffect(() => {
     }
 
     setRouteMessage(isHearted ? "Heart removed" : "Heart added");
-    scheduleLoad();
-    triggerPlacePopup(place);
-  };
+
+if (infoWindowRef.current) {
+  infoWindowRef.current.close();
+}
+isPopupOpenRef.current = false;
+scheduleLoad();
+};
 
   const toggleOpenGroup = (group: string) => {
     setOpenGroups((prev) =>
@@ -1047,7 +1051,7 @@ popup += `</div></div>`;
   };
 
   const loadPlaces = async () => {
-  if (!mapRef.current || !clustererRef.current || isPopupOpenRef.current) return;
+  if (!mapRef.current || !clustererRef.current) return;
 
   await loadHighways();
   clearPlaceMarkers();
