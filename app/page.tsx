@@ -1665,19 +1665,19 @@ popup += `</div></div>`;
                 </button>
 
                 <button
-                  onClick={() => toggleHeartOnly(item.key)}
-                  style={{
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer",
-                    fontSize: 20,
-                    color: heartOnly ? "#c62828" : "#999",
-                    lineHeight: 1
-                  }}
-                  title="Hearted only"
-                >
-                  ♥
-                </button>
+  onClick={() => toggleHeartOnly(item.key)}
+  style={{
+    background: "none",
+    border: "none",
+    cursor: "pointer",
+    fontSize: 20,
+    color: heartOnly ? "#c62828" : "#999",
+    lineHeight: 1
+  }}
+  title="Hearted only"
+>
+  {heartOnly ? "♥︎" : "♡"}
+</button>
               </div>
 
               {item.key === "camps" && isCampSubmenuOpen && (
