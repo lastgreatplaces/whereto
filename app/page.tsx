@@ -110,6 +110,10 @@ const [placeTypes, setPlaceTypes] = useState<PlaceType[]>([]);
 const [selectedCampSubtypes, setSelectedCampSubtypes] = useState<string[]>(UI_CAMP_SUBTYPES);
 const [selectedHighwaySubtypes, setSelectedHighwaySubtypes] = useState<string[]>(UI_HIGHWAY_SUBTYPES);
 const [favOnlyCategories, setFavOnlyCategories] = useState<PlaceType[]>([]);
+const [heartOnlyCategories, setHeartOnlyCategories] = useState<PlaceType[]>([]);
+const [appUsers, setAppUsers] = useState<any[]>([]);
+const [currentUserId, setCurrentUserId] = useState<number | null>(null);
+const [heartedPlaceIds, setHeartedPlaceIds] = useState<Set<number>>(new Set());
 
 const [isFilterOpen, setIsFilterOpen] = useState(true);
 const [isRegionsOpen, setIsRegionsOpen] = useState(false);
@@ -141,6 +145,7 @@ const campMarkersRef = useRef<any[]>([]);
 const nonClusterMarkersRef = useRef<any[]>([]);
 const highwayLinesRef = useRef<any[]>([]);
 const landscapePolygonsRef = useRef<any[]>([]);
+const heartedPlaceIdsRef = useRef<Set<number>>(new Set());
 
 const filtersRef = useRef({
   stateFilterMode,
@@ -148,7 +153,8 @@ const filtersRef = useRef({
   types: new Set<PlaceType>(placeTypes),
   campSubtypes: new Set<string>(selectedCampSubtypes),
   highwaySubtypes: new Set<string>(selectedHighwaySubtypes),
-  favOnlyCategories: new Set<PlaceType>(favOnlyCategories)
+  favOnlyCategories: new Set<PlaceType>(favOnlyCategories),
+  heartOnlyCategories: new Set<PlaceType>(heartOnlyCategories)
 });
 
 useEffect(() => {
@@ -158,13 +164,15 @@ useEffect(() => {
   filtersRef.current.campSubtypes = new Set(selectedCampSubtypes);
   filtersRef.current.highwaySubtypes = new Set(selectedHighwaySubtypes);
   filtersRef.current.favOnlyCategories = new Set(favOnlyCategories);
+  filtersRef.current.heartOnlyCategories = new Set(heartOnlyCategories);
 }, [
   stateFilterMode,
   states,
   placeTypes,
   selectedCampSubtypes,
   selectedHighwaySubtypes,
-  favOnlyCategories
+  favOnlyCategories,
+  heartOnlyCategories
 ]);
 
   useEffect(() => {
@@ -173,7 +181,8 @@ useEffect(() => {
     filtersRef.current.campSubtypes = new Set(selectedCampSubtypes);
     filtersRef.current.highwaySubtypes = new Set(selectedHighwaySubtypes);
     filtersRef.current.favOnlyCategories = new Set(favOnlyCategories);
-  }, [states, placeTypes, selectedCampSubtypes, selectedHighwaySubtypes, favOnlyCategories]);
+    filtersRef.current.heartOnlyCategories = new Set(heartOnlyCategories);
+  }, [states, placeTypes, selectedCampSubtypes, selectedHighwaySubtypes, favOnlyCategories, heartOnlyCategories]);
 
   useEffect(() => {
     if (!routeMessage) return;
@@ -199,6 +208,53 @@ useEffect(() => {
     setFavOnlyCategories((prev) =>
       prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
     );
+  };
+
+  const toggleHeartOnly = (type: PlaceType) => {
+    setHeartOnlyCategories((prev) =>
+      prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
+    );
+  };
+
+  const togglePlaceHeart = async (place: any) => {
+    if (!currentUserId) return;
+
+    const isHearted = heartedPlaceIdsRef.current.has(place.id);
+
+    if (isHearted) {
+      const { error } = await supabase
+        .from("user_hearts_places")
+        .delete()
+        .eq("user_id", currentUserId)
+        .eq("id", place.id);
+
+      if (error) {
+        console.error("Error removing heart:", error);
+        return;
+      }
+
+      const next = new Set(heartedPlaceIdsRef.current);
+      next.delete(place.id);
+      heartedPlaceIdsRef.current = next;
+      setHeartedPlaceIds(next);
+    } else {
+      const { error } = await supabase
+        .from("user_hearts_places")
+        .insert([{ user_id: currentUserId, id: place.id }]);
+
+      if (error) {
+        console.error("Error adding heart:", error);
+        return;
+      }
+
+      const next = new Set(heartedPlaceIdsRef.current);
+      next.add(place.id);
+      heartedPlaceIdsRef.current = next;
+      setHeartedPlaceIds(next);
+    }
+
+    scheduleLoad();
+    triggerPlacePopup(place);
   };
 
   const toggleOpenGroup = (group: string) => {
@@ -259,11 +315,13 @@ const clearAllStates = () => {
     type: PlaceType,
     subtype: string,
     zoom: number,
-    isFavorite: boolean
+    isFavorite: boolean,
+    isHearted: boolean = false
   ) => {
     const baseSize = zoom <= 7 ? 20 : zoom <= 10 ? 30 : 40;
-    const strokeColor = isFavorite ? "#FFD700" : "#ffffff";
-    const strokeWeight = isFavorite ? 6 : 2;
+    const hasBoth = isFavorite && isHearted;
+    const strokeColor = hasBoth ? "#d4af37" : isFavorite ? "#FFD700" : isHearted ? "#c62828" : "#ffffff";
+    const strokeWeight = hasBoth ? 5 : isFavorite ? 6 : isHearted ? 4 : 2;
 
     if (type === "birds") {
       return {
@@ -271,8 +329,8 @@ const clearAllStates = () => {
         scale: baseSize / 2,
         fillColor: "#ffffff",
         fillOpacity: 1,
-        strokeWeight: isFavorite ? 3 : 2,
-        strokeColor: isFavorite ? "#FFD700" : "#8a6d1d",
+        strokeWeight: hasBoth ? 4 : isFavorite ? 3 : isHearted ? 3 : 2,
+        strokeColor: hasBoth ? "#d4af37" : isFavorite ? "#FFD700" : isHearted ? "#c62828" : "#f80808",
         labelOrigin: new google.maps.Point(0, 0)
       };
     }
@@ -283,8 +341,8 @@ const clearAllStates = () => {
         scale: baseSize / 20,
         fillColor: "#c4fcfe",
         fillOpacity: 1,
-        strokeWeight: isFavorite ? 3 : 2,
-        strokeColor: isFavorite ? "#f3cf05" : "#8a6d1d",
+        strokeWeight: hasBoth ? 4 : isFavorite ? 3 : isHearted ? 3 : 2,
+        strokeColor: hasBoth ? "#d4af37" : isFavorite ? "#f3cf05" : isHearted ? "#c62828" : "#f80808",
         labelOrigin: new google.maps.Point(0, 1)
       };
     }
@@ -295,8 +353,8 @@ const clearAllStates = () => {
         scale: baseSize / 2.2,
         fillColor: "#fff3cd",
         fillOpacity: 1,
-        strokeWeight: isFavorite ? 3 : 2,
-        strokeColor: isFavorite ? "#f3cf05" : "#8a6d1d",
+        strokeWeight: hasBoth ? 4 : isFavorite ? 3 : isHearted ? 3 : 2,
+        strokeColor: hasBoth ? "#d4af37" : isFavorite ? "#f3cf05" : isHearted ? "#c62828" : "#8a6d1d",
         labelOrigin: new google.maps.Point(0, 0)
       };
     }
@@ -321,7 +379,8 @@ const clearAllStates = () => {
     [...nonClusterMarkersRef.current, ...campMarkersRef.current].forEach((m) => {
       const type = (m as any).__type as PlaceType;
       const isFav = (m as any).__isFavorite;
-      m.setIcon(getMarkerStyle(google, type, (m as any).__subtype, z, isFav));
+      const isHearted = (m as any).__isHearted;
+      m.setIcon(getMarkerStyle(google, type, (m as any).__subtype, z, isFav, isHearted));
 
       if (type === "birds") {
         m.setLabel({
@@ -746,10 +805,11 @@ filteredHighways.forEach((h) => {
     const navUrl = `https://www.google.com/maps/dir/?api=1&destination=${navLat},${navLon}`;
     const isAlreadyInRoute = routeStops.some((s) => s.id === String(place.id));
     const canAddStop = routeStops.length < 8 && !isAlreadyInRoute;
+    const isHearted = heartedPlaceIdsRef.current.has(place.id);
 
     let popup = `<div style="padding:5px; font-family:sans-serif; min-width:190px; max-width:280px;">
       <div style="display:flex; align-items:center; gap:5px;">
-        <b>${escapeHtml(place.name)}</b>${place.favorite ? "⭐" : ""}
+        <b>${escapeHtml(place.name)}</b>${place.favorite ? "⭐" : ""}${isHearted ? '<span style="color:#c62828; margin-left:4px;">♥</span>' : ""}
       </div>
       <span style="color:#666; font-size:11px; font-weight:bold;">
         ${escapeHtml(CAMP_SUBTYPE_LABELS[sub] || sub || "N/A")}
@@ -801,7 +861,7 @@ if (t === "birds") {
   
   popup = `<div style="padding:5px; font-family:sans-serif; min-width:210px; max-width:295px;">
     <div style="display:flex; align-items:center; gap:5px;">
-      <b>${escapeHtml(place.name)}</b>${place.favorite ? "⭐" : ""}
+      <b>${escapeHtml(place.name)}</b>${place.favorite ? "⭐" : ""}${isHearted ? '<span style="color:#c62828; margin-left:4px;">♥</span>' : ""}
     </div>
     <div style="color:#666; font-size:11px; font-weight:bold; margin-top:2px;">
       ${escapeHtml(place.state || "—")} · ${escapeHtml(CAMP_SUBTYPE_LABELS[sub] || sub || "N/A")}
@@ -870,6 +930,10 @@ if (place.website && place.website.startsWith("http")) {
   </a>`;
 }
 
+popup += `<button id="toggle-heart-btn-${place.id}" style="background:${isHearted ? "#fde7e9" : "#fff5f5"}; color:#b3261e; border:1px solid #ef9a9a; font-size:11px; font-weight:bold; padding:8px; border-radius:4px; text-align:center; cursor:pointer;">
+  ${isHearted ? "♥ Remove Heart" : "♡ Add Heart"}
+</button>`;
+
 popup += `</div></div>`;
 
     mapRef.current.setZoom(12);
@@ -883,8 +947,69 @@ popup += `</div></div>`;
       if (addBtn && canAddStop) {
         addBtn.addEventListener("click", () => addStopToRoute(place), { once: true });
       }
+
+      const heartBtn = document.getElementById(`toggle-heart-btn-${place.id}`);
+      if (heartBtn) {
+        heartBtn.addEventListener("click", () => {
+          togglePlaceHeart(place);
+        }, { once: true });
+      }
     });
   };
+
+  useEffect(() => {
+    const loadUsers = async () => {
+      const { data, error } = await supabase
+        .from("app_users")
+        .select("user_id, user_name, display_name, is_active")
+        .eq("is_active", true)
+        .order("user_id", { ascending: true });
+
+      if (error || !data) {
+        console.error("Error loading app users:", error);
+        return;
+      }
+
+      setAppUsers(data);
+
+      if (!currentUserId && data.length > 0) {
+        const greg = data.find((u) => u.user_name === "Greg");
+        setCurrentUserId(greg ? greg.user_id : data[0].user_id);
+      }
+    };
+
+    loadUsers();
+  }, []);
+
+  useEffect(() => {
+    const loadHeartedPlaces = async () => {
+      if (!currentUserId) {
+        const empty = new Set<number>();
+        heartedPlaceIdsRef.current = empty;
+        setHeartedPlaceIds(empty);
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from("user_hearts_places")
+        .select("id")
+        .eq("user_id", currentUserId);
+
+      if (error || !data) {
+        console.error("Error loading hearted places:", error);
+        const empty = new Set<number>();
+        heartedPlaceIdsRef.current = empty;
+        setHeartedPlaceIds(empty);
+        return;
+      }
+
+      const next = new Set<number>(data.map((r) => r.id));
+      heartedPlaceIdsRef.current = next;
+      setHeartedPlaceIds(next);
+    };
+
+    loadHeartedPlaces();
+  }, [currentUserId]);
 
   const clearPlaceMarkers = () => {
     if (clustererRef.current) {
@@ -938,6 +1063,7 @@ popup += `</div></div>`;
   const filteredData = data.filter((r) => {
     const type = r.place_type as PlaceType;
     if (filtersRef.current.favOnlyCategories.has(type) && !r.favorite) return false;
+    if (filtersRef.current.heartOnlyCategories.has(type) && !heartedPlaceIdsRef.current.has(r.id)) return false;
     if (type === "camps" && !filtersRef.current.campSubtypes.has(r.subtype)) return false;
     return true;
   });
@@ -955,7 +1081,7 @@ popup += `</div></div>`;
 
     const marker = new google.maps.Marker({
       position: { lat: latVal, lng: lonVal },
-      zIndex: r.favorite ? 1000 : 1
+      zIndex: r.favorite && heartedPlaceIdsRef.current.has(r.id) ? 1100 : r.favorite ? 1000 : heartedPlaceIdsRef.current.has(r.id) ? 900 : 1
     });
 
     const t = r.place_type as PlaceType;
@@ -965,6 +1091,7 @@ popup += `</div></div>`;
     (marker as any).__type = t;
     (marker as any).__subtype = sub;
     (marker as any).__isFavorite = r.favorite === true;
+    (marker as any).__isHearted = heartedPlaceIdsRef.current.has(r.id);
     (marker as any).__emoji =
       t === "birds" ? "🦅" :
       t === "hikes" ? "🥾" :
@@ -1074,7 +1201,7 @@ popup += `</div></div>`;
   useEffect(() => {
     isPopupOpenRef.current = false;
     if (mapRef.current) scheduleLoad();
-  }, [states, placeTypes, selectedCampSubtypes, selectedHighwaySubtypes, favOnlyCategories]);
+  }, [states, placeTypes, selectedCampSubtypes, selectedHighwaySubtypes, favOnlyCategories, heartOnlyCategories, currentUserId, heartedPlaceIds]);
 
   useEffect(() => {
     if (mapRef.current) {
@@ -1363,9 +1490,33 @@ popup += `</div></div>`;
           fontSize: 16,
           borderRadius: 10,
           border: "1px solid #d9d9d9",
-          marginBottom: 18
+          marginBottom: 12
         }}
       />
+
+      <div style={{ marginBottom: 16 }}>
+        <div style={{ fontSize: 12, fontWeight: 700, color: "#555", marginBottom: 6 }}>
+          User
+        </div>
+        <select
+          value={currentUserId ?? ""}
+          onChange={(e) => setCurrentUserId(Number(e.target.value))}
+          style={{
+            width: "100%",
+            boxSizing: "border-box",
+            padding: "10px 12px",
+            fontSize: 14,
+            borderRadius: 8,
+            border: "1px solid #d9d9d9"
+          }}
+        >
+          {appUsers.map((u) => (
+            <option key={u.user_id} value={u.user_id}>
+              {u.display_name || u.user_name}
+            </option>
+          ))}
+        </select>
+      </div>
 
       {(placeResults.length > 0 || highwayResults.length > 0) && (
         <div
@@ -1420,6 +1571,7 @@ popup += `</div></div>`;
         ]).map((item) => {
           const checked = placeTypes.includes(item.key);
           const favOnly = favOnlyCategories.includes(item.key);
+          const heartOnly = heartOnlyCategories.includes(item.key);
           const showArrow = item.key === "camps" || item.key === "highways";
 
           return (
@@ -1427,7 +1579,7 @@ popup += `</div></div>`;
               <div
                 style={{
                   display: "grid",
-                  gridTemplateColumns: "24px 1fr 24px 24px",
+                  gridTemplateColumns: "24px 1fr 24px 24px 24px",
                   alignItems: "center",
                   gap: 8,
                   minHeight: 34
@@ -1473,9 +1625,24 @@ popup += `</div></div>`;
                     color: favOnly ? "#d0a100" : "#999",
                     lineHeight: 1
                   }}
-                  title="Favorites only"
+                  title="Priority only"
                 >
                   ★
+                </button>
+
+                <button
+                  onClick={() => toggleHeartOnly(item.key)}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                    fontSize: 20,
+                    color: heartOnly ? "#c62828" : "#999",
+                    lineHeight: 1
+                  }}
+                  title="Hearted only"
+                >
+                  ♥
                 </button>
               </div>
 
