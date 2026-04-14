@@ -1084,12 +1084,23 @@ popup += `</div></div>`;
   }
 
   const filteredData = data.filter((r) => {
-    const type = r.place_type as PlaceType;
-    if (filtersRef.current.favOnlyCategories.has(type) && !r.favorite) return false;
-    if (filtersRef.current.heartOnlyCategories.has(type) && !heartedPlaceIdsRef.current.has(r.id)) return false;
-    if (type === "camps" && !filtersRef.current.campSubtypes.has(r.subtype)) return false;
-    return true;
-  });
+  const type = r.place_type as PlaceType;
+  const favOn = filtersRef.current.favOnlyCategories.has(type);
+  const heartOn = filtersRef.current.heartOnlyCategories.has(type);
+  const isFav = !!r.favorite;
+  const isHeart = heartedPlaceIdsRef.current.has(r.id);
+
+  if (favOn && heartOn) {
+    if (!isFav && !isHeart) return false;
+  } else if (favOn) {
+    if (!isFav) return false;
+  } else if (heartOn) {
+    if (!isHeart) return false;
+  }
+
+  if (type === "camps" && !filtersRef.current.campSubtypes.has(r.subtype)) return false;
+  return true;
+});
 
   setLoadedPlaces(filteredData);
   const google = (window as any).google;
