@@ -272,7 +272,7 @@ const clearAllStates = () => {
         fillColor: "#ffffff",
         fillOpacity: 1,
         strokeWeight: isFavorite ? 3 : 2,
-        strokeColor: isFavorite ? "#FFD700" : "#8a6d1d",
+        strokeColor: isFavorite ? "#FFD700" : "#f80808",
         labelOrigin: new google.maps.Point(0, 0)
       };
     }
@@ -284,7 +284,7 @@ const clearAllStates = () => {
         fillColor: "#c4fcfe",
         fillOpacity: 1,
         strokeWeight: isFavorite ? 3 : 2,
-        strokeColor: isFavorite ? "#f3cf05" : "#8a6d1d",
+        strokeColor: isFavorite ? "#f3cf05" : "#f80808",
         labelOrigin: new google.maps.Point(0, 1)
       };
     }
