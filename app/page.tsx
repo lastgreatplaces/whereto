@@ -243,9 +243,10 @@ useEffect(() => {
         .insert([{ user_id: currentUserId, id: place.id }]);
 
       if (error) {
-        console.error("Error adding heart:", error);
-        return;
-      }
+  console.error("Error adding heart:", error);
+  alert(`Heart save failed: ${error.message}`);
+  return;
+}
 
       const next = new Set(heartedPlaceIdsRef.current);
       next.add(place.id);
