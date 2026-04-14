@@ -140,6 +140,8 @@ const infoWindowRef = useRef<any>(null);
 const lastFetchTimerRef = useRef<any>(null);
 const isPopupOpenRef = useRef<boolean>(false);
 
+const currentUserIdRef = useRef<number | null>(null);
+
 const markersMapRef = useRef<Map<string, any>>(new Map());
 const campMarkersRef = useRef<any[]>([]);
 const nonClusterMarkersRef = useRef<any[]>([]);
@@ -185,11 +187,22 @@ useEffect(() => {
   }, [states, placeTypes, selectedCampSubtypes, selectedHighwaySubtypes, favOnlyCategories, heartOnlyCategories]);
 
   useEffect(() => {
-    if (!routeMessage) return;
-    const timer = setTimeout(() => setRouteMessage(""), 2200);
-    return () => clearTimeout(timer);
-  }, [routeMessage]);
+  if (!routeMessage) return;
+  const timer = setTimeout(() => setRouteMessage(""), 2200);
+  return () => clearTimeout(timer);
+}, [routeMessage]);
 
+useEffect(() => {
+  currentUserIdRef.current = currentUserId;
+}, [currentUserId]);
+
+useEffect(() => {
+  if (currentUserId && mapRef.current) {
+    scheduleLoad(true);
+  }
+}, [currentUserId]);
+
+  
   const escapeHtml = (value: any) =>
     String(value ?? "")
       .replace(/&/g, "&amp;")
@@ -217,11 +230,12 @@ useEffect(() => {
   };
 
   const togglePlaceHeart = async (place: any) => {
-    if (!currentUserId) {
-      console.error("No currentUserId set for heart toggle");
-      alert("No user is selected for hearts.");
-      return;
-    }
+   const activeUserId = currentUserIdRef.current;
+
+if (!activeUserId) {
+  alert("No user is selected for hearts.");
+  return;
+}
 
     const isHearted = heartedPlaceIdsRef.current.has(place.id);
 
@@ -230,7 +244,7 @@ useEffect(() => {
       const { error } = await supabase
         .from("user_hearts_places")
         .delete()
-        .eq("user_id", currentUserId)
+        .eq("user_id", activeUserId)
         .eq("id", place.id);
 
       if (error) {
@@ -246,7 +260,7 @@ useEffect(() => {
       console.log("Adding heart", { currentUserId, placeId: place.id });
       const { error } = await supabase
         .from("user_hearts_places")
-        .insert([{ user_id: currentUserId, id: place.id }]);
+       .insert([{ user_id: activeUserId, id: place.id }])
 
       if (error) {
         console.error("Error adding heart:", error);
