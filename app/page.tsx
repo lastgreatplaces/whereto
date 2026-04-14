@@ -265,7 +265,7 @@ if (infoWindowRef.current) {
   infoWindowRef.current.close();
 }
 isPopupOpenRef.current = false;
-scheduleLoad();
+scheduleLoad(true);
 };
 
   const toggleOpenGroup = (group: string) => {
@@ -1153,10 +1153,11 @@ popup += `</div></div>`;
   clustererRef.current.addMarkers(campMarkersRef.current);
   applyMarkerSizing();
 };
-  const scheduleLoad = () => {
-    if (lastFetchTimerRef.current) clearTimeout(lastFetchTimerRef.current);
-    lastFetchTimerRef.current = setTimeout(() => loadPlaces(), 400);
-  };
+  const scheduleLoad = (force = false) => {
+  if (!force && isPopupOpenRef.current) return;
+  if (lastFetchTimerRef.current) clearTimeout(lastFetchTimerRef.current);
+  lastFetchTimerRef.current = setTimeout(() => loadPlaces(), 400);
+};
 
   useEffect(() => {
     const key = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY;
