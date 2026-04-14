@@ -960,27 +960,17 @@ popup += `</div></div>`;
       }
 
       const heartBtn = document.getElementById(`toggle-heart-btn-${place.id}`);
-      if (heartBtn) {
-        const heartHandler = (ev: Event) => {
-          ev.preventDefault();
-          ev.stopPropagation();
-          console.log("Heart button clicked", { placeId: place.id });
-          void togglePlaceHeart(place);
-        };
+if (heartBtn) {
+  (heartBtn as HTMLButtonElement).onclick = (ev) => {
+    ev.preventDefault();
+    ev.stopPropagation();
+    console.log("Heart button clicked", { placeId: place.id });
+    void togglePlaceHeart(place);
+  };
+} else {
+  console.error("Heart button not found in InfoWindow DOM", { placeId: place.id });
+}
 
-        heartBtn.addEventListener("mousedown", (ev) => {
-          ev.preventDefault();
-          ev.stopPropagation();
-        });
-        heartBtn.addEventListener("touchstart", (ev) => {
-          ev.preventDefault();
-          ev.stopPropagation();
-        }, { passive: false });
-        heartBtn.addEventListener("click", heartHandler, { once: true });
-        heartBtn.addEventListener("touchend", heartHandler, { once: true, passive: false });
-      } else {
-        console.error("Heart button not found in InfoWindow DOM", { placeId: place.id });
-      }
     });
   };
 
