@@ -8,9 +8,7 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? ""
 );
 
-type PlaceType = "birds" | "hikes" | "camps" | "highways" | "targets";
-type LandscapeRegion = "all" | "west" | "midwest" | "south" | "east";
-
+type PlaceType = "birds" | "hikes" | "camps" | "highways" | "targets" | "landscapes";
 interface Theme {
   color: string;
   emoji: string;
@@ -113,14 +111,6 @@ const STATE_GROUPS: Record<string, string[]> = {
 
 const ALL_STATES = Array.from(new Set(Object.values(STATE_GROUPS).flat()));
 
-const LANDSCAPE_REGION_STATES: Record<LandscapeRegion, string[]> = {
-  all: [],
-  west: ["AK", "AZ", "CA", "CO", "ID", "MT", "NV", "NM", "OR", "UT", "WA", "WY"],
-  midwest: ["IL", "IN", "IA", "KS", "MI", "MN", "MO", "NE", "ND", "OH", "SD", "WI"],
-  south: ["AL", "AR", "FL", "GA", "KY", "LA", "MS", "NC", "OK", "SC", "TN", "TX", "VA", "WV"],
-  east: ["CT", "DE", "ME", "MD", "MA", "NH", "NJ", "NY", "PA", "RI", "VT"]
-};
-
 function formatAcres(acres: number | null) {
   if (acres == null) return "—";
   return `${Math.round(acres).toLocaleString()} acres`;
@@ -164,10 +154,6 @@ const [isRouteMode, setIsRouteMode] = useState(false);
 const [routeStops, setRouteStops] = useState<RouteStop[]>([]);
 const [routeMessage, setRouteMessage] = useState("");
 
-const [showLandscapes, setShowLandscapes] = useState(false);
-const [landscapeRegion, setLandscapeRegion] = useState<LandscapeRegion>("all");
-const [highlightLandscapeFavorites, setHighlightLandscapeFavorites] = useState(false);
-const [highlightLandscapeHearts, setHighlightLandscapeHearts] = useState(false);
 
 const mapRef = useRef<any>(null);
 const clustererRef = useRef<any>(null);
@@ -537,9 +523,7 @@ scheduleLoad(true);
     isPopupOpenRef.current = false;
     setIsApplyingLandscapePriority(false);
 
-    if (mapRef.current) {
-      loadLandscapes();
-    }
+    scheduleLoad(true);
   };
 
   const toggleLandscapeHeart = async (row: LandscapeRow) => {
@@ -601,9 +585,7 @@ scheduleLoad(true);
       infoWindowRef.current.close();
     }
     isPopupOpenRef.current = false;
-    if (mapRef.current) {
-      loadLandscapes();
-    }
+    scheduleLoad(true);
   };
 
   const toggleOpenGroup = (group: string) => {
@@ -796,8 +778,10 @@ const clearAllStates = () => {
 
 const isFavorite = Boolean(row.favorite);
 const isHearted = heartedLandscapeIdsRef.current.has(Number(row.place_id));
-const useFavoriteHighlight = highlightLandscapeFavorites && isFavorite;
-const useHeartHighlight = highlightLandscapeHearts && isHearted;
+const starFilterOn = filtersRef.current.favOnlyCategories.has("landscapes");
+const heartFilterOn = filtersRef.current.heartOnlyCategories.has("landscapes");
+const useFavoriteHighlight = starFilterOn && isFavorite;
+const useHeartHighlight = heartFilterOn && isHearted;
 const useBothHighlight = useFavoriteHighlight && useHeartHighlight;
 
       const openLandscapePopup = (e: any) => {
@@ -898,17 +882,22 @@ const useBothHighlight = useFavoriteHighlight && useHeartHighlight;
   const loadLandscapes = async () => {
     clearLandscapes();
 
-    if (!showLandscapes || !mapRef.current) return;
+    if (!filtersRef.current.types.has("landscapes") || !mapRef.current) return;
 
-    let query = supabase
+    const statesArr = Array.from(filtersRef.current.states);
+    const stateMode = filtersRef.current.stateFilterMode;
+
+    if (stateMode === "filtered" && statesArr.length === 0) {
+      return;
+    }
+
+    const { data, error } = await supabase
       .from("whereto_top_portfolios_web")
       .select(
         "place_id,name,states,acres,owner_name,designation,ecoregion,ecoregion_rank,rank_top1000,in_top1000,geom,favorite"
       )
       .eq("in_top1000", true)
       .order("rank_top1000", { ascending: true });
-
-    const { data, error } = await query;
 
     if (error) {
       console.error("Landscape load error:", error);
@@ -917,35 +906,32 @@ const useBothHighlight = useFavoriteHighlight && useHeartHighlight;
 
     let rows = (data ?? []) as LandscapeRow[];
 
-    const starOn = highlightLandscapeFavorites;
-    const heartOn = highlightLandscapeHearts;
-
-    if (starOn || heartOn) {
-      rows = rows.filter((row) => {
-        const isStar = Boolean(row.favorite);
-        const isHeart = heartedLandscapeIdsRef.current.has(Number(row.place_id));
-
-        if (starOn && heartOn) {
-          return isStar || isHeart;
-        }
-        if (starOn) return isStar;
-        if (heartOn) return isHeart;
-        return true;
-      });
-    }
-
-    if (landscapeRegion !== "all") {
+    if (stateMode === "filtered") {
+      const selectedStates = new Set(statesArr.map((s) => s.trim().toUpperCase()));
       rows = rows.filter((row) => {
         const rowStates = (row.states || "")
           .split(",")
           .map((s) => s.trim().toUpperCase())
           .filter(Boolean);
 
-        return rowStates.some((st) =>
-          LANDSCAPE_REGION_STATES[landscapeRegion].includes(st)
-        );
+        return rowStates.some((st) => selectedStates.has(st));
       });
     }
+
+    const starOn = filtersRef.current.favOnlyCategories.has("landscapes");
+    const heartOn = filtersRef.current.heartOnlyCategories.has("landscapes");
+
+    rows = rows.filter((row) => {
+      const isFav = !!row.favorite;
+      const isHeart = heartedLandscapeIdsRef.current.has(Number(row.place_id));
+
+      if (starOn && heartOn) {
+        return isFav || isHeart;
+      }
+      if (starOn) return isFav;
+      if (heartOn) return isHeart;
+      return true;
+    });
 
     const google = (window as any).google;
     if (!google) return;
@@ -1574,13 +1560,14 @@ if (heartBtn) {
   if (!mapRef.current || !clustererRef.current) return;
 
   await loadHighways();
+  await loadLandscapes();
   clearPlaceMarkers();
 
   const statesArr = Array.from(filtersRef.current.states);
   const stateMode = filtersRef.current.stateFilterMode;
-  const typesArr = Array.from(filtersRef.current.types).filter((t) => t !== "highways");
+  const typesArr = Array.from(filtersRef.current.types).filter((t) => t !== "highways" && t !== "landscapes");
 
-  if (!typesArr.length && !filtersRef.current.types.has("highways")) {
+  if (!typesArr.length && !filtersRef.current.types.has("highways") && !filtersRef.current.types.has("landscapes")) {
     setLoadedPlaces([]);
     return;
   }
@@ -1766,7 +1753,7 @@ if (heartBtn) {
     if (mapRef.current) {
       loadLandscapes();
     }
-  }, [showLandscapes, landscapeRegion, highlightLandscapeFavorites, highlightLandscapeHearts, heartedLandscapeIds]);
+  }, [states, stateFilterMode, placeTypes, favOnlyCategories, heartOnlyCategories, heartedLandscapeIds]);
 
   const placeResults =
     searchQuery.length > 1
@@ -1779,7 +1766,7 @@ if (heartBtn) {
       : [];
 
   const hasAnySelectedStates = stateFilterMode === "national" || states.length > 0;
-  const categoryCount = placeTypes.length + (showLandscapes ? 1 : 0);
+  const categoryCount = placeTypes.length;
 
   return (
     <div style={{ position: "relative", height: "100vh", overflow: "hidden", fontFamily: "sans-serif" }}>
@@ -2344,7 +2331,8 @@ if (heartBtn) {
           { key: "hikes" as PlaceType, label: "🥾 Hikes" },
           { key: "camps" as PlaceType, label: "⛺ Camps" },
           { key: "highways" as PlaceType, label: "🛣️ Highways" },
-          { key: "targets" as PlaceType, label: "🎯 Targets" }
+          { key: "targets" as PlaceType, label: "🎯 Targets" },
+          { key: "landscapes" as PlaceType, label: "🏞️ Landscapes" }
         ]).map((item) => {
           const checked = placeTypes.includes(item.key);
           const favOnly = favOnlyCategories.includes(item.key);
@@ -2461,116 +2449,6 @@ if (heartBtn) {
             </div>
           );
         })}
-      </div>
-
-      <div style={{ marginTop: 14, borderBottom: "1px solid #eee", paddingBottom: 12 }}>
-        <button
-          onClick={() => setIsLandscapeSectionOpen((v) => !v)}
-          style={{
-            background: "none",
-            border: "none",
-            padding: 0,
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            gap: 8,
-            fontSize: 16,
-            fontWeight: 700,
-            color: "#666"
-          }}
-        >
-          <span>{isLandscapeSectionOpen ? "▼" : "▶"}</span>
-          <span>Landscapes</span>
-        </button>
-
-        {isLandscapeSectionOpen && (
-          <div style={{ marginTop: 10 }}>
-
-
-        <div
-  style={{
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: 10,
-    marginBottom: 10
-  }}
->
-  <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14 }}>
-    <input
-      type="checkbox"
-      checked={showLandscapes}
-      onChange={() => setShowLandscapes((v) => !v)}
-      style={{ width: 22, height: 22 }}
-    />
-    Show Landscapes
-  </label>
-
-  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-    <button
-      type="button"
-      onClick={() => setHighlightLandscapeFavorites((v) => !v)}
-      title={highlightLandscapeFavorites ? "Hide priority highlights" : "Highlight priority landscapes"}
-      aria-label={highlightLandscapeFavorites ? "Hide priority highlights" : "Highlight priority landscapes"}
-      style={{
-        background: "none",
-        border: "none",
-        cursor: "pointer",
-        fontSize: 28,
-        lineHeight: 1,
-        color: highlightLandscapeFavorites ? "#d4af37" : "#9e9e9e",
-        padding: 0
-      }}
-    >
-      ★
-    </button>
-
-    <button
-      type="button"
-      onClick={() => setHighlightLandscapeHearts((v) => !v)}
-      title={highlightLandscapeHearts ? "Hide heart highlights" : "Highlight hearted landscapes"}
-      aria-label={highlightLandscapeHearts ? "Hide heart highlights" : "Highlight hearted landscapes"}
-      style={{
-        background: "none",
-        border: "none",
-        cursor: "pointer",
-        fontSize: 24,
-        lineHeight: 1,
-        color: highlightLandscapeHearts ? "#c62828" : "#9e9e9e",
-        padding: 0
-      }}
-    >
-      {highlightLandscapeHearts ? "♥︎" : "♡"}
-    </button>
-  </div>
-</div>
-
-
-
-            <div style={{ marginBottom: 6, fontSize: 14, color: "#666" }}>Region</div>
-            <select
-              value={landscapeRegion}
-              onChange={(e) => setLandscapeRegion(e.target.value as LandscapeRegion)}
-              style={{
-                width: "100%",
-                padding: "10px 12px",
-                borderRadius: 8,
-                border: "1px solid #d9d9d9",
-                fontSize: 14
-              }}
-            >
-              <option value="all">All regions</option>
-              <option value="west">West</option>
-              <option value="midwest">Midwest</option>
-              <option value="south">South</option>
-              <option value="east">East</option>
-            </select>
-
-            <div style={{ fontSize: 12, color: "#666", marginTop: 10, lineHeight: 1.45 }}>
-              With neither icon selected, all Top 1000 landscapes are shown. The star shows priority landscapes only; the heart shows your hearted landscapes only. If both are selected, landscapes matching either rule are shown.
-            </div>
-          </div>
-        )}
       </div>
 
 <div style={{ marginTop: 14 }}>
@@ -2755,7 +2633,7 @@ if (heartBtn) {
             lineHeight: 1.45
           }}
         >
-          Choose categories, landscapes, and regions to display on the map. Close menu to view full map.
+          Choose categories and regions to display on the map. Close menu to view full map.
         </div>
 
         {(placeResults.length > 0 || highwayResults.length > 0) && (
@@ -2940,6 +2818,12 @@ if (heartBtn) {
     </div>
   );
 }
+
+
+
+
+
+
 
 
 
