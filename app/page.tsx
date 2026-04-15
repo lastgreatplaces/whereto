@@ -87,6 +87,21 @@ const BIRD_PRIORITY_SEASONS = [
   { value: "fall", label: "Fall" }
 ];
 const BIRD_PRIORITY_THRESHOLDS = [20, 25, 30, 35];
+const LANDSCAPE_ECOREGION_PRIORITY_OPTIONS = [
+  { value: "off", label: "Off" },
+  { value: "2", label: "≤ 2" },
+  { value: "5", label: "≤ 5" },
+  { value: "10", label: "≤ 10" },
+  { value: "20", label: "≤ 20" }
+];
+const LANDSCAPE_NATIONAL_PRIORITY_OPTIONS = [
+  { value: "off", label: "Off" },
+  { value: "50", label: "≤ 50" },
+  { value: "100", label: "≤ 100" },
+  { value: "250", label: "≤ 250" },
+  { value: "500", label: "≤ 500" },
+  { value: "1000", label: "≤ 1000" }
+];
 
 const STATE_GROUPS: Record<string, string[]> = {
   South: ["AL", "AR", "FL", "GA", "KY", "LA", "MS", "NC", "OK", "SC", "TN", "TX", "VA", "WV"],
@@ -130,6 +145,9 @@ const [isApplyingBywayPriority, setIsApplyingBywayPriority] = useState(false);
 const [birdPrioritySeason, setBirdPrioritySeason] = useState<string>("spring");
 const [birdPriorityThreshold, setBirdPriorityThreshold] = useState<number>(25);
 const [isApplyingBirdPriority, setIsApplyingBirdPriority] = useState(false);
+const [landscapePriorityEcoregionRank, setLandscapePriorityEcoregionRank] = useState<string>("5");
+const [landscapePriorityNationalRank, setLandscapePriorityNationalRank] = useState<string>("500");
+const [isApplyingLandscapePriority, setIsApplyingLandscapePriority] = useState(false);
 
 const [isFilterOpen, setIsFilterOpen] = useState(true);
 const [isRegionsOpen, setIsRegionsOpen] = useState(false);
@@ -456,6 +474,72 @@ scheduleLoad(true);
     isPopupOpenRef.current = false;
     setIsApplyingBirdPriority(false);
     scheduleLoad(true);
+  };
+
+  const applyLandscapePriorityThresholds = async () => {
+    if (!currentUserIdRef.current) {
+      alert("No user is selected for priority updates.");
+      return;
+    }
+
+    const ecoregionRank = landscapePriorityEcoregionRank === "off"
+      ? null
+      : Number(landscapePriorityEcoregionRank);
+    const nationalRank = landscapePriorityNationalRank === "off"
+      ? null
+      : Number(landscapePriorityNationalRank);
+
+    if (ecoregionRank == null && nationalRank == null) {
+      alert("Select at least one landscape priority rule.");
+      return;
+    }
+
+    if (ecoregionRank != null && !Number.isFinite(ecoregionRank)) {
+      alert("Invalid ecoregion rank threshold.");
+      return;
+    }
+
+    if (nationalRank != null && !Number.isFinite(nationalRank)) {
+      alert("Invalid national rank threshold.");
+      return;
+    }
+
+    setIsApplyingLandscapePriority(true);
+
+    const { data, error } = await supabase.rpc("apply_landscape_priority_thresholds", {
+      p_ecoregion_rank: ecoregionRank,
+      p_national_rank: nationalRank
+    });
+
+    if (error) {
+      console.error("Error applying landscape priorities:", error);
+      alert(`Landscape priority update failed: ${error.message}`);
+      setIsApplyingLandscapePriority(false);
+      return;
+    }
+
+    const updatedCount = Array.isArray(data) && data.length > 0 && data[0]?.updated_count != null
+      ? Number(data[0].updated_count)
+      : null;
+
+    const ecoLabel = ecoregionRank == null ? "off" : `≤ ${ecoregionRank}`;
+    const natLabel = nationalRank == null ? "off" : `≤ ${nationalRank}`;
+
+    setRouteMessage(
+      updatedCount == null
+        ? `Landscape priorities set: Eco ${ecoLabel} / National ${natLabel}`
+        : `Landscape priorities set: Eco ${ecoLabel} / National ${natLabel} (${updatedCount} landscapes)`
+    );
+
+    if (infoWindowRef.current) {
+      infoWindowRef.current.close();
+    }
+    isPopupOpenRef.current = false;
+    setIsApplyingLandscapePriority(false);
+
+    if (mapRef.current) {
+      loadLandscapes();
+    }
   };
 
   const toggleLandscapeHeart = async (row: LandscapeRow) => {
@@ -1996,14 +2080,14 @@ if (heartBtn) {
         >
           <span>{isPrioritySettingsOpen ? "▼" : "▶"} Priority Settings</span>
           <span style={{ fontSize: 11, color: "#777", fontWeight: 600 }}>
-            Birds {BIRD_PRIORITY_SEASONS.find((s) => s.value === birdPrioritySeason)?.label} ≥ {birdPriorityThreshold} · Byways ≥ {bywayPriorityThreshold.toFixed(1)}
+            Birds {BIRD_PRIORITY_SEASONS.find((s) => s.value === birdPrioritySeason)?.label} ≥ {birdPriorityThreshold} · Byways ≥ {bywayPriorityThreshold.toFixed(1)} · LGP Eco {landscapePriorityEcoregionRank === "off" ? "off" : `≤ ${landscapePriorityEcoregionRank}`} / Nat {landscapePriorityNationalRank === "off" ? "off" : `≤ ${landscapePriorityNationalRank}`}
           </span>
         </button>
 
         {isPrioritySettingsOpen && (
           <div style={{ marginTop: 10, display: "grid", gap: 8 }}>
             <div style={{ fontSize: 12, color: "#666", lineHeight: 1.4 }}>
-              Updates the shared gold-star priority field. Each Apply button rewrites priorities for that category based on the selected rule.
+              CLICK Category & Gold Star On to see Priority places by Category.  Each Apply button updates priorities for that category..
             </div>
 
             <div style={{ borderTop: "1px solid #eee", paddingTop: 8, display: "grid", gap: 8 }}>
@@ -2117,6 +2201,78 @@ if (heartBtn) {
             >
               {isApplyingBywayPriority ? "Applying..." : "Apply Byway Priorities"}
             </button>
+            </div>
+
+            <div style={{ borderTop: "1px solid #eee", paddingTop: 8, display: "grid", gap: 8 }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: "#444" }}>Landscape priorities</div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 120px", gap: 8, alignItems: "center" }}>
+                <label style={{ fontSize: 13, fontWeight: 700, color: "#444" }}>
+                  Ecoregion rank
+                </label>
+                <select
+                  value={landscapePriorityEcoregionRank}
+                  onChange={(e) => setLandscapePriorityEcoregionRank(e.target.value)}
+                  style={{
+                    width: "100%",
+                    padding: "8px 10px",
+                    borderRadius: 8,
+                    border: "1px solid #d9d9d9",
+                    fontSize: 13
+                  }}
+                >
+                  {LANDSCAPE_ECOREGION_PRIORITY_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 120px", gap: 8, alignItems: "center" }}>
+                <label style={{ fontSize: 13, fontWeight: 700, color: "#444" }}>
+                  National rank
+                </label>
+                <select
+                  value={landscapePriorityNationalRank}
+                  onChange={(e) => setLandscapePriorityNationalRank(e.target.value)}
+                  style={{
+                    width: "100%",
+                    padding: "8px 10px",
+                    borderRadius: 8,
+                    border: "1px solid #d9d9d9",
+                    fontSize: 13
+                  }}
+                >
+                  {LANDSCAPE_NATIONAL_PRIORITY_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div style={{ fontSize: 11, color: "#666", lineHeight: 1.35 }}>
+                If both are selected, landscapes matching either rule are starred. Set one dropdown to Off to use only the other rule.
+              </div>
+
+              <button
+                type="button"
+                disabled={isApplyingLandscapePriority}
+                onClick={applyLandscapePriorityThresholds}
+                style={{
+                  background: isApplyingLandscapePriority ? "#bdbdbd" : "#2e7d32",
+                  color: "white",
+                  border: "none",
+                  borderRadius: 8,
+                  padding: "9px 10px",
+                  fontSize: 12,
+                  fontWeight: 700,
+                  cursor: isApplyingLandscapePriority ? "default" : "pointer"
+                }}
+              >
+                {isApplyingLandscapePriority ? "Applying..." : "Apply Landscape Priorities"}
+              </button>
             </div>
           </div>
         )}
@@ -2767,6 +2923,11 @@ if (heartBtn) {
     </div>
   );
 }
+
+
+
+
+
 
 
 
