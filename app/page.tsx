@@ -79,6 +79,7 @@ const CAMP_SUBTYPE_LABELS: Record<string, string> = {
 
 const UI_CAMP_SUBTYPES = ["COE", "NF", "NP", "SP", "SF", "BLM", "BD", "NRA", "CP", "SFW", "RES"];
 const UI_HIGHWAY_SUBTYPES = ["Scenic", "Backcountry"];
+const BYWAY_PRIORITY_THRESHOLDS = [2.0, 2.3, 2.6, 3.0, 3.3, 3.6];
 
 const STATE_GROUPS: Record<string, string[]> = {
   South: ["AL", "AR", "FL", "GA", "KY", "LA", "MS", "NC", "OK", "SC", "TN", "TX", "VA", "WV"],
@@ -116,6 +117,9 @@ const [currentUserId, setCurrentUserId] = useState<number | null>(null);
 const [heartedPlaceIds, setHeartedPlaceIds] = useState<Set<number>>(new Set());
 const [heartedBywayIds, setHeartedBywayIds] = useState<Set<number>>(new Set());
 const [heartedLandscapeIds, setHeartedLandscapeIds] = useState<Set<number>>(new Set());
+const [isPrioritySettingsOpen, setIsPrioritySettingsOpen] = useState(false);
+const [bywayPriorityThreshold, setBywayPriorityThreshold] = useState<number>(3.3);
+const [isApplyingBywayPriority, setIsApplyingBywayPriority] = useState(false);
 
 const [isFilterOpen, setIsFilterOpen] = useState(true);
 const [isRegionsOpen, setIsRegionsOpen] = useState(false);
@@ -346,6 +350,48 @@ scheduleLoad(true);
       infoWindowRef.current.close();
     }
     isPopupOpenRef.current = false;
+    scheduleLoad(true);
+  };
+
+  const applyBywayPriorityThreshold = async () => {
+    if (!currentUserIdRef.current) {
+      alert("No user is selected for priority updates.");
+      return;
+    }
+
+    setIsApplyingBywayPriority(true);
+
+    const resetResult = await supabase
+      .from("byways")
+      .update({ favorite: false })
+      .not("byway_id", "is", null);
+
+    if (resetResult.error) {
+      console.error("Error resetting byway priorities:", resetResult.error);
+      alert(`Byway priority reset failed: ${resetResult.error.message}`);
+      setIsApplyingBywayPriority(false);
+      return;
+    }
+
+    const applyResult = await supabase
+      .from("byways")
+      .update({ favorite: true })
+      .gte("landscape_score", bywayPriorityThreshold);
+
+    if (applyResult.error) {
+      console.error("Error applying byway priorities:", applyResult.error);
+      alert(`Byway priority update failed: ${applyResult.error.message}`);
+      setIsApplyingBywayPriority(false);
+      return;
+    }
+
+    setRouteMessage(`Byway priorities set at ≥ ${bywayPriorityThreshold.toFixed(1)}`);
+
+    if (infoWindowRef.current) {
+      infoWindowRef.current.close();
+    }
+    isPopupOpenRef.current = false;
+    setIsApplyingBywayPriority(false);
     scheduleLoad(true);
   };
 
@@ -1867,6 +1913,78 @@ if (heartBtn) {
         </select>
       </div>
 
+      <div style={{ marginBottom: 16, border: "1px solid #eee", borderRadius: 10, padding: 10, background: "#fafafa" }}>
+        <button
+          type="button"
+          onClick={() => setIsPrioritySettingsOpen((v) => !v)}
+          style={{
+            width: "100%",
+            background: "none",
+            border: "none",
+            padding: 0,
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            fontSize: 14,
+            fontWeight: 700,
+            color: "#555"
+          }}
+        >
+          <span>{isPrioritySettingsOpen ? "▼" : "▶"} Priority Settings</span>
+          <span style={{ fontSize: 11, color: "#777", fontWeight: 600 }}>Byways ≥ {bywayPriorityThreshold.toFixed(1)}</span>
+        </button>
+
+        {isPrioritySettingsOpen && (
+          <div style={{ marginTop: 10, display: "grid", gap: 8 }}>
+            <div style={{ fontSize: 12, color: "#666", lineHeight: 1.4 }}>
+              Updates the shared gold-star priority field. This resets current byway priorities before applying the selected threshold.
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 120px", gap: 8, alignItems: "center" }}>
+              <label style={{ fontSize: 13, fontWeight: 700, color: "#444" }}>
+                Byway minimum score
+              </label>
+              <select
+                value={bywayPriorityThreshold}
+                onChange={(e) => setBywayPriorityThreshold(Number(e.target.value))}
+                style={{
+                  width: "100%",
+                  padding: "8px 10px",
+                  borderRadius: 8,
+                  border: "1px solid #d9d9d9",
+                  fontSize: 13
+                }}
+              >
+                {BYWAY_PRIORITY_THRESHOLDS.map((threshold) => (
+                  <option key={threshold} value={threshold}>
+                    ≥ {threshold.toFixed(1)}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <button
+              type="button"
+              disabled={isApplyingBywayPriority}
+              onClick={applyBywayPriorityThreshold}
+              style={{
+                background: isApplyingBywayPriority ? "#bdbdbd" : "#d0a100",
+                color: "white",
+                border: "none",
+                borderRadius: 8,
+                padding: "9px 10px",
+                fontSize: 12,
+                fontWeight: 700,
+                cursor: isApplyingBywayPriority ? "default" : "pointer"
+              }}
+            >
+              {isApplyingBywayPriority ? "Applying..." : "Apply Byway Priorities"}
+            </button>
+          </div>
+        )}
+      </div>
+
       {(placeResults.length > 0 || highwayResults.length > 0) && (
         <div
           style={{
@@ -2512,6 +2630,12 @@ if (heartBtn) {
     </div>
   );
 }
+
+
+
+
+
+
 
 
 
