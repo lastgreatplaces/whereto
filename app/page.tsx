@@ -115,6 +115,7 @@ const [appUsers, setAppUsers] = useState<any[]>([]);
 const [currentUserId, setCurrentUserId] = useState<number | null>(null);
 const [heartedPlaceIds, setHeartedPlaceIds] = useState<Set<number>>(new Set());
 const [heartedBywayIds, setHeartedBywayIds] = useState<Set<number>>(new Set());
+const [heartedLandscapeIds, setHeartedLandscapeIds] = useState<Set<number>>(new Set());
 
 const [isFilterOpen, setIsFilterOpen] = useState(true);
 const [isRegionsOpen, setIsRegionsOpen] = useState(false);
@@ -134,6 +135,7 @@ const [routeMessage, setRouteMessage] = useState("");
 const [showLandscapes, setShowLandscapes] = useState(false);
 const [landscapeRegion, setLandscapeRegion] = useState<LandscapeRegion>("all");
 const [highlightLandscapeFavorites, setHighlightLandscapeFavorites] = useState(false);
+const [highlightLandscapeHearts, setHighlightLandscapeHearts] = useState(false);
 
 const mapRef = useRef<any>(null);
 const clustererRef = useRef<any>(null);
@@ -150,6 +152,7 @@ const highwayLinesRef = useRef<any[]>([]);
 const landscapePolygonsRef = useRef<any[]>([]);
 const heartedPlaceIdsRef = useRef<Set<number>>(new Set());
 const heartedBywayIdsRef = useRef<Set<number>>(new Set());
+const heartedLandscapeIdsRef = useRef<Set<number>>(new Set());
 
 const filtersRef = useRef({
   stateFilterMode,
@@ -346,6 +349,70 @@ scheduleLoad(true);
     scheduleLoad(true);
   };
 
+  const toggleLandscapeHeart = async (row: LandscapeRow) => {
+    const activeUserId = currentUserIdRef.current;
+
+    if (!activeUserId) {
+      alert("No user is selected for hearts.");
+      return;
+    }
+
+    const landscapeId = Number(row.place_id);
+    if (!Number.isFinite(landscapeId)) {
+      alert("This landscape is missing place_id, so it cannot be hearted.");
+      console.error("Missing place_id for landscape heart", row);
+      return;
+    }
+
+    const isHearted = heartedLandscapeIdsRef.current.has(landscapeId);
+
+    if (isHearted) {
+      console.log("Removing landscape heart", { userId: activeUserId, placeId: landscapeId });
+      const { error } = await supabase
+        .from("user_hearts_landscapes")
+        .delete()
+        .eq("user_id", activeUserId)
+        .eq("place_id", landscapeId);
+
+      if (error) {
+        console.error("Error removing landscape heart:", error);
+        alert(`Landscape heart remove failed: ${error.message}`);
+        return;
+      }
+
+      const next = new Set(heartedLandscapeIdsRef.current);
+      next.delete(landscapeId);
+      heartedLandscapeIdsRef.current = next;
+      setHeartedLandscapeIds(next);
+    } else {
+      console.log("Adding landscape heart", { userId: activeUserId, placeId: landscapeId });
+      const { error } = await supabase
+        .from("user_hearts_landscapes")
+        .insert([{ user_id: activeUserId, place_id: landscapeId }]);
+
+      if (error) {
+        console.error("Error adding landscape heart:", error);
+        alert(`Landscape heart add failed: ${error.message}`);
+        return;
+      }
+
+      const next = new Set(heartedLandscapeIdsRef.current);
+      next.add(landscapeId);
+      heartedLandscapeIdsRef.current = next;
+      setHeartedLandscapeIds(next);
+    }
+
+    setRouteMessage(isHearted ? "Landscape heart removed" : "Landscape heart added");
+
+    if (infoWindowRef.current) {
+      infoWindowRef.current.close();
+    }
+    isPopupOpenRef.current = false;
+    if (mapRef.current) {
+      loadLandscapes();
+    }
+  };
+
   const toggleOpenGroup = (group: string) => {
     setOpenGroups((prev) =>
       prev.includes(group) ? prev.filter((g) => g !== group) : [...prev, group]
@@ -535,28 +602,22 @@ const clearAllStates = () => {
     const createPolygon = (paths: any[]) => {
 
 const isFavorite = Boolean(row.favorite);
+const isHearted = heartedLandscapeIdsRef.current.has(Number(row.place_id));
 const useFavoriteHighlight = highlightLandscapeFavorites && isFavorite;
+const useHeartHighlight = highlightLandscapeHearts && isHearted;
+const useBothHighlight = useFavoriteHighlight && useHeartHighlight;
 
-      const poly = new google.maps.Polygon({
-  paths,
-  strokeColor: useFavoriteHighlight ? "#d4af37" : "#2e7d32",
-  strokeOpacity: 1,
-  strokeWeight: useFavoriteHighlight ? 3.2 : 1.5,
-  fillColor: "#66bb6a",
-  fillOpacity: 0.65,
-  map,
-  zIndex: useFavoriteHighlight ? 8 : 2
-});
-
-      poly.addListener("click", (e: any) => {
+      const openLandscapePopup = (e: any) => {
         if (!infoWindowRef.current) return;
 
+        isPopupOpenRef.current = true;
         const portfolioRank = row.rank_top1000 ?? "—";
+        const currentIsHearted = heartedLandscapeIdsRef.current.has(Number(row.place_id));
 
         infoWindowRef.current.setContent(`
           <div style="padding:10px; font-family:sans-serif; min-width:220px; max-width:280px;">
-            <div style="font-weight:700; font-size:15px; margin-bottom:8px;">
-              ${escapeHtml(row.name)}
+            <div style="font-weight:700; font-size:15px; margin-bottom:8px; display:flex; align-items:center; gap:5px;">
+              <span>${escapeHtml(row.name)}</span>${row.favorite ? "⭐" : ""}${currentIsHearted ? '<span style="color:#c62828;">♥</span>' : ""}
             </div>
             <div style="font-size:12px; line-height:1.55;">
               <div><span style="font-weight:700;">States:</span> ${escapeHtml(row.states || "—")}</div>
@@ -567,12 +628,59 @@ const useFavoriteHighlight = highlightLandscapeFavorites && isFavorite;
               <div><span style="font-weight:700;">Ecoregion Rank:</span> ${escapeHtml(row.ecoregion_rank ?? "—")}</div>
               <div><span style="font-weight:700;">Top 1000 Rank:</span> ${escapeHtml(portfolioRank)}</div>
             </div>
+            <div style="margin-top:10px; border-top:1px solid #eee; padding-top:8px; display:flex; flex-direction:column; gap:6px;">
+              <button type="button" id="toggle-landscape-heart-btn-${row.place_id}" style="background:${currentIsHearted ? "#fde7e9" : "#fff5f5"}; color:#b3261e; border:1px solid #ef9a9a; font-size:11px; font-weight:bold; padding:8px; border-radius:4px; text-align:center; cursor:pointer; position:relative; z-index:9999; pointer-events:auto;">
+                ${currentIsHearted ? "♥ Remove Heart" : "♡ Add Heart"}
+              </button>
+            </div>
           </div>
         `);
 
         infoWindowRef.current.setPosition(e.latLng);
         infoWindowRef.current.open(map);
+
+        google.maps.event.addListenerOnce(infoWindowRef.current, "domready", () => {
+          const heartBtn = document.getElementById(`toggle-landscape-heart-btn-${row.place_id}`);
+          if (heartBtn) {
+            (heartBtn as HTMLButtonElement).onclick = (ev) => {
+              ev.preventDefault();
+              ev.stopPropagation();
+              console.log("Landscape heart button clicked", { placeId: row.place_id });
+              void toggleLandscapeHeart(row);
+            };
+          } else {
+            console.error("Landscape heart button not found in InfoWindow DOM", { placeId: row.place_id });
+          }
+        });
+      };
+
+      if (useBothHighlight) {
+        const haloPoly = new google.maps.Polygon({
+          paths,
+          strokeColor: "#c62828",
+          strokeOpacity: 1,
+          strokeWeight: 6.2,
+          fillColor: "#66bb6a",
+          fillOpacity: 0.55,
+          map,
+          zIndex: 9
+        });
+        haloPoly.addListener("click", openLandscapePopup);
+        landscapePolygonsRef.current.push(haloPoly);
+      }
+
+      const poly = new google.maps.Polygon({
+        paths,
+        strokeColor: useFavoriteHighlight ? "#d4af37" : useHeartHighlight ? "#c62828" : "#2e7d32",
+        strokeOpacity: 1,
+        strokeWeight: useFavoriteHighlight ? 3.4 : useHeartHighlight ? 3.2 : 1.5,
+        fillColor: "#66bb6a",
+        fillOpacity: 0.65,
+        map,
+        zIndex: useBothHighlight ? 10 : useFavoriteHighlight ? 8 : useHeartHighlight ? 7 : 2
       });
+
+      poly.addListener("click", openLandscapePopup);
 
       landscapePolygonsRef.current.push(poly);
     };
@@ -1206,6 +1314,40 @@ if (heartBtn) {
     loadHeartedByways();
   }, [currentUserId]);
 
+  useEffect(() => {
+    const loadHeartedLandscapes = async () => {
+      if (!currentUserId) {
+        const empty = new Set<number>();
+        heartedLandscapeIdsRef.current = empty;
+        setHeartedLandscapeIds(empty);
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from("user_hearts_landscapes")
+        .select("place_id")
+        .eq("user_id", currentUserId);
+
+      if (error || !data) {
+        console.error("Error loading hearted landscapes:", error);
+        const empty = new Set<number>();
+        heartedLandscapeIdsRef.current = empty;
+        setHeartedLandscapeIds(empty);
+        return;
+      }
+
+      const next = new Set<number>(
+        data
+          .map((r) => Number(r.place_id))
+          .filter((id) => Number.isFinite(id))
+      );
+      heartedLandscapeIdsRef.current = next;
+      setHeartedLandscapeIds(next);
+    };
+
+    loadHeartedLandscapes();
+  }, [currentUserId]);
+
   const clearPlaceMarkers = () => {
     if (clustererRef.current) {
       clustererRef.current.clearMarkers();
@@ -1414,7 +1556,7 @@ if (heartBtn) {
     if (mapRef.current) {
       loadLandscapes();
     }
-  }, [showLandscapes, landscapeRegion, highlightLandscapeFavorites]);
+  }, [showLandscapes, landscapeRegion, highlightLandscapeFavorites, highlightLandscapeHearts, heartedLandscapeIds]);
 
   const placeResults =
     searchQuery.length > 1
@@ -1936,23 +2078,43 @@ if (heartBtn) {
     Show Top 1000 Landscapes
   </label>
 
-  <button
-    type="button"
-    onClick={() => setHighlightLandscapeFavorites((v) => !v)}
-    title={highlightLandscapeFavorites ? "Hide favorite highlights" : "Highlight favorites"}
-    aria-label={highlightLandscapeFavorites ? "Hide favorite highlights" : "Highlight favorites"}
-    style={{
-      background: "none",
-      border: "none",
-      cursor: "pointer",
-      fontSize: 28,
-      lineHeight: 1,
-      color: highlightLandscapeFavorites ? "#d4af37" : "#9e9e9e",
-      padding: 0
-    }}
-  >
-    ★
-  </button>
+  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+    <button
+      type="button"
+      onClick={() => setHighlightLandscapeFavorites((v) => !v)}
+      title={highlightLandscapeFavorites ? "Hide priority highlights" : "Highlight priority landscapes"}
+      aria-label={highlightLandscapeFavorites ? "Hide priority highlights" : "Highlight priority landscapes"}
+      style={{
+        background: "none",
+        border: "none",
+        cursor: "pointer",
+        fontSize: 28,
+        lineHeight: 1,
+        color: highlightLandscapeFavorites ? "#d4af37" : "#9e9e9e",
+        padding: 0
+      }}
+    >
+      ★
+    </button>
+
+    <button
+      type="button"
+      onClick={() => setHighlightLandscapeHearts((v) => !v)}
+      title={highlightLandscapeHearts ? "Hide heart highlights" : "Highlight hearted landscapes"}
+      aria-label={highlightLandscapeHearts ? "Hide heart highlights" : "Highlight hearted landscapes"}
+      style={{
+        background: "none",
+        border: "none",
+        cursor: "pointer",
+        fontSize: 24,
+        lineHeight: 1,
+        color: highlightLandscapeHearts ? "#c62828" : "#9e9e9e",
+        padding: 0
+      }}
+    >
+      {highlightLandscapeHearts ? "♥︎" : "♡"}
+    </button>
+  </div>
 </div>
 
 
@@ -2350,5 +2512,8 @@ if (heartBtn) {
     </div>
   );
 }
+
+
+
 
 
