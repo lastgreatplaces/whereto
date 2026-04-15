@@ -292,22 +292,22 @@ scheduleLoad(true);
       return;
     }
 
-    const bywayId = Number(byway.byways_id);
+    const bywayId = Number(byway.byway_id);
     if (!Number.isFinite(bywayId)) {
-      alert("This byway is missing byways_id, so it cannot be hearted.");
-      console.error("Missing byways_id for byway heart", byway);
+      alert("This byway is missing byway_id, so it cannot be hearted.");
+      console.error("Missing byway_id for byway heart", byway);
       return;
     }
 
     const isHearted = heartedBywayIdsRef.current.has(bywayId);
 
     if (isHearted) {
-      console.log("Removing byway heart", { userId: activeUserId, bywaysId: bywayId });
+      console.log("Removing byway heart", { userId: activeUserId, bywayId: bywayId });
       const { error } = await supabase
         .from("user_hearts_byways")
         .delete()
         .eq("user_id", activeUserId)
-        .eq("byways_id", bywayId);
+        .eq("byway_id", bywayId);
 
       if (error) {
         console.error("Error removing byway heart:", error);
@@ -320,10 +320,10 @@ scheduleLoad(true);
       heartedBywayIdsRef.current = next;
       setHeartedBywayIds(next);
     } else {
-      console.log("Adding byway heart", { userId: activeUserId, bywaysId: bywayId });
+      console.log("Adding byway heart", { userId: activeUserId, bywayId: bywayId });
       const { error } = await supabase
         .from("user_hearts_byways")
-        .insert([{ user_id: activeUserId, byways_id: bywayId }]);
+        .insert([{ user_id: activeUserId, byway_id: bywayId }]);
 
       if (error) {
         console.error("Error adding byway heart:", error);
@@ -656,7 +656,7 @@ const useFavoriteHighlight = highlightLandscapeFavorites && isFavorite;
 
   let query = supabase
     .from("byways")
-    .select("byways_id, geom_geojson, name, state, description, designats, favorite, subtype, scenic_score, distinctive_score, integrity_score, interest_score, landscape_score, landscape_rank, interest_badge");
+    .select("byway_id, geom_geojson, name, state, description, designats, favorite, subtype, scenic_score, distinctive_score, integrity_score, interest_score, landscape_score, landscape_rank, interest_badge");
 
   if (stateMode === "filtered") {
     query = query.in("state", statesArr);
@@ -672,7 +672,7 @@ const useFavoriteHighlight = highlightLandscapeFavorites && isFavorite;
   const filteredHighways = data.filter((h) => {
     const favOn = filtersRef.current.favOnlyCategories.has("highways");
     const heartOn = filtersRef.current.heartOnlyCategories.has("highways");
-    const bywayId = Number(h.byways_id);
+    const bywayId = Number(h.byway_id);
     const isFav = !!h.favorite;
     const isHeart = Number.isFinite(bywayId) && heartedBywayIdsRef.current.has(bywayId);
 
@@ -694,7 +694,7 @@ const useFavoriteHighlight = highlightLandscapeFavorites && isFavorite;
     const geo = h.geom_geojson;
     if (!geo || !geo.coordinates) return;
 
-    const bywayId = Number(h.byways_id);
+    const bywayId = Number(h.byway_id);
     const isHearted = Number.isFinite(bywayId) && heartedBywayIdsRef.current.has(bywayId);
     const isFavorite = !!h.favorite;
     const hasBoth = isFavorite && isHearted;
@@ -792,7 +792,7 @@ const useFavoriteHighlight = highlightLandscapeFavorites && isFavorite;
         if (!infoWindowRef.current) return;
         isPopupOpenRef.current = true;
 
-        const currentBywayId = Number(h.byways_id);
+        const currentBywayId = Number(h.byway_id);
         const currentIsHearted = Number.isFinite(currentBywayId) && heartedBywayIdsRef.current.has(currentBywayId);
         const rank = h.landscape_rank || "";
         let rankColor = "#999";
@@ -855,7 +855,7 @@ const useFavoriteHighlight = highlightLandscapeFavorites && isFavorite;
               ' · Interest ' + escapeHtml(h.interest_score ?? "—") +
             '</div>' +
 
-            '<button type="button" id="toggle-byway-heart-btn-' + escapeHtml(h.byways_id) + '" style="width:100%; background:' + (currentIsHearted ? '#fde7e9' : '#fff5f5') + '; color:#b3261e; border:1px solid #ef9a9a; font-size:11px; font-weight:bold; padding:8px; border-radius:4px; text-align:center; cursor:pointer; position:relative; z-index:9999; pointer-events:auto;">' +
+            '<button type="button" id="toggle-byway-heart-btn-' + escapeHtml(h.byway_id) + '" style="width:100%; background:' + (currentIsHearted ? '#fde7e9' : '#fff5f5') + '; color:#b3261e; border:1px solid #ef9a9a; font-size:11px; font-weight:bold; padding:8px; border-radius:4px; text-align:center; cursor:pointer; position:relative; z-index:9999; pointer-events:auto;">' +
               (currentIsHearted ? '♥ Remove Heart' : '♡ Add Heart') +
             '</button>' +
 
@@ -866,16 +866,16 @@ const useFavoriteHighlight = highlightLandscapeFavorites && isFavorite;
         infoWindowRef.current.open(mapRef.current);
 
         google.maps.event.addListenerOnce(infoWindowRef.current, "domready", () => {
-          const bywayHeartBtn = document.getElementById(`toggle-byway-heart-btn-${h.byways_id}`);
+          const bywayHeartBtn = document.getElementById(`toggle-byway-heart-btn-${h.byway_id}`);
           if (bywayHeartBtn) {
             (bywayHeartBtn as HTMLButtonElement).onclick = (ev) => {
               ev.preventDefault();
               ev.stopPropagation();
-              console.log("Byway heart button clicked", { bywaysId: h.byways_id });
+              console.log("Byway heart button clicked", { bywayId: h.byway_id });
               void toggleBywayHeart(h);
             };
           } else {
-            console.error("Byway heart button not found in InfoWindow DOM", { bywaysId: h.byways_id });
+            console.error("Byway heart button not found in InfoWindow DOM", { bywayId: h.byway_id });
           }
         });
       });
@@ -1183,7 +1183,7 @@ if (heartBtn) {
 
       const { data, error } = await supabase
         .from("user_hearts_byways")
-        .select("byways_id")
+        .select("byway_id")
         .eq("user_id", currentUserId);
 
       if (error || !data) {
@@ -1196,7 +1196,7 @@ if (heartBtn) {
 
       const next = new Set<number>(
         data
-          .map((r) => Number(r.byways_id))
+          .map((r) => Number(r.byway_id))
           .filter((id) => Number.isFinite(id))
       );
       heartedBywayIdsRef.current = next;
