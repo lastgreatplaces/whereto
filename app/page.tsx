@@ -778,11 +778,11 @@ const clearAllStates = () => {
 
 const isFavorite = Boolean(row.favorite);
 const isHearted = heartedLandscapeIdsRef.current.has(Number(row.place_id));
-const starFilterOn = filtersRef.current.favOnlyCategories.has("landscapes");
-const heartFilterOn = filtersRef.current.heartOnlyCategories.has("landscapes");
-const useFavoriteHighlight = starFilterOn && isFavorite;
-const useHeartHighlight = heartFilterOn && isHearted;
-const useBothHighlight = useFavoriteHighlight && useHeartHighlight;
+// Match the other category behavior: star/heart icons filter the layer, but
+// priority and heart styling remains visible whenever landscapes are displayed.
+const useFavoriteHighlight = isFavorite;
+const useHeartHighlight = isHearted;
+const useBothHighlight = isFavorite && isHearted;
 
       const openLandscapePopup = (e: any) => {
         if (!infoWindowRef.current) return;
@@ -2818,6 +2818,12 @@ if (heartBtn) {
     </div>
   );
 }
+
+
+
+
+
+
 
 
 
