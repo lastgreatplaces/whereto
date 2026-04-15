@@ -917,6 +917,23 @@ const useBothHighlight = useFavoriteHighlight && useHeartHighlight;
 
     let rows = (data ?? []) as LandscapeRow[];
 
+    const starOn = highlightLandscapeFavorites;
+    const heartOn = highlightLandscapeHearts;
+
+    if (starOn || heartOn) {
+      rows = rows.filter((row) => {
+        const isStar = Boolean(row.favorite);
+        const isHeart = heartedLandscapeIdsRef.current.has(Number(row.place_id));
+
+        if (starOn && heartOn) {
+          return isStar || isHeart;
+        }
+        if (starOn) return isStar;
+        if (heartOn) return isHeart;
+        return true;
+      });
+    }
+
     if (landscapeRegion !== "all") {
       rows = rows.filter((row) => {
         const rowStates = (row.states || "")
@@ -2087,7 +2104,7 @@ if (heartBtn) {
         {isPrioritySettingsOpen && (
           <div style={{ marginTop: 10, display: "grid", gap: 8 }}>
             <div style={{ fontSize: 12, color: "#666", lineHeight: 1.4 }}>
-              CLICK Category & Gold Star On to see Priority places by Category.  Each Apply button updates priorities for that category..
+              Updates the shared gold-star priority field. Each Apply button rewrites priorities for that category based on the selected rule.
             </div>
 
             <div style={{ borderTop: "1px solid #eee", paddingTop: 8, display: "grid", gap: 8 }}>
@@ -2486,7 +2503,7 @@ if (heartBtn) {
       onChange={() => setShowLandscapes((v) => !v)}
       style={{ width: 22, height: 22 }}
     />
-    Show Top 1000 Landscapes
+    Show Landscapes
   </label>
 
   <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -2550,7 +2567,7 @@ if (heartBtn) {
             </select>
 
             <div style={{ fontSize: 12, color: "#666", marginTop: 10, lineHeight: 1.45 }}>
-              Landscape polygons are filtered separately from camps, birds, hikes, highways, and targets.
+              With neither icon selected, all Top 1000 landscapes are shown. The star shows priority landscapes only; the heart shows your hearted landscapes only. If both are selected, landscapes matching either rule are shown.
             </div>
           </div>
         )}
@@ -2923,6 +2940,8 @@ if (heartBtn) {
     </div>
   );
 }
+
+
 
 
 
