@@ -359,33 +359,34 @@ scheduleLoad(true);
       return;
     }
 
+    const threshold = Number(bywayPriorityThreshold);
+    if (!Number.isFinite(threshold)) {
+      alert("Invalid byway priority threshold.");
+      return;
+    }
+
     setIsApplyingBywayPriority(true);
 
-    const resetResult = await supabase
-      .from("byways")
-      .update({ favorite: false })
-      .not("byway_id", "is", null);
+    const { data, error } = await supabase.rpc("apply_byway_priority_threshold", {
+      p_threshold: threshold
+    });
 
-    if (resetResult.error) {
-      console.error("Error resetting byway priorities:", resetResult.error);
-      alert(`Byway priority reset failed: ${resetResult.error.message}`);
+    if (error) {
+      console.error("Error applying byway priorities:", error);
+      alert(`Byway priority update failed: ${error.message}`);
       setIsApplyingBywayPriority(false);
       return;
     }
 
-    const applyResult = await supabase
-      .from("byways")
-      .update({ favorite: true })
-      .gte("landscape_score", bywayPriorityThreshold);
+    const updatedCount = Array.isArray(data) && data.length > 0 && data[0]?.updated_count != null
+      ? Number(data[0].updated_count)
+      : null;
 
-    if (applyResult.error) {
-      console.error("Error applying byway priorities:", applyResult.error);
-      alert(`Byway priority update failed: ${applyResult.error.message}`);
-      setIsApplyingBywayPriority(false);
-      return;
-    }
-
-    setRouteMessage(`Byway priorities set at ≥ ${bywayPriorityThreshold.toFixed(1)}`);
+    setRouteMessage(
+      updatedCount == null
+        ? `Byway priorities set at ≥ ${threshold.toFixed(1)}`
+        : `Byway priorities set at ≥ ${threshold.toFixed(1)} (${updatedCount} byways)`
+    );
 
     if (infoWindowRef.current) {
       infoWindowRef.current.close();
@@ -2630,6 +2631,12 @@ if (heartBtn) {
     </div>
   );
 }
+
+
+
+
+
+
 
 
 
