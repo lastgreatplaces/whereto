@@ -114,6 +114,7 @@ const [heartOnlyCategories, setHeartOnlyCategories] = useState<PlaceType[]>([]);
 const [appUsers, setAppUsers] = useState<any[]>([]);
 const [currentUserId, setCurrentUserId] = useState<number | null>(null);
 const [heartedPlaceIds, setHeartedPlaceIds] = useState<Set<number>>(new Set());
+const [heartedBywayIds, setHeartedBywayIds] = useState<Set<number>>(new Set());
 
 const [isFilterOpen, setIsFilterOpen] = useState(true);
 const [isRegionsOpen, setIsRegionsOpen] = useState(false);
@@ -148,6 +149,7 @@ const nonClusterMarkersRef = useRef<any[]>([]);
 const highwayLinesRef = useRef<any[]>([]);
 const landscapePolygonsRef = useRef<any[]>([]);
 const heartedPlaceIdsRef = useRef<Set<number>>(new Set());
+const heartedBywayIdsRef = useRef<Set<number>>(new Set());
 
 const filtersRef = useRef({
   stateFilterMode,
@@ -281,6 +283,68 @@ if (infoWindowRef.current) {
 isPopupOpenRef.current = false;
 scheduleLoad(true);
 };
+
+  const toggleBywayHeart = async (byway: any) => {
+    const activeUserId = currentUserIdRef.current;
+
+    if (!activeUserId) {
+      alert("No user is selected for hearts.");
+      return;
+    }
+
+    const bywayId = Number(byway.byways_id);
+    if (!Number.isFinite(bywayId)) {
+      alert("This byway is missing byways_id, so it cannot be hearted.");
+      console.error("Missing byways_id for byway heart", byway);
+      return;
+    }
+
+    const isHearted = heartedBywayIdsRef.current.has(bywayId);
+
+    if (isHearted) {
+      console.log("Removing byway heart", { userId: activeUserId, bywaysId: bywayId });
+      const { error } = await supabase
+        .from("user_hearts_byways")
+        .delete()
+        .eq("user_id", activeUserId)
+        .eq("byways_id", bywayId);
+
+      if (error) {
+        console.error("Error removing byway heart:", error);
+        alert(`Byway heart remove failed: ${error.message}`);
+        return;
+      }
+
+      const next = new Set(heartedBywayIdsRef.current);
+      next.delete(bywayId);
+      heartedBywayIdsRef.current = next;
+      setHeartedBywayIds(next);
+    } else {
+      console.log("Adding byway heart", { userId: activeUserId, bywaysId: bywayId });
+      const { error } = await supabase
+        .from("user_hearts_byways")
+        .insert([{ user_id: activeUserId, byways_id: bywayId }]);
+
+      if (error) {
+        console.error("Error adding byway heart:", error);
+        alert(`Byway heart add failed: ${error.message}`);
+        return;
+      }
+
+      const next = new Set(heartedBywayIdsRef.current);
+      next.add(bywayId);
+      heartedBywayIdsRef.current = next;
+      setHeartedBywayIds(next);
+    }
+
+    setRouteMessage(isHearted ? "Byway heart removed" : "Byway heart added");
+
+    if (infoWindowRef.current) {
+      infoWindowRef.current.close();
+    }
+    isPopupOpenRef.current = false;
+    scheduleLoad(true);
+  };
 
   const toggleOpenGroup = (group: string) => {
     setOpenGroups((prev) =>
@@ -591,164 +655,230 @@ const useFavoriteHighlight = highlightLandscapeFavorites && isFavorite;
   }
 
   let query = supabase
-  .from("byways")
-  .select("geom_geojson, name, state, description, designats, favorite, subtype, scenic_score, distinctive_score, integrity_score, interest_score, landscape_score, landscape_rank, interest_badge");
+    .from("byways")
+    .select("byways_id, geom_geojson, name, state, description, designats, favorite, subtype, scenic_score, distinctive_score, integrity_score, interest_score, landscape_score, landscape_rank, interest_badge");
 
   if (stateMode === "filtered") {
     query = query.in("state", statesArr);
   }
 
-  if (filtersRef.current.favOnlyCategories.has("highways")) {
-    query = query.eq("favorite", true);
-  }
-
   const { data, error } = await query;
   if (error || !data) {
+    console.error("Byway load error:", error);
     setLoadedHighways([]);
     return;
   }
 
-const filteredHighways = data.filter((h) =>
-  filtersRef.current.highwaySubtypes.has(h.subtype || "Scenic")
-);
+  const filteredHighways = data.filter((h) => {
+    const favOn = filtersRef.current.favOnlyCategories.has("highways");
+    const heartOn = filtersRef.current.heartOnlyCategories.has("highways");
+    const bywayId = Number(h.byways_id);
+    const isFav = !!h.favorite;
+    const isHeart = Number.isFinite(bywayId) && heartedBywayIdsRef.current.has(bywayId);
 
-setLoadedHighways(filteredHighways);
-const google = (window as any).google;
+    if (favOn && heartOn) {
+      if (!isFav && !isHeart) return false;
+    } else if (favOn) {
+      if (!isFav) return false;
+    } else if (heartOn) {
+      if (!isHeart) return false;
+    }
 
-filteredHighways.forEach((h) => {
-  const geo = h.geom_geojson;
-  if (!geo || !geo.coordinates) return;
+    return filtersRef.current.highwaySubtypes.has(h.subtype || "Scenic");
+  });
 
-  const subtype = h.subtype || "Scenic";
-  const rank = h.landscape_rank || "Good";
+  setLoadedHighways(filteredHighways);
+  const google = (window as any).google;
 
-  let lineColor = "#75736f"; // scenic
-  if (subtype === "Backcountry") lineColor = "#e46a13"; // backcountry
-  if (h.favorite) lineColor = "#e6c716"; // favorite
+  filteredHighways.forEach((h) => {
+    const geo = h.geom_geojson;
+    if (!geo || !geo.coordinates) return;
 
-  let strokeWeight = 3.0;
-  let strokeOpacity = 0.62;
-  let zIndex = subtype === "Backcountry" ? 10 : 5;
+    const bywayId = Number(h.byways_id);
+    const isHearted = Number.isFinite(bywayId) && heartedBywayIdsRef.current.has(bywayId);
+    const isFavorite = !!h.favorite;
+    const hasBoth = isFavorite && isHearted;
+    const subtype = h.subtype || "Scenic";
+    const rank = h.landscape_rank || "Good";
 
-  if (rank === "Exceptional") {
-    strokeWeight = 3.3;
-    strokeOpacity = 0.80;
-    zIndex = 40;
-  } else if (rank === "Excellent") {
-    strokeWeight = 3.3;
-    strokeOpacity = 0.75;
-    zIndex = 30;
-  } else if (rank === "Very Good") {
-    strokeWeight = 3.3;
-    strokeOpacity = 0.70;
-    zIndex = 20;
-  } else if (rank === "Good") {
-    strokeWeight = 3.0;
-    strokeOpacity = 0.65;
-    zIndex = subtype === "Backcountry" ? 10 : 5;
-  } else if (rank === "Worthwhile") {
-    strokeWeight = 2.7;
-    strokeOpacity = 0.50;
-    zIndex = 4;
-  } else if (rank === "Fair") {
-    strokeWeight = 2.7;
-    strokeOpacity = 0.50;
-    zIndex = 3;
-  } else {
-    strokeWeight = 2.5;
-    strokeOpacity = 0.35;
-    zIndex = 2;
-  }
+    let lineColor = "#75736f";
+    if (subtype === "Backcountry") lineColor = "#e46a13";
+    if (isHearted) lineColor = "#c62828";
+    if (isFavorite) lineColor = "#e6c716";
+    if (hasBoth) lineColor = "#d4af37";
 
-  if (h.favorite) {
-    strokeWeight = Math.max(strokeWeight, 4.0);
-    strokeOpacity = 0.85;
-    zIndex = 50;
-  }
+    let strokeWeight = 3.0;
+    let strokeOpacity = 0.62;
+    let zIndex = subtype === "Backcountry" ? 10 : 5;
 
-  const segments =
-    geo.type === "MultiLineString" ? geo.coordinates : [geo.coordinates];
+    if (rank === "Exceptional") {
+      strokeWeight = 3.3;
+      strokeOpacity = 0.80;
+      zIndex = 40;
+    } else if (rank === "Excellent") {
+      strokeWeight = 3.3;
+      strokeOpacity = 0.75;
+      zIndex = 30;
+    } else if (rank === "Very Good") {
+      strokeWeight = 3.3;
+      strokeOpacity = 0.70;
+      zIndex = 20;
+    } else if (rank === "Good") {
+      strokeWeight = 3.0;
+      strokeOpacity = 0.65;
+      zIndex = subtype === "Backcountry" ? 10 : 5;
+    } else if (rank === "Worthwhile") {
+      strokeWeight = 2.7;
+      strokeOpacity = 0.50;
+      zIndex = 4;
+    } else if (rank === "Fair") {
+      strokeWeight = 2.7;
+      strokeOpacity = 0.50;
+      zIndex = 3;
+    } else {
+      strokeWeight = 2.5;
+      strokeOpacity = 0.35;
+      zIndex = 2;
+    }
 
-  segments.forEach((segment: any[]) => {
-    const path = segment.map((c) => ({ lat: c[1], lng: c[0] }));
+    if (isHearted) {
+      strokeWeight = Math.max(strokeWeight, 4.0);
+      strokeOpacity = Math.max(strokeOpacity, 0.82);
+      zIndex = Math.max(zIndex, 45);
+    }
 
-    const poly = new google.maps.Polyline({
-      path,
-      geodesic: true,
-      strokeColor: lineColor,
-      strokeOpacity,
-      strokeWeight,
-      map: mapRef.current,
-      zIndex
-    });
+    if (isFavorite) {
+      strokeWeight = Math.max(strokeWeight, 4.0);
+      strokeOpacity = Math.max(strokeOpacity, 0.85);
+      zIndex = Math.max(zIndex, 50);
+    }
 
-   poly.addListener("click", (e: any) => {
-  const rank = h.landscape_rank || "";
-  let rankColor = "#999";
+    if (hasBoth) {
+      strokeWeight = Math.max(strokeWeight, 4.2);
+      strokeOpacity = 0.92;
+      zIndex = Math.max(zIndex, 60);
+    }
 
-  if (rank === "Exceptional") rankColor = "#1b5e20";
-  else if (rank === "Excellent") rankColor = "#227e28";
-  else if (rank === "Very Good") rankColor = "#3ba441";
-  else if (rank === "Good") rankColor = "#83c53d";
-  else if (rank === "Worthwhile") rankColor = "#fbc02d";
-  else if (rank === "Fair") rankColor = "#ef6c00";
-  else if (rank === "Low") rankColor = "#e57373";
+    const segments =
+      geo.type === "MultiLineString" ? geo.coordinates : [geo.coordinates];
 
-  const scoreDisplay =
-    h.landscape_score !== null && h.landscape_score !== undefined
-      ? Number(h.landscape_score).toFixed(1)
-      : "—";
+    segments.forEach((segment: any[]) => {
+      const path = segment.map((c) => ({ lat: c[1], lng: c[0] }));
 
-  infoWindowRef.current.setContent(
-    '<div style="padding:10px; font-family:sans-serif; min-width:240px; max-width:320px;">' +
+      if (hasBoth) {
+        const halo = new google.maps.Polyline({
+          path,
+          geodesic: true,
+          strokeColor: "#c62828",
+          strokeOpacity: 0.85,
+          strokeWeight: strokeWeight + 3,
+          map: mapRef.current,
+          zIndex: zIndex - 1
+        });
+        highwayLinesRef.current.push(halo);
+      }
 
-      '<div style="font-weight:700; font-size:14px; margin-bottom:4px;">' +
-        escapeHtml(h.name || "Scenic Byway") +
-        (h.favorite ? " ⭐" : "") +
-      '</div>' +
+      const poly = new google.maps.Polyline({
+        path,
+        geodesic: true,
+        strokeColor: lineColor,
+        strokeOpacity,
+        strokeWeight,
+        map: mapRef.current,
+        zIndex
+      });
 
-      '<div style="font-size:12px; color:#555; margin-bottom:8px;">' +
-        'State: ' + escapeHtml(h.state || "—") +
-      '</div>' +
+      poly.addListener("click", (e: any) => {
+        if (!infoWindowRef.current) return;
+        isPopupOpenRef.current = true;
 
-      '<div style="margin-bottom:8px;">' +
-        '<div style="font-size:13px; font-weight:700; color:#222; margin-bottom:2px;">' +
-          'Score: ' + escapeHtml(scoreDisplay) +
-        '</div>' +
-        '<div style="font-size:13px; font-weight:700; color:' + rankColor + ';">' +
-          escapeHtml(rank) +
-        '</div>' +
-      '</div>' +
+        const currentBywayId = Number(h.byways_id);
+        const currentIsHearted = Number.isFinite(currentBywayId) && heartedBywayIdsRef.current.has(currentBywayId);
+        const rank = h.landscape_rank || "";
+        let rankColor = "#999";
 
-      (
-        h.interest_badge
-          ? '<div style="display:inline-block; margin-bottom:8px; padding:3px 8px; border-radius:999px; background:#e3f2fd; color:#1565c0; font-size:11px; font-weight:700;">' +
-              escapeHtml(h.interest_badge) +
-            '</div>'
-          : ''
-      ) +
+        if (rank === "Exceptional") rankColor = "#1b5e20";
+        else if (rank === "Excellent") rankColor = "#227e28";
+        else if (rank === "Very Good") rankColor = "#3ba441";
+        else if (rank === "Good") rankColor = "#83c53d";
+        else if (rank === "Worthwhile") rankColor = "#fbc02d";
+        else if (rank === "Fair") rankColor = "#ef6c00";
+        else if (rank === "Low") rankColor = "#e57373";
 
-      '<div style="font-size:12px; line-height:1.45; color:#333; margin-bottom:8px;">' +
-        escapeHtml(h.description || "") +
-      '</div>' +
+        const scoreDisplay =
+          h.landscape_score !== null && h.landscape_score !== undefined
+            ? Number(h.landscape_score).toFixed(1)
+            : "—";
 
-      '<div style="font-size:11px; color:#666; margin-bottom:6px;">' +
-        escapeHtml(h.designats || "") +
-      '</div>' +
+        infoWindowRef.current.setContent(
+          '<div style="padding:10px; font-family:sans-serif; min-width:240px; max-width:320px;">' +
 
-      '<div style="font-size:11px; color:#666; line-height:1.4;">' +
-        'Scenic ' + escapeHtml(h.scenic_score ?? "—") +
-        ' · Distinctive ' + escapeHtml(h.distinctive_score ?? "—") +
-        ' · Integrity ' + escapeHtml(h.integrity_score ?? "—") +
-        ' · Interest ' + escapeHtml(h.interest_score ?? "—") +
-      '</div>' +
+            '<div style="font-weight:700; font-size:14px; margin-bottom:4px;">' +
+              escapeHtml(h.name || "Scenic Byway") +
+              (h.favorite ? " ⭐" : "") +
+              (currentIsHearted ? '<span style="color:#c62828; margin-left:4px;">♥</span>' : "") +
+            '</div>' +
 
-    '</div>'
-  );
+            '<div style="font-size:12px; color:#555; margin-bottom:8px;">' +
+              'State: ' + escapeHtml(h.state || "—") +
+            '</div>' +
 
-  infoWindowRef.current.setPosition(e.latLng);
-  infoWindowRef.current.open(mapRef.current);
-});
+            '<div style="margin-bottom:8px;">' +
+              '<div style="font-size:13px; font-weight:700; color:#222; margin-bottom:2px;">' +
+                'Score: ' + escapeHtml(scoreDisplay) +
+              '</div>' +
+              '<div style="font-size:13px; font-weight:700; color:' + rankColor + ';">' +
+                escapeHtml(rank) +
+              '</div>' +
+            '</div>' +
+
+            (
+              h.interest_badge
+                ? '<div style="display:inline-block; margin-bottom:8px; padding:3px 8px; border-radius:999px; background:#e3f2fd; color:#1565c0; font-size:11px; font-weight:700;">' +
+                    escapeHtml(h.interest_badge) +
+                  '</div>'
+                : ''
+            ) +
+
+            '<div style="font-size:12px; line-height:1.45; color:#333; margin-bottom:8px;">' +
+              escapeHtml(h.description || "") +
+            '</div>' +
+
+            '<div style="font-size:11px; color:#666; margin-bottom:6px;">' +
+              escapeHtml(h.designats || "") +
+            '</div>' +
+
+            '<div style="font-size:11px; color:#666; line-height:1.4; margin-bottom:8px;">' +
+              'Scenic ' + escapeHtml(h.scenic_score ?? "—") +
+              ' · Distinctive ' + escapeHtml(h.distinctive_score ?? "—") +
+              ' · Integrity ' + escapeHtml(h.integrity_score ?? "—") +
+              ' · Interest ' + escapeHtml(h.interest_score ?? "—") +
+            '</div>' +
+
+            '<button type="button" id="toggle-byway-heart-btn-' + escapeHtml(h.byways_id) + '" style="width:100%; background:' + (currentIsHearted ? '#fde7e9' : '#fff5f5') + '; color:#b3261e; border:1px solid #ef9a9a; font-size:11px; font-weight:bold; padding:8px; border-radius:4px; text-align:center; cursor:pointer; position:relative; z-index:9999; pointer-events:auto;">' +
+              (currentIsHearted ? '♥ Remove Heart' : '♡ Add Heart') +
+            '</button>' +
+
+          '</div>'
+        );
+
+        infoWindowRef.current.setPosition(e.latLng);
+        infoWindowRef.current.open(mapRef.current);
+
+        google.maps.event.addListenerOnce(infoWindowRef.current, "domready", () => {
+          const bywayHeartBtn = document.getElementById(`toggle-byway-heart-btn-${h.byways_id}`);
+          if (bywayHeartBtn) {
+            (bywayHeartBtn as HTMLButtonElement).onclick = (ev) => {
+              ev.preventDefault();
+              ev.stopPropagation();
+              console.log("Byway heart button clicked", { bywaysId: h.byways_id });
+              void toggleBywayHeart(h);
+            };
+          } else {
+            console.error("Byway heart button not found in InfoWindow DOM", { bywaysId: h.byways_id });
+          }
+        });
+      });
 
       highwayLinesRef.current.push(poly);
     });
@@ -1042,6 +1172,40 @@ if (heartBtn) {
     loadHeartedPlaces();
   }, [currentUserId]);
 
+  useEffect(() => {
+    const loadHeartedByways = async () => {
+      if (!currentUserId) {
+        const empty = new Set<number>();
+        heartedBywayIdsRef.current = empty;
+        setHeartedBywayIds(empty);
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from("user_hearts_byways")
+        .select("byways_id")
+        .eq("user_id", currentUserId);
+
+      if (error || !data) {
+        console.error("Error loading hearted byways:", error);
+        const empty = new Set<number>();
+        heartedBywayIdsRef.current = empty;
+        setHeartedBywayIds(empty);
+        return;
+      }
+
+      const next = new Set<number>(
+        data
+          .map((r) => Number(r.byways_id))
+          .filter((id) => Number.isFinite(id))
+      );
+      heartedBywayIdsRef.current = next;
+      setHeartedBywayIds(next);
+    };
+
+    loadHeartedByways();
+  }, [currentUserId]);
+
   const clearPlaceMarkers = () => {
     if (clustererRef.current) {
       clustererRef.current.clearMarkers();
@@ -1244,7 +1408,7 @@ if (heartBtn) {
   useEffect(() => {
     isPopupOpenRef.current = false;
     if (mapRef.current) scheduleLoad();
-  }, [states, placeTypes, selectedCampSubtypes, selectedHighwaySubtypes, favOnlyCategories, heartOnlyCategories, currentUserId, heartedPlaceIds]);
+  }, [states, placeTypes, selectedCampSubtypes, selectedHighwaySubtypes, favOnlyCategories, heartOnlyCategories, currentUserId, heartedPlaceIds, heartedBywayIds]);
 
   useEffect(() => {
     if (mapRef.current) {
