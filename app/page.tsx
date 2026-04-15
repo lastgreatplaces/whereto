@@ -80,6 +80,13 @@ const CAMP_SUBTYPE_LABELS: Record<string, string> = {
 const UI_CAMP_SUBTYPES = ["COE", "NF", "NP", "SP", "SF", "BLM", "BD", "NRA", "CP", "SFW", "RES"];
 const UI_HIGHWAY_SUBTYPES = ["Scenic", "Backcountry"];
 const BYWAY_PRIORITY_THRESHOLDS = [2.0, 2.3, 2.6, 3.0, 3.3, 3.6];
+const BIRD_PRIORITY_SEASONS = [
+  { value: "winter", label: "Winter" },
+  { value: "spring", label: "Spring" },
+  { value: "summer", label: "Summer" },
+  { value: "fall", label: "Fall" }
+];
+const BIRD_PRIORITY_THRESHOLDS = [20, 25, 30, 35];
 
 const STATE_GROUPS: Record<string, string[]> = {
   South: ["AL", "AR", "FL", "GA", "KY", "LA", "MS", "NC", "OK", "SC", "TN", "TX", "VA", "WV"],
@@ -120,6 +127,9 @@ const [heartedLandscapeIds, setHeartedLandscapeIds] = useState<Set<number>>(new 
 const [isPrioritySettingsOpen, setIsPrioritySettingsOpen] = useState(false);
 const [bywayPriorityThreshold, setBywayPriorityThreshold] = useState<number>(3.3);
 const [isApplyingBywayPriority, setIsApplyingBywayPriority] = useState(false);
+const [birdPrioritySeason, setBirdPrioritySeason] = useState<string>("spring");
+const [birdPriorityThreshold, setBirdPriorityThreshold] = useState<number>(25);
+const [isApplyingBirdPriority, setIsApplyingBirdPriority] = useState(false);
 
 const [isFilterOpen, setIsFilterOpen] = useState(true);
 const [isRegionsOpen, setIsRegionsOpen] = useState(false);
@@ -393,6 +403,58 @@ scheduleLoad(true);
     }
     isPopupOpenRef.current = false;
     setIsApplyingBywayPriority(false);
+    scheduleLoad(true);
+  };
+
+  const applyBirdPriorityThreshold = async () => {
+    if (!currentUserIdRef.current) {
+      alert("No user is selected for priority updates.");
+      return;
+    }
+
+    const threshold = Number(birdPriorityThreshold);
+    if (!Number.isFinite(threshold)) {
+      alert("Invalid bird priority threshold.");
+      return;
+    }
+
+    const allowedSeasons = new Set(BIRD_PRIORITY_SEASONS.map((s) => s.value));
+    if (!allowedSeasons.has(birdPrioritySeason)) {
+      alert("Invalid bird season.");
+      return;
+    }
+
+    setIsApplyingBirdPriority(true);
+
+    const { data, error } = await supabase.rpc("apply_bird_priority_threshold", {
+      p_season: birdPrioritySeason,
+      p_threshold: threshold
+    });
+
+    if (error) {
+      console.error("Error applying bird priorities:", error);
+      alert(`Bird priority update failed: ${error.message}`);
+      setIsApplyingBirdPriority(false);
+      return;
+    }
+
+    const updatedCount = Array.isArray(data) && data.length > 0 && data[0]?.updated_count != null
+      ? Number(data[0].updated_count)
+      : null;
+
+    const seasonLabel = BIRD_PRIORITY_SEASONS.find((s) => s.value === birdPrioritySeason)?.label || birdPrioritySeason;
+
+    setRouteMessage(
+      updatedCount == null
+        ? `Bird priorities set: ${seasonLabel} ≥ ${threshold}`
+        : `Bird priorities set: ${seasonLabel} ≥ ${threshold} (${updatedCount} birds)`
+    );
+
+    if (infoWindowRef.current) {
+      infoWindowRef.current.close();
+    }
+    isPopupOpenRef.current = false;
+    setIsApplyingBirdPriority(false);
     scheduleLoad(true);
   };
 
@@ -1933,19 +1995,92 @@ if (heartBtn) {
           }}
         >
           <span>{isPrioritySettingsOpen ? "▼" : "▶"} Priority Settings</span>
-          <span style={{ fontSize: 11, color: "#777", fontWeight: 600 }}>Byways ≥ {bywayPriorityThreshold.toFixed(1)}</span>
+          <span style={{ fontSize: 11, color: "#777", fontWeight: 600 }}>
+            Birds {BIRD_PRIORITY_SEASONS.find((s) => s.value === birdPrioritySeason)?.label} ≥ {birdPriorityThreshold} · Byways ≥ {bywayPriorityThreshold.toFixed(1)}
+          </span>
         </button>
 
         {isPrioritySettingsOpen && (
           <div style={{ marginTop: 10, display: "grid", gap: 8 }}>
             <div style={{ fontSize: 12, color: "#666", lineHeight: 1.4 }}>
-              Updates the shared gold-star priority field. This resets current byway priorities before applying the selected threshold.
+              Updates the shared gold-star priority field. Each Apply button rewrites priorities for that category based on the selected rule.
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 120px", gap: 8, alignItems: "center" }}>
-              <label style={{ fontSize: 13, fontWeight: 700, color: "#444" }}>
-                Byway minimum score
-              </label>
+            <div style={{ borderTop: "1px solid #eee", paddingTop: 8, display: "grid", gap: 8 }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: "#444" }}>Bird priorities</div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 120px", gap: 8, alignItems: "center" }}>
+                <label style={{ fontSize: 13, fontWeight: 700, color: "#444" }}>
+                  Bird season
+                </label>
+                <select
+                  value={birdPrioritySeason}
+                  onChange={(e) => setBirdPrioritySeason(e.target.value)}
+                  style={{
+                    width: "100%",
+                    padding: "8px 10px",
+                    borderRadius: 8,
+                    border: "1px solid #d9d9d9",
+                    fontSize: 13
+                  }}
+                >
+                  {BIRD_PRIORITY_SEASONS.map((season) => (
+                    <option key={season.value} value={season.value}>
+                      {season.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 120px", gap: 8, alignItems: "center" }}>
+                <label style={{ fontSize: 13, fontWeight: 700, color: "#444" }}>
+                  Bird minimum count
+                </label>
+                <select
+                  value={birdPriorityThreshold}
+                  onChange={(e) => setBirdPriorityThreshold(Number(e.target.value))}
+                  style={{
+                    width: "100%",
+                    padding: "8px 10px",
+                    borderRadius: 8,
+                    border: "1px solid #d9d9d9",
+                    fontSize: 13
+                  }}
+                >
+                  {BIRD_PRIORITY_THRESHOLDS.map((threshold) => (
+                    <option key={threshold} value={threshold}>
+                      ≥ {threshold}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <button
+                type="button"
+                disabled={isApplyingBirdPriority}
+                onClick={applyBirdPriorityThreshold}
+                style={{
+                  background: isApplyingBirdPriority ? "#bdbdbd" : "#2b5a34",
+                  color: "white",
+                  border: "none",
+                  borderRadius: 8,
+                  padding: "9px 10px",
+                  fontSize: 12,
+                  fontWeight: 700,
+                  cursor: isApplyingBirdPriority ? "default" : "pointer"
+                }}
+              >
+                {isApplyingBirdPriority ? "Applying..." : "Apply Bird Priorities"}
+              </button>
+            </div>
+
+            <div style={{ borderTop: "1px solid #eee", paddingTop: 8, display: "grid", gap: 8 }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: "#444" }}>Byway priorities</div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 120px", gap: 8, alignItems: "center" }}>
+                <label style={{ fontSize: 13, fontWeight: 700, color: "#444" }}>
+                  Byway minimum score
+                </label>
               <select
                 value={bywayPriorityThreshold}
                 onChange={(e) => setBywayPriorityThreshold(Number(e.target.value))}
@@ -1982,6 +2117,7 @@ if (heartBtn) {
             >
               {isApplyingBywayPriority ? "Applying..." : "Apply Byway Priorities"}
             </button>
+            </div>
           </div>
         )}
       </div>
@@ -2631,6 +2767,7 @@ if (heartBtn) {
     </div>
   );
 }
+
 
 
 
