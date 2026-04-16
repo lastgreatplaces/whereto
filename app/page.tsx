@@ -2408,10 +2408,10 @@ if (heartBtn) {
         }}
       >
         <div style={{ fontSize: 12, color: "#666" }}>
-          Nationwide shows all places; Select All allows filtered.
+          Select All, Regions or individual States.
         </div>
 
-        <div style={{ display: "flex", gap: 12, fontSize: 12, fontWeight: 700 }}>
+        <div style={{ display: "flex", gap: 12, fontSize: 10, fontWeight: 700 }}>
           <button
             onClick={setNationwideStates}
             style={{
@@ -2559,7 +2559,7 @@ if (heartBtn) {
             color: "#555"
           }}
         >
-          <span>{isPrioritySettingsOpen ? "▼" : "▶"} Priority Settings</span>
+          <span>{isPrioritySettingsOpen ? "▼" : "▶"} Set Priorities</span>
           <span style={{ fontSize: 11, color: "#777", fontWeight: 600, lineHeight: 1.25, overflow: "hidden", textOverflow: "ellipsis" }}>
             Birds {BIRD_PRIORITY_SEASONS.find((s) => s.value === birdPrioritySeason)?.label} ≥ {birdPriorityThreshold}; Byways ≥ {bywayPriorityThreshold.toFixed(1)}; LGP Eco {landscapePriorityEcoregionRank === "off" ? "off" : `≤ ${landscapePriorityEcoregionRank}`} / Nat {landscapePriorityNationalRank === "off" ? "off" : `≤ ${landscapePriorityNationalRank}`}
           </span>
@@ -2770,7 +2770,7 @@ if (heartBtn) {
             lineHeight: 1.45
           }}
         >
-          Choose categories and regions to display on the map. Close menu to view full map.
+          Choose categories & regions/states to display on map. Close menu to view full map.
         </div>
 
       <div style={{ marginBottom: 16 }}>
