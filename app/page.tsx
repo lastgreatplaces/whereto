@@ -149,6 +149,7 @@ const [isHighwaySubmenuOpen, setIsHighwaySubmenuOpen] = useState(false);
 const [searchQuery, setSearchQuery] = useState("");
 const [loadedPlaces, setLoadedPlaces] = useState<any[]>([]);
 const [loadedHighways, setLoadedHighways] = useState<any[]>([]);
+const [loadedLandscapes, setLoadedLandscapes] = useState<LandscapeRow[]>([]);
 
 const [isRouteMode, setIsRouteMode] = useState(false);
 const [routeStops, setRouteStops] = useState<RouteStop[]>([]);
@@ -588,6 +589,76 @@ scheduleLoad(true);
     scheduleLoad(true);
   };
 
+  const getLandscapePopupPosition = (row: LandscapeRow) => {
+    const geom = row.geom;
+    if (!geom || !geom.coordinates) return null;
+
+    try {
+      if (geom.type === "Polygon") {
+        const first = geom.coordinates?.[0]?.[0];
+        if (first && first.length >= 2) return { lat: first[1], lng: first[0] };
+      }
+      if (geom.type === "MultiPolygon") {
+        const first = geom.coordinates?.[0]?.[0]?.[0];
+        if (first && first.length >= 2) return { lat: first[1], lng: first[0] };
+      }
+    } catch (err) {
+      console.error("Could not derive landscape popup position", err, row);
+    }
+
+    return null;
+  };
+
+  const triggerLandscapePopup = (row: LandscapeRow) => {
+    if (!mapRef.current || !infoWindowRef.current) return;
+
+    const position = getLandscapePopupPosition(row);
+    if (!position) return;
+
+    isPopupOpenRef.current = true;
+    const portfolioRank = row.rank_top1000 ?? "—";
+    const currentIsHearted = heartedLandscapeIdsRef.current.has(Number(row.place_id));
+
+    infoWindowRef.current.setContent(`
+      <div style="padding:10px; font-family:sans-serif; min-width:220px; max-width:280px;">
+        <div style="font-weight:700; font-size:15px; margin-bottom:8px; display:flex; align-items:center; gap:5px;">
+          <span>${escapeHtml(row.name)}</span>${row.favorite ? "⭐" : ""}${currentIsHearted ? '<span style="color:#c62828;">♥</span>' : ""}
+        </div>
+        <div style="font-size:12px; line-height:1.55;">
+          <div><span style="font-weight:700;">States:</span> ${escapeHtml(row.states || "—")}</div>
+          <div><span style="font-weight:700;">Acres:</span> ${escapeHtml(formatAcres(row.acres))}</div>
+          <div><span style="font-weight:700;">Owner:</span> ${escapeHtml(row.owner_name || "—")}</div>
+          <div><span style="font-weight:700;">Designation:</span> ${escapeHtml(row.designation || "—")}</div>
+          <div><span style="font-weight:700;">Ecoregion:</span> ${escapeHtml(row.ecoregion || "—")}</div>
+          <div><span style="font-weight:700;">Ecoregion Rank:</span> ${escapeHtml(row.ecoregion_rank ?? "—")}</div>
+          <div><span style="font-weight:700;">Top 1000 Rank:</span> ${escapeHtml(portfolioRank)}</div>
+        </div>
+        <div style="margin-top:10px; border-top:1px solid #eee; padding-top:8px; display:flex; flex-direction:column; gap:6px;">
+          <button type="button" id="toggle-landscape-heart-btn-${row.place_id}" style="background:${currentIsHearted ? "#fde7e9" : "#fff5f5"}; color:#b3261e; border:1px solid #ef9a9a; font-size:11px; font-weight:bold; padding:8px; border-radius:4px; text-align:center; cursor:pointer; position:relative; z-index:9999; pointer-events:auto;">
+            ${currentIsHearted ? "♥ Remove Heart" : "♡ Add Heart"}
+          </button>
+        </div>
+      </div>
+    `);
+
+    mapRef.current.setZoom(Math.max(mapRef.current.getZoom() ?? 4, 8));
+    mapRef.current.panTo(position);
+    infoWindowRef.current.setPosition(position);
+    infoWindowRef.current.open(mapRef.current);
+
+    const google = (window as any).google;
+    google.maps.event.addListenerOnce(infoWindowRef.current, "domready", () => {
+      const heartBtn = document.getElementById(`toggle-landscape-heart-btn-${row.place_id}`);
+      if (heartBtn) {
+        (heartBtn as HTMLButtonElement).onclick = (ev) => {
+          ev.preventDefault();
+          ev.stopPropagation();
+          void toggleLandscapeHeart(row);
+        };
+      }
+    });
+  };
+
   const toggleOpenGroup = (group: string) => {
     setOpenGroups((prev) =>
       prev.includes(group) ? prev.filter((g) => g !== group) : [...prev, group]
@@ -778,11 +849,9 @@ const clearAllStates = () => {
 
 const isFavorite = Boolean(row.favorite);
 const isHearted = heartedLandscapeIdsRef.current.has(Number(row.place_id));
-// Match the other category behavior: star/heart icons filter the layer, but
-// priority and heart styling remains visible whenever landscapes are displayed.
 const useFavoriteHighlight = isFavorite;
 const useHeartHighlight = isHearted;
-const useBothHighlight = isFavorite && isHearted;
+const useBothHighlight = useFavoriteHighlight && useHeartHighlight;
 
       const openLandscapePopup = (e: any) => {
         if (!infoWindowRef.current) return;
@@ -881,6 +950,7 @@ const useBothHighlight = isFavorite && isHearted;
 
   const loadLandscapes = async () => {
     clearLandscapes();
+    setLoadedLandscapes([]);
 
     if (!filtersRef.current.types.has("landscapes") || !mapRef.current) return;
 
@@ -888,6 +958,7 @@ const useBothHighlight = isFavorite && isHearted;
     const stateMode = filtersRef.current.stateFilterMode;
 
     if (stateMode === "filtered" && statesArr.length === 0) {
+      setLoadedLandscapes([]);
       return;
     }
 
@@ -932,6 +1003,8 @@ const useBothHighlight = isFavorite && isHearted;
       if (heartOn) return isHeart;
       return true;
     });
+
+    setLoadedLandscapes(rows);
 
     const google = (window as any).google;
     if (!google) return;
@@ -1765,6 +1838,11 @@ if (heartBtn) {
       ? loadedHighways.filter((h) => h.name.toLowerCase().includes(searchQuery.toLowerCase())).slice(0, 5)
       : [];
 
+  const landscapeResults =
+    searchQuery.length > 1
+      ? loadedLandscapes.filter((l) => l.name.toLowerCase().includes(searchQuery.toLowerCase())).slice(0, 5)
+      : [];
+
   const hasAnySelectedStates = stateFilterMode === "national" || states.length > 0;
   const categoryCount = placeTypes.length;
 
@@ -2032,260 +2110,18 @@ if (heartBtn) {
         style={{
           width: "100%",
           boxSizing: "border-box",
-          padding: "14px 14px",
-          fontSize: 16,
+          padding: "10px 12px",
+          fontSize: 15,
           borderRadius: 10,
           border: "1px solid #d9d9d9",
-          marginBottom: 12
+          marginBottom: 8
         }}
       />
 
-      <div style={{ marginBottom: 16 }}>
-        <div style={{ fontSize: 12, fontWeight: 700, color: "#555", marginBottom: 6 }}>
-          User
-        </div>
-        <select
-          value={currentUserId ?? ""}
-          onChange={(e) => setCurrentUserId(Number(e.target.value))}
-          style={{
-            width: "100%",
-            boxSizing: "border-box",
-            padding: "10px 12px",
-            fontSize: 14,
-            borderRadius: 8,
-            border: "1px solid #d9d9d9"
-          }}
-        >
-          {appUsers.map((u) => (
-            <option key={u.user_id} value={u.user_id}>
-              {u.display_name || u.user_name}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div style={{ marginBottom: 16, border: "1px solid #eee", borderRadius: 10, padding: 10, background: "#fafafa" }}>
-        <button
-          type="button"
-          onClick={() => setIsPrioritySettingsOpen((v) => !v)}
-          style={{
-            width: "100%",
-            background: "none",
-            border: "none",
-            padding: 0,
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            fontSize: 14,
-            fontWeight: 700,
-            color: "#555"
-          }}
-        >
-          <span>{isPrioritySettingsOpen ? "▼" : "▶"} Priority Settings</span>
-          <span style={{ fontSize: 11, color: "#777", fontWeight: 600 }}>
-            Birds {BIRD_PRIORITY_SEASONS.find((s) => s.value === birdPrioritySeason)?.label} ≥ {birdPriorityThreshold} · Byways ≥ {bywayPriorityThreshold.toFixed(1)} · LGP Eco {landscapePriorityEcoregionRank === "off" ? "off" : `≤ ${landscapePriorityEcoregionRank}`} / Nat {landscapePriorityNationalRank === "off" ? "off" : `≤ ${landscapePriorityNationalRank}`}
-          </span>
-        </button>
-
-        {isPrioritySettingsOpen && (
-          <div style={{ marginTop: 10, display: "grid", gap: 8 }}>
-            <div style={{ fontSize: 12, color: "#666", lineHeight: 1.4 }}>
-              Updates the shared gold-star priority field. Each Apply button rewrites priorities for that category based on the selected rule.
-            </div>
-
-            <div style={{ borderTop: "1px solid #eee", paddingTop: 8, display: "grid", gap: 8 }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: "#444" }}>Bird priorities</div>
-
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 120px", gap: 8, alignItems: "center" }}>
-                <label style={{ fontSize: 13, fontWeight: 700, color: "#444" }}>
-                  Bird season
-                </label>
-                <select
-                  value={birdPrioritySeason}
-                  onChange={(e) => setBirdPrioritySeason(e.target.value)}
-                  style={{
-                    width: "100%",
-                    padding: "8px 10px",
-                    borderRadius: 8,
-                    border: "1px solid #d9d9d9",
-                    fontSize: 13
-                  }}
-                >
-                  {BIRD_PRIORITY_SEASONS.map((season) => (
-                    <option key={season.value} value={season.value}>
-                      {season.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 120px", gap: 8, alignItems: "center" }}>
-                <label style={{ fontSize: 13, fontWeight: 700, color: "#444" }}>
-                  Bird minimum count
-                </label>
-                <select
-                  value={birdPriorityThreshold}
-                  onChange={(e) => setBirdPriorityThreshold(Number(e.target.value))}
-                  style={{
-                    width: "100%",
-                    padding: "8px 10px",
-                    borderRadius: 8,
-                    border: "1px solid #d9d9d9",
-                    fontSize: 13
-                  }}
-                >
-                  {BIRD_PRIORITY_THRESHOLDS.map((threshold) => (
-                    <option key={threshold} value={threshold}>
-                      ≥ {threshold}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <button
-                type="button"
-                disabled={isApplyingBirdPriority}
-                onClick={applyBirdPriorityThreshold}
-                style={{
-                  background: isApplyingBirdPriority ? "#bdbdbd" : "#2b5a34",
-                  color: "white",
-                  border: "none",
-                  borderRadius: 8,
-                  padding: "9px 10px",
-                  fontSize: 12,
-                  fontWeight: 700,
-                  cursor: isApplyingBirdPriority ? "default" : "pointer"
-                }}
-              >
-                {isApplyingBirdPriority ? "Applying..." : "Apply Bird Priorities"}
-              </button>
-            </div>
-
-            <div style={{ borderTop: "1px solid #eee", paddingTop: 8, display: "grid", gap: 8 }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: "#444" }}>Byway priorities</div>
-
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 120px", gap: 8, alignItems: "center" }}>
-                <label style={{ fontSize: 13, fontWeight: 700, color: "#444" }}>
-                  Byway minimum score
-                </label>
-              <select
-                value={bywayPriorityThreshold}
-                onChange={(e) => setBywayPriorityThreshold(Number(e.target.value))}
-                style={{
-                  width: "100%",
-                  padding: "8px 10px",
-                  borderRadius: 8,
-                  border: "1px solid #d9d9d9",
-                  fontSize: 13
-                }}
-              >
-                {BYWAY_PRIORITY_THRESHOLDS.map((threshold) => (
-                  <option key={threshold} value={threshold}>
-                    ≥ {threshold.toFixed(1)}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <button
-              type="button"
-              disabled={isApplyingBywayPriority}
-              onClick={applyBywayPriorityThreshold}
-              style={{
-                background: isApplyingBywayPriority ? "#bdbdbd" : "#d0a100",
-                color: "white",
-                border: "none",
-                borderRadius: 8,
-                padding: "9px 10px",
-                fontSize: 12,
-                fontWeight: 700,
-                cursor: isApplyingBywayPriority ? "default" : "pointer"
-              }}
-            >
-              {isApplyingBywayPriority ? "Applying..." : "Apply Byway Priorities"}
-            </button>
-            </div>
-
-            <div style={{ borderTop: "1px solid #eee", paddingTop: 8, display: "grid", gap: 8 }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: "#444" }}>Landscape priorities</div>
-
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 120px", gap: 8, alignItems: "center" }}>
-                <label style={{ fontSize: 13, fontWeight: 700, color: "#444" }}>
-                  Ecoregion rank
-                </label>
-                <select
-                  value={landscapePriorityEcoregionRank}
-                  onChange={(e) => setLandscapePriorityEcoregionRank(e.target.value)}
-                  style={{
-                    width: "100%",
-                    padding: "8px 10px",
-                    borderRadius: 8,
-                    border: "1px solid #d9d9d9",
-                    fontSize: 13
-                  }}
-                >
-                  {LANDSCAPE_ECOREGION_PRIORITY_OPTIONS.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 120px", gap: 8, alignItems: "center" }}>
-                <label style={{ fontSize: 13, fontWeight: 700, color: "#444" }}>
-                  National rank
-                </label>
-                <select
-                  value={landscapePriorityNationalRank}
-                  onChange={(e) => setLandscapePriorityNationalRank(e.target.value)}
-                  style={{
-                    width: "100%",
-                    padding: "8px 10px",
-                    borderRadius: 8,
-                    border: "1px solid #d9d9d9",
-                    fontSize: 13
-                  }}
-                >
-                  {LANDSCAPE_NATIONAL_PRIORITY_OPTIONS.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div style={{ fontSize: 11, color: "#666", lineHeight: 1.35 }}>
-                If both are selected, landscapes matching either rule are starred. Set one dropdown to Off to use only the other rule.
-              </div>
-
-              <button
-                type="button"
-                disabled={isApplyingLandscapePriority}
-                onClick={applyLandscapePriorityThresholds}
-                style={{
-                  background: isApplyingLandscapePriority ? "#bdbdbd" : "#2e7d32",
-                  color: "white",
-                  border: "none",
-                  borderRadius: 8,
-                  padding: "9px 10px",
-                  fontSize: 12,
-                  fontWeight: 700,
-                  cursor: isApplyingLandscapePriority ? "default" : "pointer"
-                }}
-              >
-                {isApplyingLandscapePriority ? "Applying..." : "Apply Landscape Priorities"}
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {(placeResults.length > 0 || highwayResults.length > 0) && (
+      {(placeResults.length > 0 || highwayResults.length > 0 || landscapeResults.length > 0) && (
         <div
           style={{
-            marginBottom: 16,
+            marginBottom: 14,
             border: "1px solid #eee",
             borderRadius: 10,
             padding: 10,
@@ -2293,30 +2129,69 @@ if (heartBtn) {
           }}
         >
           {placeResults.map((p) => (
-            <div
-              key={`p-${p.id}`}
-              onClick={() => triggerPlacePopup(p)}
+            <button
+              key={`p-search-${p.id}`}
+              onClick={() => {
+                setSearchQuery("");
+                triggerPlacePopup(p);
+              }}
               style={{
-                padding: "7px 6px",
-                cursor: "pointer",
-                borderBottom: "1px solid #eee",
-                fontSize: 14
+                width: "100%",
+                textAlign: "left",
+                background: "#fff",
+                border: "1px solid #e6e6e6",
+                borderRadius: 6,
+                padding: "7px 8px",
+                marginBottom: 6,
+                cursor: "pointer"
               }}
             >
-              {p.name}
-            </div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: "#222" }}>{p.name}</div>
+              <div style={{ fontSize: 11, color: "#666" }}>{p.state || "—"} · {p.place_type || "place"}</div>
+            </button>
           ))}
-          {highwayResults.map((h, idx) => (
-            <div
-              key={`h-${idx}`}
+
+          {highwayResults.map((h) => (
+            <button
+              key={`h-search-${h.byway_id}`}
+              onClick={() => setSearchQuery("")}
               style={{
-                padding: "7px 6px",
-                fontSize: 14,
-                borderBottom: idx === highwayResults.length - 1 ? "none" : "1px solid #eee"
+                width: "100%",
+                textAlign: "left",
+                background: "#fff",
+                border: "1px solid #e6e6e6",
+                borderRadius: 6,
+                padding: "7px 8px",
+                marginBottom: 6,
+                cursor: "pointer"
               }}
             >
-              {h.name}
-            </div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: "#222" }}>{h.name}</div>
+              <div style={{ fontSize: 11, color: "#666" }}>{h.designats || h.subtype || "Byway"}</div>
+            </button>
+          ))}
+
+          {landscapeResults.map((l) => (
+            <button
+              key={`l-search-${l.place_id}`}
+              onClick={() => {
+                setSearchQuery("");
+                triggerLandscapePopup(l);
+              }}
+              style={{
+                width: "100%",
+                textAlign: "left",
+                background: "#fff",
+                border: "1px solid #e6e6e6",
+                borderRadius: 6,
+                padding: "7px 8px",
+                marginBottom: 6,
+                cursor: "pointer"
+              }}
+            >
+              <div style={{ fontSize: 12, fontWeight: 700, color: "#222" }}>{l.name}</div>
+              <div style={{ fontSize: 11, color: "#666" }}>{l.states || "—"} · Landscape</div>
+            </button>
           ))}
         </div>
       )}
@@ -2623,6 +2498,228 @@ if (heartBtn) {
     </div>
   )}
 
+
+      <div style={{ marginBottom: 16, border: "1px solid #eee", borderRadius: 10, padding: 10, background: "#fafafa" }}>
+        <button
+          type="button"
+          onClick={() => setIsPrioritySettingsOpen((v) => !v)}
+          style={{
+            width: "100%",
+            background: "none",
+            border: "none",
+            padding: 0,
+            cursor: "pointer",
+            display: "grid",
+            gridTemplateColumns: "120px 1fr",
+            alignItems: "center",
+            gap: 8,
+            textAlign: "left",
+            fontSize: 14,
+            fontWeight: 700,
+            color: "#555"
+          }}
+        >
+          <span>{isPrioritySettingsOpen ? "▼" : "▶"} Priority Settings</span>
+          <span style={{ fontSize: 11, color: "#777", fontWeight: 600, lineHeight: 1.25, overflow: "hidden", textOverflow: "ellipsis" }}>
+            Birds {BIRD_PRIORITY_SEASONS.find((s) => s.value === birdPrioritySeason)?.label} ≥ {birdPriorityThreshold}; Byways ≥ {bywayPriorityThreshold.toFixed(1)}; LGP Eco {landscapePriorityEcoregionRank === "off" ? "off" : `≤ ${landscapePriorityEcoregionRank}`} / Nat {landscapePriorityNationalRank === "off" ? "off" : `≤ ${landscapePriorityNationalRank}`}
+          </span>
+        </button>
+
+        {isPrioritySettingsOpen && (
+          <div style={{ marginTop: 10, display: "grid", gap: 8 }}>
+            <div style={{ fontSize: 12, color: "#666", lineHeight: 1.4 }}>
+              Updates the shared gold-star priority field. Each Apply button rewrites priorities for that category based on the selected rule.
+            </div>
+
+            <div style={{ borderTop: "1px solid #eee", paddingTop: 8, display: "grid", gap: 8 }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: "#444" }}>Bird priorities</div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 120px", gap: 8, alignItems: "center" }}>
+                <label style={{ fontSize: 13, fontWeight: 700, color: "#444" }}>
+                  Bird season
+                </label>
+                <select
+                  value={birdPrioritySeason}
+                  onChange={(e) => setBirdPrioritySeason(e.target.value)}
+                  style={{
+                    width: "100%",
+                    padding: "8px 10px",
+                    borderRadius: 8,
+                    border: "1px solid #d9d9d9",
+                    fontSize: 13
+                  }}
+                >
+                  {BIRD_PRIORITY_SEASONS.map((season) => (
+                    <option key={season.value} value={season.value}>
+                      {season.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 120px", gap: 8, alignItems: "center" }}>
+                <label style={{ fontSize: 13, fontWeight: 700, color: "#444" }}>
+                  Bird minimum count
+                </label>
+                <select
+                  value={birdPriorityThreshold}
+                  onChange={(e) => setBirdPriorityThreshold(Number(e.target.value))}
+                  style={{
+                    width: "100%",
+                    padding: "8px 10px",
+                    borderRadius: 8,
+                    border: "1px solid #d9d9d9",
+                    fontSize: 13
+                  }}
+                >
+                  {BIRD_PRIORITY_THRESHOLDS.map((threshold) => (
+                    <option key={threshold} value={threshold}>
+                      ≥ {threshold}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <button
+                type="button"
+                disabled={isApplyingBirdPriority}
+                onClick={applyBirdPriorityThreshold}
+                style={{
+                  background: isApplyingBirdPriority ? "#bdbdbd" : "#2b5a34",
+                  color: "white",
+                  border: "none",
+                  borderRadius: 8,
+                  padding: "9px 10px",
+                  fontSize: 12,
+                  fontWeight: 700,
+                  cursor: isApplyingBirdPriority ? "default" : "pointer"
+                }}
+              >
+                {isApplyingBirdPriority ? "Applying..." : "Apply Bird Priorities"}
+              </button>
+            </div>
+
+            <div style={{ borderTop: "1px solid #eee", paddingTop: 8, display: "grid", gap: 8 }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: "#444" }}>Byway priorities</div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 120px", gap: 8, alignItems: "center" }}>
+                <label style={{ fontSize: 13, fontWeight: 700, color: "#444" }}>
+                  Byway minimum score
+                </label>
+              <select
+                value={bywayPriorityThreshold}
+                onChange={(e) => setBywayPriorityThreshold(Number(e.target.value))}
+                style={{
+                  width: "100%",
+                  padding: "8px 10px",
+                  borderRadius: 8,
+                  border: "1px solid #d9d9d9",
+                  fontSize: 13
+                }}
+              >
+                {BYWAY_PRIORITY_THRESHOLDS.map((threshold) => (
+                  <option key={threshold} value={threshold}>
+                    ≥ {threshold.toFixed(1)}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <button
+              type="button"
+              disabled={isApplyingBywayPriority}
+              onClick={applyBywayPriorityThreshold}
+              style={{
+                background: isApplyingBywayPriority ? "#bdbdbd" : "#d0a100",
+                color: "white",
+                border: "none",
+                borderRadius: 8,
+                padding: "9px 10px",
+                fontSize: 12,
+                fontWeight: 700,
+                cursor: isApplyingBywayPriority ? "default" : "pointer"
+              }}
+            >
+              {isApplyingBywayPriority ? "Applying..." : "Apply Byway Priorities"}
+            </button>
+            </div>
+
+            <div style={{ borderTop: "1px solid #eee", paddingTop: 8, display: "grid", gap: 8 }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: "#444" }}>Landscape priorities</div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 120px", gap: 8, alignItems: "center" }}>
+                <label style={{ fontSize: 13, fontWeight: 700, color: "#444" }}>
+                  Ecoregion rank
+                </label>
+                <select
+                  value={landscapePriorityEcoregionRank}
+                  onChange={(e) => setLandscapePriorityEcoregionRank(e.target.value)}
+                  style={{
+                    width: "100%",
+                    padding: "8px 10px",
+                    borderRadius: 8,
+                    border: "1px solid #d9d9d9",
+                    fontSize: 13
+                  }}
+                >
+                  {LANDSCAPE_ECOREGION_PRIORITY_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 120px", gap: 8, alignItems: "center" }}>
+                <label style={{ fontSize: 13, fontWeight: 700, color: "#444" }}>
+                  National rank
+                </label>
+                <select
+                  value={landscapePriorityNationalRank}
+                  onChange={(e) => setLandscapePriorityNationalRank(e.target.value)}
+                  style={{
+                    width: "100%",
+                    padding: "8px 10px",
+                    borderRadius: 8,
+                    border: "1px solid #d9d9d9",
+                    fontSize: 13
+                  }}
+                >
+                  {LANDSCAPE_NATIONAL_PRIORITY_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div style={{ fontSize: 11, color: "#666", lineHeight: 1.35 }}>
+                If both are selected, landscapes matching either rule are starred. Set one dropdown to Off to use only the other rule.
+              </div>
+
+              <button
+                type="button"
+                disabled={isApplyingLandscapePriority}
+                onClick={applyLandscapePriorityThresholds}
+                style={{
+                  background: isApplyingLandscapePriority ? "#bdbdbd" : "#2e7d32",
+                  color: "white",
+                  border: "none",
+                  borderRadius: 8,
+                  padding: "9px 10px",
+                  fontSize: 12,
+                  fontWeight: 700,
+                  cursor: isApplyingLandscapePriority ? "default" : "pointer"
+                }}
+              >
+                {isApplyingLandscapePriority ? "Applying..." : "Apply Landscape Priorities"}
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
+
         <div
           style={{
             marginTop: 12,
@@ -2636,7 +2733,33 @@ if (heartBtn) {
           Choose categories and regions to display on the map. Close menu to view full map.
         </div>
 
-        {(placeResults.length > 0 || highwayResults.length > 0) && (
+      <div style={{ marginBottom: 16 }}>
+        <div style={{ fontSize: 12, fontWeight: 700, color: "#555", marginBottom: 6 }}>
+          User
+        </div>
+        <select
+          value={currentUserId ?? ""}
+          onChange={(e) => setCurrentUserId(Number(e.target.value))}
+          style={{
+            width: "100%",
+            boxSizing: "border-box",
+            padding: "10px 12px",
+            fontSize: 14,
+            borderRadius: 8,
+            border: "1px solid #d9d9d9"
+          }}
+        >
+          {appUsers.map((u) => (
+            <option key={u.user_id} value={u.user_id}>
+              {u.display_name || u.user_name}
+            </option>
+          ))}
+        </select>
+      </div>
+
+
+
+        {false && (placeResults.length > 0 || highwayResults.length > 0) && (
           <div
             style={{
               marginTop: 12,
@@ -2818,6 +2941,12 @@ if (heartBtn) {
     </div>
   );
 }
+
+
+
+
+
+
 
 
 
