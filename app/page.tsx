@@ -2287,22 +2287,62 @@ if (heartBtn) {
               </div>
 
               {item.key === "camps" && isCampSubmenuOpen && (
-                <div style={{ paddingLeft: 34, paddingTop: 4, display: "grid", gap: 4 }}>
-                  {UI_CAMP_SUBTYPES.map((sub) => (
-                    <label
-                      key={sub}
-                      style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#444" }}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={selectedCampSubtypes.includes(sub)}
-                        onChange={() => toggleCampSubtype(sub)}
-                      />
-                      {CAMP_SUBTYPE_LABELS[sub] || sub}
-                    </label>
-                  ))}
-                </div>
-              )}
+  <div style={{ paddingLeft: 34, paddingTop: 4, display: "grid", gap: 4 }}>
+    <div style={{ display: "flex", gap: 12, marginBottom: 4, fontSize: 12, fontWeight: 700 }}>
+      <button
+        type="button"
+        onClick={() => setSelectedCampSubtypes(UI_CAMP_SUBTYPES)}
+        style={{
+          background: "none",
+          border: "none",
+          color: "#1a73e8",
+          cursor: "pointer",
+          padding: 0,
+          fontSize: 12,
+          fontWeight: 700
+        }}
+      >
+        All
+      </button>
+
+      <button
+        type="button"
+        onClick={() => setSelectedCampSubtypes([])}
+        style={{
+          background: "none",
+          border: "none",
+          color: "#d93025",
+          cursor: "pointer",
+          padding: 0,
+          fontSize: 12,
+          fontWeight: 700
+        }}
+      >
+        Clear
+      </button>
+    </div>
+
+    {UI_CAMP_SUBTYPES.map((sub) => (
+      <label
+        key={sub}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
+          fontSize: 13,
+          color: "#444"
+        }}
+      >
+        <input
+          type="checkbox"
+          checked={selectedCampSubtypes.includes(sub)}
+          onChange={() => toggleCampSubtype(sub)}
+        />
+        {CAMP_SUBTYPE_LABELS[sub] || sub}
+      </label>
+    ))}
+  </div>
+)}
 
               {item.key === "highways" && isHighwaySubmenuOpen && (
                 <div style={{ paddingLeft: 34, paddingTop: 4, display: "grid", gap: 4 }}>
