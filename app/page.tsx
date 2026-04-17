@@ -2288,6 +2288,40 @@ if (heartBtn) {
 
               {item.key === "camps" && isCampSubmenuOpen && (
                 <div style={{ paddingLeft: 34, paddingTop: 4, display: "grid", gap: 4 }}>
+                  <div style={{ display: "flex", gap: 12, marginBottom: 4, fontSize: 12, fontWeight: 700 }}>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedCampSubtypes(UI_CAMP_SUBTYPES)}
+                      style={{
+                        background: "none",
+                        border: "none",
+                        color: "#1a73e8",
+                        cursor: "pointer",
+                        padding: 0,
+                        fontSize: 12,
+                        fontWeight: 700
+                      }}
+                    >
+                      All
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setSelectedCampSubtypes([])}
+                      style={{
+                        background: "none",
+                        border: "none",
+                        color: "#d93025",
+                        cursor: "pointer",
+                        padding: 0,
+                        fontSize: 12,
+                        fontWeight: 700
+                      }}
+                    >
+                      Clear
+                    </button>
+                  </div>
+
                   {UI_CAMP_SUBTYPES.map((sub) => (
                     <label
                       key={sub}
@@ -2338,9 +2372,9 @@ if (heartBtn) {
       display: "flex",
       alignItems: "center",
       justifyContent: "space-between",
-      fontSize: 16,
+      fontSize: 14,
       fontWeight: 700,
-      color: "#666"
+      color: "#555"
     }}
   >
     <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -2368,23 +2402,10 @@ if (heartBtn) {
         }}
       >
         <div style={{ fontSize: 12, color: "#666" }}>
-          Nationwide shows all places; Select All allows filtered.
+          Select regions or individual states.
         </div>
 
         <div style={{ display: "flex", gap: 12, fontSize: 12, fontWeight: 700 }}>
-          <button
-            onClick={setNationwideStates}
-            style={{
-              background: "none",
-              border: "none",
-              color: "#188038",
-              cursor: "pointer",
-              padding: 0
-            }}
-          >
-            Nationwide
-          </button>
-
           <button
             onClick={selectAllStates}
             style={{
@@ -2499,7 +2520,7 @@ if (heartBtn) {
   )}
 
 
-      <div style={{ marginBottom: 16, border: "1px solid #eee", borderRadius: 10, padding: 10, background: "#fafafa" }}>
+      <div style={{ marginTop: 14, marginBottom: 16, borderTop: "1px solid #eee", paddingTop: 12 }}>
         <button
           type="button"
           onClick={() => setIsPrioritySettingsOpen((v) => !v)}
@@ -2509,19 +2530,15 @@ if (heartBtn) {
             border: "none",
             padding: 0,
             cursor: "pointer",
-            display: "grid",
-            gridTemplateColumns: "120px 1fr",
-            alignItems: "center",
-            gap: 8,
             textAlign: "left",
             fontSize: 14,
             fontWeight: 700,
             color: "#555"
           }}
         >
-          <span>{isPrioritySettingsOpen ? "▼" : "▶"} Priority Settings</span>
-          <span style={{ fontSize: 11, color: "#777", fontWeight: 600, lineHeight: 1.25, overflow: "hidden", textOverflow: "ellipsis" }}>
-            Birds {BIRD_PRIORITY_SEASONS.find((s) => s.value === birdPrioritySeason)?.label} ≥ {birdPriorityThreshold}; Byways ≥ {bywayPriorityThreshold.toFixed(1)}; LGP Eco {landscapePriorityEcoregionRank === "off" ? "off" : `≤ ${landscapePriorityEcoregionRank}`} / Nat {landscapePriorityNationalRank === "off" ? "off" : `≤ ${landscapePriorityNationalRank}`}
+          <span style={{ display: "block" }}>{isPrioritySettingsOpen ? "▼" : "▶"} Set Priorities</span>
+          <span style={{ display: "block", paddingLeft: 18, marginTop: 3, fontSize: 11, color: "#777", fontWeight: 600, lineHeight: 1.25, whiteSpace: "normal" }}>
+            Birds {BIRD_PRIORITY_SEASONS.find((s) => s.value === birdPrioritySeason)?.label} ≥ {birdPriorityThreshold} · Byways ≥ {bywayPriorityThreshold.toFixed(1)} · LGP Eco {landscapePriorityEcoregionRank === "off" ? "off" : `≤ ${landscapePriorityEcoregionRank}`} / Nat {landscapePriorityNationalRank === "off" ? "off" : `≤ ${landscapePriorityNationalRank}`}
           </span>
         </button>
 
@@ -2941,6 +2958,12 @@ if (heartBtn) {
     </div>
   );
 }
+
+
+
+
+
+
 
 
 
