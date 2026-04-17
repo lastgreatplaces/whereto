@@ -2287,62 +2287,22 @@ if (heartBtn) {
               </div>
 
               {item.key === "camps" && isCampSubmenuOpen && (
-  <div style={{ paddingLeft: 34, paddingTop: 4, display: "grid", gap: 4 }}>
-    <div style={{ display: "flex", gap: 12, marginBottom: 4, fontSize: 12, fontWeight: 700 }}>
-      <button
-        type="button"
-        onClick={() => setSelectedCampSubtypes(UI_CAMP_SUBTYPES)}
-        style={{
-          background: "none",
-          border: "none",
-          color: "#1a73e8",
-          cursor: "pointer",
-          padding: 0,
-          fontSize: 12,
-          fontWeight: 700
-        }}
-      >
-        All
-      </button>
-
-      <button
-        type="button"
-        onClick={() => setSelectedCampSubtypes([])}
-        style={{
-          background: "none",
-          border: "none",
-          color: "#d93025",
-          cursor: "pointer",
-          padding: 0,
-          fontSize: 12,
-          fontWeight: 700
-        }}
-      >
-        Clear
-      </button>
-    </div>
-
-    {UI_CAMP_SUBTYPES.map((sub) => (
-      <label
-        key={sub}
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 8,
-          fontSize: 13,
-          color: "#444"
-        }}
-      >
-        <input
-          type="checkbox"
-          checked={selectedCampSubtypes.includes(sub)}
-          onChange={() => toggleCampSubtype(sub)}
-        />
-        {CAMP_SUBTYPE_LABELS[sub] || sub}
-      </label>
-    ))}
-  </div>
-)}
+                <div style={{ paddingLeft: 34, paddingTop: 4, display: "grid", gap: 4 }}>
+                  {UI_CAMP_SUBTYPES.map((sub) => (
+                    <label
+                      key={sub}
+                      style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#444" }}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedCampSubtypes.includes(sub)}
+                        onChange={() => toggleCampSubtype(sub)}
+                      />
+                      {CAMP_SUBTYPE_LABELS[sub] || sub}
+                    </label>
+                  ))}
+                </div>
+              )}
 
               {item.key === "highways" && isHighwaySubmenuOpen && (
                 <div style={{ paddingLeft: 34, paddingTop: 4, display: "grid", gap: 4 }}>
@@ -2408,10 +2368,10 @@ if (heartBtn) {
         }}
       >
         <div style={{ fontSize: 12, color: "#666" }}>
-          Select All, Regions or individual States.
+          Nationwide shows all places; Select All allows filtered.
         </div>
 
-        <div style={{ display: "flex", gap: 12, fontSize: 10, fontWeight: 700 }}>
+        <div style={{ display: "flex", gap: 12, fontSize: 12, fontWeight: 700 }}>
           <button
             onClick={setNationwideStates}
             style={{
@@ -2559,7 +2519,7 @@ if (heartBtn) {
             color: "#555"
           }}
         >
-          <span>{isPrioritySettingsOpen ? "▼" : "▶"} Set Priorities</span>
+          <span>{isPrioritySettingsOpen ? "▼" : "▶"} Priority Settings</span>
           <span style={{ fontSize: 11, color: "#777", fontWeight: 600, lineHeight: 1.25, overflow: "hidden", textOverflow: "ellipsis" }}>
             Birds {BIRD_PRIORITY_SEASONS.find((s) => s.value === birdPrioritySeason)?.label} ≥ {birdPriorityThreshold}; Byways ≥ {bywayPriorityThreshold.toFixed(1)}; LGP Eco {landscapePriorityEcoregionRank === "off" ? "off" : `≤ ${landscapePriorityEcoregionRank}`} / Nat {landscapePriorityNationalRank === "off" ? "off" : `≤ ${landscapePriorityNationalRank}`}
           </span>
@@ -2770,7 +2730,7 @@ if (heartBtn) {
             lineHeight: 1.45
           }}
         >
-          Choose categories & regions/states to display on map. Close menu to view full map.
+          Choose categories and regions to display on the map. Close menu to view full map.
         </div>
 
       <div style={{ marginBottom: 16 }}>
@@ -2981,6 +2941,11 @@ if (heartBtn) {
     </div>
   );
 }
+
+
+
+
+
 
 
 
