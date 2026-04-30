@@ -89,13 +89,15 @@ export default function VanPowerPage() {
               <th style={{ textAlign: "right" }}>Forecast</th>
               <th style={{ textAlign: "right" }}>Δ</th>
 
-              <th style={{ textAlign: "right" }}>Plan</th>
-              <th style={{ textAlign: "right" }}>Act</th>
+              {/* DRIVE GROUP */}
+              <th style={{ textAlign: "right", paddingLeft: 12 }}>Plan</th>
+              <th style={{ textAlign: "right" }}>Actual</th>
 
-              <th style={{ textAlign: "left" }}>Wx</th>
-              <th style={{ textAlign: "left" }}>Act Wx</th>
+              {/* WEATHER GROUP */}
+              <th style={{ textAlign: "left", paddingLeft: 12 }}>Plan Wx</th>
+              <th style={{ textAlign: "left" }}>Actual Wx</th>
 
-              <th style={{ textAlign: "center" }}>Shore</th>
+              <th style={{ textAlign: "center", paddingLeft: 12 }}>Shore</th>
               <th style={{ textAlign: "center" }}>H2O</th>
             </tr>
           </thead>
@@ -134,7 +136,7 @@ export default function VanPowerPage() {
                   </td>
 
                   {/* 7PM ACTUAL */}
-                  <td style={{ textAlign: "right", fontWeight: 700 }}>
+                  <td style={{ textAlign: "right", fontWeight: 600 }}>
                     <input
                       type="text"
                       inputMode="numeric"
@@ -177,7 +179,7 @@ export default function VanPowerPage() {
                   </td>
 
                   {/* PLAN DRIVE */}
-                  <td style={{ textAlign: "right" }}>
+                  <td style={{ textAlign: "right", paddingLeft: 12 }}>
                     <input
                       type="text"
                       inputMode="decimal"
@@ -194,7 +196,7 @@ export default function VanPowerPage() {
                   </td>
 
                   {/* ACTUAL DRIVE */}
-                  <td style={{ textAlign: "right" }}>
+                  <td style={{ textAlign: "right", fontWeight: 600 }}>
                     <input
                       type="text"
                       inputMode="decimal"
@@ -211,7 +213,7 @@ export default function VanPowerPage() {
                   </td>
 
                   {/* PLAN WX */}
-                  <td style={{ textAlign: "left" }}>
+                  <td style={{ textAlign: "left", paddingLeft: 12 }}>
                     <select
                       value={r.plan_condition ?? ""}
                       onChange={(e) =>
@@ -229,7 +231,7 @@ export default function VanPowerPage() {
                   </td>
 
                   {/* ACTUAL WX */}
-                  <td style={{ textAlign: "left" }}>
+                  <td style={{ textAlign: "left", fontWeight: 600 }}>
                     <select
                       value={r.actual_condition ?? ""}
                       onChange={(e) =>
@@ -248,7 +250,7 @@ export default function VanPowerPage() {
                   </td>
 
                   {/* SHORE */}
-                  <td style={{ textAlign: "center" }}>
+                  <td style={{ textAlign: "center", paddingLeft: 12 }}>
                     <input
                       type="checkbox"
                       checked={r.plan_shore ?? false}
