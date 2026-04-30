@@ -1,0 +1,194 @@
+create or replace view public.v_travel_scores_climdiv_month_revised as
+with
+  base as (
+    select
+      n.climdiv_id,
+      g.st_abbrv as state_abbr,
+      g.division_name,
+      n.month,
+      n.tmax_f,
+      n.tmin_f,
+      n.pcpn_in,
+      m.mosquito_score,
+      g.geom,
+      d_range.day_score,
+      d_range.day_label,
+      n_range.night_score,
+      n_range.night_label,
+      COALESCE(p_range.precip_score, 0.0::double precision) as precip_score,
+      COALESCE(p_range.precip_label, 'Unacceptable'::text) as precip_label,
+      case
+        when m.mosquito_score <= 4.4 then 3.0
+        when m.mosquito_score <= 6.4 then 2.0
+        when m.mosquito_score <= 8.4 then 1.0
+        else 0.0
+      end as mosquito_travel_score,
+      case
+        when m.mosquito_score <= 4.4 then 'Desirable'::text
+        when m.mosquito_score <= 6.4 then 'Acceptable'::text
+        when m.mosquito_score <= 8.4 then 'Undesirable'::text
+        else 'Unacceptable'::text
+      end as mosquito_label
+    from
+      clim_div_normals_1991_2020 n
+      join conus_climate_divisions g on g.climdiv_id = n.climdiv_id
+      join v_mosquito_climate_scores m on m.climdiv_id = n.climdiv_id
+      and m.month = n.month
+      left join lateral (
+        select
+          climate_bands_temps.day_score,
+          climate_bands_temps.day_label
+        from
+          climate_bands_temps
+        where
+          n.tmax_f <= climate_bands_temps.t_max_f::numeric
+        order by
+          climate_bands_temps.t_max_f
+        limit
+          1
+      ) d_range on true
+      left join lateral (
+        select
+          climate_bands_temps.night_score,
+          climate_bands_temps.night_label
+        from
+          climate_bands_temps
+        where
+          n.tmin_f <= climate_bands_temps.t_max_f::numeric
+        order by
+          climate_bands_temps.t_max_f
+        limit
+          1
+      ) n_range on true
+      left join lateral (
+        select
+          climate_bands_precip.precip_score,
+          climate_bands_precip.precip_label
+        from
+          climate_bands_precip
+        where
+          n.pcpn_in::double precision <= climate_bands_precip.monthly_precip
+        order by
+          climate_bands_precip.monthly_precip
+        limit
+          1
+      ) p_range on true
+  ),
+  scored as (
+    select
+      base.climdiv_id,
+      base.state_abbr,
+      base.division_name,
+      base.month,
+      base.tmax_f,
+      base.tmin_f,
+      base.pcpn_in,
+      base.mosquito_score,
+      base.geom,
+      base.day_score,
+      base.day_label,
+      base.night_score,
+      base.night_label,
+      base.precip_score,
+      base.precip_label,
+      base.mosquito_travel_score,
+      base.mosquito_label,
+      (
+        (
+          base.day_score + base.night_score + base.mosquito_travel_score
+        )::double precision + base.precip_score
+      )::numeric as raw_total,
+      case
+        when base.day_label = 'Unacceptable'::text then 1
+        else 0
+      end + case
+        when base.night_label = 'Unacceptable'::text then 1
+        else 0
+      end + case
+        when base.mosquito_label = 'Unacceptable'::text then 1
+        else 0
+      end + case
+        when base.precip_label = 'Unacceptable'::text then 1
+        else 0
+      end as unacceptable_count
+    from
+      base
+  ),
+  
+normalized as (
+    select
+      scored.climdiv_id,
+      scored.state_abbr,
+      scored.division_name,
+      scored.month,
+      scored.tmax_f,
+      scored.tmin_f,
+      scored.pcpn_in,
+      scored.mosquito_score,
+      scored.geom,
+      scored.day_score,
+      scored.day_label,
+      scored.night_score,
+      scored.night_label,
+      scored.precip_score,
+      scored.precip_label,
+      scored.mosquito_travel_score,
+      scored.mosquito_label,
+      scored.raw_total,
+      scored.unacceptable_count,
+      round(
+        GREATEST(
+          0::numeric,
+          LEAST(
+            10::numeric,
+            case
+              when scored.unacceptable_count >= 3 then 0.0
+              when scored.unacceptable_count = 2 then scored.raw_total * (10.0 / 12.0) - 3.0
+              when scored.unacceptable_count = 1 then scored.raw_total * (10.0 / 12.0) - 1.5
+              else scored.raw_total * (10.0 / 12.0)
+            end
+          )
+        ),
+        1
+      ) as travel_score
+    from
+      scored
+  )
+
+select
+  climdiv_id,
+  state_abbr,
+  division_name,
+  month,
+  tmax_f,
+  tmin_f,
+  pcpn_in as precip,
+  mosquito_score,
+  day_score,
+  day_label,
+  night_score,
+  night_label,
+  precip_score,
+  precip_label,
+  mosquito_travel_score,
+  mosquito_label,
+  raw_total,
+  unacceptable_count,
+  travel_score,
+  case
+    when travel_score >= 8::numeric then 'Excellent'::text
+    when travel_score >= 6::numeric then 'Good'::text
+    when travel_score >= 4::numeric then 'Fair'::text
+    when travel_score >= 2::numeric then 'Poor'::text
+    else 'Bad'::text
+  end as score_band,
+  case
+    when travel_score >= 8::numeric then '#2e7d32'::text
+    when travel_score >= 6::numeric then '#81c784'::text
+    when travel_score >= 4::numeric then '#fdd835'::text
+    when travel_score >= 2::numeric then '#fb8c00'::text
+    else '#c62828'::text
+  end as fill_color,
+  geom
+from
+  normalized;

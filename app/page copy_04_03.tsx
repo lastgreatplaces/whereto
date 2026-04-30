@@ -9,6 +9,7 @@ const supabase = createClient(
 );
 
 type PlaceType = "birds" | "hikes" | "camps" | "highways";
+type LandscapeRegion = "all" | "west" | "midwest" | "south" | "east";
 
 interface Theme {
   color: string;
@@ -22,17 +23,39 @@ type RouteStop = {
   lon: number;
 };
 
+type LandscapeRow = {
+  place_id: number;
+  name: string;
+  states: string | null;
+  acres: number | null;
+  owner_name: string | null;
+  designation: string | null;
+  ecoregion: string | null;
+  ecoregion_rank: number | null;
+   rank_top500: number | null;
+  in_top500: boolean;
+  rank_top1000: number | null;
+  in_top1000: boolean;
+  geom: any;
+};
+
 const CAMP_THEMES: Record<string, Theme> = {
   COE: { color: "#d32f2f", emoji: "⚓" },
-  NF: { color: "#1b5e20", emoji: "🌲" },
-  NP: { color: "#5d4037", emoji: "⛰️" },
-  SP: { color: "#1976d2", emoji: "🏞️" },
+  NF: { color: "#1b5e20", emoji: "🔆" },
+  NP: { color: "#5e3225", emoji: "🏞️" },
+  NM: { color: "#5e3225", emoji: "🏞️" },
+  NS: { color: "#5e3225", emoji: "🏞️" },
+  SP: { color: "#26ff00", emoji: "⛰️" },
+  SPR: { color: "#26ff00", emoji: "⛰️" },
   SF: { color: "#388e3c", emoji: "🌳" },
+  SFW: { color: "#039cfc", emoji: "🐤" },
+  USFW: { color: "#039cfc", emoji: "🐤" },
+  NWR: { color: "#039cfc", emoji: "🐤" },
   BLM: { color: "#fbc02d", emoji: "🏜️" },
   NRA: { color: "#8d6e63", emoji: "🏕️" },
   SRA: { color: "#8d6e63", emoji: "🏕️" },
-  CP: { color: "#00acc1", emoji: "🏙️" },
-  BD: { color: "#6a1b9a", emoji: "🚐" },
+  CP: { color: "#9b989b", emoji: "🏙️" },
+  BD: { color: "#1a0328", emoji: "✴️" },
   default: { color: "#607d8b", emoji: "⛺" }
 };
 
@@ -62,6 +85,19 @@ const STATE_GROUPS: Record<string, string[]> = {
   Canada: ["AB", "BC", "MB", "NB", "NL", "NS", "ON", "PE", "QC", "SK"]
 };
 
+const LANDSCAPE_REGION_STATES: Record<LandscapeRegion, string[]> = {
+  all: [],
+  west: ["AK", "AZ", "CA", "CO", "ID", "MT", "NV", "NM", "OR", "UT", "WA", "WY"],
+  midwest: ["IL", "IN", "IA", "KS", "MI", "MN", "MO", "NE", "ND", "OH", "SD", "WI"],
+  south: ["AL", "AR", "FL", "GA", "KY", "LA", "MS", "NC", "OK", "SC", "TN", "TX", "VA", "WV"],
+  east: ["CT", "DE", "ME", "MD", "MA", "NH", "NJ", "NY", "PA", "RI", "VT"]
+};
+
+function formatAcres(acres: number | null) {
+  if (acres == null) return "—";
+  return `${Math.round(acres).toLocaleString()} acres`;
+}
+
 export default function Home() {
   const [states, setStates] = useState<string[]>([]);
   const [placeTypes, setPlaceTypes] = useState<PlaceType[]>([]);
@@ -70,6 +106,8 @@ export default function Home() {
   const [favOnlyCategories, setFavOnlyCategories] = useState<PlaceType[]>([]);
 
   const [isFilterOpen, setIsFilterOpen] = useState(true);
+  const [isRegionsOpen, setIsRegionsOpen] = useState(false);
+  const [isLandscapeSectionOpen, setIsLandscapeSectionOpen] = useState(false);
   const [openGroups, setOpenGroups] = useState<string[]>([]);
   const [isCampSubmenuOpen, setIsCampSubmenuOpen] = useState(false);
   const [isHighwaySubmenuOpen, setIsHighwaySubmenuOpen] = useState(false);
@@ -82,6 +120,9 @@ export default function Home() {
   const [routeStops, setRouteStops] = useState<RouteStop[]>([]);
   const [routeMessage, setRouteMessage] = useState("");
 
+  const [showLandscapes, setShowLandscapes] = useState(false);
+  const [landscapeRegion, setLandscapeRegion] = useState<LandscapeRegion>("all");
+
   const mapRef = useRef<any>(null);
   const clustererRef = useRef<any>(null);
   const infoWindowRef = useRef<any>(null);
@@ -89,7 +130,10 @@ export default function Home() {
   const isPopupOpenRef = useRef<boolean>(false);
 
   const markersMapRef = useRef<Map<string, any>>(new Map());
+  const campMarkersRef = useRef<any[]>([]);
+  const nonClusterMarkersRef = useRef<any[]>([]);
   const highwayLinesRef = useRef<any[]>([]);
+  const landscapePolygonsRef = useRef<any[]>([]);
 
   const filtersRef = useRef({
     states: new Set<string>(states),
@@ -121,7 +165,13 @@ export default function Home() {
       .replace(/"/g, "&quot;")
       .replace(/'/g, "&#39;");
 
-  const getMarkerStyle = (google: any, type: PlaceType, subtype: string, zoom: number, isFavorite: boolean) => {
+  const getMarkerStyle = (
+    google: any,
+    type: PlaceType,
+    subtype: string,
+    zoom: number,
+    isFavorite: boolean
+  ) => {
     const baseSize = zoom <= 7 ? 20 : zoom <= 10 ? 30 : 40;
     const strokeColor = isFavorite ? "#FFD700" : "#ffffff";
     const strokeWeight = isFavorite ? 6 : 2;
@@ -132,27 +182,28 @@ export default function Home() {
         scale: baseSize / 2,
         fillColor: "#ffffff",
         fillOpacity: 1,
-        strokeWeight: isFavorite ? 7 : 4,
+        strokeWeight: isFavorite ? 3 : 2,
         strokeColor: isFavorite ? "#FFD700" : "#f80808",
         labelOrigin: new google.maps.Point(0, 0)
       };
     }
 
     if (type === "hikes") {
-      return {
-        path: "M -10,-10 L 10,-10 L 10,10 L -10,10 Z",
-        scale: baseSize / 20,
-        fillColor: "#28a745",
-        fillOpacity: 1,
-        strokeWeight,
-        strokeColor
-      };
-    }
+  return {
+    path: "M -10,-10 L 10,-10 L 10,10 L -10,10 Z",
+    scale: baseSize / 20,
+    fillColor: "#c4fcfe",
+    fillOpacity: 1,
+    strokeWeight: isFavorite ? 3 : 2,
+    strokeColor: isFavorite ? "#f3cf05" : "#f80808",
+    labelOrigin: new google.maps.Point(0, 1)
+  };
+}
 
     const theme = CAMP_THEMES[subtype] || CAMP_THEMES.default;
     return {
       path: "M 0,0 C -2,-20 -10,-22 -10,-30 A 10,10 0 1 1 10,-30 C 10,-22 2,-20 0,0 z",
-      scale: baseSize / 16,
+      scale: baseSize / 21,
       fillColor: theme.color,
       fillOpacity: 1,
       strokeWeight,
@@ -166,36 +217,164 @@ export default function Home() {
     const google = (window as any).google;
     const z = mapRef.current.getZoom() ?? 4;
 
-    markersMapRef.current.forEach((m) => {
+    [...nonClusterMarkersRef.current, ...campMarkersRef.current].forEach((m) => {
       const type = (m as any).__type as PlaceType;
       const isFav = (m as any).__isFavorite;
       m.setIcon(getMarkerStyle(google, type, (m as any).__subtype, z, isFav));
 
-      if (type === "birds") {
-        m.setLabel({
-          text: "🦅",
-          fontSize: z <= 8 ? "18px" : "26px",
+if (type === "birds") {
+  m.setLabel({
+    text: "🦅",
+    fontSize: z <= 8 ? "18px" : "26px",
+    color: "black",
+    fontWeight: "700"
+  });
+} else if (type === "hikes") {
+  m.setLabel(
+    z >= 5
+      ? {
+          text: "🥾",
+          fontSize: z <= 6 ? "18px" : z <= 8 ? "20px" : "22px",
           color: "black",
           fontWeight: "700"
-        });
-      } else {
-        m.setLabel(
-          z > 7
-            ? {
-                text: (m as any).__emoji,
-                fontSize: z <= 11 ? "14px" : "18px",
-                color: "white",
-                fontWeight: "700"
-              }
-            : null
+        }
+      : null
+  );
+} else {
+  m.setLabel(
+    z > 7
+      ? {
+          text: (m as any).__emoji,
+          fontSize: z <= 11 ? "14px" : "18px",
+          color: "white",
+          fontWeight: "700"
+        }
+      : null
+  );
+}
+    });
+  };
+
+  const clearHighways = () => {
+    highwayLinesRef.current.forEach((line) => line.setMap(null));
+    highwayLinesRef.current = [];
+  };
+
+  const clearLandscapes = () => {
+    landscapePolygonsRef.current.forEach((poly) => poly.setMap(null));
+    landscapePolygonsRef.current = [];
+  };
+
+  const addLandscapeFeature = (
+    google: any,
+    map: any,
+    geometry: any,
+    row: LandscapeRow
+  ) => {
+    const createPolygon = (paths: any[]) => {
+      const poly = new google.maps.Polygon({
+        paths,
+        strokeColor: "#2e7d32",
+        strokeOpacity: 1,
+        strokeWeight: 1.5,
+        fillColor: "#66bb6a",
+        fillOpacity: 0.65,
+        map,
+        zIndex: 2
+      });
+
+      poly.addListener("click", (e: any) => {
+        if (!infoWindowRef.current) return;
+
+        const portfolioRank = row.rank_top1000 ?? "—";
+
+        infoWindowRef.current.setContent(`
+          <div style="padding:10px; font-family:sans-serif; min-width:220px; max-width:280px;">
+            <div style="font-weight:700; font-size:15px; margin-bottom:8px;">
+              ${escapeHtml(row.name)}
+            </div>
+            <div style="font-size:12px; line-height:1.55;">
+              <div><span style="font-weight:700;">States:</span> ${escapeHtml(row.states || "—")}</div>
+              <div><span style="font-weight:700;">Acres:</span> ${escapeHtml(formatAcres(row.acres))}</div>
+              <div><span style="font-weight:700;">Owner:</span> ${escapeHtml(row.owner_name || "—")}</div>
+              <div><span style="font-weight:700;">Designation:</span> ${escapeHtml(row.designation || "—")}</div>
+              <div><span style="font-weight:700;">Ecoregion:</span> ${escapeHtml(row.ecoregion || "—")}</div>
+              <div><span style="font-weight:700;">Ecoregion Rank:</span> ${escapeHtml(row.ecoregion_rank ?? "—")}</div>
+                           <div><span style="font-weight:700;">Top 1000 Rank:</span> ${escapeHtml(portfolioRank)}</div>
+            </div>
+          </div>
+        `);
+
+        infoWindowRef.current.setPosition(e.latLng);
+        infoWindowRef.current.open(map);
+      });
+
+      landscapePolygonsRef.current.push(poly);
+    };
+
+    if (!geometry) return;
+
+    if (geometry.type === "Polygon") {
+      const paths = geometry.coordinates.map((ring: number[][]) =>
+        ring.map(([lng, lat]) => ({ lat, lng }))
+      );
+      createPolygon(paths);
+    } else if (geometry.type === "MultiPolygon") {
+      geometry.coordinates.forEach((polygon: number[][][]) => {
+        const paths = polygon.map((ring: number[][]) =>
+          ring.map(([lng, lat]) => ({ lat, lng }))
         );
-      }
+        createPolygon(paths);
+      });
+    }
+  };
+
+  const loadLandscapes = async () => {
+    clearLandscapes();
+
+    if (!showLandscapes || !mapRef.current) return;
+
+    let query = supabase
+      .from("whereto_top_portfolios_web")
+      .select(
+        "place_id,name,states,acres,owner_name,designation,ecoregion,ecoregion_rank,rank_top1000,in_top1000,geom"
+      )
+      .eq("in_top1000", true)
+      .order("rank_top1000", { ascending: true });
+
+    const { data, error } = await query;
+
+    if (error) {
+      console.error("Landscape load error:", error);
+      return;
+    }
+
+    let rows = (data ?? []) as LandscapeRow[];
+
+    if (landscapeRegion !== "all") {
+      rows = rows.filter((row) => {
+        const rowStates = (row.states || "")
+          .split(",")
+          .map((s) => s.trim().toUpperCase())
+          .filter(Boolean);
+
+        return rowStates.some((st) =>
+          LANDSCAPE_REGION_STATES[landscapeRegion].includes(st)
+        );
+      });
+    }
+
+    const google = (window as any).google;
+    if (!google) return;
+
+    rows.forEach((row) => {
+      if (!row.geom) return;
+      addLandscapeFeature(google, mapRef.current, row.geom, row);
     });
   };
 
   const loadHighways = async () => {
-    highwayLinesRef.current.forEach((line) => line.setMap(null));
-    highwayLinesRef.current = [];
+    clearHighways();
 
     if (!filtersRef.current.types.has("highways") || filtersRef.current.states.size === 0) return;
 
@@ -222,9 +401,9 @@ export default function Home() {
       const geo = h.geom_geojson;
       if (!geo || !geo.coordinates) return;
 
-      let lineColor = "#4e342e";
+      let lineColor = "#75736f";
       if (h.favorite) lineColor = "#FFD700";
-      else if (h.subtype === "Backcountry") lineColor = "#CC5500";
+      else if (h.subtype === "Backcountry") lineColor = "#e46a13";
 
       const segments = geo.type === "MultiLineString" ? geo.coordinates : [geo.coordinates];
 
@@ -234,8 +413,8 @@ export default function Home() {
           path,
           geodesic: true,
           strokeColor: lineColor,
-          strokeOpacity: 0.9,
-          strokeWeight: h.favorite ? 7 : 4,
+          strokeOpacity: 0.7,
+          strokeWeight: h.favorite ? 7 : 3.5,
           map: mapRef.current,
           zIndex: h.favorite ? 50 : h.subtype === "Backcountry" ? 10 : 5
         });
@@ -321,13 +500,15 @@ export default function Home() {
   };
 
   const triggerPlacePopup = (place: any) => {
-    const marker = markersMapRef.current.get(place.id);
+    const marker = markersMapRef.current.get(String(place.id));
     if (!marker || !mapRef.current) return;
 
     isPopupOpenRef.current = true;
     const t = place.place_type as PlaceType;
     const sub = place.subtype || "";
-    const navUrl = `https://www.google.com/maps/dir/?api=1&destination=${place.lat},${place.lon}`;
+    const navLat = place.nav_lat ?? place.lat;
+    const navLon = place.nav_lon ?? place.lon;
+    const navUrl = `https://www.google.com/maps/dir/?api=1&destination=${navLat},${navLon}`;
     const isAlreadyInRoute = routeStops.some((s) => s.id === String(place.id));
     const canAddStop = routeStops.length < 8 && !isAlreadyInRoute;
 
@@ -392,12 +573,23 @@ export default function Home() {
     });
   };
 
+  const clearPlaceMarkers = () => {
+    if (clustererRef.current) {
+      clustererRef.current.clearMarkers();
+    }
+
+    campMarkersRef.current.forEach((m) => m.setMap(null));
+    nonClusterMarkersRef.current.forEach((m) => m.setMap(null));
+    campMarkersRef.current = [];
+    nonClusterMarkersRef.current = [];
+    markersMapRef.current.clear();
+  };
+
   const loadPlaces = async () => {
     if (!mapRef.current || !clustererRef.current || isPopupOpenRef.current) return;
 
-    loadHighways();
-    clustererRef.current.clearMarkers();
-    markersMapRef.current.clear();
+    await loadHighways();
+    clearPlaceMarkers();
 
     const statesArr = Array.from(filtersRef.current.states);
     const typesArr = Array.from(filtersRef.current.types).filter((t) => t !== "highways");
@@ -421,9 +613,16 @@ export default function Home() {
     setLoadedPlaces(filteredData);
     const google = (window as any).google;
 
-    const markers = filteredData.map((r) => {
+    const campMarkers: any[] = [];
+    const nonClusterMarkers: any[] = [];
+
+    filteredData.forEach((r) => {
+      const latVal = Number(r.lat);
+      const lonVal = Number(r.lon);
+      if (!Number.isFinite(latVal) || !Number.isFinite(lonVal)) return;
+
       const marker = new google.maps.Marker({
-        position: { lat: Number(r.lat), lng: Number(r.lon) },
+        position: { lat: latVal, lng: lonVal },
         zIndex: r.favorite ? 1000 : 1
       });
 
@@ -437,11 +636,20 @@ export default function Home() {
       (marker as any).__emoji = t === "birds" ? "🦅" : t === "hikes" ? "🥾" : theme.emoji;
 
       marker.addListener("click", () => triggerPlacePopup(r));
-      markersMapRef.current.set(r.id, marker);
-      return marker;
+      markersMapRef.current.set(String(r.id), marker);
+
+      if (t === "camps") {
+        campMarkers.push(marker);
+      } else {
+        marker.setMap(mapRef.current);
+        nonClusterMarkers.push(marker);
+      }
     });
 
-    clustererRef.current.addMarkers(markers);
+    campMarkersRef.current = campMarkers;
+    nonClusterMarkersRef.current = nonClusterMarkers;
+
+    clustererRef.current.addMarkers(campMarkersRef.current);
     applyMarkerSizing();
   };
 
@@ -453,8 +661,10 @@ export default function Home() {
   useEffect(() => {
     const key = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY;
     if (!key) return;
+    if (document.getElementById("google-maps-script")) return;
 
     const script = document.createElement("script");
+    script.id = "google-maps-script";
     script.src = `https://maps.googleapis.com/maps/api/js?key=${key}`;
 
     const clusterScript = document.createElement("script");
@@ -464,6 +674,9 @@ export default function Home() {
       document.head.appendChild(clusterScript);
       clusterScript.onload = () => {
         const google = (window as any).google;
+        const MarkerClusterer = (window as any).markerClusterer.MarkerClusterer;
+        const SuperClusterAlgorithm = (window as any).markerClusterer.SuperClusterAlgorithm;
+
         const map = new google.maps.Map(document.getElementById("map") as HTMLElement, {
           center: { lat: 39.5, lng: -98.35 },
           zoom: 4,
@@ -478,9 +691,37 @@ export default function Home() {
           isPopupOpenRef.current = false;
         });
 
-        clustererRef.current = new (window as any).markerClusterer.MarkerClusterer({
+        clustererRef.current = new MarkerClusterer({
           map,
-          algorithmOptions: { maxZoom: 9, gridSize: 60 }
+          markers: [],
+          algorithm: new SuperClusterAlgorithm({
+            radius: 32,
+            maxZoom: 11
+          }),
+          renderer: {
+            render: ({ count, position }: any) => {
+              const size = count < 10 ? 22 : count < 50 ? 26 : count < 100 ? 30 : 34;
+
+              return new google.maps.Marker({
+                position,
+                icon: {
+                  path: google.maps.SymbolPath.CIRCLE,
+                  scale: size / 2,
+                  fillColor: "#2c6bed",
+                  fillOpacity: 0.78,
+                  strokeColor: "#ffffff",
+                  strokeWeight: 2
+                },
+                label: {
+                  text: String(count),
+                  color: "white",
+                  fontSize: "11px",
+                  fontWeight: "bold"
+                },
+                zIndex: Number(google.maps.Marker.MAX_ZINDEX) + count
+              });
+            }
+          }
         });
 
         map.addListener("idle", scheduleLoad);
@@ -500,6 +741,12 @@ export default function Home() {
     if (mapRef.current) scheduleLoad();
   }, [states, placeTypes, selectedCampSubtypes, selectedHighwaySubtypes, favOnlyCategories]);
 
+  useEffect(() => {
+    if (mapRef.current) {
+      loadLandscapes();
+    }
+  }, [showLandscapes, landscapeRegion]);
+
   const placeResults =
     searchQuery.length > 1
       ? loadedPlaces.filter((p) => p.name.toLowerCase().includes(searchQuery.toLowerCase())).slice(0, 5)
@@ -510,61 +757,90 @@ export default function Home() {
       ? loadedHighways.filter((h) => h.name.toLowerCase().includes(searchQuery.toLowerCase())).slice(0, 5)
       : [];
 
+  const hasAnySelectedStates = states.length > 0;
+  const categoryCount = placeTypes.length + (showLandscapes ? 1 : 0);
+
   return (
     <div style={{ position: "relative", height: "100vh", overflow: "hidden", fontFamily: "sans-serif" }}>
-      <a
-        href="/climate"
+      <div
         style={{
           position: "absolute",
           right: 12,
-          top: 12,
+          top: 78,
           zIndex: 20,
-          background: "white",
-          border: "1px solid #ccc",
-          borderRadius: 8,
-          padding: "8px 12px",
-          textDecoration: "none",
-          color: "#333",
-          fontWeight: 700,
-          boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
+          display: "flex",
+          flexDirection: "column",
+          gap: 6,
+          width: 118
         }}
       >
-        Climate Map
-      </a>
+        <a
+          href="/climate-sql"
+          style={{
+            background: "white",
+            border: "1px solid #ccc",
+            borderRadius: 8,
+            padding: "8px 10px",
+            textDecoration: "none",
+            color: "#333",
+            fontWeight: 700,
+            fontSize: 13,
+            textAlign: "center",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
+          }}
+        >
+          Climate Map
+        </a>
 
-      <button
-        onClick={() => {
-          setIsRouteMode((prev) => !prev);
-          setRouteMessage(!isRouteMode ? "Route mode on" : "Route mode off");
-          if (infoWindowRef.current) {
-            infoWindowRef.current.close();
-            isPopupOpenRef.current = false;
-          }
-        }}
-        style={{
-          position: "absolute",
-          right: 12,
-          top: 58,
-          zIndex: 20,
-          background: isRouteMode ? "#188038" : "white",
-          border: "1px solid #ccc",
-          borderRadius: 8,
-          padding: "8px 12px",
-          color: isRouteMode ? "white" : "#333",
-          fontWeight: 700,
-          boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-          cursor: "pointer"
-        }}
-      >
-        {isRouteMode ? "Route Mode ✓" : "Build Route"}
-      </button>
+        <button
+          onClick={() => {
+            setIsRouteMode((prev) => !prev);
+            setRouteMessage(!isRouteMode ? "Route mode on" : "Route mode off");
+            if (infoWindowRef.current) {
+              infoWindowRef.current.close();
+              isPopupOpenRef.current = false;
+            }
+          }}
+          style={{
+            background: isRouteMode ? "#188038" : "white",
+            border: "1px solid #ccc",
+            borderRadius: 8,
+            padding: "8px 10px",
+            color: isRouteMode ? "white" : "#333",
+            fontWeight: 700,
+            fontSize: 13,
+            boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+            cursor: "pointer"
+          }}
+        >
+          {isRouteMode ? "Route ✓" : "Build Route"}
+        </button>
+
+        <a
+          href="/lastgreatplaces"
+          style={{
+            background: "white",
+            border: "1px solid #ccc",
+            borderRadius: 8,
+            padding: "8px 10px",
+            textDecoration: "none",
+            color: "#333",
+            fontWeight: 700,
+            fontSize: 13,
+            textAlign: "center",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
+          }}
+        >
+          Last Great Places
+        </a>
+      </div>
 
       {routeMessage && (
         <div
           style={{
             position: "absolute",
             right: 12,
-            top: 106,
+            top: 176,
             zIndex: 20,
             background: "rgba(0,0,0,0.8)",
             color: "white",
@@ -666,18 +942,78 @@ export default function Home() {
           background: "white",
           border: "1px solid #ccc",
           borderRadius: 8,
-          width: isFilterOpen ? 240 : 40,
+          width: isFilterOpen ? "min(340px, calc(100vw - 24px - 130px))" : 48,
+          minWidth: isFilterOpen ? 240 : 48,
+          maxWidth: "calc(100vw - 154px)",
+          maxHeight: "calc(100vh - 24px)",
+          overflowY: isFilterOpen ? "auto" : "visible",
           padding: isFilterOpen ? 12 : 4,
           boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
           transition: "width 0.2s"
         }}
       >
-        <button
-          onClick={() => setIsFilterOpen(!isFilterOpen)}
-          style={{ width: "100%", cursor: "pointer", padding: "4px", marginBottom: isFilterOpen ? 8 : 0 }}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            marginBottom: 10,
+            position: "sticky",
+            top: 0,
+            background: "white",
+            zIndex: 2,
+            paddingBottom: 8
+          }}
         >
-          {isFilterOpen ? "Close Menu" : "☰"}
-        </button>
+          {isFilterOpen ? (
+            <>
+              <button
+                onClick={() => setIsFilterOpen(false)}
+                style={{
+                  border: "1px solid #ccc",
+                  borderRadius: 6,
+                  width: 32,
+                  height: 32,
+                  background: "#f5f5f5",
+                  cursor: "pointer",
+                  color: "#333",
+                  fontSize: 18,
+                  lineHeight: 1,
+                  fontWeight: 700,
+                  flexShrink: 0
+                }}
+                aria-label="Close filters"
+                title="Close filters"
+              >
+                ×
+              </button>
+
+              <div style={{ fontWeight: 700, fontSize: 16, color: "#222" }}>
+                Filters
+              </div>
+            </>
+          ) : (
+            <button
+              onClick={() => setIsFilterOpen(true)}
+              style={{
+                width: 40,
+                height: 40,
+                border: "1px solid #ccc",
+                borderRadius: 6,
+                background: "#f5f5f5",
+                cursor: "pointer",
+                color: "#333",
+                fontSize: 20,
+                lineHeight: 1,
+                fontWeight: 700
+              }}
+              aria-label="Show filters"
+              title="Show filters"
+            >
+              ☰
+            </button>
+          )}
+        </div>
 
         {isFilterOpen && (
           <div style={{ fontSize: 13 }}>
@@ -689,10 +1025,10 @@ export default function Home() {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 style={{
                   width: "100%",
-                  padding: "8px",
-                  borderRadius: "4px",
+                  padding: "10px 10px",
+                  borderRadius: "6px",
                   border: "1px solid #ddd",
-                  fontSize: "12px",
+                  fontSize: "13px",
                   outline: "none"
                 }}
               />
@@ -756,56 +1092,69 @@ export default function Home() {
                 paddingBottom: 4
               }}
             >
-              CATEGORIES
+              Catergories
             </div>
 
-            {(["birds", "hikes", "camps", "highways"] as PlaceType[]).map((t) => (
-              <div key={t}>
-                <div style={{ display: "flex", alignItems: "center", marginBottom: 6 }}>
+            {([
+              { key: "birds" as PlaceType, label: "🪺 Birds" },
+              { key: "hikes" as PlaceType, label: "🥾 Hikes" },
+              { key: "camps" as PlaceType, label: "⛺ Camps" },
+              { key: "highways" as PlaceType, label: "🛣️ Highways" }
+            ]).map((item) => (
+              <div key={item.key}>
+                <div style={{ display: "flex", alignItems: "center", marginBottom: 8 }}>
                   <input
                     type="checkbox"
-                    checked={placeTypes.includes(t)}
+                    checked={placeTypes.includes(item.key)}
                     onChange={() =>
-                      setPlaceTypes((prev) => (prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]))
+                      setPlaceTypes((prev) =>
+                        prev.includes(item.key)
+                          ? prev.filter((x) => x !== item.key)
+                          : [...prev, item.key]
+                      )
                     }
                   />
-                  <span style={{ marginLeft: 8, textTransform: "capitalize", flexGrow: 1 }}>{t}</span>
+                  <span style={{ marginLeft: 8, flexGrow: 1 }}>{item.label}</span>
 
-                  {(t === "camps" || t === "highways") && (
+                  {(item.key === "camps" || item.key === "highways") && (
                     <button
                       onClick={(e) => {
                         e.preventDefault();
-                        t === "camps"
+                        item.key === "camps"
                           ? setIsCampSubmenuOpen(!isCampSubmenuOpen)
                           : setIsHighwaySubmenuOpen(!isHighwaySubmenuOpen);
                       }}
-                      style={{ fontSize: 10, background: "none", border: "none", cursor: "pointer", padding: "0 5px" }}
+                      style={{
+                        fontSize: 10,
+                        background: "none",
+                        border: "none",
+                        cursor: "pointer",
+                        padding: "0 5px"
+                      }}
                     >
-                      {t === "camps"
-                        ? isCampSubmenuOpen
-                          ? "▲"
-                          : "▼"
-                        : isHighwaySubmenuOpen
-                        ? "▲"
-                        : "▼"}
+                      {item.key === "camps"
+                        ? isCampSubmenuOpen ? "▲" : "▼"
+                        : isHighwaySubmenuOpen ? "▲" : "▼"}
                     </button>
                   )}
 
                   <button
                     onClick={() =>
                       setFavOnlyCategories((prev) =>
-                        prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]
+                        prev.includes(item.key)
+                          ? prev.filter((x) => x !== item.key)
+                          : [...prev, item.key]
                       )
                     }
                     style={{
-                      background: favOnlyCategories.includes(t) ? "#fff8dc" : "transparent",
-                      border: favOnlyCategories.includes(t) ? "1px solid #d4af37" : "1px solid transparent",
+                      background: favOnlyCategories.includes(item.key) ? "#fff8dc" : "transparent",
+                      border: favOnlyCategories.includes(item.key) ? "1px solid #d4af37" : "1px solid transparent",
                       borderRadius: 4,
                       cursor: "pointer",
                       fontSize: "16px",
                       lineHeight: 1,
                       padding: "2px 4px",
-                      color: favOnlyCategories.includes(t) ? "#b8860b" : "#999"
+                      color: favOnlyCategories.includes(item.key) ? "#b8860b" : "#999"
                     }}
                     title="Favorites only"
                   >
@@ -813,7 +1162,7 @@ export default function Home() {
                   </button>
                 </div>
 
-                {t === "camps" && isCampSubmenuOpen && (
+                {item.key === "camps" && isCampSubmenuOpen && (
                   <div
                     style={{
                       padding: "8px",
@@ -871,7 +1220,7 @@ export default function Home() {
                   </div>
                 )}
 
-                {t === "highways" && isHighwaySubmenuOpen && (
+                {item.key === "highways" && isHighwaySubmenuOpen && (
                   <div
                     style={{
                       padding: "8px",
@@ -926,6 +1275,100 @@ export default function Home() {
 
             <div
               style={{
+                marginTop: 10,
+                marginBottom: 8,
+                borderTop: "1px solid #eee",
+                paddingTop: 10
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginBottom: 8
+                }}
+              >
+                <button
+                  onClick={() => setIsLandscapeSectionOpen((prev) => !prev)}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                    background: "none",
+                    border: "none",
+                    padding: 0,
+                    cursor: "pointer",
+                    fontWeight: 700,
+                    color: "#666",
+                    fontSize: 13
+                  }}
+                >
+                  <span>{isLandscapeSectionOpen ? "▼" : "▶"}</span>
+                  <span>Landscapes</span>
+                </button>
+              </div>
+
+              {isLandscapeSectionOpen && (
+                <>
+                  <label
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 8,
+                      fontSize: 12,
+                      marginBottom: 10,
+                      cursor: "pointer"
+                    }}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={showLandscapes}
+                      onChange={(e) => setShowLandscapes(e.target.checked)}
+                    />
+                    Show Top 1000 Landscapes
+                  </label>
+
+                  <div style={{ marginBottom: 8 }}>
+                    <div style={{ fontSize: 12, color: "#555", marginBottom: 4 }}>
+                      Region
+                    </div>
+                    <select
+                      value={landscapeRegion}
+                      onChange={(e) => setLandscapeRegion(e.target.value as LandscapeRegion)}
+                      style={{
+                        width: "100%",
+                        border: "1px solid #ccc",
+                        borderRadius: 6,
+                        padding: "8px",
+                        fontSize: 12,
+                        background: "white",
+                        color: "#333"
+                      }}
+                    >
+                      <option value="all">All regions</option>
+                      <option value="west">West</option>
+                      <option value="midwest">Midwest</option>
+                      <option value="south">South</option>
+                      <option value="east">East</option>
+                    </select>
+                  </div>
+
+                  <div
+                    style={{
+                      fontSize: 11,
+                      color: "#666",
+                      lineHeight: 1.4
+                    }}
+                  >
+                    Landscape polygons are filtered separately from camps, birds, hikes, and highways.
+                  </div>
+                </>
+              )}
+            </div>
+
+            <div
+              style={{
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
@@ -935,11 +1378,29 @@ export default function Home() {
                 paddingBottom: 4
               }}
             >
-              <span style={{ fontWeight: 700, color: "#666" }}>REGIONS</span>
+              <button
+                onClick={() => setIsRegionsOpen((prev) => !prev)}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                  background: "none",
+                  border: "none",
+                  padding: 0,
+                  cursor: "pointer",
+                  fontWeight: 700,
+                  color: "#666",
+                  fontSize: 13
+                }}
+              >
+                <span>{isRegionsOpen ? "▼" : "▶"}</span>
+                <span>Regions & States</span>
+              </button>
+
               <button
                 onClick={() => setStates([])}
                 style={{
-                  fontSize: 9,
+                  fontSize: 10,
                   cursor: "pointer",
                   color: "#f44336",
                   background: "none",
@@ -948,109 +1409,128 @@ export default function Home() {
                   fontWeight: 700
                 }}
               >
-                CLEAR
+                Clear All
               </button>
             </div>
 
-            <div style={{ maxHeight: "40vh", overflowY: "auto" }}>
-              {Object.entries(STATE_GROUPS).map(([groupName, groupStates]) => {
-                const groupSelected = groupStates.length > 0 && groupStates.every((st) => states.includes(st));
+            {isRegionsOpen && (
+              <div style={{ maxHeight: "40vh", overflowY: "auto" }}>
+                {Object.entries(STATE_GROUPS).map(([groupName, groupStates]) => {
+                  const groupSelected = groupStates.length > 0 && groupStates.every((st) => states.includes(st));
 
-                return (
-                  <div key={groupName} style={{ marginBottom: 4 }}>
+                  return (
                     <div
+                      key={groupName}
                       style={{
-                        display: "flex",
-                        alignItems: "center",
-                        background: "#f8f9fa",
-                        padding: "4px 6px",
-                        borderRadius: 4
+                        marginBottom: 6,
+                        background: groupSelected ? "#eef5ff" : "#f8f9fa",
+                        borderRadius: 6,
+                        padding: "2px 0"
                       }}
                     >
-                      <button
-                        onClick={() =>
-                          setOpenGroups((prev) =>
-                            prev.includes(groupName)
-                              ? prev.filter((g) => g !== groupName)
-                              : [...prev, groupName]
-                          )
-                        }
+                      <div
                         style={{
-                          border: "none",
-                          background: "none",
-                          cursor: "pointer",
-                          padding: 0,
-                          marginRight: 6,
-                          fontSize: 10
+                          display: "flex",
+                          alignItems: "center",
+                          padding: "6px 8px",
+                          borderRadius: 4
                         }}
                       >
-                        {openGroups.includes(groupName) ? "▼" : "▶"}
-                      </button>
-
-                      <span style={{ flexGrow: 1, fontWeight: 600, fontSize: 11 }}>{groupName}</span>
-
-                      {groupStates.length > 0 && (
                         <button
                           onClick={() =>
-                            setStates((prev) =>
-                              groupSelected
-                                ? prev.filter((st) => !groupStates.includes(st))
-                                : Array.from(new Set([...prev, ...groupStates]))
+                            setOpenGroups((prev) =>
+                              prev.includes(groupName)
+                                ? prev.filter((g) => g !== groupName)
+                                : [...prev, groupName]
                             )
                           }
                           style={{
-                            fontSize: 9,
-                            cursor: "pointer",
-                            color: "#007bff",
-                            background: "#e7f1ff",
                             border: "none",
-                            padding: "2px 4px",
-                            borderRadius: 3,
-                            fontWeight: 700
+                            background: "none",
+                            cursor: "pointer",
+                            padding: 0,
+                            marginRight: 6,
+                            fontSize: 10
                           }}
                         >
-                          {groupSelected ? "NONE" : "ALL"}
+                          {openGroups.includes(groupName) ? "▼" : "▶"}
                         </button>
+
+                        <span
+                          style={{
+                            flexGrow: 1,
+                            fontWeight: groupSelected ? 700 : 600,
+                            fontSize: 12
+                          }}
+                        >
+                          {groupName}
+                        </span>
+
+                        {groupStates.length > 0 && (
+                          <button
+                            onClick={() =>
+                              setStates((prev) =>
+                                groupSelected
+                                  ? prev.filter((st) => !groupStates.includes(st))
+                                  : Array.from(new Set([...prev, ...groupStates]))
+                              )
+                            }
+                            style={{
+                              fontSize: 10,
+                              cursor: "pointer",
+                              color: "#007bff",
+                              background: "#e7f1ff",
+                              border: "none",
+                              padding: "4px 6px",
+                              borderRadius: 4,
+                              fontWeight: 700
+                            }}
+                          >
+                            Select All
+                          </button>
+                        )}
+                      </div>
+
+                      {openGroups.includes(groupName) && (
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4px", padding: "0 12px 8px 12px" }}>
+                          {groupStates.map((st) => (
+                            <label
+                              key={st}
+                              style={{ display: "flex", alignItems: "center", fontSize: 11, cursor: "pointer" }}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={states.includes(st)}
+                                onChange={() =>
+                                  setStates((prev) =>
+                                    prev.includes(st) ? prev.filter((x) => x !== st) : [...prev, st]
+                                  )
+                                }
+                              />
+                              <span style={{ marginLeft: 4 }}>{st}</span>
+                            </label>
+                          ))}
+                        </div>
                       )}
                     </div>
-
-                    {openGroups.includes(groupName) && (
-                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4px", padding: "6px 12px" }}>
-                        {groupStates.map((st) => (
-                          <label
-                            key={st}
-                            style={{ display: "flex", alignItems: "center", fontSize: 11, cursor: "pointer" }}
-                          >
-                            <input
-                              type="checkbox"
-                              checked={states.includes(st)}
-                              onChange={() =>
-                                setStates((prev) =>
-                                  prev.includes(st) ? prev.filter((x) => x !== st) : [...prev, st]
-                                )
-                              }
-                            />
-                            <span style={{ marginLeft: 4 }}>{st}</span>
-                          </label>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
+                  );
+                })}
+              </div>
+            )}
 
             <div
               style={{
                 marginTop: 12,
                 paddingTop: 8,
                 borderTop: "1px solid #eee",
-                fontSize: 11,
+                fontSize: 12,
                 color: "#666",
                 lineHeight: 1.35
               }}
             >
-              Select categories, sub-categories, & state(s) to display on the map.  Click on icons or scenic road for info. Close menu for full map view.
+              {categoryCount === 0 && !hasAnySelectedStates
+                ? "Choose categories, landscapes, and regions to display on the map. Close menu to view full map."
+                : "Tap icons, roads, or landscape polygons for details."}
             </div>
           </div>
         )}

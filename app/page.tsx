@@ -8,8 +8,7 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? ""
 );
 
-type PlaceType = "birds" | "hikes" | "camps" | "highways";
-
+type PlaceType = "birds" | "hikes" | "camps" | "highways" | "targets" | "landscapes";
 interface Theme {
   color: string;
   emoji: string;
@@ -22,6 +21,23 @@ type RouteStop = {
   lon: number;
 };
 
+type LandscapeRow = {
+  place_id: number;
+  name: string;
+  states: string | null;
+  acres: number | null;
+  owner_name: string | null;
+  designation: string | null;
+  ecoregion: string | null;
+  ecoregion_rank: number | null;
+  rank_top500: number | null;
+  in_top500: boolean;
+  rank_top1000: number | null;
+  in_top1000: boolean;
+  geom: any
+  favorite: boolean | null;
+};
+
 const CAMP_THEMES: Record<string, Theme> = {
   COE: { color: "#d32f2f", emoji: "⚓" },
   NF: { color: "#1b5e20", emoji: "🔆" },
@@ -31,14 +47,15 @@ const CAMP_THEMES: Record<string, Theme> = {
   SP: { color: "#26ff00", emoji: "⛰️" },
   SPR: { color: "#26ff00", emoji: "⛰️" },
   SF: { color: "#388e3c", emoji: "🌳" },
-   SFW: { color: "#039cfc", emoji: "🐤" },
-   USFW: { color: "#039cfc", emoji: "🐤" },
-   NWR: { color: "#039cfc", emoji: "🐤" },
+  SFW: { color: "#039cfc", emoji: "🐤" },
+  USFW: { color: "#039cfc", emoji: "🐤" },
+  NWR: { color: "#039cfc", emoji: "🐤" },
   BLM: { color: "#fbc02d", emoji: "🏜️" },
   NRA: { color: "#8d6e63", emoji: "🏕️" },
   SRA: { color: "#8d6e63", emoji: "🏕️" },
   CP: { color: "#9b989b", emoji: "🏙️" },
   BD: { color: "#1a0328", emoji: "✴️" },
+  landscapes: { color: "#fff3cd", emoji: "🎯" },
   default: { color: "#607d8b", emoji: "⛺" }
 };
 
@@ -54,11 +71,35 @@ const CAMP_SUBTYPE_LABELS: Record<string, string> = {
   CP: "Local Park",
   BD: "Boondock",
   SFW: "Fish/Wild",
-  RES: "Other/Res"
+  RES: "Other/Res",
+  landscapes: "Target Area"
 };
 
 const UI_CAMP_SUBTYPES = ["COE", "NF", "NP", "SP", "SF", "BLM", "BD", "NRA", "CP", "SFW", "RES"];
 const UI_HIGHWAY_SUBTYPES = ["Scenic", "Backcountry"];
+const BYWAY_PRIORITY_THRESHOLDS = [2.0, 2.3, 2.6, 3.0, 3.3, 3.6];
+const BIRD_PRIORITY_SEASONS = [
+  { value: "winter", label: "Winter" },
+  { value: "spring", label: "Spring" },
+  { value: "summer", label: "Summer" },
+  { value: "fall", label: "Fall" }
+];
+const BIRD_PRIORITY_THRESHOLDS = [20, 25, 30, 35];
+const LANDSCAPE_ECOREGION_PRIORITY_OPTIONS = [
+  { value: "off", label: "Off" },
+  { value: "2", label: "≤ 2" },
+  { value: "5", label: "≤ 5" },
+  { value: "10", label: "≤ 10" },
+  { value: "20", label: "≤ 20" }
+];
+const LANDSCAPE_NATIONAL_PRIORITY_OPTIONS = [
+  { value: "off", label: "Off" },
+  { value: "50", label: "≤ 50" },
+  { value: "100", label: "≤ 100" },
+  { value: "250", label: "≤ 250" },
+  { value: "500", label: "≤ 500" },
+  { value: "1000", label: "≤ 1000" }
+];
 
 const STATE_GROUPS: Record<string, string[]> = {
   South: ["AL", "AR", "FL", "GA", "KY", "LA", "MS", "NC", "OK", "SC", "TN", "TX", "VA", "WV"],
@@ -68,44 +109,97 @@ const STATE_GROUPS: Record<string, string[]> = {
   Canada: ["AB", "BC", "MB", "NB", "NL", "NS", "ON", "PE", "QC", "SK"]
 };
 
+const ALL_STATES = Array.from(new Set(Object.values(STATE_GROUPS).flat()));
+
+function formatAcres(acres: number | null) {
+  if (acres == null) return "—";
+  return `${Math.round(acres).toLocaleString()} acres`;
+}
+
 export default function Home() {
-  const [states, setStates] = useState<string[]>([]);
-  const [placeTypes, setPlaceTypes] = useState<PlaceType[]>([]);
-  const [selectedCampSubtypes, setSelectedCampSubtypes] = useState<string[]>(UI_CAMP_SUBTYPES);
-  const [selectedHighwaySubtypes, setSelectedHighwaySubtypes] = useState<string[]>(UI_HIGHWAY_SUBTYPES);
-  const [favOnlyCategories, setFavOnlyCategories] = useState<PlaceType[]>([]);
+const [states, setStates] = useState<string[]>([]);
+const [stateFilterMode, setStateFilterMode] = useState<"national" | "filtered">("national");
+const [placeTypes, setPlaceTypes] = useState<PlaceType[]>([]);
+const [selectedCampSubtypes, setSelectedCampSubtypes] = useState<string[]>(UI_CAMP_SUBTYPES);
+const [selectedHighwaySubtypes, setSelectedHighwaySubtypes] = useState<string[]>(UI_HIGHWAY_SUBTYPES);
+const [favOnlyCategories, setFavOnlyCategories] = useState<PlaceType[]>([]);
+const [heartOnlyCategories, setHeartOnlyCategories] = useState<PlaceType[]>([]);
+const [appUsers, setAppUsers] = useState<any[]>([]);
+const [currentUserId, setCurrentUserId] = useState<number | null>(null);
+const [heartedPlaceIds, setHeartedPlaceIds] = useState<Set<number>>(new Set());
+const [heartedBywayIds, setHeartedBywayIds] = useState<Set<number>>(new Set());
+const [heartedLandscapeIds, setHeartedLandscapeIds] = useState<Set<number>>(new Set());
+const [isPrioritySettingsOpen, setIsPrioritySettingsOpen] = useState(false);
+const [bywayPriorityThreshold, setBywayPriorityThreshold] = useState<number>(3.3);
+const [isApplyingBywayPriority, setIsApplyingBywayPriority] = useState(false);
+const [birdPrioritySeason, setBirdPrioritySeason] = useState<string>("spring");
+const [birdPriorityThreshold, setBirdPriorityThreshold] = useState<number>(25);
+const [isApplyingBirdPriority, setIsApplyingBirdPriority] = useState(false);
+const [landscapePriorityEcoregionRank, setLandscapePriorityEcoregionRank] = useState<string>("5");
+const [landscapePriorityNationalRank, setLandscapePriorityNationalRank] = useState<string>("500");
+const [isApplyingLandscapePriority, setIsApplyingLandscapePriority] = useState(false);
 
-  const [isFilterOpen, setIsFilterOpen] = useState(true);
-  const [openGroups, setOpenGroups] = useState<string[]>([]);
-  const [isCampSubmenuOpen, setIsCampSubmenuOpen] = useState(false);
-  const [isHighwaySubmenuOpen, setIsHighwaySubmenuOpen] = useState(false);
+const [isFilterOpen, setIsFilterOpen] = useState(true);
+const [isRegionsOpen, setIsRegionsOpen] = useState(false);
+const [isLandscapeSectionOpen, setIsLandscapeSectionOpen] = useState(false);
+const [openGroups, setOpenGroups] = useState<string[]>([]);
+const [isCampSubmenuOpen, setIsCampSubmenuOpen] = useState(false);
+const [isHighwaySubmenuOpen, setIsHighwaySubmenuOpen] = useState(false);
 
-  const [searchQuery, setSearchQuery] = useState("");
-  const [loadedPlaces, setLoadedPlaces] = useState<any[]>([]);
-  const [loadedHighways, setLoadedHighways] = useState<any[]>([]);
+const [searchQuery, setSearchQuery] = useState("");
+const [loadedPlaces, setLoadedPlaces] = useState<any[]>([]);
+const [loadedHighways, setLoadedHighways] = useState<any[]>([]);
+const [loadedLandscapes, setLoadedLandscapes] = useState<LandscapeRow[]>([]);
 
-  const [isRouteMode, setIsRouteMode] = useState(false);
-  const [routeStops, setRouteStops] = useState<RouteStop[]>([]);
-  const [routeMessage, setRouteMessage] = useState("");
+const [isRouteMode, setIsRouteMode] = useState(false);
+const [routeStops, setRouteStops] = useState<RouteStop[]>([]);
+const [routeMessage, setRouteMessage] = useState("");
 
-  const mapRef = useRef<any>(null);
-  const clustererRef = useRef<any>(null);
-  const infoWindowRef = useRef<any>(null);
-  const lastFetchTimerRef = useRef<any>(null);
-  const isPopupOpenRef = useRef<boolean>(false);
 
-  const markersMapRef = useRef<Map<string, any>>(new Map());
-  const campMarkersRef = useRef<any[]>([]);
-  const nonClusterMarkersRef = useRef<any[]>([]);
-  const highwayLinesRef = useRef<any[]>([]);
+const mapRef = useRef<any>(null);
+const clustererRef = useRef<any>(null);
+const infoWindowRef = useRef<any>(null);
+const lastFetchTimerRef = useRef<any>(null);
+const isPopupOpenRef = useRef<boolean>(false);
 
-  const filtersRef = useRef({
-    states: new Set<string>(states),
-    types: new Set<PlaceType>(placeTypes),
-    campSubtypes: new Set<string>(selectedCampSubtypes),
-    highwaySubtypes: new Set<string>(selectedHighwaySubtypes),
-    favOnlyCategories: new Set<PlaceType>(favOnlyCategories)
-  });
+const currentUserIdRef = useRef<number | null>(null);
+
+const markersMapRef = useRef<Map<string, any>>(new Map());
+const campMarkersRef = useRef<any[]>([]);
+const nonClusterMarkersRef = useRef<any[]>([]);
+const highwayLinesRef = useRef<any[]>([]);
+const landscapePolygonsRef = useRef<any[]>([]);
+const heartedPlaceIdsRef = useRef<Set<number>>(new Set());
+const heartedBywayIdsRef = useRef<Set<number>>(new Set());
+const heartedLandscapeIdsRef = useRef<Set<number>>(new Set());
+
+const filtersRef = useRef({
+  stateFilterMode,
+  states: new Set<string>(states),
+  types: new Set<PlaceType>(placeTypes),
+  campSubtypes: new Set<string>(selectedCampSubtypes),
+  highwaySubtypes: new Set<string>(selectedHighwaySubtypes),
+  favOnlyCategories: new Set<PlaceType>(favOnlyCategories),
+  heartOnlyCategories: new Set<PlaceType>(heartOnlyCategories)
+});
+
+useEffect(() => {
+  filtersRef.current.stateFilterMode = stateFilterMode;
+  filtersRef.current.states = new Set(states);
+  filtersRef.current.types = new Set(placeTypes);
+  filtersRef.current.campSubtypes = new Set(selectedCampSubtypes);
+  filtersRef.current.highwaySubtypes = new Set(selectedHighwaySubtypes);
+  filtersRef.current.favOnlyCategories = new Set(favOnlyCategories);
+  filtersRef.current.heartOnlyCategories = new Set(heartOnlyCategories);
+}, [
+  stateFilterMode,
+  states,
+  placeTypes,
+  selectedCampSubtypes,
+  selectedHighwaySubtypes,
+  favOnlyCategories,
+  heartOnlyCategories
+]);
 
   useEffect(() => {
     filtersRef.current.states = new Set(states);
@@ -113,14 +207,26 @@ export default function Home() {
     filtersRef.current.campSubtypes = new Set(selectedCampSubtypes);
     filtersRef.current.highwaySubtypes = new Set(selectedHighwaySubtypes);
     filtersRef.current.favOnlyCategories = new Set(favOnlyCategories);
-  }, [states, placeTypes, selectedCampSubtypes, selectedHighwaySubtypes, favOnlyCategories]);
+    filtersRef.current.heartOnlyCategories = new Set(heartOnlyCategories);
+  }, [states, placeTypes, selectedCampSubtypes, selectedHighwaySubtypes, favOnlyCategories, heartOnlyCategories]);
 
   useEffect(() => {
-    if (!routeMessage) return;
-    const timer = setTimeout(() => setRouteMessage(""), 2200);
-    return () => clearTimeout(timer);
-  }, [routeMessage]);
+  if (!routeMessage) return;
+  const timer = setTimeout(() => setRouteMessage(""), 2200);
+  return () => clearTimeout(timer);
+}, [routeMessage]);
 
+useEffect(() => {
+  currentUserIdRef.current = currentUserId;
+}, [currentUserId]);
+
+useEffect(() => {
+  if (currentUserId && mapRef.current) {
+    scheduleLoad(true);
+  }
+}, [currentUserId]);
+
+  
   const escapeHtml = (value: any) =>
     String(value ?? "")
       .replace(/&/g, "&amp;")
@@ -129,16 +235,495 @@ export default function Home() {
       .replace(/"/g, "&quot;")
       .replace(/'/g, "&#39;");
 
+  const togglePlaceType = (type: PlaceType) => {
+    setPlaceTypes((prev) =>
+      prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
+    );
+  };
+
+  const toggleFavOnly = (type: PlaceType) => {
+    setFavOnlyCategories((prev) =>
+      prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
+    );
+  };
+
+  const toggleHeartOnly = (type: PlaceType) => {
+    setHeartOnlyCategories((prev) =>
+      prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
+    );
+  };
+
+  const togglePlaceHeart = async (place: any) => {
+   const activeUserId = currentUserIdRef.current;
+
+if (!activeUserId) {
+  alert("No user is selected for hearts.");
+  return;
+}
+
+    const isHearted = heartedPlaceIdsRef.current.has(place.id);
+
+    if (isHearted) {
+      console.log("Removing heart", { currentUserId, placeId: place.id });
+      const { error } = await supabase
+        .from("user_hearts_places")
+        .delete()
+        .eq("user_id", activeUserId)
+        .eq("id", place.id);
+
+      if (error) {
+        console.error("Error removing heart:", error);
+        return;
+      }
+
+      const next = new Set(heartedPlaceIdsRef.current);
+      next.delete(place.id);
+      heartedPlaceIdsRef.current = next;
+      setHeartedPlaceIds(next);
+    } else {
+      console.log("Adding heart", { currentUserId, placeId: place.id });
+      const { error } = await supabase
+        .from("user_hearts_places")
+       .insert([{ user_id: activeUserId, id: place.id }])
+
+      if (error) {
+        console.error("Error adding heart:", error);
+        return;
+      }
+
+      const next = new Set(heartedPlaceIdsRef.current);
+      next.add(place.id);
+      heartedPlaceIdsRef.current = next;
+      setHeartedPlaceIds(next);
+    }
+
+    setRouteMessage(isHearted ? "Heart removed" : "Heart added");
+
+if (infoWindowRef.current) {
+  infoWindowRef.current.close();
+}
+isPopupOpenRef.current = false;
+scheduleLoad(true);
+};
+
+  const toggleBywayHeart = async (byway: any) => {
+    const activeUserId = currentUserIdRef.current;
+
+    if (!activeUserId) {
+      alert("No user is selected for hearts.");
+      return;
+    }
+
+    const bywayId = Number(byway.byway_id);
+    if (!Number.isFinite(bywayId)) {
+      alert("This byway is missing byway_id, so it cannot be hearted.");
+      console.error("Missing byway_id for byway heart", byway);
+      return;
+    }
+
+    const isHearted = heartedBywayIdsRef.current.has(bywayId);
+
+    if (isHearted) {
+      console.log("Removing byway heart", { userId: activeUserId, bywayId: bywayId });
+      const { error } = await supabase
+        .from("user_hearts_byways")
+        .delete()
+        .eq("user_id", activeUserId)
+        .eq("byway_id", bywayId);
+
+      if (error) {
+        console.error("Error removing byway heart:", error);
+        alert(`Byway heart remove failed: ${error.message}`);
+        return;
+      }
+
+      const next = new Set(heartedBywayIdsRef.current);
+      next.delete(bywayId);
+      heartedBywayIdsRef.current = next;
+      setHeartedBywayIds(next);
+    } else {
+      console.log("Adding byway heart", { userId: activeUserId, bywayId: bywayId });
+      const { error } = await supabase
+        .from("user_hearts_byways")
+        .insert([{ user_id: activeUserId, byway_id: bywayId }]);
+
+      if (error) {
+        console.error("Error adding byway heart:", error);
+        alert(`Byway heart add failed: ${error.message}`);
+        return;
+      }
+
+      const next = new Set(heartedBywayIdsRef.current);
+      next.add(bywayId);
+      heartedBywayIdsRef.current = next;
+      setHeartedBywayIds(next);
+    }
+
+    setRouteMessage(isHearted ? "Byway heart removed" : "Byway heart added");
+
+    if (infoWindowRef.current) {
+      infoWindowRef.current.close();
+    }
+    isPopupOpenRef.current = false;
+    scheduleLoad(true);
+  };
+
+  const applyBywayPriorityThreshold = async () => {
+    if (!currentUserIdRef.current) {
+      alert("No user is selected for priority updates.");
+      return;
+    }
+
+    const threshold = Number(bywayPriorityThreshold);
+    if (!Number.isFinite(threshold)) {
+      alert("Invalid byway priority threshold.");
+      return;
+    }
+
+    setIsApplyingBywayPriority(true);
+
+    const { data, error } = await supabase.rpc("apply_byway_priority_threshold", {
+      p_threshold: threshold
+    });
+
+    if (error) {
+      console.error("Error applying byway priorities:", error);
+      alert(`Byway priority update failed: ${error.message}`);
+      setIsApplyingBywayPriority(false);
+      return;
+    }
+
+    const updatedCount = Array.isArray(data) && data.length > 0 && data[0]?.updated_count != null
+      ? Number(data[0].updated_count)
+      : null;
+
+    setRouteMessage(
+      updatedCount == null
+        ? `Byway priorities set at ≥ ${threshold.toFixed(1)}`
+        : `Byway priorities set at ≥ ${threshold.toFixed(1)} (${updatedCount} byways)`
+    );
+
+    if (infoWindowRef.current) {
+      infoWindowRef.current.close();
+    }
+    isPopupOpenRef.current = false;
+    setIsApplyingBywayPriority(false);
+    scheduleLoad(true);
+  };
+
+  const applyBirdPriorityThreshold = async () => {
+    if (!currentUserIdRef.current) {
+      alert("No user is selected for priority updates.");
+      return;
+    }
+
+    const threshold = Number(birdPriorityThreshold);
+    if (!Number.isFinite(threshold)) {
+      alert("Invalid bird priority threshold.");
+      return;
+    }
+
+    const allowedSeasons = new Set(BIRD_PRIORITY_SEASONS.map((s) => s.value));
+    if (!allowedSeasons.has(birdPrioritySeason)) {
+      alert("Invalid bird season.");
+      return;
+    }
+
+    setIsApplyingBirdPriority(true);
+
+    const { data, error } = await supabase.rpc("apply_bird_priority_threshold", {
+      p_season: birdPrioritySeason,
+      p_threshold: threshold
+    });
+
+    if (error) {
+      console.error("Error applying bird priorities:", error);
+      alert(`Bird priority update failed: ${error.message}`);
+      setIsApplyingBirdPriority(false);
+      return;
+    }
+
+    const updatedCount = Array.isArray(data) && data.length > 0 && data[0]?.updated_count != null
+      ? Number(data[0].updated_count)
+      : null;
+
+    const seasonLabel = BIRD_PRIORITY_SEASONS.find((s) => s.value === birdPrioritySeason)?.label || birdPrioritySeason;
+
+    setRouteMessage(
+      updatedCount == null
+        ? `Bird priorities set: ${seasonLabel} ≥ ${threshold}`
+        : `Bird priorities set: ${seasonLabel} ≥ ${threshold} (${updatedCount} birds)`
+    );
+
+    if (infoWindowRef.current) {
+      infoWindowRef.current.close();
+    }
+    isPopupOpenRef.current = false;
+    setIsApplyingBirdPriority(false);
+    scheduleLoad(true);
+  };
+
+  const applyLandscapePriorityThresholds = async () => {
+    if (!currentUserIdRef.current) {
+      alert("No user is selected for priority updates.");
+      return;
+    }
+
+    const ecoregionRank = landscapePriorityEcoregionRank === "off"
+      ? null
+      : Number(landscapePriorityEcoregionRank);
+    const nationalRank = landscapePriorityNationalRank === "off"
+      ? null
+      : Number(landscapePriorityNationalRank);
+
+    if (ecoregionRank == null && nationalRank == null) {
+      alert("Select at least one landscape priority rule.");
+      return;
+    }
+
+    if (ecoregionRank != null && !Number.isFinite(ecoregionRank)) {
+      alert("Invalid ecoregion rank threshold.");
+      return;
+    }
+
+    if (nationalRank != null && !Number.isFinite(nationalRank)) {
+      alert("Invalid national rank threshold.");
+      return;
+    }
+
+    setIsApplyingLandscapePriority(true);
+
+    const { data, error } = await supabase.rpc("apply_landscape_priority_thresholds", {
+      p_ecoregion_rank: ecoregionRank,
+      p_national_rank: nationalRank
+    });
+
+    if (error) {
+      console.error("Error applying landscape priorities:", error);
+      alert(`Landscape priority update failed: ${error.message}`);
+      setIsApplyingLandscapePriority(false);
+      return;
+    }
+
+    const updatedCount = Array.isArray(data) && data.length > 0 && data[0]?.updated_count != null
+      ? Number(data[0].updated_count)
+      : null;
+
+    const ecoLabel = ecoregionRank == null ? "off" : `≤ ${ecoregionRank}`;
+    const natLabel = nationalRank == null ? "off" : `≤ ${nationalRank}`;
+
+    setRouteMessage(
+      updatedCount == null
+        ? `Landscape priorities set: Eco ${ecoLabel} / National ${natLabel}`
+        : `Landscape priorities set: Eco ${ecoLabel} / National ${natLabel} (${updatedCount} landscapes)`
+    );
+
+    if (infoWindowRef.current) {
+      infoWindowRef.current.close();
+    }
+    isPopupOpenRef.current = false;
+    setIsApplyingLandscapePriority(false);
+
+    scheduleLoad(true);
+  };
+
+  const toggleLandscapeHeart = async (row: LandscapeRow) => {
+    const activeUserId = currentUserIdRef.current;
+
+    if (!activeUserId) {
+      alert("No user is selected for hearts.");
+      return;
+    }
+
+    const landscapeId = Number(row.place_id);
+    if (!Number.isFinite(landscapeId)) {
+      alert("This landscape is missing place_id, so it cannot be hearted.");
+      console.error("Missing place_id for landscape heart", row);
+      return;
+    }
+
+    const isHearted = heartedLandscapeIdsRef.current.has(landscapeId);
+
+    if (isHearted) {
+      console.log("Removing landscape heart", { userId: activeUserId, placeId: landscapeId });
+      const { error } = await supabase
+        .from("user_hearts_landscapes")
+        .delete()
+        .eq("user_id", activeUserId)
+        .eq("place_id", landscapeId);
+
+      if (error) {
+        console.error("Error removing landscape heart:", error);
+        alert(`Landscape heart remove failed: ${error.message}`);
+        return;
+      }
+
+      const next = new Set(heartedLandscapeIdsRef.current);
+      next.delete(landscapeId);
+      heartedLandscapeIdsRef.current = next;
+      setHeartedLandscapeIds(next);
+    } else {
+      console.log("Adding landscape heart", { userId: activeUserId, placeId: landscapeId });
+      const { error } = await supabase
+        .from("user_hearts_landscapes")
+        .insert([{ user_id: activeUserId, place_id: landscapeId }]);
+
+      if (error) {
+        console.error("Error adding landscape heart:", error);
+        alert(`Landscape heart add failed: ${error.message}`);
+        return;
+      }
+
+      const next = new Set(heartedLandscapeIdsRef.current);
+      next.add(landscapeId);
+      heartedLandscapeIdsRef.current = next;
+      setHeartedLandscapeIds(next);
+    }
+
+    setRouteMessage(isHearted ? "Landscape heart removed" : "Landscape heart added");
+
+    if (infoWindowRef.current) {
+      infoWindowRef.current.close();
+    }
+    isPopupOpenRef.current = false;
+    scheduleLoad(true);
+  };
+
+  const getLandscapePopupPosition = (row: LandscapeRow) => {
+    const geom = row.geom;
+    if (!geom || !geom.coordinates) return null;
+
+    try {
+      if (geom.type === "Polygon") {
+        const first = geom.coordinates?.[0]?.[0];
+        if (first && first.length >= 2) return { lat: first[1], lng: first[0] };
+      }
+      if (geom.type === "MultiPolygon") {
+        const first = geom.coordinates?.[0]?.[0]?.[0];
+        if (first && first.length >= 2) return { lat: first[1], lng: first[0] };
+      }
+    } catch (err) {
+      console.error("Could not derive landscape popup position", err, row);
+    }
+
+    return null;
+  };
+
+  const triggerLandscapePopup = (row: LandscapeRow) => {
+    if (!mapRef.current || !infoWindowRef.current) return;
+
+    const position = getLandscapePopupPosition(row);
+    if (!position) return;
+
+    isPopupOpenRef.current = true;
+    const portfolioRank = row.rank_top1000 ?? "—";
+    const currentIsHearted = heartedLandscapeIdsRef.current.has(Number(row.place_id));
+
+    infoWindowRef.current.setContent(`
+      <div style="padding:10px; font-family:sans-serif; min-width:220px; max-width:280px;">
+        <div style="font-weight:700; font-size:15px; margin-bottom:8px; display:flex; align-items:center; gap:5px;">
+          <span>${escapeHtml(row.name)}</span>${row.favorite ? "⭐" : ""}${currentIsHearted ? '<span style="color:#c62828;">♥</span>' : ""}
+        </div>
+        <div style="font-size:12px; line-height:1.55;">
+          <div><span style="font-weight:700;">States:</span> ${escapeHtml(row.states || "—")}</div>
+          <div><span style="font-weight:700;">Acres:</span> ${escapeHtml(formatAcres(row.acres))}</div>
+          <div><span style="font-weight:700;">Owner:</span> ${escapeHtml(row.owner_name || "—")}</div>
+          <div><span style="font-weight:700;">Designation:</span> ${escapeHtml(row.designation || "—")}</div>
+          <div><span style="font-weight:700;">Ecoregion:</span> ${escapeHtml(row.ecoregion || "—")}</div>
+          <div><span style="font-weight:700;">Ecoregion Rank:</span> ${escapeHtml(row.ecoregion_rank ?? "—")}</div>
+          <div><span style="font-weight:700;">Top 1000 Rank:</span> ${escapeHtml(portfolioRank)}</div>
+        </div>
+        <div style="margin-top:10px; border-top:1px solid #eee; padding-top:8px; display:flex; flex-direction:column; gap:6px;">
+          <button type="button" id="toggle-landscape-heart-btn-${row.place_id}" style="background:${currentIsHearted ? "#fde7e9" : "#fff5f5"}; color:#b3261e; border:1px solid #ef9a9a; font-size:11px; font-weight:bold; padding:8px; border-radius:4px; text-align:center; cursor:pointer; position:relative; z-index:9999; pointer-events:auto;">
+            ${currentIsHearted ? "♥ Remove Heart" : "♡ Add Heart"}
+          </button>
+        </div>
+      </div>
+    `);
+
+    mapRef.current.setZoom(Math.max(mapRef.current.getZoom() ?? 4, 8));
+    mapRef.current.panTo(position);
+    infoWindowRef.current.setPosition(position);
+    infoWindowRef.current.open(mapRef.current);
+
+    const google = (window as any).google;
+    google.maps.event.addListenerOnce(infoWindowRef.current, "domready", () => {
+      const heartBtn = document.getElementById(`toggle-landscape-heart-btn-${row.place_id}`);
+      if (heartBtn) {
+        (heartBtn as HTMLButtonElement).onclick = (ev) => {
+          ev.preventDefault();
+          ev.stopPropagation();
+          void toggleLandscapeHeart(row);
+        };
+      }
+    });
+  };
+
+  const toggleOpenGroup = (group: string) => {
+    setOpenGroups((prev) =>
+      prev.includes(group) ? prev.filter((g) => g !== group) : [...prev, group]
+    );
+  };
+
+const toggleState = (state: string) => {
+  setStateFilterMode("filtered");
+  setStates((prev) =>
+    prev.includes(state) ? prev.filter((s) => s !== state) : [...prev, state]
+  );
+};
+
+const toggleStateGroup = (groupName: string) => {
+  const groupStates = STATE_GROUPS[groupName] || [];
+  const allInGroupSelected = groupStates.every((st) => states.includes(st));
+
+  setStateFilterMode("filtered");
+  setStates((prev) => {
+    if (allInGroupSelected) {
+      return prev.filter((st) => !groupStates.includes(st));
+    }
+    return Array.from(new Set([...prev, ...groupStates]));
+  });
+};
+
+const setNationwideStates = () => {
+  setStateFilterMode("national");
+  setStates([]);
+};
+
+const selectAllStates = () => {
+  setStateFilterMode("filtered");
+  setStates(ALL_STATES);
+};
+
+const clearAllStates = () => {
+  setStateFilterMode("filtered");
+  setStates([]);
+};
+
+  const toggleCampSubtype = (subtype: string) => {
+    setSelectedCampSubtypes((prev) =>
+      prev.includes(subtype) ? prev.filter((s) => s !== subtype) : [...prev, subtype]
+    );
+  };
+
+  const toggleHighwaySubtype = (subtype: string) => {
+    setSelectedHighwaySubtypes((prev) =>
+      prev.includes(subtype) ? prev.filter((s) => s !== subtype) : [...prev, subtype]
+    );
+  };
+
   const getMarkerStyle = (
     google: any,
     type: PlaceType,
     subtype: string,
     zoom: number,
-    isFavorite: boolean
+    isFavorite: boolean,
+    isHearted: boolean = false
   ) => {
     const baseSize = zoom <= 7 ? 20 : zoom <= 10 ? 30 : 40;
-    const strokeColor = isFavorite ? "#FFD700" : "#ffffff";
-    const strokeWeight = isFavorite ? 6 : 2;
+    const hasBoth = isFavorite && isHearted;
+    const strokeColor = hasBoth ? "#d4af37" : isFavorite ? "#FFD700" : isHearted ? "#c62828" : "#ffffff";
+    const strokeWeight = hasBoth ? 5 : isFavorite ? 6 : isHearted ? 4 : 2;
 
     if (type === "birds") {
       return {
@@ -146,8 +731,8 @@ export default function Home() {
         scale: baseSize / 2,
         fillColor: "#ffffff",
         fillOpacity: 1,
-        strokeWeight: isFavorite ? 7 : 4,
-        strokeColor: isFavorite ? "#FFD700" : "#f80808",
+        strokeWeight: hasBoth ? 4 : isFavorite ? 3 : isHearted ? 3 : 2,
+        strokeColor: hasBoth ? "#d4af37" : isFavorite ? "#FFD700" : isHearted ? "#c62828" : "#f80808",
         labelOrigin: new google.maps.Point(0, 0)
       };
     }
@@ -156,10 +741,23 @@ export default function Home() {
       return {
         path: "M -10,-10 L 10,-10 L 10,10 L -10,10 Z",
         scale: baseSize / 20,
-        fillColor: "#28a745",
+        fillColor: "#c4fcfe",
         fillOpacity: 1,
-        strokeWeight,
-        strokeColor
+        strokeWeight: hasBoth ? 4 : isFavorite ? 3 : isHearted ? 3 : 2,
+        strokeColor: hasBoth ? "#d4af37" : isFavorite ? "#f3cf05" : isHearted ? "#c62828" : "#f80808",
+        labelOrigin: new google.maps.Point(0, 1)
+      };
+    }
+
+    if (type === "targets") {
+      return {
+        path: google.maps.SymbolPath.CIRCLE,
+        scale: baseSize / 2.2,
+        fillColor: "#fff3cd",
+        fillOpacity: 1,
+        strokeWeight: hasBoth ? 4 : isFavorite ? 3 : isHearted ? 3 : 2,
+        strokeColor: hasBoth ? "#d4af37" : isFavorite ? "#f3cf05" : isHearted ? "#c62828" : "#8a6d1d",
+        labelOrigin: new google.maps.Point(0, 0)
       };
     }
 
@@ -183,7 +781,8 @@ export default function Home() {
     [...nonClusterMarkersRef.current, ...campMarkersRef.current].forEach((m) => {
       const type = (m as any).__type as PlaceType;
       const isFav = (m as any).__isFavorite;
-      m.setIcon(getMarkerStyle(google, type, (m as any).__subtype, z, isFav));
+      const isHearted = (m as any).__isHearted;
+      m.setIcon(getMarkerStyle(google, type, (m as any).__subtype, z, isFav, isHearted));
 
       if (type === "birds") {
         m.setLabel({
@@ -192,6 +791,28 @@ export default function Home() {
           color: "black",
           fontWeight: "700"
         });
+      } else if (type === "hikes") {
+        m.setLabel(
+          z >= 5
+            ? {
+                text: "🥾",
+                fontSize: z <= 6 ? "18px" : z <= 8 ? "20px" : "22px",
+                color: "black",
+                fontWeight: "700"
+              }
+            : null
+        );
+      } else if (type === "targets") {
+        m.setLabel(
+          z >= 4
+            ? {
+                text: "🎯",
+                fontSize: z <= 6 ? "16px" : z <= 8 ? "18px" : "20px",
+                color: "black",
+                fontWeight: "700"
+              }
+            : null
+        );
       } else {
         m.setLabel(
           z > 7
@@ -212,68 +833,434 @@ export default function Home() {
     highwayLinesRef.current = [];
   };
 
-  const loadHighways = async () => {
-    clearHighways();
+  const clearLandscapes = () => {
+    landscapePolygonsRef.current.forEach((poly) => poly.setMap(null));
+    landscapePolygonsRef.current = [];
+  };
 
-    if (!filtersRef.current.types.has("highways") || filtersRef.current.states.size === 0) return;
+  const addLandscapeFeature = (
+    google: any,
+    map: any,
+    geometry: any,
+    row: LandscapeRow
+  ) => {
+    
+    const createPolygon = (paths: any[]) => {
 
-    let query = supabase
-      .from("byways")
-      .select("geom_geojson, name, designats, favorite, subtype")
-      .in("state", Array.from(filtersRef.current.states));
+const isFavorite = Boolean(row.favorite);
+const isHearted = heartedLandscapeIdsRef.current.has(Number(row.place_id));
+const useFavoriteHighlight = isFavorite;
+const useHeartHighlight = isHearted;
+const useBothHighlight = useFavoriteHighlight && useHeartHighlight;
 
-    if (filtersRef.current.favOnlyCategories.has("highways")) {
-      query = query.eq("favorite", true);
+      const openLandscapePopup = (e: any) => {
+        if (!infoWindowRef.current) return;
+
+        isPopupOpenRef.current = true;
+        const portfolioRank = row.rank_top1000 ?? "—";
+        const currentIsHearted = heartedLandscapeIdsRef.current.has(Number(row.place_id));
+
+        infoWindowRef.current.setContent(`
+          <div style="padding:10px; font-family:sans-serif; min-width:220px; max-width:280px;">
+            <div style="font-weight:700; font-size:15px; margin-bottom:8px; display:flex; align-items:center; gap:5px;">
+              <span>${escapeHtml(row.name)}</span>${row.favorite ? "⭐" : ""}${currentIsHearted ? '<span style="color:#c62828;">♥</span>' : ""}
+            </div>
+            <div style="font-size:12px; line-height:1.55;">
+              <div><span style="font-weight:700;">States:</span> ${escapeHtml(row.states || "—")}</div>
+              <div><span style="font-weight:700;">Acres:</span> ${escapeHtml(formatAcres(row.acres))}</div>
+              <div><span style="font-weight:700;">Owner:</span> ${escapeHtml(row.owner_name || "—")}</div>
+              <div><span style="font-weight:700;">Designation:</span> ${escapeHtml(row.designation || "—")}</div>
+              <div><span style="font-weight:700;">Ecoregion:</span> ${escapeHtml(row.ecoregion || "—")}</div>
+              <div><span style="font-weight:700;">Ecoregion Rank:</span> ${escapeHtml(row.ecoregion_rank ?? "—")}</div>
+              <div><span style="font-weight:700;">Top 1000 Rank:</span> ${escapeHtml(portfolioRank)}</div>
+            </div>
+            <div style="margin-top:10px; border-top:1px solid #eee; padding-top:8px; display:flex; flex-direction:column; gap:6px;">
+              <button type="button" id="toggle-landscape-heart-btn-${row.place_id}" style="background:${currentIsHearted ? "#fde7e9" : "#fff5f5"}; color:#b3261e; border:1px solid #ef9a9a; font-size:11px; font-weight:bold; padding:8px; border-radius:4px; text-align:center; cursor:pointer; position:relative; z-index:9999; pointer-events:auto;">
+                ${currentIsHearted ? "♥ Remove Heart" : "♡ Add Heart"}
+              </button>
+            </div>
+          </div>
+        `);
+
+        infoWindowRef.current.setPosition(e.latLng);
+        infoWindowRef.current.open(map);
+
+        google.maps.event.addListenerOnce(infoWindowRef.current, "domready", () => {
+          const heartBtn = document.getElementById(`toggle-landscape-heart-btn-${row.place_id}`);
+          if (heartBtn) {
+            (heartBtn as HTMLButtonElement).onclick = (ev) => {
+              ev.preventDefault();
+              ev.stopPropagation();
+              console.log("Landscape heart button clicked", { placeId: row.place_id });
+              void toggleLandscapeHeart(row);
+            };
+          } else {
+            console.error("Landscape heart button not found in InfoWindow DOM", { placeId: row.place_id });
+          }
+        });
+      };
+
+      if (useBothHighlight) {
+        const haloPoly = new google.maps.Polygon({
+          paths,
+          strokeColor: "#c62828",
+          strokeOpacity: 1,
+          strokeWeight: 6.2,
+          fillColor: "#66bb6a",
+          fillOpacity: 0.55,
+          map,
+          zIndex: 9
+        });
+        haloPoly.addListener("click", openLandscapePopup);
+        landscapePolygonsRef.current.push(haloPoly);
+      }
+
+      const poly = new google.maps.Polygon({
+        paths,
+        strokeColor: useFavoriteHighlight ? "#d4af37" : useHeartHighlight ? "#c62828" : "#2e7d32",
+        strokeOpacity: 1,
+        strokeWeight: useFavoriteHighlight ? 3.4 : useHeartHighlight ? 3.2 : 1.5,
+        fillColor: "#66bb6a",
+        fillOpacity: 0.65,
+        map,
+        zIndex: useBothHighlight ? 10 : useFavoriteHighlight ? 8 : useHeartHighlight ? 7 : 2
+      });
+
+      poly.addListener("click", openLandscapePopup);
+
+      landscapePolygonsRef.current.push(poly);
+    };
+
+    if (!geometry) return;
+
+    if (geometry.type === "Polygon") {
+      const paths = geometry.coordinates.map((ring: number[][]) =>
+        ring.map(([lng, lat]) => ({ lat, lng }))
+      );
+      createPolygon(paths);
+    } else if (geometry.type === "MultiPolygon") {
+      geometry.coordinates.forEach((polygon: number[][][]) => {
+        const paths = polygon.map((ring: number[][]) =>
+          ring.map(([lng, lat]) => ({ lat, lng }))
+        );
+        createPolygon(paths);
+      });
+    }
+  };
+
+  const loadLandscapes = async () => {
+    clearLandscapes();
+    setLoadedLandscapes([]);
+
+    if (!filtersRef.current.types.has("landscapes") || !mapRef.current) return;
+
+    const statesArr = Array.from(filtersRef.current.states);
+    const stateMode = filtersRef.current.stateFilterMode;
+
+    if (stateMode === "filtered" && statesArr.length === 0) {
+      setLoadedLandscapes([]);
+      return;
     }
 
-    const { data, error } = await query;
-    if (error || !data) return;
+    const { data, error } = await supabase
+      .from("whereto_top_portfolios_web")
+      .select(
+        "place_id,name,states,acres,owner_name,designation,ecoregion,ecoregion_rank,rank_top1000,in_top1000,geom,favorite"
+      )
+      .eq("in_top1000", true)
+      .order("rank_top1000", { ascending: true });
 
-    const filteredHighways = data.filter((h) =>
-      filtersRef.current.highwaySubtypes.has(h.subtype || "Scenic")
-    );
+    if (error) {
+      console.error("Landscape load error:", error);
+      return;
+    }
 
-    setLoadedHighways(filteredHighways);
-    const google = (window as any).google;
+    let rows = (data ?? []) as LandscapeRow[];
 
-    filteredHighways.forEach((h) => {
-      const geo = h.geom_geojson;
-      if (!geo || !geo.coordinates) return;
+    if (stateMode === "filtered") {
+      const selectedStates = new Set(statesArr.map((s) => s.trim().toUpperCase()));
+      rows = rows.filter((row) => {
+        const rowStates = (row.states || "")
+          .split(",")
+          .map((s) => s.trim().toUpperCase())
+          .filter(Boolean);
 
-      let lineColor = "#4e342e";
-      if (h.favorite) lineColor = "#FFD700";
-      else if (h.subtype === "Backcountry") lineColor = "#CC5500";
-
-      const segments = geo.type === "MultiLineString" ? geo.coordinates : [geo.coordinates];
-
-      segments.forEach((segment: any[]) => {
-        const path = segment.map((c) => ({ lat: c[1], lng: c[0] }));
-        const poly = new google.maps.Polyline({
-          path,
-          geodesic: true,
-          strokeColor: lineColor,
-          strokeOpacity: 0.9,
-          strokeWeight: h.favorite ? 7 : 4,
-          map: mapRef.current,
-          zIndex: h.favorite ? 50 : h.subtype === "Backcountry" ? 10 : 5
-        });
-
-        poly.addListener("click", (e: any) => {
-          infoWindowRef.current.setContent(
-            `<div style="padding:10px; font-family:sans-serif;">
-              <b>${escapeHtml(h.name || "Scenic Byway")}</b>${h.favorite ? " ⭐" : ""}
-              <br/>
-              <span style="font-size:12px; color:#555;">${escapeHtml(h.designats || "")}</span>
-            </div>`
-          );
-          infoWindowRef.current.setPosition(e.latLng);
-          infoWindowRef.current.open(mapRef.current);
-        });
-
-        highwayLinesRef.current.push(poly);
+        return rowStates.some((st) => selectedStates.has(st));
       });
+    }
+
+    const starOn = filtersRef.current.favOnlyCategories.has("landscapes");
+    const heartOn = filtersRef.current.heartOnlyCategories.has("landscapes");
+
+    rows = rows.filter((row) => {
+      const isFav = !!row.favorite;
+      const isHeart = heartedLandscapeIdsRef.current.has(Number(row.place_id));
+
+      if (starOn && heartOn) {
+        return isFav || isHeart;
+      }
+      if (starOn) return isFav;
+      if (heartOn) return isHeart;
+      return true;
+    });
+
+    setLoadedLandscapes(rows);
+
+    const google = (window as any).google;
+    if (!google) return;
+
+    rows.forEach((row) => {
+      if (!row.geom) return;
+      addLandscapeFeature(google, mapRef.current, row.geom, row);
     });
   };
+
+  const loadHighways = async () => {
+  clearHighways();
+
+  if (!filtersRef.current.types.has("highways")) {
+    setLoadedHighways([]);
+    return;
+  }
+
+  const statesArr = Array.from(filtersRef.current.states);
+  const stateMode = filtersRef.current.stateFilterMode;
+
+  if (stateMode === "filtered" && statesArr.length === 0) {
+    setLoadedHighways([]);
+    return;
+  }
+
+  let query = supabase
+    .from("byways")
+    .select("byway_id, geom_geojson, name, state, description, designats, favorite, subtype, scenic_score, distinctive_score, integrity_score, interest_score, landscape_score, landscape_rank, interest_badge");
+
+  if (stateMode === "filtered") {
+    query = query.in("state", statesArr);
+  }
+
+  const { data, error } = await query;
+  if (error || !data) {
+    console.error("Byway load error:", error);
+    setLoadedHighways([]);
+    return;
+  }
+
+  const filteredHighways = data.filter((h) => {
+    const favOn = filtersRef.current.favOnlyCategories.has("highways");
+    const heartOn = filtersRef.current.heartOnlyCategories.has("highways");
+    const bywayId = Number(h.byway_id);
+    const isFav = !!h.favorite;
+    const isHeart = Number.isFinite(bywayId) && heartedBywayIdsRef.current.has(bywayId);
+
+    if (favOn && heartOn) {
+      if (!isFav && !isHeart) return false;
+    } else if (favOn) {
+      if (!isFav) return false;
+    } else if (heartOn) {
+      if (!isHeart) return false;
+    }
+
+    return filtersRef.current.highwaySubtypes.has(h.subtype || "Scenic");
+  });
+
+  setLoadedHighways(filteredHighways);
+  const google = (window as any).google;
+
+  filteredHighways.forEach((h) => {
+    const geo = h.geom_geojson;
+    if (!geo || !geo.coordinates) return;
+
+    const bywayId = Number(h.byway_id);
+    const isHearted = Number.isFinite(bywayId) && heartedBywayIdsRef.current.has(bywayId);
+    const isFavorite = !!h.favorite;
+    const hasBoth = isFavorite && isHearted;
+    const subtype = h.subtype || "Scenic";
+    const rank = h.landscape_rank || "Good";
+
+    let lineColor = "#75736f";
+    if (subtype === "Backcountry") lineColor = "#e46a13";
+    if (isHearted) lineColor = "#c62828";
+    if (isFavorite) lineColor = "#e6c716";
+    if (hasBoth) lineColor = "#d4af37";
+
+    let strokeWeight = 3.0;
+    let strokeOpacity = 0.62;
+    let zIndex = subtype === "Backcountry" ? 10 : 5;
+
+    if (rank === "Exceptional") {
+      strokeWeight = 3.3;
+      strokeOpacity = 0.80;
+      zIndex = 40;
+    } else if (rank === "Excellent") {
+      strokeWeight = 3.3;
+      strokeOpacity = 0.75;
+      zIndex = 30;
+    } else if (rank === "Very Good") {
+      strokeWeight = 3.3;
+      strokeOpacity = 0.70;
+      zIndex = 20;
+    } else if (rank === "Good") {
+      strokeWeight = 3.0;
+      strokeOpacity = 0.65;
+      zIndex = subtype === "Backcountry" ? 10 : 5;
+    } else if (rank === "Worthwhile") {
+      strokeWeight = 2.7;
+      strokeOpacity = 0.50;
+      zIndex = 4;
+    } else if (rank === "Fair") {
+      strokeWeight = 2.7;
+      strokeOpacity = 0.50;
+      zIndex = 3;
+    } else {
+      strokeWeight = 2.5;
+      strokeOpacity = 0.35;
+      zIndex = 2;
+    }
+
+    if (isHearted) {
+      strokeWeight = Math.max(strokeWeight, 4.0);
+      strokeOpacity = Math.max(strokeOpacity, 0.82);
+      zIndex = Math.max(zIndex, 45);
+    }
+
+    if (isFavorite) {
+      strokeWeight = Math.max(strokeWeight, 4.0);
+      strokeOpacity = Math.max(strokeOpacity, 0.85);
+      zIndex = Math.max(zIndex, 50);
+    }
+
+    if (hasBoth) {
+      strokeWeight = Math.max(strokeWeight, 4.2);
+      strokeOpacity = 0.92;
+      zIndex = Math.max(zIndex, 60);
+    }
+
+    const segments =
+      geo.type === "MultiLineString" ? geo.coordinates : [geo.coordinates];
+
+    segments.forEach((segment: any[]) => {
+      const path = segment.map((c) => ({ lat: c[1], lng: c[0] }));
+
+      if (hasBoth) {
+        const halo = new google.maps.Polyline({
+          path,
+          geodesic: true,
+          strokeColor: "#c62828",
+          strokeOpacity: 0.85,
+          strokeWeight: strokeWeight + 3,
+          map: mapRef.current,
+          zIndex: zIndex - 1
+        });
+        highwayLinesRef.current.push(halo);
+      }
+
+      const poly = new google.maps.Polyline({
+        path,
+        geodesic: true,
+        strokeColor: lineColor,
+        strokeOpacity,
+        strokeWeight,
+        map: mapRef.current,
+        zIndex
+      });
+
+      poly.addListener("click", (e: any) => {
+        if (!infoWindowRef.current) return;
+        isPopupOpenRef.current = true;
+
+        const currentBywayId = Number(h.byway_id);
+        const currentIsHearted = Number.isFinite(currentBywayId) && heartedBywayIdsRef.current.has(currentBywayId);
+        const rank = h.landscape_rank || "";
+        let rankColor = "#999";
+
+        if (rank === "Exceptional") rankColor = "#1b5e20";
+        else if (rank === "Excellent") rankColor = "#227e28";
+        else if (rank === "Very Good") rankColor = "#3ba441";
+        else if (rank === "Good") rankColor = "#83c53d";
+        else if (rank === "Worthwhile") rankColor = "#fbc02d";
+        else if (rank === "Fair") rankColor = "#ef6c00";
+        else if (rank === "Low") rankColor = "#e57373";
+
+        const scoreDisplay =
+          h.landscape_score !== null && h.landscape_score !== undefined
+            ? Number(h.landscape_score).toFixed(1)
+            : "—";
+
+        infoWindowRef.current.setContent(
+          '<div style="padding:10px; font-family:sans-serif; min-width:240px; max-width:320px;">' +
+
+            '<div style="font-weight:700; font-size:14px; margin-bottom:4px;">' +
+              escapeHtml(h.name || "Scenic Byway") +
+              (h.favorite ? " ⭐" : "") +
+              (currentIsHearted ? '<span style="color:#c62828; margin-left:4px;">♥</span>' : "") +
+            '</div>' +
+
+            '<div style="font-size:12px; color:#555; margin-bottom:8px;">' +
+              'State: ' + escapeHtml(h.state || "—") +
+            '</div>' +
+
+            '<div style="margin-bottom:8px;">' +
+              '<div style="font-size:13px; font-weight:700; color:#222; margin-bottom:2px;">' +
+                'Score: ' + escapeHtml(scoreDisplay) +
+              '</div>' +
+              '<div style="font-size:13px; font-weight:700; color:' + rankColor + ';">' +
+                escapeHtml(rank) +
+              '</div>' +
+            '</div>' +
+
+            (
+              h.interest_badge
+                ? '<div style="display:inline-block; margin-bottom:8px; padding:3px 8px; border-radius:999px; background:#e3f2fd; color:#1565c0; font-size:11px; font-weight:700;">' +
+                    escapeHtml(h.interest_badge) +
+                  '</div>'
+                : ''
+            ) +
+
+            '<div style="font-size:12px; line-height:1.45; color:#333; margin-bottom:8px;">' +
+              escapeHtml(h.description || "") +
+            '</div>' +
+
+            '<div style="font-size:11px; color:#666; margin-bottom:6px;">' +
+              escapeHtml(h.designats || "") +
+            '</div>' +
+
+            '<div style="font-size:11px; color:#666; line-height:1.4; margin-bottom:8px;">' +
+              'Scenic ' + escapeHtml(h.scenic_score ?? "—") +
+              ' · Distinctive ' + escapeHtml(h.distinctive_score ?? "—") +
+              ' · Integrity ' + escapeHtml(h.integrity_score ?? "—") +
+              ' · Interest ' + escapeHtml(h.interest_score ?? "—") +
+            '</div>' +
+
+            '<button type="button" id="toggle-byway-heart-btn-' + escapeHtml(h.byway_id) + '" style="width:100%; background:' + (currentIsHearted ? '#fde7e9' : '#fff5f5') + '; color:#b3261e; border:1px solid #ef9a9a; font-size:11px; font-weight:bold; padding:8px; border-radius:4px; text-align:center; cursor:pointer; position:relative; z-index:9999; pointer-events:auto;">' +
+              (currentIsHearted ? '♥ Remove Heart' : '♡ Add Heart') +
+            '</button>' +
+
+          '</div>'
+        );
+
+        infoWindowRef.current.setPosition(e.latLng);
+        infoWindowRef.current.open(mapRef.current);
+
+        google.maps.event.addListenerOnce(infoWindowRef.current, "domready", () => {
+          const bywayHeartBtn = document.getElementById(`toggle-byway-heart-btn-${h.byway_id}`);
+          if (bywayHeartBtn) {
+            (bywayHeartBtn as HTMLButtonElement).onclick = (ev) => {
+              ev.preventDefault();
+              ev.stopPropagation();
+              console.log("Byway heart button clicked", { bywayId: h.byway_id });
+              void toggleBywayHeart(h);
+            };
+          } else {
+            console.error("Byway heart button not found in InfoWindow DOM", { bywayId: h.byway_id });
+          }
+        });
+      });
+
+      highwayLinesRef.current.push(poly);
+    });
+  });
+};
 
   const addStopToRoute = (place: any) => {
     const stop: RouteStop = {
@@ -318,9 +1305,9 @@ export default function Home() {
       .map((s) => `${s.lat},${s.lon}`)
       .join("|");
 
-    let url = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(
-      destination
-    )}&travelmode=driving`;
+    let url = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(
+      origin
+    )}&destination=${encodeURIComponent(destination)}&travelmode=driving`;
 
     if (waypoints) {
       url += `&waypoints=${encodeURIComponent(waypoints)}`;
@@ -350,14 +1337,84 @@ export default function Home() {
     const navUrl = `https://www.google.com/maps/dir/?api=1&destination=${navLat},${navLon}`;
     const isAlreadyInRoute = routeStops.some((s) => s.id === String(place.id));
     const canAddStop = routeStops.length < 8 && !isAlreadyInRoute;
+    const isHearted = heartedPlaceIdsRef.current.has(place.id);
 
-    let popup = `<div style="padding:5px; font-family:sans-serif; min-width:190px;">
+    let popup = `<div style="padding:5px; font-family:sans-serif; min-width:190px; max-width:280px;">
       <div style="display:flex; align-items:center; gap:5px;">
-        <b>${escapeHtml(place.name)}</b>${place.favorite ? "⭐" : ""}
+        <b>${escapeHtml(place.name)}</b>${place.favorite ? "⭐" : ""}${isHearted ? '<span style="color:#c62828; margin-left:4px;">♥</span>' : ""}
       </div>
       <span style="color:#666; font-size:11px; font-weight:bold;">
         ${escapeHtml(CAMP_SUBTYPE_LABELS[sub] || sub || "N/A")}
       </span>`;
+
+    if (t === "targets" && place.notes) {
+      popup += `<div style="font-size:12px; margin-top:6px; line-height:1.45; color:#333; border-top:1px solid #f0f0f0; padding-top:6px;">
+        ${escapeHtml(place.notes)}
+      </div>`;
+    }
+
+if (t === "birds") {
+  const birdVal = (str: any) => (str && str.toString().trim() !== "" ? str : "—");
+
+  const ratingColor = (rating: any) => {
+    const r = String(rating || "").trim();
+    if (r === "Excellent") return "#225625";
+    if (r === "Very Good") return "#408043";
+    if (r === "Good") return "#6b8d47";
+    if (r === "Fair") return "#95b01e";
+    if (r === "Low") return "#c87a2d";
+    return "#444";
+  };
+
+  const integrityColor = (rank: any) => {
+    const r = String(rank || "").trim();
+    if (r === "Excellent") return "#225625";
+    if (r === "Very High") return "#408043";
+    if (r === "High") return "#6b8d47";
+    if (r === "Good") return "#7fa457";
+    if (r === "Moderate") return "#c87a2d";
+    if (r === "Modified") return "#fd4e4e";
+    return "#444";
+  };
+
+  const seasonRow = (label: string, rating: any, count: any) => {
+    const safeRating = birdVal(rating);
+    const safeCount = birdVal(count);
+
+    return `
+      <div style="display:grid; grid-template-columns:64px 1fr 42px; column-gap:6px; align-items:baseline; margin-bottom:2px;">
+        <div style="font-weight:700;">${label}:</div>
+        <div style="color:${ratingColor(safeRating)}; font-weight:700;">${escapeHtml(safeRating)}</div>
+        <div style="text-align:right; color:#666;">${escapeHtml(safeCount)}</div>
+      </div>
+    `;
+  };
+
+  
+  popup = `<div style="padding:5px; font-family:sans-serif; min-width:210px; max-width:295px;">
+    <div style="display:flex; align-items:center; gap:5px;">
+      <b>${escapeHtml(place.name)}</b>${place.favorite ? "⭐" : ""}${isHearted ? '<span style="color:#c62828; margin-left:4px;">♥</span>' : ""}
+    </div>
+    <div style="color:#666; font-size:11px; font-weight:bold; margin-top:2px;">
+      ${escapeHtml(place.state || "—")} · ${escapeHtml(CAMP_SUBTYPE_LABELS[sub] || sub || "N/A")}
+    </div>`;
+
+  popup += `<div style="font-size:12px; margin-top:6px; line-height:1.45; border-top:1px solid #f0f0f0; padding-top:6px;">
+    ${seasonRow("Winter", place.winter_rating, place.winter)}
+    ${seasonRow("Spring", place.spring_rating, place.spring)}
+    ${seasonRow("Summer", place.summer_rating, place.summer)}
+    ${seasonRow("Fall", place.fall_rating, place.fall)}
+    <div style="display:grid; grid-template-columns:64px 1fr 42px; column-gap:6px; align-items:baseline; margin-top:6px; padding-top:6px; border-top:1px solid #f0f0f0;">
+      <div style="font-weight:700;">Integrity:</div>
+      <div style="color:${integrityColor(place.integrity_rank)}; font-weight:700;">
+        ${escapeHtml(birdVal(place.integrity_rank))}
+      </div>
+      <div style="text-align:right; color:#666;">${escapeHtml(birdVal(place.footprint))}</div>
+    </div>
+  </div>`;
+
+  
+}
 
     if (t === "camps" || t === "hikes") {
       const labels =
@@ -376,27 +1433,40 @@ export default function Home() {
 
     popup += `<div style="margin-top:10px; border-top:1px solid #eee; padding-top:8px; display:flex; flex-direction:column; gap:6px;">`;
 
-    if (!isRouteMode) {
-      popup += `<a href="${navUrl}" target="_blank" style="background:#1a73e8; color:white; text-decoration:none; font-size:11px; font-weight:bold; padding:8px; border-radius:4px; text-align:center;">
-        🚗 Navigate
-      </a>`;
-    }
+if (!isRouteMode) {
+  popup += `<a href="${navUrl}" target="_blank" style="background:#1a73e8; color:white; text-decoration:none; font-size:11px; font-weight:bold; padding:8px; border-radius:4px; text-align:center;">
+    🚗 Navigate
+  </a>`;
+}
 
-    popup += `<button id="add-stop-btn-${place.id}" ${
-      canAddStop ? "" : "disabled"
-    } style="background:${canAddStop ? "#188038" : "#bdbdbd"}; color:white; border:none; font-size:11px; font-weight:bold; padding:8px; border-radius:4px; text-align:center; cursor:${
-      canAddStop ? "pointer" : "default"
-    };">
-      ${isAlreadyInRoute ? "✓ Already in Route" : "➕ Add Stop"}
-    </button>`;
+popup += `<button id="add-stop-btn-${place.id}" ${
+  canAddStop ? "" : "disabled"
+} style="background:${canAddStop ? "#188038" : "#bdbdbd"}; color:white; border:none; font-size:11px; font-weight:bold; padding:8px; border-radius:4px; text-align:center; cursor:${
+  canAddStop ? "pointer" : "default"
+};">
+  ${isAlreadyInRoute ? "✓ Already in Route" : "➕ Add Stop"}
+</button>`;
 
-    if (place.website && place.website.startsWith("http")) {
-      popup += `<a href="${place.website}" target="_blank" style="background:#f1f3f4; color:#3c4043; text-decoration:none; font-size:11px; font-weight:bold; padding:8px; border-radius:4px; text-align:center;">
-        🌐 Website
-      </a>`;
-    }
+if (t === "birds") {
+  const birdsSpeciesUrl =
+    `https://birds.lastgreatplaces.us/explore/species_at_places?state=${encodeURIComponent(place.state || "")}&name=${encodeURIComponent(place.name || "")}`;
 
-    popup += `</div></div>`;
+  popup += `<a href="${birdsSpeciesUrl}" target="_blank" rel="noopener noreferrer" style="background:#2b5a34; color:white; text-decoration:none; font-size:11px; font-weight:bold; padding:8px; border-radius:4px; text-align:center;">
+    🦅 Bird Species by Week
+  </a>`;
+}
+
+if (place.website && place.website.startsWith("http")) {
+  popup += `<a href="${place.website}" target="_blank" style="background:#f1f3f4; color:#3c4043; text-decoration:none; font-size:11px; font-weight:bold; padding:8px; border-radius:4px; text-align:center;">
+    🌐 Website
+  </a>`;
+}
+
+popup += `<button type="button" id="toggle-heart-btn-${place.id}" style="background:${isHearted ? "#fde7e9" : "#fff5f5"}; color:#b3261e; border:1px solid #ef9a9a; font-size:11px; font-weight:bold; padding:8px; border-radius:4px; text-align:center; cursor:pointer; position:relative; z-index:9999; pointer-events:auto;">
+  ${isHearted ? "♥ Remove Heart" : "♡ Add Heart"}
+</button>`;
+
+popup += `</div></div>`;
 
     mapRef.current.setZoom(12);
     mapRef.current.panTo(marker.getPosition());
@@ -409,8 +1479,143 @@ export default function Home() {
       if (addBtn && canAddStop) {
         addBtn.addEventListener("click", () => addStopToRoute(place), { once: true });
       }
+
+      const heartBtn = document.getElementById(`toggle-heart-btn-${place.id}`);
+if (heartBtn) {
+  (heartBtn as HTMLButtonElement).onclick = (ev) => {
+    ev.preventDefault();
+    ev.stopPropagation();
+    console.log("Heart button clicked", { placeId: place.id });
+    void togglePlaceHeart(place);
+  };
+} else {
+  console.error("Heart button not found in InfoWindow DOM", { placeId: place.id });
+}
+
     });
   };
+
+  useEffect(() => {
+    const loadUsers = async () => {
+      const { data, error } = await supabase
+        .from("app_users")
+        .select("user_id, user_name, display_name, is_active")
+        .eq("is_active", true)
+        .order("user_id", { ascending: true });
+
+      if (error || !data) {
+        console.error("Error loading app users:", error);
+        return;
+      }
+
+      setAppUsers(data);
+
+      if (!currentUserId && data.length > 0) {
+        const greg = data.find((u) => u.user_name === "Greg");
+        setCurrentUserId(greg ? greg.user_id : data[0].user_id);
+      }
+    };
+
+    loadUsers();
+  }, []);
+
+  useEffect(() => {
+    const loadHeartedPlaces = async () => {
+      if (!currentUserId) {
+        const empty = new Set<number>();
+        heartedPlaceIdsRef.current = empty;
+        setHeartedPlaceIds(empty);
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from("user_hearts_places")
+        .select("id")
+        .eq("user_id", currentUserId);
+
+      if (error || !data) {
+        console.error("Error loading hearted places:", error);
+        const empty = new Set<number>();
+        heartedPlaceIdsRef.current = empty;
+        setHeartedPlaceIds(empty);
+        return;
+      }
+
+      const next = new Set<number>(data.map((r) => r.id));
+      heartedPlaceIdsRef.current = next;
+      setHeartedPlaceIds(next);
+    };
+
+    loadHeartedPlaces();
+  }, [currentUserId]);
+
+  useEffect(() => {
+    const loadHeartedByways = async () => {
+      if (!currentUserId) {
+        const empty = new Set<number>();
+        heartedBywayIdsRef.current = empty;
+        setHeartedBywayIds(empty);
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from("user_hearts_byways")
+        .select("byway_id")
+        .eq("user_id", currentUserId);
+
+      if (error || !data) {
+        console.error("Error loading hearted byways:", error);
+        const empty = new Set<number>();
+        heartedBywayIdsRef.current = empty;
+        setHeartedBywayIds(empty);
+        return;
+      }
+
+      const next = new Set<number>(
+        data
+          .map((r) => Number(r.byway_id))
+          .filter((id) => Number.isFinite(id))
+      );
+      heartedBywayIdsRef.current = next;
+      setHeartedBywayIds(next);
+    };
+
+    loadHeartedByways();
+  }, [currentUserId]);
+
+  useEffect(() => {
+    const loadHeartedLandscapes = async () => {
+      if (!currentUserId) {
+        const empty = new Set<number>();
+        heartedLandscapeIdsRef.current = empty;
+        setHeartedLandscapeIds(empty);
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from("user_hearts_landscapes")
+        .select("place_id")
+        .eq("user_id", currentUserId);
+
+      if (error || !data) {
+        console.error("Error loading hearted landscapes:", error);
+        const empty = new Set<number>();
+        heartedLandscapeIdsRef.current = empty;
+        setHeartedLandscapeIds(empty);
+        return;
+      }
+
+      const next = new Set<number>(
+        data
+          .map((r) => Number(r.place_id))
+          .filter((id) => Number.isFinite(id))
+      );
+      heartedLandscapeIdsRef.current = next;
+      setHeartedLandscapeIds(next);
+    };
+
+    loadHeartedLandscapes();
+  }, [currentUserId]);
 
   const clearPlaceMarkers = () => {
     if (clustererRef.current) {
@@ -425,77 +1630,114 @@ export default function Home() {
   };
 
   const loadPlaces = async () => {
-    if (!mapRef.current || !clustererRef.current || isPopupOpenRef.current) return;
+  if (!mapRef.current || !clustererRef.current) return;
 
-    await loadHighways();
-    clearPlaceMarkers();
+  await loadHighways();
+  await loadLandscapes();
+  clearPlaceMarkers();
 
-    const statesArr = Array.from(filtersRef.current.states);
-    const typesArr = Array.from(filtersRef.current.types).filter((t) => t !== "highways");
+  const statesArr = Array.from(filtersRef.current.states);
+  const stateMode = filtersRef.current.stateFilterMode;
+  const typesArr = Array.from(filtersRef.current.types).filter((t) => t !== "highways" && t !== "landscapes");
 
-    if (!statesArr.length || (!typesArr.length && !filtersRef.current.types.has("highways"))) {
-      setLoadedPlaces([]);
-      return;
+  if (!typesArr.length && !filtersRef.current.types.has("highways") && !filtersRef.current.types.has("landscapes")) {
+    setLoadedPlaces([]);
+    return;
+  }
+
+  if (!typesArr.length) {
+    setLoadedPlaces([]);
+    return;
+  }
+
+  if (stateMode === "filtered" && statesArr.length === 0) {
+    setLoadedPlaces([]);
+    return;
+  }
+
+  let query = supabase.from("places").select("*").in("place_type", typesArr);
+
+  if (stateMode === "filtered") {
+    query = query.in("state", statesArr);
+  }
+
+  const { data, error } = await query;
+  if (error || !data) {
+    setLoadedPlaces([]);
+    return;
+  }
+
+  const filteredData = data.filter((r) => {
+    const type = r.place_type as PlaceType;
+    const favOn = filtersRef.current.favOnlyCategories.has(type);
+    const heartOn = filtersRef.current.heartOnlyCategories.has(type);
+    const isFav = !!r.favorite;
+    const isHeart = heartedPlaceIdsRef.current.has(r.id);
+
+    if (favOn && heartOn) {
+      if (!isFav && !isHeart) return false;
+    } else if (favOn) {
+      if (!isFav) return false;
+    } else if (heartOn) {
+      if (!isHeart) return false;
     }
 
-    let query = supabase.from("places").select("*").in("state", statesArr).in("place_type", typesArr);
-    const { data, error } = await query;
-    if (error || !data) return;
+    if (type === "camps" && !filtersRef.current.campSubtypes.has(r.subtype)) return false;
+    return true;
+  });
 
-    const filteredData = data.filter((r) => {
-      const type = r.place_type as PlaceType;
-      if (filtersRef.current.favOnlyCategories.has(type) && !r.favorite) return false;
-      if (type === "camps" && !filtersRef.current.campSubtypes.has(r.subtype)) return false;
-      return true;
+  setLoadedPlaces(filteredData);
+  const google = (window as any).google;
+
+  const campMarkers: any[] = [];
+  const nonClusterMarkers: any[] = [];
+
+  filteredData.forEach((r) => {
+    const latVal = Number(r.lat);
+    const lonVal = Number(r.lon);
+    if (!Number.isFinite(latVal) || !Number.isFinite(lonVal)) return;
+
+    const marker = new google.maps.Marker({
+      position: { lat: latVal, lng: lonVal },
+      zIndex: r.favorite && heartedPlaceIdsRef.current.has(r.id) ? 1100 : r.favorite ? 1000 : heartedPlaceIdsRef.current.has(r.id) ? 900 : 1
     });
 
-    setLoadedPlaces(filteredData);
-    const google = (window as any).google;
+    const t = r.place_type as PlaceType;
+    const sub = r.subtype || "";
+    const theme = CAMP_THEMES[sub] || CAMP_THEMES.default;
 
-    const campMarkers: any[] = [];
-    const nonClusterMarkers: any[] = [];
+    (marker as any).__type = t;
+    (marker as any).__subtype = sub;
+    (marker as any).__isFavorite = r.favorite === true;
+    (marker as any).__isHearted = heartedPlaceIdsRef.current.has(r.id);
+    (marker as any).__emoji =
+      t === "birds" ? "🦅" :
+      t === "hikes" ? "🥾" :
+      t === "targets" ? "🎯" :
+      theme.emoji;
 
-    filteredData.forEach((r) => {
-      const latVal = Number(r.lat);
-      const lonVal = Number(r.lon);
-      if (!Number.isFinite(latVal) || !Number.isFinite(lonVal)) return;
+    marker.addListener("click", () => triggerPlacePopup(r));
+    markersMapRef.current.set(String(r.id), marker);
 
-      const marker = new google.maps.Marker({
-        position: { lat: latVal, lng: lonVal },
-        zIndex: r.favorite ? 1000 : 1
-      });
+    if (t === "camps") {
+      campMarkers.push(marker);
+    } else {
+      marker.setMap(mapRef.current);
+      nonClusterMarkers.push(marker);
+    }
+  });
 
-      const t = r.place_type as PlaceType;
-      const sub = r.subtype || "";
-      const theme = CAMP_THEMES[sub] || CAMP_THEMES.default;
+  campMarkersRef.current = campMarkers;
+  nonClusterMarkersRef.current = nonClusterMarkers;
 
-      (marker as any).__type = t;
-      (marker as any).__subtype = sub;
-      (marker as any).__isFavorite = r.favorite === true;
-      (marker as any).__emoji = t === "birds" ? "🦅" : t === "hikes" ? "🥾" : theme.emoji;
-
-      marker.addListener("click", () => triggerPlacePopup(r));
-      markersMapRef.current.set(String(r.id), marker);
-
-      if (t === "camps") {
-        campMarkers.push(marker);
-      } else {
-        marker.setMap(mapRef.current);
-        nonClusterMarkers.push(marker);
-      }
-    });
-
-    campMarkersRef.current = campMarkers;
-    nonClusterMarkersRef.current = nonClusterMarkers;
-
-    clustererRef.current.addMarkers(campMarkersRef.current);
-    applyMarkerSizing();
-  };
-
-  const scheduleLoad = () => {
-    if (lastFetchTimerRef.current) clearTimeout(lastFetchTimerRef.current);
-    lastFetchTimerRef.current = setTimeout(() => loadPlaces(), 400);
-  };
+  clustererRef.current.addMarkers(campMarkersRef.current);
+  applyMarkerSizing();
+};
+  const scheduleLoad = (force = false) => {
+  if (!force && isPopupOpenRef.current) return;
+  if (lastFetchTimerRef.current) clearTimeout(lastFetchTimerRef.current);
+  lastFetchTimerRef.current = setTimeout(() => loadPlaces(), 400);
+};
 
   useEffect(() => {
     const key = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY;
@@ -578,7 +1820,13 @@ export default function Home() {
   useEffect(() => {
     isPopupOpenRef.current = false;
     if (mapRef.current) scheduleLoad();
-  }, [states, placeTypes, selectedCampSubtypes, selectedHighwaySubtypes, favOnlyCategories]);
+  }, [states, placeTypes, selectedCampSubtypes, selectedHighwaySubtypes, favOnlyCategories, heartOnlyCategories, currentUserId, heartedPlaceIds, heartedBywayIds]);
+
+  useEffect(() => {
+    if (mapRef.current) {
+      loadLandscapes();
+    }
+  }, [states, stateFilterMode, placeTypes, favOnlyCategories, heartOnlyCategories, heartedLandscapeIds]);
 
   const placeResults =
     searchQuery.length > 1
@@ -590,61 +1838,100 @@ export default function Home() {
       ? loadedHighways.filter((h) => h.name.toLowerCase().includes(searchQuery.toLowerCase())).slice(0, 5)
       : [];
 
+  const landscapeResults =
+    searchQuery.length > 1
+      ? loadedLandscapes.filter((l) => l.name.toLowerCase().includes(searchQuery.toLowerCase())).slice(0, 5)
+      : [];
+
+  const hasAnySelectedStates = stateFilterMode === "national" || states.length > 0;
+  const categoryCount = placeTypes.length;
+
   return (
     <div style={{ position: "relative", height: "100vh", overflow: "hidden", fontFamily: "sans-serif" }}>
-      <a
-        href="/climate"
-        style={{
-          position: "absolute",
-          right: 12,
-          top: 12,
-          zIndex: 20,
-          background: "white",
-          border: "1px solid #ccc",
-          borderRadius: 8,
-          padding: "8px 12px",
-          textDecoration: "none",
-          color: "#333",
-          fontWeight: 700,
-          boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
-        }}
-      >
-        Climate Map
-      </a>
+      <div
+        id="map"
+        style={{ position: "absolute", inset: 0 }}
+      />
 
-      <button
-        onClick={() => {
-          setIsRouteMode((prev) => !prev);
-          setRouteMessage(!isRouteMode ? "Route mode on" : "Route mode off");
-          if (infoWindowRef.current) {
-            infoWindowRef.current.close();
-            isPopupOpenRef.current = false;
-          }
-        }}
+      <div
         style={{
           position: "absolute",
           right: 12,
-          top: 58,
+          top: 78,
           zIndex: 20,
-          background: isRouteMode ? "#188038" : "white",
-          border: "1px solid #ccc",
-          borderRadius: 8,
-          padding: "8px 12px",
-          color: isRouteMode ? "white" : "#333",
-          fontWeight: 700,
-          boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-          cursor: "pointer"
+          display: "flex",
+          flexDirection: "column",
+          gap: 6,
+          width: 118
         }}
       >
-        {isRouteMode ? "Route Mode ✓" : "Build Route"}
-      </button>
+        <a
+          href="/climate-sql"
+          style={{
+            background: "white",
+            border: "1px solid #ccc",
+            borderRadius: 8,
+            padding: "8px 10px",
+            textDecoration: "none",
+            color: "#333",
+            fontWeight: 700,
+            fontSize: 13,
+            textAlign: "center",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
+          }}
+        >
+          Climate Map
+        </a>
+
+        <button
+          onClick={() => {
+            setIsRouteMode((prev) => !prev);
+            setRouteMessage(!isRouteMode ? "Route mode on" : "Route mode off");
+            if (infoWindowRef.current) {
+              infoWindowRef.current.close();
+              isPopupOpenRef.current = false;
+            }
+          }}
+          style={{
+            background: isRouteMode ? "#188038" : "white",
+            border: "1px solid #ccc",
+            borderRadius: 8,
+            padding: "8px 10px",
+            color: isRouteMode ? "white" : "#333",
+            fontWeight: 700,
+            fontSize: 13,
+            boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+            cursor: "pointer"
+          }}
+        >
+          {isRouteMode ? "Route ✓" : "Build Route"}
+        </button>
+
+        <a
+          href="/lastgreatplaces"
+          style={{
+            background: "white",
+            border: "1px solid #ccc",
+            borderRadius: 8,
+            padding: "8px 10px",
+            textDecoration: "none",
+            color: "#333",
+            fontWeight: 700,
+            fontSize: 13,
+            textAlign: "center",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
+          }}
+        >
+          Last Great Places
+        </a>
+      </div>
 
       {routeMessage && (
         <div
           style={{
             position: "absolute",
             right: 12,
-            top: 106,
+            top: 176,
             zIndex: 20,
             background: "rgba(0,0,0,0.8)",
             color: "white",
@@ -680,463 +1967,1054 @@ export default function Home() {
               Tap a place marker, then choose <b>Add Stop</b>.
             </div>
           ) : (
-            <div style={{ maxHeight: "180px", overflowY: "auto", marginBottom: 10 }}>
-              {routeStops.map((stop, i) => (
+            <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 10 }}>
+              {routeStops.map((stop, idx) => (
                 <div
                   key={stop.id}
                   style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    gap: 8,
                     fontSize: 12,
-                    padding: "6px 0",
-                    borderBottom: i < routeStops.length - 1 ? "1px solid #eee" : "none"
+                    border: "1px solid #eee",
+                    borderRadius: 6,
+                    padding: "6px 8px"
                   }}
                 >
-                  <b>{i + 1}.</b> {stop.name}
+                  <div style={{ minWidth: 0 }}>
+                    <span style={{ fontWeight: 700 }}>{idx + 1}.</span>{" "}
+                    <span>{stop.name}</span>
+                  </div>
+                  <button
+                    onClick={() =>
+                      setRouteStops((prev) => prev.filter((s) => s.id !== stop.id))
+                    }
+                    style={{
+                      border: "none",
+                      background: "none",
+                      color: "#d93025",
+                      cursor: "pointer",
+                      fontSize: 12,
+                      fontWeight: 700
+                    }}
+                  >
+                    Remove
+                  </button>
                 </div>
               ))}
             </div>
           )}
 
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          <div style={{ display: "flex", gap: 8 }}>
             <button
               onClick={openRouteInGoogleMaps}
               style={{
                 flex: 1,
-                minWidth: 110,
                 background: "#1a73e8",
                 color: "white",
                 border: "none",
-                borderRadius: 6,
+                borderRadius: 8,
                 padding: "9px 10px",
                 fontWeight: 700,
                 fontSize: 12,
                 cursor: "pointer"
               }}
             >
-              Open in Google Maps
+              Open Route
             </button>
-
             <button
-              onClick={() => {
-                setRouteStops([]);
-                setRouteMessage("Route cleared");
-              }}
+              onClick={() => setRouteStops([])}
               style={{
                 background: "#f1f3f4",
                 color: "#333",
                 border: "1px solid #ddd",
-                borderRadius: 6,
+                borderRadius: 8,
                 padding: "9px 10px",
                 fontWeight: 700,
                 fontSize: 12,
                 cursor: "pointer"
               }}
             >
-              Clear Route
+              Clear
             </button>
           </div>
         </div>
       )}
 
-      <div
-        style={{
-          position: "absolute",
-          left: 12,
-          top: 12,
-          zIndex: 10,
-          background: "white",
-          border: "1px solid #ccc",
-          borderRadius: 8,
-          width: isFilterOpen ? 240 : 40,
-          padding: isFilterOpen ? 12 : 4,
-          boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
-          transition: "width 0.2s"
-        }}
-      >
+     <div
+  style={{
+    position: "absolute",
+    left: 16,
+    top: 16,
+    zIndex: 20,
+    width: isFilterOpen ? 410 : 56,
+    maxWidth: "calc(100vw - 32px)",
+    maxHeight: "calc(100vh - 32px)",
+    overflowY: isFilterOpen ? "auto" : "visible",
+    background: "white",
+    border: "1px solid #d9d9d9",
+    borderRadius: 14,
+    boxShadow: "0 6px 20px rgba(0,0,0,0.12)",
+    padding: isFilterOpen ? 16 : 8,
+    transition: "width 0.2s ease, padding 0.2s ease"
+  }}
+>
+  <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: isFilterOpen ? 16 : 0 }}>
+    {isFilterOpen ? (
+      <>
         <button
-          onClick={() => setIsFilterOpen(!isFilterOpen)}
-          style={{ width: "100%", cursor: "pointer", padding: "4px", marginBottom: isFilterOpen ? 8 : 0 }}
+          onClick={() => setIsFilterOpen(false)}
+          style={{
+            width: 40,
+            height: 40,
+            borderRadius: 8,
+            border: "1px solid #d9d9d9",
+            background: "#f6f6f6",
+            cursor: "pointer",
+            fontSize: 26,
+            lineHeight: 1
+          }}
+          title="Close filters"
         >
-          {isFilterOpen ? "Close Menu" : "☰"}
+          ×
         </button>
+        <div style={{ fontSize: 22, fontWeight: 700 }}>Filters</div>
+      </>
+    ) : (
+      <button
+        onClick={() => setIsFilterOpen(true)}
+        style={{
+          width: 40,
+          height: 40,
+          borderRadius: 8,
+          border: "1px solid #d9d9d9",
+          background: "#f6f6f6",
+          cursor: "pointer",
+          fontSize: 22,
+          lineHeight: 1
+        }}
+        title="Open filters"
+      >
+        ☰
+      </button>
+    )}
+  </div>
 
-        {isFilterOpen && (
-          <div style={{ fontSize: 13 }}>
-            <div style={{ marginBottom: 15, position: "relative" }}>
-              <input
-                type="text"
-                placeholder="Search..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+  {isFilterOpen && (
+    <>
+      <input
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        placeholder="Search..."
+        style={{
+          width: "100%",
+          boxSizing: "border-box",
+          padding: "10px 12px",
+          fontSize: 15,
+          borderRadius: 10,
+          border: "1px solid #d9d9d9",
+          marginBottom: 8
+        }}
+      />
+
+      {(placeResults.length > 0 || highwayResults.length > 0 || landscapeResults.length > 0) && (
+        <div
+          style={{
+            marginBottom: 14,
+            border: "1px solid #eee",
+            borderRadius: 10,
+            padding: 10,
+            background: "#fafafa"
+          }}
+        >
+          {placeResults.map((p) => (
+            <button
+              key={`p-search-${p.id}`}
+              onClick={() => {
+                setSearchQuery("");
+                triggerPlacePopup(p);
+              }}
+              style={{
+                width: "100%",
+                textAlign: "left",
+                background: "#fff",
+                border: "1px solid #e6e6e6",
+                borderRadius: 6,
+                padding: "7px 8px",
+                marginBottom: 6,
+                cursor: "pointer"
+              }}
+            >
+              <div style={{ fontSize: 12, fontWeight: 700, color: "#222" }}>{p.name}</div>
+              <div style={{ fontSize: 11, color: "#666" }}>{p.state || "—"} · {p.place_type || "place"}</div>
+            </button>
+          ))}
+
+          {highwayResults.map((h) => (
+            <button
+              key={`h-search-${h.byway_id}`}
+              onClick={() => setSearchQuery("")}
+              style={{
+                width: "100%",
+                textAlign: "left",
+                background: "#fff",
+                border: "1px solid #e6e6e6",
+                borderRadius: 6,
+                padding: "7px 8px",
+                marginBottom: 6,
+                cursor: "pointer"
+              }}
+            >
+              <div style={{ fontSize: 12, fontWeight: 700, color: "#222" }}>{h.name}</div>
+              <div style={{ fontSize: 11, color: "#666" }}>{h.designats || h.subtype || "Byway"}</div>
+            </button>
+          ))}
+
+          {landscapeResults.map((l) => (
+            <button
+              key={`l-search-${l.place_id}`}
+              onClick={() => {
+                setSearchQuery("");
+                triggerLandscapePopup(l);
+              }}
+              style={{
+                width: "100%",
+                textAlign: "left",
+                background: "#fff",
+                border: "1px solid #e6e6e6",
+                borderRadius: 6,
+                padding: "7px 8px",
+                marginBottom: 6,
+                cursor: "pointer"
+              }}
+            >
+              <div style={{ fontSize: 12, fontWeight: 700, color: "#222" }}>{l.name}</div>
+              <div style={{ fontSize: 11, color: "#666" }}>{l.states || "—"} · Landscape</div>
+            </button>
+          ))}
+        </div>
+      )}
+
+      <div style={{ fontSize: 14, fontWeight: 700, color: "#555", marginBottom: 10 }}>
+        Categories
+      </div>
+
+      <div style={{ borderTop: "1px solid #eee", borderBottom: "1px solid #eee", padding: "8px 0 10px 0" }}>
+        {([
+          { key: "birds" as PlaceType, label: "🦅 Birds" },
+          { key: "hikes" as PlaceType, label: "🥾 Hikes" },
+          { key: "camps" as PlaceType, label: "⛺ Camps" },
+          { key: "highways" as PlaceType, label: "🛣️ Highways" },
+          { key: "targets" as PlaceType, label: "🎯 Targets" },
+          { key: "landscapes" as PlaceType, label: "🏞️ Landscapes" }
+        ]).map((item) => {
+          const checked = placeTypes.includes(item.key);
+          const favOnly = favOnlyCategories.includes(item.key);
+          const heartOnly = heartOnlyCategories.includes(item.key);
+          const showArrow = item.key === "camps" || item.key === "highways";
+
+          return (
+            <div key={item.key} style={{ marginBottom: 6 }}>
+              <div
                 style={{
-                  width: "100%",
-                  padding: "8px",
-                  borderRadius: "4px",
-                  border: "1px solid #ddd",
-                  fontSize: "12px",
-                  outline: "none"
+                  display: "grid",
+                  gridTemplateColumns: "24px 1fr 24px 24px 24px",
+                  alignItems: "center",
+                  gap: 8,
+                  minHeight: 34
                 }}
-              />
+              >
+                <input
+                  type="checkbox"
+                  checked={checked}
+                  onChange={() => togglePlaceType(item.key)}
+                  style={{ width: 22, height: 22 }}
+                />
 
-              {(placeResults.length > 0 || highwayResults.length > 0) && (
-                <div
+                <div style={{ fontSize: 14 }}>{item.label}</div>
+
+                <button
+                  onClick={() => {
+                    if (item.key === "camps") setIsCampSubmenuOpen((v) => !v);
+                    if (item.key === "highways") setIsHighwaySubmenuOpen((v) => !v);
+                  }}
                   style={{
-                    position: "absolute",
-                    top: "100%",
-                    left: 0,
-                    right: 0,
-                    background: "white",
-                    border: "1px solid #ddd",
-                    borderRadius: "0 0 4px 4px",
-                    zIndex: 20,
-                    boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
-                    maxHeight: "250px",
-                    overflowY: "auto"
+                    background: "none",
+                    border: "none",
+                    cursor: showArrow ? "pointer" : "default",
+                    fontSize: 14,
+                    color: "#222",
+                    visibility: showArrow ? "visible" : "hidden"
                   }}
                 >
-                  {placeResults.map((p) => (
-                    <div
-                      key={p.id}
-                      onClick={() => {
-                        triggerPlacePopup(p);
-                        setSearchQuery("");
-                      }}
-                      style={{ padding: "8px", cursor: "pointer", borderBottom: "1px solid #eee", fontSize: "11px" }}
-                    >
-                      <b>📍 {p.name}</b> <span style={{ color: "#888", fontSize: "10px" }}>{p.state}</span>
-                    </div>
-                  ))}
+                  {item.key === "camps"
+                    ? isCampSubmenuOpen ? "▾" : "▸"
+                    : item.key === "highways"
+                    ? isHighwaySubmenuOpen ? "▾" : "▸"
+                    : ""}
+                </button>
 
-                  {highwayResults.map((h, i) => (
-                    <div
-                      key={i}
-                      onClick={() => {
-                        const firstCoord =
-                          h.geom_geojson.type === "MultiLineString"
-                            ? h.geom_geojson.coordinates[0][0]
-                            : h.geom_geojson.coordinates[0];
-                        mapRef.current.setZoom(10);
-                        mapRef.current.panTo({ lat: firstCoord[1], lng: firstCoord[0] });
-                        setSearchQuery("");
+                <button
+                  onClick={() => toggleFavOnly(item.key)}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                    fontSize: 22,
+                    color: favOnly ? "#d0a100" : "#999",
+                    lineHeight: 1
+                  }}
+                  title="Priority only"
+                >
+                  ★
+                </button>
+
+                <button
+  onClick={() => toggleHeartOnly(item.key)}
+  style={{
+    background: "none",
+    border: "none",
+    cursor: "pointer",
+    fontSize: 20,
+    color: heartOnly ? "#c62828" : "#999",
+    lineHeight: 1
+  }}
+  title="Hearted only"
+>
+  {heartOnly ? "♥︎" : "♡"}
+</button>
+              </div>
+
+              {item.key === "camps" && isCampSubmenuOpen && (
+                <div style={{ paddingLeft: 34, paddingTop: 4, display: "grid", gap: 4 }}>
+                  <div style={{ display: "flex", gap: 12, marginBottom: 4, fontSize: 12, fontWeight: 700 }}>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedCampSubtypes(UI_CAMP_SUBTYPES)}
+                      style={{
+                        background: "none",
+                        border: "none",
+                        color: "#1a73e8",
+                        cursor: "pointer",
+                        padding: 0,
+                        fontSize: 12,
+                        fontWeight: 700
                       }}
-                      style={{ padding: "8px", cursor: "pointer", borderBottom: "1px solid #eee", fontSize: "11px" }}
                     >
-                      <b>🛣️ {h.name}</b>
-                    </div>
+                      All
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setSelectedCampSubtypes([])}
+                      style={{
+                        background: "none",
+                        border: "none",
+                        color: "#d93025",
+                        cursor: "pointer",
+                        padding: 0,
+                        fontSize: 12,
+                        fontWeight: 700
+                      }}
+                    >
+                      Clear
+                    </button>
+                  </div>
+
+                  {UI_CAMP_SUBTYPES.map((sub) => (
+                    <label
+                      key={sub}
+                      style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#444" }}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedCampSubtypes.includes(sub)}
+                        onChange={() => toggleCampSubtype(sub)}
+                      />
+                      {CAMP_SUBTYPE_LABELS[sub] || sub}
+                    </label>
+                  ))}
+                </div>
+              )}
+
+              {item.key === "highways" && isHighwaySubmenuOpen && (
+                <div style={{ paddingLeft: 34, paddingTop: 4, display: "grid", gap: 4 }}>
+                  {UI_HIGHWAY_SUBTYPES.map((sub) => (
+                    <label
+                      key={sub}
+                      style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#444" }}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedHighwaySubtypes.includes(sub)}
+                        onChange={() => toggleHighwaySubtype(sub)}
+                      />
+                      {sub}
+                    </label>
                   ))}
                 </div>
               )}
             </div>
+          );
+        })}
+      </div>
 
-            <div
+<div style={{ marginTop: 14 }}>
+  <button
+    onClick={() => setIsRegionsOpen((v) => !v)}
+    style={{
+      background: "none",
+      border: "none",
+      padding: 0,
+      cursor: "pointer",
+      width: "100%",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      fontSize: 14,
+      fontWeight: 700,
+      color: "#555"
+    }}
+  >
+    <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+      <span>{isRegionsOpen ? "▼" : "▶"}</span>
+      <span>Regions & States</span>
+    </span>
+
+    <span style={{ fontSize: 12, color: "#999", fontWeight: 600 }}>
+      {stateFilterMode === "national"
+        ? "nationwide"
+        : states.length > 0
+        ? `${states.length} selected`
+        : "none selected"}
+    </span>
+  </button>
+
+  {isRegionsOpen && (
+    <div style={{ marginTop: 10 }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: 10
+        }}
+      >
+        <div style={{ fontSize: 12, color: "#666" }}>
+          Select regions or individual states.
+        </div>
+
+        <div style={{ display: "flex", gap: 12, fontSize: 12, fontWeight: 700 }}>
+          <button
+            onClick={selectAllStates}
+            style={{
+              background: "none",
+              border: "none",
+              color: "#1a73e8",
+              cursor: "pointer",
+              padding: 0
+            }}
+          >
+            Select All
+          </button>
+
+          <button
+            onClick={clearAllStates}
+            style={{
+              background: "none",
+              border: "none",
+              color: "#d93025",
+              cursor: "pointer",
+              padding: 0
+            }}
+          >
+            Clear All
+          </button>
+        </div>
+      </div>
+
+      {Object.entries(STATE_GROUPS).map(([group, vals]) => {
+        const isOpen = openGroups.includes(group);
+
+        return (
+          <div key={group} style={{ marginBottom: 10 }}>
+            <button
+              onClick={() =>
+                setOpenGroups((prev) =>
+                  prev.includes(group)
+                    ? prev.filter((g) => g !== group)
+                    : [...prev, group]
+                )
+              }
               style={{
+                width: "100%",
+                textAlign: "left",
+                background: "#f7f7f7",
+                border: "1px solid #e5e5e5",
+                borderRadius: 6,
+                padding: "6px 8px",
+                fontSize: 12,
                 fontWeight: 700,
-                color: "#666",
-                marginBottom: 8,
-                borderBottom: "1px solid #eee",
-                paddingBottom: 4
+                color: "#444",
+                cursor: "pointer"
               }}
             >
-              CATEGORIES
-            </div>
+              {isOpen ? "▼" : "▶"} {group}
+            </button>
 
-            {(["birds", "hikes", "camps", "highways"] as PlaceType[]).map((t) => (
-              <div key={t}>
-                <div style={{ display: "flex", alignItems: "center", marginBottom: 6 }}>
-                  <input
-                    type="checkbox"
-                    checked={placeTypes.includes(t)}
-                    onChange={() =>
-                      setPlaceTypes((prev) => (prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]))
-                    }
-                  />
-                  <span style={{ marginLeft: 8, textTransform: "capitalize", flexGrow: 1 }}>{t}</span>
-
-                  {(t === "camps" || t === "highways") && (
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        t === "camps"
-                          ? setIsCampSubmenuOpen(!isCampSubmenuOpen)
-                          : setIsHighwaySubmenuOpen(!isHighwaySubmenuOpen);
-                      }}
-                      style={{ fontSize: 10, background: "none", border: "none", cursor: "pointer", padding: "0 5px" }}
-                    >
-                      {t === "camps"
-                        ? isCampSubmenuOpen
-                          ? "▲"
-                          : "▼"
-                        : isHighwaySubmenuOpen
-                        ? "▲"
-                        : "▼"}
-                    </button>
-                  )}
-
-                  <button
-                    onClick={() =>
-                      setFavOnlyCategories((prev) =>
-                        prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]
-                      )
-                    }
-                    style={{
-                      background: favOnlyCategories.includes(t) ? "#fff8dc" : "transparent",
-                      border: favOnlyCategories.includes(t) ? "1px solid #d4af37" : "1px solid transparent",
-                      borderRadius: 4,
-                      cursor: "pointer",
-                      fontSize: "16px",
-                      lineHeight: 1,
-                      padding: "2px 4px",
-                      color: favOnlyCategories.includes(t) ? "#b8860b" : "#999"
-                    }}
-                    title="Favorites only"
-                  >
-                    ★
-                  </button>
-                </div>
-
-                {t === "camps" && isCampSubmenuOpen && (
-                  <div
-                    style={{
-                      padding: "8px",
-                      background: "#f1f3f5",
-                      borderRadius: "4px",
-                      marginBottom: "10px",
-                      marginLeft: 15
-                    }}
-                  >
-                    <div style={{ display: "flex", gap: "8px", marginBottom: "8px" }}>
-                      <button
-                        onClick={() => setSelectedCampSubtypes(UI_CAMP_SUBTYPES)}
-                        style={{ flex: 1, fontSize: "9px", fontWeight: "bold", padding: "2px", cursor: "pointer" }}
-                      >
-                        ALL
-                      </button>
-                      <button
-                        onClick={() => setSelectedCampSubtypes([])}
-                        style={{ flex: 1, fontSize: "9px", fontWeight: "bold", padding: "2px", cursor: "pointer" }}
-                      >
-                        NONE
-                      </button>
-                    </div>
-
-                    {UI_CAMP_SUBTYPES.map((sub) => (
-                      <label
-                        key={sub}
-                        style={{
-                          fontSize: 11,
-                          display: "flex",
-                          alignItems: "center",
-                          cursor: "pointer",
-                          marginBottom: 2
-                        }}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={
-                            selectedCampSubtypes.includes(sub) ||
-                            (sub === "NRA" && selectedCampSubtypes.includes("SRA"))
-                          }
-                          onChange={() => {
-                            setSelectedCampSubtypes((prev) => {
-                              const targets = sub === "NRA" ? ["NRA", "SRA"] : [sub];
-                              const isAdding = !prev.includes(sub);
-                              return isAdding
-                                ? Array.from(new Set([...prev, ...targets]))
-                                : prev.filter((x) => !targets.includes(x));
-                            });
-                          }}
-                        />
-                        <span style={{ marginLeft: 6 }}>{CAMP_SUBTYPE_LABELS[sub] || sub}</span>
-                      </label>
-                    ))}
-                  </div>
-                )}
-
-                {t === "highways" && isHighwaySubmenuOpen && (
-                  <div
-                    style={{
-                      padding: "8px",
-                      background: "#f1f3f5",
-                      borderRadius: "4px",
-                      marginBottom: "10px",
-                      marginLeft: 15
-                    }}
-                  >
-                    <div style={{ display: "flex", gap: "8px", marginBottom: "8px" }}>
-                      <button
-                        onClick={() => setSelectedHighwaySubtypes(UI_HIGHWAY_SUBTYPES)}
-                        style={{ flex: 1, fontSize: "9px", fontWeight: "bold", padding: "2px", cursor: "pointer" }}
-                      >
-                        ALL
-                      </button>
-                      <button
-                        onClick={() => setSelectedHighwaySubtypes([])}
-                        style={{ flex: 1, fontSize: "9px", fontWeight: "bold", padding: "2px", cursor: "pointer" }}
-                      >
-                        NONE
-                      </button>
-                    </div>
-
-                    {UI_HIGHWAY_SUBTYPES.map((sub) => (
-                      <label
-                        key={sub}
-                        style={{
-                          fontSize: 11,
-                          display: "flex",
-                          alignItems: "center",
-                          cursor: "pointer",
-                          marginBottom: 2
-                        }}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={selectedHighwaySubtypes.includes(sub)}
-                          onChange={() => {
-                            setSelectedHighwaySubtypes((prev) =>
-                              prev.includes(sub) ? prev.filter((x) => x !== sub) : [...prev, sub]
-                            );
-                          }}
-                        />
-                        <span style={{ marginLeft: 6 }}>{sub}</span>
-                      </label>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))}
-
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginTop: 16,
-                marginBottom: 8,
-                borderBottom: "1px solid #eee",
-                paddingBottom: 4
-              }}
-            >
-              <span style={{ fontWeight: 700, color: "#666" }}>REGIONS</span>
-              <button
-                onClick={() => setStates([])}
+            {isOpen && (
+              <div
                 style={{
-                  fontSize: 9,
-                  cursor: "pointer",
-                  color: "#f44336",
-                  background: "none",
-                  border: "none",
-                  padding: 0,
-                  fontWeight: 700
+                  paddingLeft: 10,
+                  paddingTop: 8,
+                  display: "grid",
+                  gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+                  gap: 4
                 }}
               >
-                CLEAR
+                <button
+                  onClick={() => toggleStateGroup(group)}
+                  style={{
+                    gridColumn: "1 / -1",
+                    background: "none",
+                    border: "none",
+                    color: "#1a73e8",
+                    cursor: "pointer",
+                    padding: "0 0 6px 0",
+                    fontSize: 12,
+                    fontWeight: 700,
+                    textAlign: "left"
+                  }}
+                >
+                  {vals.every((st) => states.includes(st))
+                    ? `Clear ${group}`
+                    : `Select ${group}`}
+                </button>
+
+                {vals.map((st) => (
+                  <label
+                    key={st}
+                    style={{
+                      fontSize: 12,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 6,
+                      cursor: "pointer"
+                    }}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={states.includes(st)}
+                      onChange={() => toggleState(st)}
+                    />
+                    {st}
+                  </label>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  )}
+
+
+      <div style={{ marginTop: 14, marginBottom: 16, borderTop: "1px solid #eee", paddingTop: 12 }}>
+        <button
+          type="button"
+          onClick={() => setIsPrioritySettingsOpen((v) => !v)}
+          style={{
+            width: "100%",
+            background: "none",
+            border: "none",
+            padding: 0,
+            cursor: "pointer",
+            textAlign: "left",
+            fontSize: 14,
+            fontWeight: 700,
+            color: "#555"
+          }}
+        >
+          <span style={{ display: "block" }}>{isPrioritySettingsOpen ? "▼" : "▶"} Set Priorities</span>
+          <span style={{ display: "block", paddingLeft: 18, marginTop: 3, fontSize: 11, color: "#777", fontWeight: 600, lineHeight: 1.25, whiteSpace: "normal" }}>
+            Birds {BIRD_PRIORITY_SEASONS.find((s) => s.value === birdPrioritySeason)?.label} ≥ {birdPriorityThreshold} · Byways ≥ {bywayPriorityThreshold.toFixed(1)} · LGP Eco {landscapePriorityEcoregionRank === "off" ? "off" : `≤ ${landscapePriorityEcoregionRank}`} / Nat {landscapePriorityNationalRank === "off" ? "off" : `≤ ${landscapePriorityNationalRank}`}
+          </span>
+        </button>
+
+        {isPrioritySettingsOpen && (
+          <div style={{ marginTop: 10, display: "grid", gap: 8 }}>
+            <div style={{ fontSize: 12, color: "#666", lineHeight: 1.4 }}>
+              Updates the shared gold-star priority field. Each Apply button rewrites priorities for that category based on the selected rule.
+            </div>
+
+            <div style={{ borderTop: "1px solid #eee", paddingTop: 8, display: "grid", gap: 8 }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: "#444" }}>Bird priorities</div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 120px", gap: 8, alignItems: "center" }}>
+                <label style={{ fontSize: 13, fontWeight: 700, color: "#444" }}>
+                  Bird season
+                </label>
+                <select
+                  value={birdPrioritySeason}
+                  onChange={(e) => setBirdPrioritySeason(e.target.value)}
+                  style={{
+                    width: "100%",
+                    padding: "8px 10px",
+                    borderRadius: 8,
+                    border: "1px solid #d9d9d9",
+                    fontSize: 13
+                  }}
+                >
+                  {BIRD_PRIORITY_SEASONS.map((season) => (
+                    <option key={season.value} value={season.value}>
+                      {season.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 120px", gap: 8, alignItems: "center" }}>
+                <label style={{ fontSize: 13, fontWeight: 700, color: "#444" }}>
+                  Bird minimum count
+                </label>
+                <select
+                  value={birdPriorityThreshold}
+                  onChange={(e) => setBirdPriorityThreshold(Number(e.target.value))}
+                  style={{
+                    width: "100%",
+                    padding: "8px 10px",
+                    borderRadius: 8,
+                    border: "1px solid #d9d9d9",
+                    fontSize: 13
+                  }}
+                >
+                  {BIRD_PRIORITY_THRESHOLDS.map((threshold) => (
+                    <option key={threshold} value={threshold}>
+                      ≥ {threshold}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <button
+                type="button"
+                disabled={isApplyingBirdPriority}
+                onClick={applyBirdPriorityThreshold}
+                style={{
+                  background: isApplyingBirdPriority ? "#bdbdbd" : "#2b5a34",
+                  color: "white",
+                  border: "none",
+                  borderRadius: 8,
+                  padding: "9px 10px",
+                  fontSize: 12,
+                  fontWeight: 700,
+                  cursor: isApplyingBirdPriority ? "default" : "pointer"
+                }}
+              >
+                {isApplyingBirdPriority ? "Applying..." : "Apply Bird Priorities"}
               </button>
             </div>
 
-            <div style={{ maxHeight: "40vh", overflowY: "auto" }}>
-              {Object.entries(STATE_GROUPS).map(([groupName, groupStates]) => {
-                const groupSelected = groupStates.length > 0 && groupStates.every((st) => states.includes(st));
+            <div style={{ borderTop: "1px solid #eee", paddingTop: 8, display: "grid", gap: 8 }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: "#444" }}>Byway priorities</div>
 
-                return (
-                  <div key={groupName} style={{ marginBottom: 4 }}>
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        background: "#f8f9fa",
-                        padding: "4px 6px",
-                        borderRadius: 4
-                      }}
-                    >
-                      <button
-                        onClick={() =>
-                          setOpenGroups((prev) =>
-                            prev.includes(groupName)
-                              ? prev.filter((g) => g !== groupName)
-                              : [...prev, groupName]
-                          )
-                        }
-                        style={{
-                          border: "none",
-                          background: "none",
-                          cursor: "pointer",
-                          padding: 0,
-                          marginRight: 6,
-                          fontSize: 10
-                        }}
-                      >
-                        {openGroups.includes(groupName) ? "▼" : "▶"}
-                      </button>
-
-                      <span style={{ flexGrow: 1, fontWeight: 600, fontSize: 11 }}>{groupName}</span>
-
-                      {groupStates.length > 0 && (
-                        <button
-                          onClick={() =>
-                            setStates((prev) =>
-                              groupSelected
-                                ? prev.filter((st) => !groupStates.includes(st))
-                                : Array.from(new Set([...prev, ...groupStates]))
-                            )
-                          }
-                          style={{
-                            fontSize: 9,
-                            cursor: "pointer",
-                            color: "#007bff",
-                            background: "#e7f1ff",
-                            border: "none",
-                            padding: "2px 4px",
-                            borderRadius: 3,
-                            fontWeight: 700
-                          }}
-                        >
-                          {groupSelected ? "NONE" : "ALL"}
-                        </button>
-                      )}
-                    </div>
-
-                    {openGroups.includes(groupName) && (
-                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4px", padding: "6px 12px" }}>
-                        {groupStates.map((st) => (
-                          <label
-                            key={st}
-                            style={{ display: "flex", alignItems: "center", fontSize: 11, cursor: "pointer" }}
-                          >
-                            <input
-                              type="checkbox"
-                              checked={states.includes(st)}
-                              onChange={() =>
-                                setStates((prev) =>
-                                  prev.includes(st) ? prev.filter((x) => x !== st) : [...prev, st]
-                                )
-                              }
-                            />
-                            <span style={{ marginLeft: 4 }}>{st}</span>
-                          </label>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 120px", gap: 8, alignItems: "center" }}>
+                <label style={{ fontSize: 13, fontWeight: 700, color: "#444" }}>
+                  Byway minimum score
+                </label>
+              <select
+                value={bywayPriorityThreshold}
+                onChange={(e) => setBywayPriorityThreshold(Number(e.target.value))}
+                style={{
+                  width: "100%",
+                  padding: "8px 10px",
+                  borderRadius: 8,
+                  border: "1px solid #d9d9d9",
+                  fontSize: 13
+                }}
+              >
+                {BYWAY_PRIORITY_THRESHOLDS.map((threshold) => (
+                  <option key={threshold} value={threshold}>
+                    ≥ {threshold.toFixed(1)}
+                  </option>
+                ))}
+              </select>
             </div>
 
-            <div
+            <button
+              type="button"
+              disabled={isApplyingBywayPriority}
+              onClick={applyBywayPriorityThreshold}
               style={{
-                marginTop: 12,
-                paddingTop: 8,
-                borderTop: "1px solid #eee",
-                fontSize: 11,
-                color: "#666",
-                lineHeight: 1.35
+                background: isApplyingBywayPriority ? "#bdbdbd" : "#d0a100",
+                color: "white",
+                border: "none",
+                borderRadius: 8,
+                padding: "9px 10px",
+                fontSize: 12,
+                fontWeight: 700,
+                cursor: isApplyingBywayPriority ? "default" : "pointer"
               }}
             >
-              Select categories, sub-categories, & state(s) to display on the map. Click on icons or scenic road for info. Close menu for full map view.
+              {isApplyingBywayPriority ? "Applying..." : "Apply Byway Priorities"}
+            </button>
+            </div>
+
+            <div style={{ borderTop: "1px solid #eee", paddingTop: 8, display: "grid", gap: 8 }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: "#444" }}>Landscape priorities</div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 120px", gap: 8, alignItems: "center" }}>
+                <label style={{ fontSize: 13, fontWeight: 700, color: "#444" }}>
+                  Ecoregion rank
+                </label>
+                <select
+                  value={landscapePriorityEcoregionRank}
+                  onChange={(e) => setLandscapePriorityEcoregionRank(e.target.value)}
+                  style={{
+                    width: "100%",
+                    padding: "8px 10px",
+                    borderRadius: 8,
+                    border: "1px solid #d9d9d9",
+                    fontSize: 13
+                  }}
+                >
+                  {LANDSCAPE_ECOREGION_PRIORITY_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 120px", gap: 8, alignItems: "center" }}>
+                <label style={{ fontSize: 13, fontWeight: 700, color: "#444" }}>
+                  National rank
+                </label>
+                <select
+                  value={landscapePriorityNationalRank}
+                  onChange={(e) => setLandscapePriorityNationalRank(e.target.value)}
+                  style={{
+                    width: "100%",
+                    padding: "8px 10px",
+                    borderRadius: 8,
+                    border: "1px solid #d9d9d9",
+                    fontSize: 13
+                  }}
+                >
+                  {LANDSCAPE_NATIONAL_PRIORITY_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div style={{ fontSize: 11, color: "#666", lineHeight: 1.35 }}>
+                If both are selected, landscapes matching either rule are starred. Set one dropdown to Off to use only the other rule.
+              </div>
+
+              <button
+                type="button"
+                disabled={isApplyingLandscapePriority}
+                onClick={applyLandscapePriorityThresholds}
+                style={{
+                  background: isApplyingLandscapePriority ? "#bdbdbd" : "#2e7d32",
+                  color: "white",
+                  border: "none",
+                  borderRadius: 8,
+                  padding: "9px 10px",
+                  fontSize: 12,
+                  fontWeight: 700,
+                  cursor: isApplyingLandscapePriority ? "default" : "pointer"
+                }}
+              >
+                {isApplyingLandscapePriority ? "Applying..." : "Apply Landscape Priorities"}
+              </button>
             </div>
           </div>
         )}
       </div>
 
-      <div id="map" style={{ height: "100%", width: "100%" }} />
+
+        <div
+          style={{
+            marginTop: 12,
+            paddingTop: 12,
+            borderTop: "1px solid #eee",
+            fontSize: 11,
+            color: "#666",
+            lineHeight: 1.45
+          }}
+        >
+          Choose categories and regions to display on the map. Close menu to view full map.
+        </div>
+
+      <div style={{ marginBottom: 16 }}>
+        <div style={{ fontSize: 12, fontWeight: 700, color: "#555", marginBottom: 6 }}>
+          User
+        </div>
+        <select
+          value={currentUserId ?? ""}
+          onChange={(e) => setCurrentUserId(Number(e.target.value))}
+          style={{
+            width: "100%",
+            boxSizing: "border-box",
+            padding: "10px 12px",
+            fontSize: 14,
+            borderRadius: 8,
+            border: "1px solid #d9d9d9"
+          }}
+        >
+          {appUsers.map((u) => (
+            <option key={u.user_id} value={u.user_id}>
+              {u.display_name || u.user_name}
+            </option>
+          ))}
+        </select>
+      </div>
+
+
+
+        {false && (placeResults.length > 0 || highwayResults.length > 0) && (
+          <div
+            style={{
+              marginTop: 12,
+              borderTop: "1px solid #eee",
+              paddingTop: 10
+            }}
+          >
+            <div style={{ fontSize: 12, fontWeight: 700, color: "#555", marginBottom: 6 }}>
+              Search Results
+            </div>
+
+            {placeResults.map((p) => (
+              <button
+                key={`place-${p.id}`}
+                onClick={() => {
+                  setSearchQuery("");
+                  triggerPlacePopup(p);
+                }}
+                style={{
+                  width: "100%",
+                  textAlign: "left",
+                  background: "#fff",
+                  border: "1px solid #e6e6e6",
+                  borderRadius: 6,
+                  padding: "7px 8px",
+                  marginBottom: 6,
+                  cursor: "pointer"
+                }}
+              >
+                <div style={{ fontSize: 12, fontWeight: 700, color: "#222" }}>
+                  {p.name}
+                </div>
+                <div style={{ fontSize: 11, color: "#666" }}>
+                  {p.state || "—"} · {p.place_type || "place"}
+                </div>
+              </button>
+            ))}
+
+            {highwayResults.map((h, idx) => (
+              <div
+                key={`highway-${idx}`}
+                style={{
+                  background: "#fff",
+                  border: "1px solid #e6e6e6",
+                  borderRadius: 6,
+                  padding: "7px 8px",
+                  marginBottom: 6
+                }}
+              >
+                <div style={{ fontSize: 12, fontWeight: 700, color: "#222" }}>
+                  {h.name}
+                </div>
+                <div style={{ fontSize: 11, color: "#666" }}>
+                  {h.designats || h.subtype || "Highway"}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </>
+  )}
+</div>
+
+      {(isRouteMode || routeStops.length > 0) && (
+        <div
+          style={{
+            position: "absolute",
+            right: 12,
+            bottom: 12,
+            zIndex: 20,
+            width: "min(320px, calc(100vw - 24px))",
+            background: "white",
+            border: "1px solid #ccc",
+            borderRadius: 10,
+            padding: 12,
+            boxShadow: "0 2px 10px rgba(0,0,0,0.15)"
+          }}
+        >
+          <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 8 }}>
+            Route Builder
+          </div>
+
+          {routeStops.length === 0 ? (
+            <div style={{ fontSize: 12, color: "#666", lineHeight: 1.4 }}>
+              Tap a place marker, then choose <b>Add Stop</b>.
+            </div>
+          ) : (
+            <>
+              <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 10 }}>
+                {routeStops.map((stop, idx) => (
+                  <div
+                    key={stop.id}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      gap: 8,
+                      border: "1px solid #e5e5e5",
+                      borderRadius: 6,
+                      padding: "6px 8px"
+                    }}
+                  >
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{ fontSize: 11, color: "#777" }}>Stop {idx + 1}</div>
+                      <div
+                        style={{
+                          fontSize: 12,
+                          fontWeight: 700,
+                          color: "#222",
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis"
+                        }}
+                      >
+                        {stop.name}
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() =>
+                        setRouteStops((prev) => prev.filter((s) => s.id !== stop.id))
+                      }
+                      style={{
+                        background: "none",
+                        border: "none",
+                        color: "#d93025",
+                        cursor: "pointer",
+                        fontSize: 12,
+                        fontWeight: 700
+                      }}
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              <div style={{ display: "flex", gap: 8 }}>
+                <button
+                  onClick={openRouteInGoogleMaps}
+                  style={{
+                    flex: 1,
+                    background: "#188038",
+                    color: "white",
+                    border: "none",
+                    borderRadius: 6,
+                    padding: "8px 10px",
+                    fontSize: 12,
+                    fontWeight: 700,
+                    cursor: "pointer"
+                  }}
+                >
+                  Open Route
+                </button>
+
+                <button
+                  onClick={() => setRouteStops([])}
+                  style={{
+                    background: "#f1f3f4",
+                    color: "#333",
+                    border: "1px solid #d0d0d0",
+                    borderRadius: 6,
+                    padding: "8px 10px",
+                    fontSize: 12,
+                    fontWeight: 700,
+                    cursor: "pointer"
+                  }}
+                >
+                  Clear
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      )}
+
+      <div id="map" style={{ width: "100%", height: "100%" }} />
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

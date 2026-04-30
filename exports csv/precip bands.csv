@@ -1,0 +1,6 @@
+﻿band,monthly_precip,precip_score,precip_label,notes
+1,1.99,3.0,Desirable,Dry clear skies
+2,3.99,2.5,Desirable,"Typical ""pleasant"" weather"
+3,5.99,2.0,Acceptable,Some rain but manageable
+4,7.99,1.0,Undesirable,Likely to impact outdoor plans
+5,8.00,0.0,Unacceptable,Tropical storm or heavy rainy season
