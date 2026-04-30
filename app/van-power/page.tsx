@@ -29,6 +29,7 @@ type Row = {
 
 export default function VanPowerPage() {
   const [rows, setRows] = useState<Row[]>([]);
+  const [inputs, setInputs] = useState<Record<string, any>>({});
   const [loading, setLoading] = useState(false);
 
   const tripName = "Spring Migration 2026";
@@ -54,6 +55,30 @@ export default function VanPowerPage() {
   useEffect(() => {
     loadData();
   }, []);
+
+  function getValue(key: string, fallback: any) {
+    return inputs[key] !== undefined ? inputs[key] : fallback ?? "";
+  }
+
+  function setLocalValue(key: string, value: any) {
+    setInputs((prev) => ({ ...prev, [key]: value }));
+  }
+
+  async function commitValue(
+    date: string,
+    field: string,
+    rawValue: string
+  ) {
+    const value =
+      rawValue === "" ? null : parseFloat(rawValue);
+
+    await supabase
+      .from("power_trip_days")
+      .update({ [field]: value })
+      .eq("trip_date", date);
+
+    loadData();
+  }
 
   async function updateField(date: string, field: string, value: any) {
     await supabase
@@ -89,11 +114,9 @@ export default function VanPowerPage() {
               <th style={{ textAlign: "right" }}>Forecast</th>
               <th style={{ textAlign: "right" }}>Δ</th>
 
-              {/* DRIVE GROUP */}
               <th style={{ textAlign: "right", paddingLeft: 12 }}>Plan</th>
               <th style={{ textAlign: "right" }}>Actual</th>
 
-              {/* WEATHER GROUP */}
               <th style={{ textAlign: "left", paddingLeft: 12 }}>Plan Wx</th>
               <th style={{ textAlign: "left" }}>Actual Wx</th>
 
@@ -115,55 +138,66 @@ export default function VanPowerPage() {
                     background: isTodayRow ? "#fff8e1" : "transparent"
                   }}
                 >
-                  {/* DATE */}
-                  <td style={{ textAlign: "left" }}>{r.date_label}</td>
+                  <td>{r.date_label}</td>
 
                   {/* 7AM */}
                   <td style={{ textAlign: "right" }}>
                     <input
                       type="text"
                       inputMode="numeric"
-                      value={r.battery_pct_7am ?? ""}
+                      value={getValue(
+                        `${r.trip_date}-7am`,
+                        r.battery_pct_7am
+                      )}
                       onChange={(e) =>
-                        updateField(
+                        setLocalValue(
+                          `${r.trip_date}-7am`,
+                          e.target.value
+                        )
+                      }
+                      onBlur={(e) =>
+                        commitValue(
                           r.trip_date,
                           "battery_pct_7am",
-                          Number(e.target.value)
+                          e.target.value
                         )
                       }
                       style={{ width: 50, textAlign: "right" }}
                     />
                   </td>
 
-                  {/* 7PM ACTUAL */}
+                  {/* 7PM */}
                   <td style={{ textAlign: "right", fontWeight: 600 }}>
                     <input
                       type="text"
                       inputMode="numeric"
-                      value={r.actual_7pm_pct ?? ""}
+                      value={getValue(
+                        `${r.trip_date}-7pm`,
+                        r.actual_7pm_pct
+                      )}
                       onChange={(e) =>
-                        updateField(
+                        setLocalValue(
+                          `${r.trip_date}-7pm`,
+                          e.target.value
+                        )
+                      }
+                      onBlur={(e) =>
+                        commitValue(
                           r.trip_date,
                           "battery_pct_7pm",
-                          Number(e.target.value)
+                          e.target.value
                         )
                       }
                       style={{ width: 50, textAlign: "right" }}
                     />
                   </td>
 
-                  {/* FORECAST */}
-                  <td
-                    style={{
-                      textAlign: "right",
-                      color: "#1565c0",
-                      fontWeight: 700
-                    }}
-                  >
+                  {/* Forecast */}
+                  <td style={{ textAlign: "right", color: "#1565c0", fontWeight: 700 }}>
                     {r.forecast_7pm_pct ?? ""}
                   </td>
 
-                  {/* DIFF */}
+                  {/* Δ */}
                   <td
                     style={{
                       textAlign: "right",
@@ -183,12 +217,21 @@ export default function VanPowerPage() {
                     <input
                       type="text"
                       inputMode="decimal"
-                      value={r.plan_drive ?? ""}
+                      value={getValue(
+                        `${r.trip_date}-plan-drive`,
+                        r.plan_drive
+                      )}
                       onChange={(e) =>
-                        updateField(
+                        setLocalValue(
+                          `${r.trip_date}-plan-drive`,
+                          e.target.value
+                        )
+                      }
+                      onBlur={(e) =>
+                        commitValue(
                           r.trip_date,
                           "driving_hours",
-                          Number(e.target.value)
+                          e.target.value
                         )
                       }
                       style={{ width: 50, textAlign: "right" }}
@@ -200,12 +243,21 @@ export default function VanPowerPage() {
                     <input
                       type="text"
                       inputMode="decimal"
-                      value={r.actual_drive ?? ""}
+                      value={getValue(
+                        `${r.trip_date}-actual-drive`,
+                        r.actual_drive
+                      )}
                       onChange={(e) =>
-                        updateField(
+                        setLocalValue(
+                          `${r.trip_date}-actual-drive`,
+                          e.target.value
+                        )
+                      }
+                      onBlur={(e) =>
+                        commitValue(
                           r.trip_date,
                           "actual_driving_hours",
-                          Number(e.target.value)
+                          e.target.value
                         )
                       }
                       style={{ width: 50, textAlign: "right" }}
@@ -264,7 +316,7 @@ export default function VanPowerPage() {
                     />
                   </td>
 
-                  {/* HOT WATER */}
+                  {/* H2O */}
                   <td style={{ textAlign: "center" }}>
                     <input
                       type="checkbox"
