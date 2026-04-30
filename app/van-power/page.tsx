@@ -13,8 +13,9 @@ type Row = {
   date_label: string;
 
   battery_pct_7am: number | null;
-  battery_pct_7pm: number | null;
+  actual_7pm_pct: number | null;
   forecast_7pm_pct: number | null;
+  pct_diff: number | null;
 
   plan_drive: number | null;
   actual_drive: number | null;
@@ -23,10 +24,7 @@ type Row = {
   actual_condition: string | null;
 
   plan_shore: boolean | null;
-  actual_shore: boolean | null;
-
   plan_h2o: boolean | null;
-  actual_h2o: boolean | null;
 };
 
 export default function VanPowerPage() {
@@ -39,7 +37,7 @@ export default function VanPowerPage() {
     setLoading(true);
 
     const { data, error } = await supabase
-      .from("v_power_trip_forecast_7pm")
+      .from("v_power_trip_window")
       .select("*")
       .eq("trip_name", tripName)
       .order("trip_date");
@@ -67,167 +65,223 @@ export default function VanPowerPage() {
   }
 
   return (
-    <div style={{ padding: 20, fontFamily: "sans-serif" }}>
-      <div style={{ fontWeight: 700, fontSize: 20, marginBottom: 12 }}>
+    <div style={{ padding: 12, fontFamily: "sans-serif" }}>
+      <div style={{ fontWeight: 700, fontSize: 18, marginBottom: 10 }}>
         Van Power — {tripName}
       </div>
 
       {loading && <div>Loading...</div>}
 
-      <table style={{ borderCollapse: "collapse", width: "100%" }}>
-        <thead>
-          <tr style={{ background: "#f5f5f5" }}>
-            <th>Date</th>
-            <th>7AM</th>
-            <th>7PM</th>
-            <th>Forecast</th>
+      <div style={{ overflowX: "auto" }}>
+        <table
+          style={{
+            borderCollapse: "collapse",
+            width: "100%",
+            fontSize: 13
+          }}
+        >
+          <thead>
+            <tr style={{ background: "#f5f5f5" }}>
+              <th style={{ textAlign: "left" }}>Date</th>
 
-            <th>Plan Drive</th>
-            <th>Actual Drive</th>
+              <th style={{ textAlign: "right" }}>7AM</th>
+              <th style={{ textAlign: "right" }}>7PM</th>
+              <th style={{ textAlign: "right" }}>Forecast</th>
+              <th style={{ textAlign: "right" }}>Δ</th>
 
-            <th>Plan Wx</th>
-            <th>Actual Wx</th>
+              <th style={{ textAlign: "right" }}>Plan</th>
+              <th style={{ textAlign: "right" }}>Act</th>
 
-            <th>Shore</th>
-            <th>H2O</th>
-          </tr>
-        </thead>
+              <th style={{ textAlign: "left" }}>Wx</th>
+              <th style={{ textAlign: "left" }}>Act Wx</th>
 
-        <tbody>
-          {rows.map((r) => (
-            <tr key={r.trip_date} style={{ borderBottom: "1px solid #eee" }}>
-              <td>{r.date_label}</td>
-
-              <td>
-                <input
-                  type="number"
-                  value={r.battery_pct_7am ?? ""}
-                  onChange={(e) =>
-                    updateField(
-                      r.trip_date,
-                      "battery_pct_7am",
-                      Number(e.target.value)
-                    )
-                  }
-                  style={{ width: 60 }}
-                />
-              </td>
-
-              <td style={{ fontWeight: 700 }}>
-                <input
-                  type="number"
-                  value={r.battery_pct_7pm ?? ""}
-                  onChange={(e) =>
-                    updateField(
-                      r.trip_date,
-                      "battery_pct_7pm",
-                      Number(e.target.value)
-                    )
-                  }
-                  style={{ width: 60 }}
-                />
-              </td>
-
-              <td style={{ fontWeight: 700, color: "#1565c0" }}>
-                {r.forecast_7pm_pct ?? ""}
-              </td>
-
-              <td>
-                <input
-                  type="number"
-                  value={r.plan_drive ?? ""}
-                  onChange={(e) =>
-                    updateField(
-                      r.trip_date,
-                      "driving_hours",
-                      Number(e.target.value)
-                    )
-                  }
-                  style={{ width: 60 }}
-                />
-              </td>
-
-              <td>
-                <input
-                  type="number"
-                  value={r.actual_drive ?? ""}
-                  onChange={(e) =>
-                    updateField(
-                      r.trip_date,
-                      "actual_driving_hours",
-                      Number(e.target.value)
-                    )
-                  }
-                  style={{ width: 60 }}
-                />
-              </td>
-
-              <td>
-                <select
-                  value={r.plan_condition ?? ""}
-                  onChange={(e) =>
-                    updateField(
-                      r.trip_date,
-                      "condition_text",
-                      e.target.value
-                    )
-                  }
-                >
-                  <option>Sunny</option>
-                  <option>Partly Sunny</option>
-                  <option>Cloudy</option>
-                </select>
-              </td>
-
-              <td>
-                <select
-                  value={r.actual_condition ?? ""}
-                  onChange={(e) =>
-                    updateField(
-                      r.trip_date,
-                      "actual_condition_text",
-                      e.target.value
-                    )
-                  }
-                >
-                  <option value=""></option>
-                  <option>Sunny</option>
-                  <option>Partly Sunny</option>
-                  <option>Cloudy</option>
-                </select>
-              </td>
-
-              <td>
-                <input
-                  type="checkbox"
-                  checked={r.plan_shore ?? false}
-                  onChange={(e) =>
-                    updateField(
-                      r.trip_date,
-                      "night_shore_power",
-                      e.target.checked
-                    )
-                  }
-                />
-              </td>
-
-              <td>
-                <input
-                  type="checkbox"
-                  checked={r.plan_h2o ?? false}
-                  onChange={(e) =>
-                    updateField(
-                      r.trip_date,
-                      "day_hot_water",
-                      e.target.checked
-                    )
-                  }
-                />
-              </td>
+              <th style={{ textAlign: "center" }}>Shore</th>
+              <th style={{ textAlign: "center" }}>H2O</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+
+          <tbody>
+            {rows.map((r) => {
+              const isTodayRow =
+                r.actual_7pm_pct == null && r.battery_pct_7am != null;
+
+              return (
+                <tr
+                  key={r.trip_date}
+                  style={{
+                    borderBottom: "1px solid #eee",
+                    background: isTodayRow ? "#fff8e1" : "transparent"
+                  }}
+                >
+                  {/* DATE */}
+                  <td style={{ textAlign: "left" }}>{r.date_label}</td>
+
+                  {/* 7AM */}
+                  <td style={{ textAlign: "right" }}>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      value={r.battery_pct_7am ?? ""}
+                      onChange={(e) =>
+                        updateField(
+                          r.trip_date,
+                          "battery_pct_7am",
+                          Number(e.target.value)
+                        )
+                      }
+                      style={{ width: 50, textAlign: "right" }}
+                    />
+                  </td>
+
+                  {/* 7PM ACTUAL */}
+                  <td style={{ textAlign: "right", fontWeight: 700 }}>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      value={r.actual_7pm_pct ?? ""}
+                      onChange={(e) =>
+                        updateField(
+                          r.trip_date,
+                          "battery_pct_7pm",
+                          Number(e.target.value)
+                        )
+                      }
+                      style={{ width: 50, textAlign: "right" }}
+                    />
+                  </td>
+
+                  {/* FORECAST */}
+                  <td
+                    style={{
+                      textAlign: "right",
+                      color: "#1565c0",
+                      fontWeight: 700
+                    }}
+                  >
+                    {r.forecast_7pm_pct ?? ""}
+                  </td>
+
+                  {/* DIFF */}
+                  <td
+                    style={{
+                      textAlign: "right",
+                      color:
+                        r.pct_diff == null
+                          ? "#999"
+                          : r.pct_diff >= 0
+                          ? "green"
+                          : "red"
+                    }}
+                  >
+                    {r.pct_diff ?? ""}
+                  </td>
+
+                  {/* PLAN DRIVE */}
+                  <td style={{ textAlign: "right" }}>
+                    <input
+                      type="text"
+                      inputMode="decimal"
+                      value={r.plan_drive ?? ""}
+                      onChange={(e) =>
+                        updateField(
+                          r.trip_date,
+                          "driving_hours",
+                          Number(e.target.value)
+                        )
+                      }
+                      style={{ width: 50, textAlign: "right" }}
+                    />
+                  </td>
+
+                  {/* ACTUAL DRIVE */}
+                  <td style={{ textAlign: "right" }}>
+                    <input
+                      type="text"
+                      inputMode="decimal"
+                      value={r.actual_drive ?? ""}
+                      onChange={(e) =>
+                        updateField(
+                          r.trip_date,
+                          "actual_driving_hours",
+                          Number(e.target.value)
+                        )
+                      }
+                      style={{ width: 50, textAlign: "right" }}
+                    />
+                  </td>
+
+                  {/* PLAN WX */}
+                  <td style={{ textAlign: "left" }}>
+                    <select
+                      value={r.plan_condition ?? ""}
+                      onChange={(e) =>
+                        updateField(
+                          r.trip_date,
+                          "condition_text",
+                          e.target.value
+                        )
+                      }
+                    >
+                      <option>Sunny</option>
+                      <option>Partly Sunny</option>
+                      <option>Cloudy</option>
+                    </select>
+                  </td>
+
+                  {/* ACTUAL WX */}
+                  <td style={{ textAlign: "left" }}>
+                    <select
+                      value={r.actual_condition ?? ""}
+                      onChange={(e) =>
+                        updateField(
+                          r.trip_date,
+                          "actual_condition_text",
+                          e.target.value
+                        )
+                      }
+                    >
+                      <option value=""></option>
+                      <option>Sunny</option>
+                      <option>Partly Sunny</option>
+                      <option>Cloudy</option>
+                    </select>
+                  </td>
+
+                  {/* SHORE */}
+                  <td style={{ textAlign: "center" }}>
+                    <input
+                      type="checkbox"
+                      checked={r.plan_shore ?? false}
+                      onChange={(e) =>
+                        updateField(
+                          r.trip_date,
+                          "night_shore_power",
+                          e.target.checked
+                        )
+                      }
+                    />
+                  </td>
+
+                  {/* HOT WATER */}
+                  <td style={{ textAlign: "center" }}>
+                    <input
+                      type="checkbox"
+                      checked={r.plan_h2o ?? false}
+                      onChange={(e) =>
+                        updateField(
+                          r.trip_date,
+                          "day_hot_water",
+                          e.target.checked
+                        )
+                      }
+                    />
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
