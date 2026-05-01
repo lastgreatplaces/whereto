@@ -120,47 +120,103 @@ export default function VanPowerPage() {
           MAIN TABLE
       ========================= */}
 
-      <div style={{ overflowX: "auto" }}>
-        <table style={{ width: "100%" }}>
-          <thead>
-            <tr>
-              <th style={{ ...th, ...dateCol }}>Date</th>
-              <th style={{ ...th, ...num }}>7A</th>
-              <th style={{ ...th, ...num }}>7P</th>
-              <th style={{ ...th, ...num }}>For</th>
-              <th style={{ ...th, ...num }}>Δ</th>
-              <th style={{ ...th, ...num }}>Pln</th>
-              <th style={{ ...th, ...num }}>Act</th>
-            </tr>
-          </thead>
+     
+<div style={{ overflowX: "auto" }}>
+  <table
+    style={{
+      width: "100%",
+      borderCollapse: "collapse",
+      tableLayout: "fixed",
+      fontSize: 13
+    }}
+  >
+    <thead>
+      <tr style={{ borderBottom: "1px solid #ccc" }}>
+        <th style={{ width: 70, textAlign: "left" }}>Date</th>
 
-          <tbody>
-            {rows.map((r) => (
-              <tr key={r.trip_date}>
-                <td style={{ ...td, ...dateCol }}>{r.date_label}</td>
+        <th style={{ width: 36, textAlign: "right" }}>7A</th>
+        <th style={{ width: 36, textAlign: "right" }}>7P</th>
 
-                <td style={{ ...td, ...num }}>{r.battery_pct_7am}</td>
+        <th style={{ width: 42, textAlign: "right", color: "#1565c0" }}>For</th>
+        <th style={{ width: 28, textAlign: "right" }}>Δ</th>
 
-                <td style={{ ...td, ...num, fontWeight: 600 }}>
-                  {r.actual_7pm_pct}
-                </td>
+        <th style={{ width: 40, textAlign: "right" }}>Pln</th>
+        <th style={{ width: 40, textAlign: "right" }}>Act</th>
 
-                <td style={{ ...td, ...num, color: "#1565c0", fontWeight: 700 }}>
-                  {r.forecast_7pm_pct}
-                </td>
+        <th style={{ width: 54, textAlign: "left" }}>Wx</th>
 
-                <td style={{ ...td, ...num }}>{r.pct_diff}</td>
+        <th style={{ width: 32, textAlign: "center" }}>Sh</th>
+        <th style={{ width: 36, textAlign: "center" }}>H2O</th>
+      </tr>
+    </thead>
 
-                <td style={{ ...td, ...num }}>{r.plan_drive}</td>
+    <tbody>
+      {rows.map((r) => (
+        <tr key={r.trip_date} style={{ borderBottom: "1px solid #eee" }}>
+          
+          {/* DATE */}
+          <td style={{ whiteSpace: "normal" }}>
+            {r.date_label}
+          </td>
 
-                <td style={{ ...td, ...num, fontWeight: 600 }}>
-                  {r.actual_drive}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+          {/* 7AM */}
+          <td style={{ textAlign: "right" }}>
+            {r.battery_pct_7am ?? ""}
+          </td>
+
+          {/* 7PM */}
+          <td style={{ textAlign: "right", fontWeight: 600 }}>
+            {r.actual_7pm_pct ?? ""}
+          </td>
+
+          {/* FORECAST */}
+          <td style={{ textAlign: "right", color: "#1565c0", fontWeight: 700 }}>
+            {r.forecast_7pm_pct ?? ""}
+          </td>
+
+          {/* DELTA */}
+          <td style={{ textAlign: "right" }}>
+            {r.pct_diff ?? ""}
+          </td>
+
+          {/* PLAN DRIVE */}
+          <td style={{ textAlign: "right" }}>
+            {r.plan_drive ?? ""}
+          </td>
+
+          {/* ACTUAL DRIVE */}
+          <td style={{ textAlign: "right", fontWeight: 600 }}>
+            {r.actual_drive ?? ""}
+          </td>
+
+          {/* WEATHER (Plan only for mobile simplicity) */}
+          <td>
+            {r.plan_condition}
+          </td>
+
+          {/* SHORE */}
+          <td style={{ textAlign: "center" }}>
+            <input
+              type="checkbox"
+              checked={r.plan_shore ?? false}
+              readOnly
+            />
+          </td>
+
+          {/* H2O */}
+          <td style={{ textAlign: "center" }}>
+            <input
+              type="checkbox"
+              checked={r.plan_h2o ?? false}
+              readOnly
+            />
+          </td>
+
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
 
       {/* =========================
           DEVICES TABLE
