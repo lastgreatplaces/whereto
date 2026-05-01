@@ -167,15 +167,22 @@ export default function VanPowerPage() {
   />
 </td>
 
-                <td
-                  style={{
-                    textAlign: "right",
-                    color: "#1565c0",
-                    fontWeight: 700
-                  }}
-                >
-                  {r.forecast_7pm_pct ?? ""}
-                </td>
+               <td
+  style={{
+    textAlign: "right",
+    fontWeight: 700,
+    color:
+      r.forecast_7pm_pct == null
+        ? "#1565c0"
+        : r.forecast_7pm_pct < 20
+        ? "red"
+        : r.forecast_7pm_pct < 40
+        ? "orange"
+        : "#1565c0"
+  }}
+>
+  {r.forecast_7pm_pct ?? ""}
+</td>
 
                 {/* PLAN */}
                 <td style={{ textAlign: "right" }}>
