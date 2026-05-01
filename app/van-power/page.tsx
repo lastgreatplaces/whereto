@@ -8,6 +8,39 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? ""
 );
 
+// =========================
+// DEVICE STATE
+// =========================
+
+const [devices, setDevices] = useState<any[]>([]);
+
+async function loadDevices() {
+  const { data } = await supabase
+    .from("v_power_devices")
+    .select("*");
+
+  setDevices(data || []);
+}
+
+useEffect(() => {
+  loadDevices();
+}, []);
+
+// =========================
+// UPDATE FUNCTION
+// =========================
+
+async function updateDevice(id: number, field: string, value: any) {
+  await supabase
+    .from("power_profile_devices")
+    .update({ [field]: value })
+    .eq("id", id);
+
+  loadDevices(); // refresh
+}
+
+
+
 type Row = {
   trip_date: string;
   date_label: string;
@@ -335,6 +368,87 @@ export default function VanPowerPage() {
             })}
           </tbody>
         </table>
+
+{/* =========================
+    POWER DEVICES SECTION
+========================= */}
+
+<div style={{ marginTop: 30 }}>
+  <div style={{ fontWeight: 700, marginBottom: 10 }}>
+    Power Devices
+  </div>
+
+  <table style={{ width: "100%", fontSize: 13 }}>
+    <thead>
+      <tr>
+        <th style={{ textAlign: "left" }}>Device</th>
+        <th>Watts</th>
+        <th>Minutes</th>
+        <th>Uses/day</th>
+        <th>On</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      {devices.map((d) => (
+        <tr key={d.id}>
+          <td>{d.device_name}</td>
+
+          {/* Watts */}
+          <td>
+            <input
+              type="text"
+              inputMode="numeric"
+              defaultValue={d.avg_watts}
+              onBlur={(e) =>
+                updateDevice(d.id, "avg_watts", Number(e.target.value))
+              }
+              style={{ width: 60 }}
+            />
+          </td>
+
+          {/* Minutes */}
+          <td>
+            <input
+              type="text"
+              inputMode="numeric"
+              defaultValue={d.mins_per_use}
+              onBlur={(e) =>
+                updateDevice(d.id, "mins_per_use", Number(e.target.value))
+              }
+              style={{ width: 60 }}
+            />
+          </td>
+
+          {/* Uses/day (DECIMAL FIX) */}
+          <td>
+            <input
+              type="text"
+              inputMode="decimal"
+              defaultValue={d.uses_per_day}
+              onBlur={(e) =>
+                updateDevice(d.id, "uses_per_day", parseFloat(e.target.value))
+              }
+              style={{ width: 60 }}
+            />
+          </td>
+
+          {/* Toggle */}
+          <td style={{ textAlign: "center" }}>
+            <input
+              type="checkbox"
+              checked={d.enabled}
+              onChange={(e) =>
+                updateDevice(d.id, "enabled", e.target.checked)
+              }
+            />
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+
       </div>
     </div>
   );
