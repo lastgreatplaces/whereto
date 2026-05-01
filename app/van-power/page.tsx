@@ -318,78 +318,117 @@ export default function VanPowerPage() {
           </tbody>
         </table>
 
-        {/* =========================
-            POWER DEVICES
-        ========================= */}
 
-        <div style={{ marginTop: 30 }}>
-          <div style={{ fontWeight: 700, marginBottom: 10 }}>
-            Power Devices
-          </div>
+{/* =========================
+    POWER DEVICES
+========================= */}
 
-          <table style={{ width: "100%", fontSize: 13 }}>
-            <thead>
-              <tr>
-                <th style={{ textAlign: "left" }}>Device</th>
-                <th>Watts</th>
-                <th>Minutes</th>
-                <th>Uses/day</th>
-                <th>On</th>
-              </tr>
-            </thead>
+<div style={{ marginTop: 30 }}>
+  <div style={{ fontWeight: 700, marginBottom: 10 }}>
+    Power Devices
+  </div>
 
-            <tbody>
-              {devices.map((d) => (
-                <tr key={d.id}>
-                  <td>{d.device_name}</td>
+  <table style={{ width: "100%", fontSize: 13 }}>
+    <thead>
+      <tr>
+        <th style={{ textAlign: "left" }}>Device</th>
+        <th>Watts</th>
+        <th>Minutes</th>
+        <th>Uses/day</th>
+        <th>On</th>
+        <th style={{ textAlign: "right" }}>Wh/day</th>
+      </tr>
+    </thead>
 
-                  <td>
-                    <input
-                      type="text"
-                      value={d.avg_watts}
-                      onChange={(e) =>
-                        updateDevice(d.id, "avg_watts", Number(e.target.value))
-                      }
-                      style={{ width: 60 }}
-                    />
-                  </td>
+    <tbody>
+      {devices.map((d) => {
+        const wh =
+          d.enabled
+            ? (d.avg_watts * d.mins_per_use * d.uses_per_day) / 60
+            : 0;
 
-                  <td>
-                    <input
-                      type="text"
-                      value={d.mins_per_use}
-                      onChange={(e) =>
-                        updateDevice(d.id, "mins_per_use", Number(e.target.value))
-                      }
-                      style={{ width: 60 }}
-                    />
-                  </td>
+        return (
+          <tr key={d.id}>
+            <td>{d.device_name}</td>
 
-                  <td>
-                    <input
-                      type="text"
-                      value={d.uses_per_day}
-                      onChange={(e) =>
-                        updateDevice(d.id, "uses_per_day", parseFloat(e.target.value))
-                      }
-                      style={{ width: 60 }}
-                    />
-                  </td>
+            {/* Watts */}
+            <td>
+              <input
+                type="text"
+                value={d.avg_watts}
+                onChange={(e) =>
+                  updateDevice(d.id, "avg_watts", Number(e.target.value))
+                }
+                style={{ width: 60 }}
+              />
+            </td>
 
-                  <td style={{ textAlign: "center" }}>
-                    <input
-                      type="checkbox"
-                      checked={d.enabled}
-                      onChange={(e) =>
-                        updateDevice(d.id, "enabled", e.target.checked)
-                      }
-                    />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+            {/* Minutes */}
+            <td>
+              <input
+                type="text"
+                value={d.mins_per_use}
+                onChange={(e) =>
+                  updateDevice(d.id, "mins_per_use", Number(e.target.value))
+                }
+                style={{ width: 60 }}
+              />
+            </td>
+
+            {/* Uses/day */}
+            <td>
+              <input
+                type="text"
+                value={d.uses_per_day}
+                onChange={(e) =>
+                  updateDevice(d.id, "uses_per_day", parseFloat(e.target.value))
+                }
+                style={{ width: 60 }}
+              />
+            </td>
+
+            {/* Enabled */}
+            <td style={{ textAlign: "center" }}>
+              <input
+                type="checkbox"
+                checked={d.enabled}
+                onChange={(e) =>
+                  updateDevice(d.id, "enabled", e.target.checked)
+                }
+              />
+            </td>
+
+            {/* Wh/day */}
+            <td style={{ textAlign: "right", fontWeight: 600 }}>
+              {Math.round(wh)}
+            </td>
+          </tr>
+        );
+      })}
+
+      {/* =========================
+          GRAND TOTAL ROW
+      ========================= */}
+
+      <tr style={{ borderTop: "2px solid #ccc", fontWeight: 700 }}>
+        <td colSpan={5} style={{ textAlign: "right", paddingRight: 10 }}>
+          Total
+        </td>
+        <td style={{ textAlign: "right" }}>
+          {Math.round(
+            devices.reduce((sum, d) => {
+              if (!d.enabled) return sum;
+              return (
+                sum +
+                (d.avg_watts * d.mins_per_use * d.uses_per_day) / 60
+              );
+            }, 0)
+          )}
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
       </div>
     </div>
   );
