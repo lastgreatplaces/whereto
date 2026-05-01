@@ -143,9 +143,19 @@ export default function VanPowerPage() {
                   {r.battery_pct_7am ?? ""}
                 </td>
 
-                <td style={{ textAlign: "right", fontWeight: 600 }}>
-                  {r.actual_7pm_pct ?? ""}
-                </td>
+               <td style={{ textAlign: "right" }}>
+  <input
+    style={{ width: 50, textAlign: "right", fontWeight: 600 }}
+    inputMode="decimal"
+    value={getVal(`${r.trip_date}-7pm`, r.actual_7pm_pct)}
+    onChange={(e) =>
+      setVal(`${r.trip_date}-7pm`, e.target.value)
+    }
+    onBlur={(e) =>
+      save(r.trip_date, "battery_pct_7pm", e.target.value)
+    }
+  />
+</td>
 
                 <td
                   style={{
