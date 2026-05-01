@@ -8,39 +8,6 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? ""
 );
 
-// =========================
-// DEVICE STATE
-// =========================
-
-const [devices, setDevices] = useState<any[]>([]);
-
-async function loadDevices() {
-  const { data } = await supabase
-    .from("v_power_devices")
-    .select("*");
-
-  setDevices(data || []);
-}
-
-useEffect(() => {
-  loadDevices();
-}, []);
-
-// =========================
-// UPDATE FUNCTION
-// =========================
-
-async function updateDevice(id: number, field: string, value: any) {
-  await supabase
-    .from("power_profile_devices")
-    .update({ [field]: value })
-    .eq("id", id);
-
-  loadDevices(); // refresh
-}
-
-
-
 type Row = {
   trip_date: string;
   date_label: string;
@@ -63,9 +30,14 @@ type Row = {
 export default function VanPowerPage() {
   const [rows, setRows] = useState<Row[]>([]);
   const [inputs, setInputs] = useState<Record<string, any>>({});
+  const [devices, setDevices] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
   const tripName = "Spring Migration 2026";
+
+  // =========================
+  // LOAD MAIN DATA
+  // =========================
 
   async function loadData() {
     setLoading(true);
@@ -76,18 +48,51 @@ export default function VanPowerPage() {
       .eq("trip_name", tripName)
       .order("trip_date");
 
-    if (error) {
-      console.error(error);
-    } else {
-      setRows(data as Row[]);
-    }
+    if (error) console.error(error);
+    else setRows(data || []);
 
     setLoading(false);
   }
 
+  // =========================
+  // LOAD DEVICES
+  // =========================
+
+  async function loadDevices() {
+    const { data, error } = await supabase
+      .from("v_power_devices")
+      .select("*");
+
+    if (error) console.error(error);
+    else setDevices(data || []);
+  }
+
+  // =========================
+  // UPDATE DEVICE
+  // =========================
+
+  async function updateDevice(id: number, field: string, value: any) {
+    await supabase
+      .from("power_profile_devices")
+      .update({ [field]: value })
+      .eq("id", id);
+
+    await loadDevices();
+    await loadData(); // refresh forecast
+  }
+
+  // =========================
+  // INIT LOAD
+  // =========================
+
   useEffect(() => {
     loadData();
+    loadDevices();
   }, []);
+
+  // =========================
+  // INPUT HELPERS
+  // =========================
 
   function getValue(key: string, fallback: any) {
     return inputs[key] !== undefined ? inputs[key] : fallback ?? "";
@@ -178,22 +183,12 @@ export default function VanPowerPage() {
                     <input
                       type="text"
                       inputMode="numeric"
-                      value={getValue(
-                        `${r.trip_date}-7am`,
-                        r.battery_pct_7am
-                      )}
+                      value={getValue(`${r.trip_date}-7am`, r.battery_pct_7am)}
                       onChange={(e) =>
-                        setLocalValue(
-                          `${r.trip_date}-7am`,
-                          e.target.value
-                        )
+                        setLocalValue(`${r.trip_date}-7am`, e.target.value)
                       }
                       onBlur={(e) =>
-                        commitValue(
-                          r.trip_date,
-                          "battery_pct_7am",
-                          e.target.value
-                        )
+                        commitValue(r.trip_date, "battery_pct_7am", e.target.value)
                       }
                       style={{ width: 50, textAlign: "right" }}
                     />
@@ -204,22 +199,12 @@ export default function VanPowerPage() {
                     <input
                       type="text"
                       inputMode="numeric"
-                      value={getValue(
-                        `${r.trip_date}-7pm`,
-                        r.actual_7pm_pct
-                      )}
+                      value={getValue(`${r.trip_date}-7pm`, r.actual_7pm_pct)}
                       onChange={(e) =>
-                        setLocalValue(
-                          `${r.trip_date}-7pm`,
-                          e.target.value
-                        )
+                        setLocalValue(`${r.trip_date}-7pm`, e.target.value)
                       }
                       onBlur={(e) =>
-                        commitValue(
-                          r.trip_date,
-                          "battery_pct_7pm",
-                          e.target.value
-                        )
+                        commitValue(r.trip_date, "battery_pct_7pm", e.target.value)
                       }
                       style={{ width: 50, textAlign: "right" }}
                     />
@@ -250,22 +235,12 @@ export default function VanPowerPage() {
                     <input
                       type="text"
                       inputMode="decimal"
-                      value={getValue(
-                        `${r.trip_date}-plan-drive`,
-                        r.plan_drive
-                      )}
+                      value={getValue(`${r.trip_date}-plan-drive`, r.plan_drive)}
                       onChange={(e) =>
-                        setLocalValue(
-                          `${r.trip_date}-plan-drive`,
-                          e.target.value
-                        )
+                        setLocalValue(`${r.trip_date}-plan-drive`, e.target.value)
                       }
                       onBlur={(e) =>
-                        commitValue(
-                          r.trip_date,
-                          "driving_hours",
-                          e.target.value
-                        )
+                        commitValue(r.trip_date, "driving_hours", e.target.value)
                       }
                       style={{ width: 50, textAlign: "right" }}
                     />
@@ -276,37 +251,23 @@ export default function VanPowerPage() {
                     <input
                       type="text"
                       inputMode="decimal"
-                      value={getValue(
-                        `${r.trip_date}-actual-drive`,
-                        r.actual_drive
-                      )}
+                      value={getValue(`${r.trip_date}-actual-drive`, r.actual_drive)}
                       onChange={(e) =>
-                        setLocalValue(
-                          `${r.trip_date}-actual-drive`,
-                          e.target.value
-                        )
+                        setLocalValue(`${r.trip_date}-actual-drive`, e.target.value)
                       }
                       onBlur={(e) =>
-                        commitValue(
-                          r.trip_date,
-                          "actual_driving_hours",
-                          e.target.value
-                        )
+                        commitValue(r.trip_date, "actual_driving_hours", e.target.value)
                       }
                       style={{ width: 50, textAlign: "right" }}
                     />
                   </td>
 
                   {/* PLAN WX */}
-                  <td style={{ textAlign: "left", paddingLeft: 12 }}>
+                  <td style={{ paddingLeft: 12 }}>
                     <select
                       value={r.plan_condition ?? ""}
                       onChange={(e) =>
-                        updateField(
-                          r.trip_date,
-                          "condition_text",
-                          e.target.value
-                        )
+                        updateField(r.trip_date, "condition_text", e.target.value)
                       }
                     >
                       <option>Sunny</option>
@@ -316,15 +277,11 @@ export default function VanPowerPage() {
                   </td>
 
                   {/* ACTUAL WX */}
-                  <td style={{ textAlign: "left", fontWeight: 600 }}>
+                  <td style={{ fontWeight: 600 }}>
                     <select
                       value={r.actual_condition ?? ""}
                       onChange={(e) =>
-                        updateField(
-                          r.trip_date,
-                          "actual_condition_text",
-                          e.target.value
-                        )
+                        updateField(r.trip_date, "actual_condition_text", e.target.value)
                       }
                     >
                       <option value=""></option>
@@ -340,11 +297,7 @@ export default function VanPowerPage() {
                       type="checkbox"
                       checked={r.plan_shore ?? false}
                       onChange={(e) =>
-                        updateField(
-                          r.trip_date,
-                          "night_shore_power",
-                          e.target.checked
-                        )
+                        updateField(r.trip_date, "night_shore_power", e.target.checked)
                       }
                     />
                   </td>
@@ -355,11 +308,7 @@ export default function VanPowerPage() {
                       type="checkbox"
                       checked={r.plan_h2o ?? false}
                       onChange={(e) =>
-                        updateField(
-                          r.trip_date,
-                          "day_hot_water",
-                          e.target.checked
-                        )
+                        updateField(r.trip_date, "day_hot_water", e.target.checked)
                       }
                     />
                   </td>
@@ -369,86 +318,78 @@ export default function VanPowerPage() {
           </tbody>
         </table>
 
-{/* =========================
-    POWER DEVICES SECTION
-========================= */}
+        {/* =========================
+            POWER DEVICES
+        ========================= */}
 
-<div style={{ marginTop: 30 }}>
-  <div style={{ fontWeight: 700, marginBottom: 10 }}>
-    Power Devices
-  </div>
+        <div style={{ marginTop: 30 }}>
+          <div style={{ fontWeight: 700, marginBottom: 10 }}>
+            Power Devices
+          </div>
 
-  <table style={{ width: "100%", fontSize: 13 }}>
-    <thead>
-      <tr>
-        <th style={{ textAlign: "left" }}>Device</th>
-        <th>Watts</th>
-        <th>Minutes</th>
-        <th>Uses/day</th>
-        <th>On</th>
-      </tr>
-    </thead>
+          <table style={{ width: "100%", fontSize: 13 }}>
+            <thead>
+              <tr>
+                <th style={{ textAlign: "left" }}>Device</th>
+                <th>Watts</th>
+                <th>Minutes</th>
+                <th>Uses/day</th>
+                <th>On</th>
+              </tr>
+            </thead>
 
-    <tbody>
-      {devices.map((d) => (
-        <tr key={d.id}>
-          <td>{d.device_name}</td>
+            <tbody>
+              {devices.map((d) => (
+                <tr key={d.id}>
+                  <td>{d.device_name}</td>
 
-          {/* Watts */}
-          <td>
-            <input
-              type="text"
-              inputMode="numeric"
-              defaultValue={d.avg_watts}
-              onBlur={(e) =>
-                updateDevice(d.id, "avg_watts", Number(e.target.value))
-              }
-              style={{ width: 60 }}
-            />
-          </td>
+                  <td>
+                    <input
+                      type="text"
+                      value={d.avg_watts}
+                      onChange={(e) =>
+                        updateDevice(d.id, "avg_watts", Number(e.target.value))
+                      }
+                      style={{ width: 60 }}
+                    />
+                  </td>
 
-          {/* Minutes */}
-          <td>
-            <input
-              type="text"
-              inputMode="numeric"
-              defaultValue={d.mins_per_use}
-              onBlur={(e) =>
-                updateDevice(d.id, "mins_per_use", Number(e.target.value))
-              }
-              style={{ width: 60 }}
-            />
-          </td>
+                  <td>
+                    <input
+                      type="text"
+                      value={d.mins_per_use}
+                      onChange={(e) =>
+                        updateDevice(d.id, "mins_per_use", Number(e.target.value))
+                      }
+                      style={{ width: 60 }}
+                    />
+                  </td>
 
-          {/* Uses/day (DECIMAL FIX) */}
-          <td>
-            <input
-              type="text"
-              inputMode="decimal"
-              defaultValue={d.uses_per_day}
-              onBlur={(e) =>
-                updateDevice(d.id, "uses_per_day", parseFloat(e.target.value))
-              }
-              style={{ width: 60 }}
-            />
-          </td>
+                  <td>
+                    <input
+                      type="text"
+                      value={d.uses_per_day}
+                      onChange={(e) =>
+                        updateDevice(d.id, "uses_per_day", parseFloat(e.target.value))
+                      }
+                      style={{ width: 60 }}
+                    />
+                  </td>
 
-          {/* Toggle */}
-          <td style={{ textAlign: "center" }}>
-            <input
-              type="checkbox"
-              checked={d.enabled}
-              onChange={(e) =>
-                updateDevice(d.id, "enabled", e.target.checked)
-              }
-            />
-          </td>
-        </tr>
-      ))}
-    </tbody>
-  </table>
-</div>
-
+                  <td style={{ textAlign: "center" }}>
+                    <input
+                      type="checkbox"
+                      checked={d.enabled}
+                      onChange={(e) =>
+                        updateDevice(d.id, "enabled", e.target.checked)
+                      }
+                    />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
