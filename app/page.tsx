@@ -1925,7 +1925,7 @@ if (heartBtn) {
           Last Great Places
         </a>
       <a
-          href="/lastgreatplaces"
+          href="/van-power"
           style={{
             background: "white",
             border: "1px solid #ccc",
@@ -1939,7 +1939,7 @@ if (heartBtn) {
             boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
           }}
         >
-          Last Great Places
+          Van Power
         </a>
 
 
