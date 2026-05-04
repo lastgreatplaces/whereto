@@ -105,92 +105,163 @@ export default function VanPowerPage() {
           FORECAST TABLE
       ========================= */}
 
-<div style={{ overflowX: "auto" }}>
-<table style={{ minWidth: 950, borderCollapse: "collapse", fontSize: 13 }}>
-<thead>
-<tr>
-<th>Date</th>
-<th>7A</th>
-<th>7P</th>
-<th style={{ color:"#1565c0" }}>For</th>
-<th>Pln</th>
-<th>Wx</th>
-<th>Sh</th>
-<th>H2O</th>
+      <div style={{ overflowX: "auto" }}>
+        <table
+          style={{
+            minWidth: 720,
+            borderCollapse: "collapse",
+            tableLayout: "fixed",
+            fontSize: 13
+          }}
+        >
+          <thead>
+            <tr style={{ borderBottom: "1px solid #ccc" }}>
+              <th style={{ width: 90, textAlign: "left" }}>Date</th>
 
-<th>Sol</th>
-<th>Drv</th>
-<th>Shr</th>
-<th>Tot</th>
-</tr>
-</thead>
+              <th style={{ width: 45, textAlign: "right" }}>7A</th>
+              <th style={{ width: 45, textAlign: "right" }}>7P</th>
 
-<tbody>
-{rows.map((r:any)=>(
-<tr key={r.trip_date}>
+              <th style={{ width: 55, textAlign: "right", color: "#1565c0" }}>
+                For
+              </th>
 
-<td>{r.date_label}</td>
+              <th style={{ width: 60, textAlign: "right" }}>Pln</th>
+              <th style={{ width: 60, textAlign: "right" }}>Act</th>
 
-<td>{r.battery_pct_7am ?? ""}</td>
+              <th style={{ width: 70 }}>Wx</th>
+              <th style={{ width: 40, textAlign: "center" }}>Sh</th>
+              <th style={{ width: 50, textAlign: "center" }}>H2O</th>
+            </tr>
+          </thead>
 
-<td>{r.actual_7pm_pct ?? ""}</td>
+          <tbody>
+            {rows.map((r) => (
+              <tr key={r.trip_date} style={{ borderBottom: "1px solid #eee" }}>
+                <td style={{ whiteSpace: "normal" }}>{r.date_label}</td>
 
-<td style={{
-  color:
-    r.forecast_7pm_pct < 20 ? "red" :
-    r.forecast_7pm_pct < 40 ? "orange" :
-    "#1565c0",
-  fontWeight:700
-}}>
-{r.forecast_7pm_pct}
+                <td style={{ textAlign: "right" }}>
+  <input
+    style={{ width: 50, textAlign: "right" }}
+    inputMode="decimal"
+    value={getVal(`${r.trip_date}-7am`, r.battery_pct_7am)}
+    onChange={(e) =>
+      setVal(`${r.trip_date}-7am`, e.target.value)
+    }
+    onBlur={(e) =>
+      save(r.trip_date, "battery_pct_7am", e.target.value)
+    }
+  />
 </td>
 
-<td>
-<input
-  style={{ width:50 }}
-  inputMode="decimal"
-  defaultValue={r.plan_drive ?? ""}
-  onBlur={(e)=>updateField(r.trip_date,"driving_hours",e.target.value)}
-/>
+               <td style={{ textAlign: "right" }}>
+  <input
+    style={{ width: 50, textAlign: "right", fontWeight: 600 }}
+    inputMode="decimal"
+    value={getVal(`${r.trip_date}-7pm`, r.actual_7pm_pct)}
+    onChange={(e) =>
+      setVal(`${r.trip_date}-7pm`, e.target.value)
+    }
+    onBlur={(e) =>
+      save(r.trip_date, "battery_pct_7pm", e.target.value)
+    }
+  />
 </td>
 
-<td>
-<select
-value={r.plan_condition ?? ""}
-onChange={(e)=>updateField(r.trip_date,"condition_text",e.target.value)}
+               <td
+  style={{
+    textAlign: "right",
+    fontWeight: 700,
+    color:
+      r.forecast_7pm_pct == null
+        ? "#1565c0"
+        : r.forecast_7pm_pct < 20
+        ? "red"
+        : r.forecast_7pm_pct < 40
+        ? "orange"
+        : "#1565c0"
+  }}
 >
-<option>Sunny</option>
-<option>Partly Sunny</option>
-<option>Cloudy</option>
-</select>
+  {r.forecast_7pm_pct ?? ""}
 </td>
 
-<td>
-<input
-type="checkbox"
-checked={r.plan_shore ?? false}
-onChange={(e)=>updateField(r.trip_date,"night_shore_power",e.target.checked)}
-/>
-</td>
+                {/* PLAN */}
+                <td style={{ textAlign: "right" }}>
+                  <input
+                    style={{ width: 50, textAlign: "right" }}
+                    inputMode="decimal"
+                    value={getVal(`${r.trip_date}-plan`, r.plan_drive)}
+                    onChange={(e) =>
+                      setVal(`${r.trip_date}-plan`, e.target.value)
+                    }
+                    onBlur={(e) =>
+                      save(r.trip_date, "driving_hours", e.target.value)
+                    }
+                  />
+                </td>
 
-<td>
-<input
-type="checkbox"
-checked={r.plan_h2o ?? false}
-onChange={(e)=>updateField(r.trip_date,"day_hot_water",e.target.checked)}
-/>
-</td>
+                {/* ACTUAL */}
+                <td style={{ textAlign: "right" }}>
+                  <input
+                    style={{ width: 50, textAlign: "right", fontWeight: 600 }}
+                    inputMode="decimal"
+                    value={getVal(`${r.trip_date}-act`, r.actual_drive)}
+                    onChange={(e) =>
+                      setVal(`${r.trip_date}-act`, e.target.value)
+                    }
+                    onBlur={(e) =>
+                      save(r.trip_date, "actual_driving_hours", e.target.value)
+                    }
+                  />
+                </td>
 
-<td>{r.solar_wh}</td>
-<td>{r.driving_wh}</td>
-<td>{r.shore_wh}</td>
-<td style={{ fontWeight:700 }}>{r.total_wh}</td>
+                {/* WEATHER */}
+                <td>
+                  <select
+                    value={r.plan_condition ?? ""}
+                    onChange={(e) =>
+                      updateField(r.trip_date, "condition_text", e.target.value)
+                    }
+                  >
+                    <option value="Sunny">Sunny</option>
+                    <option value="Partly Sunny">Partly Sunny</option>
+                    <option value="Cloudy">Cloudy</option>
+                  </select>
+                </td>
 
-</tr>
-))}
-</tbody>
-</table>
-</div>
+                {/* SHORE */}
+                <td style={{ textAlign: "center" }}>
+                  <input
+                    type="checkbox"
+                    checked={r.plan_shore ?? false}
+                    onChange={(e) =>
+                      updateField(
+                        r.trip_date,
+                        "night_shore_power",
+                        e.target.checked
+                      )
+                    }
+                  />
+                </td>
+
+                {/* H2O */}
+                <td style={{ textAlign: "center" }}>
+                  <input
+                    type="checkbox"
+                    checked={r.plan_h2o ?? false}
+                    onChange={(e) =>
+                      updateField(
+                        r.trip_date,
+                        "day_hot_water",
+                        e.target.checked
+                      )
+                    }
+                  />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       {/* =========================
           POWER DEVICES
