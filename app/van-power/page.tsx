@@ -131,9 +131,39 @@ export default function VanPowerPage() {
 
 <td>{r.date_label}</td>
 
-<td>{r.battery_pct_7am ?? ""}</td>
+<td>
+  <input
+    style={{ width: 55, textAlign: "right" }}
+    inputMode="numeric"
+    defaultValue={r.battery_pct_7am ?? ""}
+    onBlur={(e) => {
+      const val = e.target.value;
 
-<td>{r.actual_7pm_pct ?? ""}</td>
+      updateField(
+        r.trip_date,
+        "battery_pct_7am",
+        val === "" ? null : parseInt(val)
+      );
+    }}
+  />
+</td>
+
+<td>
+  <input
+    style={{ width: 55, textAlign: "right" }}
+    inputMode="numeric"
+    defaultValue={r.actual_7pm_pct ?? ""}
+    onBlur={(e) => {
+      const val = e.target.value;
+
+      updateField(
+        r.trip_date,
+        "battery_pct_7pm",
+        val === "" ? null : parseInt(val)
+      );
+    }}
+  />
+</td>
 
 <td style={{
   color:
