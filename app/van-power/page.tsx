@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
+import Link from "next/link";
 
 export default function VanPowerPage() {
   const tripName = "Spring Migration 2026";
@@ -50,7 +50,7 @@ export default function VanPowerPage() {
   }, []);
 
   // =========================
-  // UPDATE HELPERS
+  // UPDATE FUNCTIONS
   // =========================
   async function updateField(date: string, field: string, value: any) {
     await supabase
@@ -59,6 +59,16 @@ export default function VanPowerPage() {
       .eq("trip_date", date);
 
     loadData();
+  }
+
+  async function updateDevice(id: number, field: string, value: any) {
+    await supabase
+      .from("power_profile_devices")
+      .update({ [field]: value })
+      .eq("id", id);
+
+    await loadDevices();
+    await loadData();
   }
 
   async function updateProfile(field: string, value: any) {
@@ -71,9 +81,6 @@ export default function VanPowerPage() {
     await loadData();
   }
 
-  // =========================
-  // RENDER
-  // =========================
   return (
     <div style={{ padding: 12, fontSize: 14 }}>
       <Link href="/">← Home</Link>
@@ -162,7 +169,7 @@ export default function VanPowerPage() {
                   {r.forecast_7pm_pct}
                 </td>
 
-                {/* PLAN DRIVE */}
+                {/* PLAN */}
                 <td>
                   <input
                     style={{ width: 55, textAlign: "right" }}
@@ -235,7 +242,6 @@ export default function VanPowerPage() {
                   />
                 </td>
 
-                {/* ENERGY */}
                 <td>{r.solar_wh}</td>
                 <td>{r.driving_wh}</td>
                 <td>{r.shore_wh}</td>
@@ -251,24 +257,94 @@ export default function VanPowerPage() {
       ========================= */}
       <h3 style={{ marginTop: 20 }}>Power Devices</h3>
 
-      <table style={{ fontSize: 13 }}>
+      <table style={{ width: "100%", fontSize: 13 }}>
         <thead>
           <tr>
             <th>Device</th>
             <th>W</th>
             <th>Min</th>
             <th>Use</th>
+            <th>On</th>
+            <th>Wh</th>
           </tr>
         </thead>
+
         <tbody>
-          {devices.map((d) => (
-            <tr key={d.id}>
-              <td>{d.device_name}</td>
-              <td>{d.avg_watts}</td>
-              <td>{d.mins_per_use}</td>
-              <td>{d.uses_per_day}</td>
-            </tr>
-          ))}
+          {devices.map((d) => {
+            const wh =
+              d.enabled
+                ? (d.avg_watts * d.mins_per_use * d.uses_per_day) / 60
+                : 0;
+
+            return (
+              <tr key={d.id}>
+                <td>{d.device_name}</td>
+
+                <td>
+                  <input
+                    style={{ width: 60, textAlign: "right" }}
+                    defaultValue={d.avg_watts}
+                    onBlur={(e) =>
+                      updateDevice(d.id, "avg_watts", Number(e.target.value))
+                    }
+                  />
+                </td>
+
+                <td>
+                  <input
+                    style={{ width: 60, textAlign: "right" }}
+                    defaultValue={d.mins_per_use}
+                    onBlur={(e) =>
+                      updateDevice(d.id, "mins_per_use", Number(e.target.value))
+                    }
+                  />
+                </td>
+
+                <td>
+                  <input
+                    style={{ width: 60, textAlign: "right" }}
+                    defaultValue={d.uses_per_day}
+                    onBlur={(e) =>
+                      updateDevice(
+                        d.id,
+                        "uses_per_day",
+                        parseFloat(e.target.value)
+                      )
+                    }
+                  />
+                </td>
+
+                <td>
+                  <input
+                    type="checkbox"
+                    checked={d.enabled}
+                    onChange={(e) =>
+                      updateDevice(d.id, "enabled", e.target.checked)
+                    }
+                  />
+                </td>
+
+                <td style={{ fontWeight: 600 }}>{Math.round(wh)}</td>
+              </tr>
+            );
+          })}
+
+          <tr style={{ fontWeight: 700 }}>
+            <td colSpan={5} style={{ textAlign: "right" }}>
+              Total
+            </td>
+            <td>
+              {Math.round(
+                devices.reduce((sum, d) => {
+                  if (!d.enabled) return sum;
+                  return (
+                    sum +
+                    (d.avg_watts * d.mins_per_use * d.uses_per_day) / 60
+                  );
+                }, 0)
+              )}
+            </td>
+          </tr>
         </tbody>
       </table>
 
@@ -277,7 +353,7 @@ export default function VanPowerPage() {
       ========================= */}
       <h3 style={{ marginTop: 20 }}>Van Power Profile</h3>
 
-      <table style={{ maxWidth: 400 }}>
+      <table>
         <tbody>
           <tr>
             <td>Season</td>
@@ -304,9 +380,9 @@ export default function VanPowerPage() {
                   updateProfile("latitude_band", e.target.value)
                 }
               >
-                <option>South</option>
+                <option>Southern</option>
                 <option>Central</option>
-                <option>North</option>
+                <option>Northern</option>
               </select>
             </td>
           </tr>
@@ -317,7 +393,6 @@ export default function VanPowerPage() {
               <input
                 style={{ width: 80, textAlign: "right" }}
                 defaultValue={profile.solar_watts ?? ""}
-                onFocus={(e) => e.target.select()}
                 onBlur={(e) =>
                   updateProfile(
                     "solar_watts",
@@ -334,7 +409,6 @@ export default function VanPowerPage() {
               <input
                 style={{ width: 80, textAlign: "right" }}
                 defaultValue={profile.shore_charge_amps ?? ""}
-                onFocus={(e) => e.target.select()}
                 onBlur={(e) =>
                   updateProfile(
                     "shore_charge_amps",
@@ -351,7 +425,6 @@ export default function VanPowerPage() {
               <input
                 style={{ width: 80, textAlign: "right" }}
                 defaultValue={profile.shore_power_hours ?? 6}
-                onFocus={(e) => e.target.select()}
                 onBlur={(e) =>
                   updateProfile(
                     "shore_power_hours",
