@@ -24,7 +24,7 @@ export default function VanPowerPage() {
 
   async function loadData() {
     const { data } = await supabase
-      .from("v_power_trip_window")
+    .from("v_power_trip_forecast_7pm")
       .select("*")
       .eq("trip_name", tripName)
       .order("trip_date");
