@@ -147,10 +147,21 @@ export default function VanPowerPage() {
 
 <td>
 <input
-  style={{ width:50 }}
+  style={{ width: 55, textAlign: "right" }}
   inputMode="decimal"
-  defaultValue={r.plan_drive ?? ""}
-  onBlur={(e)=>updateField(r.trip_date,"driving_hours",e.target.value)}
+  defaultValue={
+    r.plan_drive != null
+      ? Number(r.plan_drive).toFixed(1)
+      : ""
+  }
+  onBlur={(e) => {
+    const val = e.target.value;
+    updateField(
+      r.trip_date,
+      "driving_hours",
+      val === "" ? null : parseFloat(val)
+    );
+  }}
 />
 </td>
 
