@@ -1,73 +1,58 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createClient } from "@supabase/supabase-js";
-import { useRouter } from "next/navigation";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || "",
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
-);
+import { supabase } from "@/lib/supabaseClient";
+import Link from "next/link";
 
 export default function VanPowerPage() {
-  const router = useRouter();
+  const tripName = "Spring Migration 2026";
 
   const [rows, setRows] = useState<any[]>([]);
   const [devices, setDevices] = useState<any[]>([]);
-  const [edit, setEdit] = useState<Record<string, string>>({});
-
-  const tripName = "Spring Migration 2026";
+  const [profile, setProfile] = useState<any>({});
+  const [showAll, setShowAll] = useState(false);
 
   // =========================
   // LOAD DATA
   // =========================
-
   async function loadData() {
     const { data } = await supabase
-    .from("v_power_trip_forecast_7pm")
+      .from("v_power_trip_forecast_7pm")
       .select("*")
       .eq("trip_name", tripName)
       .order("trip_date");
 
-    setRows(data || []);
+    if (data) setRows(data);
   }
 
   async function loadDevices() {
     const { data } = await supabase
-      .from("v_power_devices")
-      .select("*");
+      .from("power_profile_devices")
+      .select("*")
+      .order("id");
 
-    setDevices(data || []);
+    if (data) setDevices(data);
+  }
+
+  async function loadProfile() {
+    const { data } = await supabase
+      .from("power_profiles")
+      .select("*")
+      .eq("id", 1)
+      .single();
+
+    if (data) setProfile(data);
   }
 
   useEffect(() => {
     loadData();
     loadDevices();
+    loadProfile();
   }, []);
 
   // =========================
-  // INPUT HELPERS
+  // UPDATE FUNCTIONS
   // =========================
-
-  function getVal(key: string, fallback: any) {
-    return edit[key] ?? (fallback ?? "").toString();
-  }
-
-  function setVal(key: string, value: string) {
-    setEdit((prev) => ({ ...prev, [key]: value }));
-  }
-
-  async function save(date: string, field: string, value: string) {
-    const parsed = value === "" ? null : parseFloat(value);
-
-    await supabase
-      .from("power_trip_days")
-      .update({ [field]: parsed })
-      .eq("trip_date", date);
-
-    loadData();
-  }
-
   async function updateField(date: string, field: string, value: any) {
     await supabase
       .from("power_trip_days")
@@ -76,10 +61,6 @@ export default function VanPowerPage() {
 
     loadData();
   }
-
-  // =========================
-  // DEVICE UPDATE
-  // =========================
 
   async function updateDevice(id: number, field: string, value: any) {
     await supabase
@@ -91,153 +72,223 @@ export default function VanPowerPage() {
     loadData();
   }
 
+  async function updateProfile(field: string, value: any) {
+    await supabase
+      .from("power_profiles")
+      .update({ [field]: value })
+      .eq("id", 1);
+
+    loadProfile();
+    loadData();
+  }
+
   // =========================
-  // RENDER
+  // FILTER (5 past / 5 future)
   // =========================
+  const today = new Date();
+
+  const filteredRows = rows.filter((r) => {
+    if (showAll) return true;
+
+    const d = new Date(r.trip_date);
+    const diff =
+      (d.getTime() - today.getTime()) / (1000 * 60 * 60 * 24);
+
+    return diff >= -5 && diff <= 5;
+  });
 
   return (
-    <div style={{ padding: 10, fontFamily: "sans-serif" }}>
-      <button onClick={() => router.push("/")}>← Home</button>
+    <div style={{ padding: 12, fontSize: 14 }}>
+      <Link href="/">← Home</Link>
 
-      <h2>Van Power — {tripName}</h2>
+      <h2 style={{ marginTop: 10 }}>
+        Van Power — {tripName}
+      </h2>
+
+      {/* TOGGLE */}
+      <div style={{ marginBottom: 10 }}>
+        <button onClick={() => setShowAll(!showAll)}>
+          {showAll ? "Show 10-Day Window" : "Show Full History"}
+        </button>
+      </div>
 
       {/* =========================
           FORECAST TABLE
       ========================= */}
+      <div style={{ overflowX: "auto" }}>
+        <table style={{ minWidth: 1150, borderCollapse: "collapse" }}>
+          <thead>
+            <tr>
+              <th>Day</th>
+              <th>Date</th>
+              <th>7A</th>
+              <th>7P</th>
+              <th style={{ color: "#1565c0" }}>For</th>
+              <th>Pln</th>
+              <th>Wx</th>
+              <th>Sh</th>
+              <th>H2O</th>
+              <th>Sol</th>
+              <th>Drv</th>
+              <th>Shr</th>
+              <th>Tot</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
 
-<div style={{ overflowX: "auto" }}>
-<table style={{ minWidth: 950, borderCollapse: "collapse", fontSize: 13 }}>
-<thead>
-<tr>
-<th>Date</th>
-<th>7A</th>
-<th>7P</th>
-<th style={{ color:"#1565c0" }}>For</th>
-<th>Pln</th>
-<th>Wx</th>
-<th>Sh</th>
-<th>H2O</th>
+          <tbody>
+            {filteredRows.map((r) => (
+              <tr key={r.trip_date}>
+                <td>{r.trip_day}</td>
+                <td>{r.date_label}</td>
 
-<th>Sol</th>
-<th>Drv</th>
-<th>Shr</th>
-<th>Tot</th>
-</tr>
-</thead>
+                {/* 7AM */}
+                <td>
+                  <input
+                    style={{ width: 55, textAlign: "right" }}
+                    defaultValue={r.battery_pct_7am ?? ""}
+                    onBlur={(e) =>
+                      updateField(
+                        r.trip_date,
+                        "battery_pct_7am",
+                        e.target.value === ""
+                          ? null
+                          : parseInt(e.target.value)
+                      )
+                    }
+                  />
+                </td>
 
-<tbody>
-{rows.map((r:any)=>(
-<tr key={r.trip_date}>
+                {/* 7PM */}
+                <td>
+                  <input
+                    style={{ width: 55, textAlign: "right" }}
+                    defaultValue={r.actual_7pm_pct ?? ""}
+                    onBlur={(e) =>
+                      updateField(
+                        r.trip_date,
+                        "battery_pct_7pm",
+                        e.target.value === ""
+                          ? null
+                          : parseInt(e.target.value)
+                      )
+                    }
+                  />
+                </td>
 
-<td>{r.date_label}</td>
+                {/* FORECAST */}
+                <td
+                  style={{
+                    fontWeight: 700,
+                    color:
+                      r.forecast_7pm_pct < 20
+                        ? "red"
+                        : r.forecast_7pm_pct < 40
+                        ? "orange"
+                        : "#1565c0",
+                  }}
+                >
+                  {r.forecast_7pm_pct}
+                </td>
 
-<td>
-  <input
-    style={{ width: 55, textAlign: "right" }}
-    inputMode="numeric"
-    defaultValue={r.battery_pct_7am ?? ""}
-    onBlur={(e) => {
-      const val = e.target.value;
+                {/* PLAN DRIVE */}
+                <td>
+                  <input
+                    style={{ width: 55, textAlign: "right" }}
+                    defaultValue={
+                      r.plan_drive != null
+                        ? Number(r.plan_drive).toFixed(1)
+                        : ""
+                    }
+                    onBlur={(e) =>
+                      updateField(
+                        r.trip_date,
+                        "driving_hours",
+                        e.target.value === ""
+                          ? null
+                          : parseFloat(e.target.value)
+                      )
+                    }
+                  />
+                </td>
 
-      updateField(
-        r.trip_date,
-        "battery_pct_7am",
-        val === "" ? null : parseInt(val)
-      );
-    }}
-  />
-</td>
+                {/* WEATHER */}
+                <td>
+                  <select
+                    value={r.plan_condition || ""}
+                    onChange={(e) =>
+                      updateField(
+                        r.trip_date,
+                        "condition_text",
+                        e.target.value
+                      )
+                    }
+                  >
+                    <option>Sunny</option>
+                    <option>Partly Sunny</option>
+                    <option>Cloudy</option>
+                  </select>
+                </td>
 
-<td>
-  <input
-    style={{ width: 55, textAlign: "right" }}
-    inputMode="numeric"
-    defaultValue={r.actual_7pm_pct ?? ""}
-    onBlur={(e) => {
-      const val = e.target.value;
+                {/* SHORE */}
+                <td>
+                  <input
+                    type="checkbox"
+                    checked={r.plan_shore || false}
+                    onChange={(e) =>
+                      updateField(
+                        r.trip_date,
+                        "night_shore_power",
+                        e.target.checked
+                      )
+                    }
+                  />
+                </td>
 
-      updateField(
-        r.trip_date,
-        "battery_pct_7pm",
-        val === "" ? null : parseInt(val)
-      );
-    }}
-  />
-</td>
+                {/* HOT WATER */}
+                <td>
+                  <input
+                    type="checkbox"
+                    checked={r.plan_h2o || false}
+                    onChange={(e) =>
+                      updateField(
+                        r.trip_date,
+                        "day_hot_water",
+                        e.target.checked
+                      )
+                    }
+                  />
+                </td>
 
-<td style={{
-  color:
-    r.forecast_7pm_pct < 20 ? "red" :
-    r.forecast_7pm_pct < 40 ? "orange" :
-    "#1565c0",
-  fontWeight:700
-}}>
-{r.forecast_7pm_pct}
-</td>
+                <td>{r.solar_wh}</td>
+                <td>{r.driving_wh}</td>
+                <td>{r.shore_wh}</td>
+                <td style={{ fontWeight: 700 }}>{r.total_wh}</td>
 
-<td>
-<input
-  style={{ width: 55, textAlign: "right" }}
-  inputMode="decimal"
-  defaultValue={
-    r.plan_drive != null
-      ? Number(r.plan_drive).toFixed(1)
-      : ""
-  }
-  onBlur={(e) => {
-    const val = e.target.value;
-    updateField(
-      r.trip_date,
-      "driving_hours",
-      val === "" ? null : parseFloat(val)
-    );
-  }}
-/>
-</td>
-
-<td>
-<select
-value={r.plan_condition ?? ""}
-onChange={(e)=>updateField(r.trip_date,"condition_text",e.target.value)}
->
-<option>Sunny</option>
-<option>Partly Sunny</option>
-<option>Cloudy</option>
-</select>
-</td>
-
-<td>
-<input
-type="checkbox"
-checked={r.plan_shore ?? false}
-onChange={(e)=>updateField(r.trip_date,"night_shore_power",e.target.checked)}
-/>
-</td>
-
-<td>
-<input
-type="checkbox"
-checked={r.plan_h2o ?? false}
-onChange={(e)=>updateField(r.trip_date,"day_hot_water",e.target.checked)}
-/>
-</td>
-
-<td>{r.solar_wh}</td>
-<td>{r.driving_wh}</td>
-<td>{r.shore_wh}</td>
-<td style={{ fontWeight:700 }}>{r.total_wh}</td>
-
-</tr>
-))}
-</tbody>
-</table>
-</div>
+                {/* NOTES */}
+                <td>
+                  <input
+                    style={{ width: 140 }}
+                    defaultValue={r.notes || ""}
+                    onBlur={(e) =>
+                      updateField(
+                        r.trip_date,
+                        "notes",
+                        e.target.value
+                      )
+                    }
+                  />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       {/* =========================
           POWER DEVICES
       ========================= */}
-
-      <h3 style={{ marginTop: 30 }}>Power Devices</h3>
+      <h3 style={{ marginTop: 20 }}>Power Devices</h3>
 
       <table style={{ width: "100%", fontSize: 13 }}>
         <thead>
@@ -264,7 +315,7 @@ onChange={(e)=>updateField(r.trip_date,"day_hot_water",e.target.checked)}
 
                 <td>
                   <input
-                    style={{ width: 50 }}
+                    style={{ width: 60, textAlign: "right" }}
                     defaultValue={d.avg_watts}
                     onBlur={(e) =>
                       updateDevice(d.id, "avg_watts", Number(e.target.value))
@@ -274,7 +325,7 @@ onChange={(e)=>updateField(r.trip_date,"day_hot_water",e.target.checked)}
 
                 <td>
                   <input
-                    style={{ width: 50 }}
+                    style={{ width: 60, textAlign: "right" }}
                     defaultValue={d.mins_per_use}
                     onBlur={(e) =>
                       updateDevice(d.id, "mins_per_use", Number(e.target.value))
@@ -284,7 +335,7 @@ onChange={(e)=>updateField(r.trip_date,"day_hot_water",e.target.checked)}
 
                 <td>
                   <input
-                    style={{ width: 50 }}
+                    style={{ width: 60, textAlign: "right" }}
                     defaultValue={d.uses_per_day}
                     onBlur={(e) =>
                       updateDevice(
@@ -325,6 +376,95 @@ onChange={(e)=>updateField(r.trip_date,"day_hot_water",e.target.checked)}
                   );
                 }, 0)
               )}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      {/* =========================
+          VAN PROFILE
+      ========================= */}
+      <h3 style={{ marginTop: 20 }}>Van Power Profile</h3>
+
+      <table>
+        <tbody>
+          <tr>
+            <td>Season</td>
+            <td>
+              <select
+                value={profile.season || ""}
+                onChange={(e) =>
+                  updateProfile("season", e.target.value)
+                }
+              >
+                <option>Spring/Fall</option>
+                <option>Summer</option>
+                <option>Winter</option>
+              </select>
+            </td>
+          </tr>
+
+          <tr>
+            <td>Latitude</td>
+            <td>
+              <select
+                value={profile.latitude_band || ""}
+                onChange={(e) =>
+                  updateProfile("latitude_band", e.target.value)
+                }
+              >
+                <option>South</option>
+                <option>Central</option>
+                <option>North</option>
+              </select>
+            </td>
+          </tr>
+
+          <tr>
+            <td>Solar Watts</td>
+            <td>
+              <input
+                style={{ width: 80, textAlign: "right" }}
+                defaultValue={profile.solar_watts ?? ""}
+                onBlur={(e) =>
+                  updateProfile(
+                    "solar_watts",
+                    Number(e.target.value)
+                  )
+                }
+              />
+            </td>
+          </tr>
+
+          <tr>
+            <td>Shore Amps</td>
+            <td>
+              <input
+                style={{ width: 80, textAlign: "right" }}
+                defaultValue={profile.shore_charge_amps ?? ""}
+                onBlur={(e) =>
+                  updateProfile(
+                    "shore_charge_amps",
+                    Number(e.target.value)
+                  )
+                }
+              />
+            </td>
+          </tr>
+
+          <tr>
+            <td>Shore Hours</td>
+            <td>
+              <input
+                style={{ width: 80, textAlign: "right" }}
+                defaultValue={profile.shore_power_hours ?? 6}
+                onBlur={(e) =>
+                  updateProfile(
+                    "shore_power_hours",
+                    Number(e.target.value)
+                  )
+                }
+              />
             </td>
           </tr>
         </tbody>

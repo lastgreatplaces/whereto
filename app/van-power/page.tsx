@@ -10,6 +10,7 @@ export default function VanPowerPage() {
   const [rows, setRows] = useState<any[]>([]);
   const [devices, setDevices] = useState<any[]>([]);
   const [profile, setProfile] = useState<any>({});
+  const [showAll, setShowAll] = useState(false);
 
   // =========================
   // LOAD DATA
@@ -67,8 +68,8 @@ export default function VanPowerPage() {
       .update({ [field]: value })
       .eq("id", id);
 
-    await loadDevices();
-    await loadData();
+    loadDevices();
+    loadData();
   }
 
   async function updateProfile(field: string, value: any) {
@@ -77,25 +78,48 @@ export default function VanPowerPage() {
       .update({ [field]: value })
       .eq("id", 1);
 
-    await loadProfile();
-    await loadData();
+    loadProfile();
+    loadData();
   }
+
+  // =========================
+  // FILTER (5 past / 5 future)
+  // =========================
+  const today = new Date();
+
+  const filteredRows = rows.filter((r) => {
+    if (showAll) return true;
+
+    const d = new Date(r.trip_date);
+    const diff =
+      (d.getTime() - today.getTime()) / (1000 * 60 * 60 * 24);
+
+    return diff >= -5 && diff <= 5;
+  });
 
   return (
     <div style={{ padding: 12, fontSize: 14 }}>
       <Link href="/">← Home</Link>
 
       <h2 style={{ marginTop: 10 }}>
-        Van Power — Spring Migration 2026
+        Van Power — {tripName}
       </h2>
+
+      {/* TOGGLE */}
+      <div style={{ marginBottom: 10 }}>
+        <button onClick={() => setShowAll(!showAll)}>
+          {showAll ? "Show 10-Day Window" : "Show Full History"}
+        </button>
+      </div>
 
       {/* =========================
           FORECAST TABLE
       ========================= */}
       <div style={{ overflowX: "auto" }}>
-        <table style={{ minWidth: 950, borderCollapse: "collapse" }}>
+        <table style={{ minWidth: 1150, borderCollapse: "collapse" }}>
           <thead>
             <tr>
+              <th>Day</th>
               <th>Date</th>
               <th>7A</th>
               <th>7P</th>
@@ -108,21 +132,21 @@ export default function VanPowerPage() {
               <th>Drv</th>
               <th>Shr</th>
               <th>Tot</th>
+              <th>Notes</th>
             </tr>
           </thead>
 
           <tbody>
-            {rows.map((r) => (
+            {filteredRows.map((r) => (
               <tr key={r.trip_date}>
+                <td>{r.trip_day}</td>
                 <td>{r.date_label}</td>
 
                 {/* 7AM */}
                 <td>
                   <input
                     style={{ width: 55, textAlign: "right" }}
-                    inputMode="numeric"
                     defaultValue={r.battery_pct_7am ?? ""}
-                    onFocus={(e) => e.target.select()}
                     onBlur={(e) =>
                       updateField(
                         r.trip_date,
@@ -139,9 +163,7 @@ export default function VanPowerPage() {
                 <td>
                   <input
                     style={{ width: 55, textAlign: "right" }}
-                    inputMode="numeric"
                     defaultValue={r.actual_7pm_pct ?? ""}
-                    onFocus={(e) => e.target.select()}
                     onBlur={(e) =>
                       updateField(
                         r.trip_date,
@@ -169,28 +191,24 @@ export default function VanPowerPage() {
                   {r.forecast_7pm_pct}
                 </td>
 
-                {/* PLAN */}
+                {/* PLAN DRIVE */}
                 <td>
                   <input
                     style={{ width: 55, textAlign: "right" }}
-                    inputMode="decimal"
                     defaultValue={
                       r.plan_drive != null
                         ? Number(r.plan_drive).toFixed(1)
                         : ""
                     }
-                    onFocus={(e) => e.target.select()}
-                    onBlur={(e) => {
-                      const val = e.target.value;
+                    onBlur={(e) =>
                       updateField(
                         r.trip_date,
                         "driving_hours",
-                        val === "" ? null : parseFloat(val)
-                      );
-                      if (val !== "") {
-                        e.target.value = parseFloat(val).toFixed(1);
-                      }
-                    }}
+                        e.target.value === ""
+                          ? null
+                          : parseFloat(e.target.value)
+                      )
+                    }
                   />
                 </td>
 
@@ -246,6 +264,21 @@ export default function VanPowerPage() {
                 <td>{r.driving_wh}</td>
                 <td>{r.shore_wh}</td>
                 <td style={{ fontWeight: 700 }}>{r.total_wh}</td>
+
+                {/* NOTES */}
+                <td>
+                  <input
+                    style={{ width: 140 }}
+                    defaultValue={r.notes || ""}
+                    onBlur={(e) =>
+                      updateField(
+                        r.trip_date,
+                        "notes",
+                        e.target.value
+                      )
+                    }
+                  />
+                </td>
               </tr>
             ))}
           </tbody>
@@ -380,9 +413,9 @@ export default function VanPowerPage() {
                   updateProfile("latitude_band", e.target.value)
                 }
               >
-                <option>Southern</option>
+                <option>South</option>
                 <option>Central</option>
-                <option>Northern</option>
+                <option>North</option>
               </select>
             </td>
           </tr>
