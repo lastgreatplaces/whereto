@@ -86,16 +86,20 @@ export default function VanPowerPage() {
   // FILTER (5 past / 5 future)
   // =========================
   const today = new Date();
+today.setHours(0, 0, 0, 0);
 
-  const filteredRows = rows.filter((r) => {
-    if (showAll) return true;
+const filteredRows = rows.filter((r) => {
+  if (showAll) return true;
 
-    const d = new Date(r.trip_date);
-    const diff =
-      (d.getTime() - today.getTime()) / (1000 * 60 * 60 * 24);
+  const d = new Date(r.trip_date);
+  d.setHours(0, 0, 0, 0);
 
-    return diff >= -5 && diff <= 5;
-  });
+  const diffDays = Math.round(
+    (d.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+  );
+
+  return diffDays >= -5 && diffDays <= 5;
+});
 
   return (
     <div style={{ padding: 12, fontSize: 14 }}>
