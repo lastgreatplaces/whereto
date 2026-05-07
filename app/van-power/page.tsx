@@ -119,175 +119,156 @@ const filteredRows = rows.filter((r) => {
       {/* =========================
           FORECAST TABLE
       ========================= */}
-      <div style={{ overflowX: "auto" }}>
-        <table style={{ minWidth: 1150, borderCollapse: "collapse" }}>
-          <thead>
-            <tr>
-              <th>Day</th>
-              <th>Date</th>
-              <th>7A</th>
-              <th>7P</th>
-              <th style={{ color: "#1565c0" }}>For</th>
-              <th>Pln</th>
-              <th>Wx</th>
-              <th>Sh</th>
-              <th>H2O</th>
-              <th>Sol</th>
-              <th>Drv</th>
-              <th>Shr</th>
-              <th>Tot</th>
-              <th>Notes</th>
-            </tr>
-          </thead>
+     <div style={{ overflowX: "auto" }}>
+<table style={{ minWidth: 1150, borderCollapse: "collapse", fontSize: 13 }}>
+<thead>
+<tr>
+<th style={{ width: 80 }}>Date</th>
+<th style={{ width: 50 }}>7A</th>
+<th style={{ width: 50 }}>7P</th>
+<th style={{ width: 55, color:"#1565c0" }}>For</th>
+<th style={{ width: 55 }}>Pln</th>
+<th style={{ width: 110 }}>Wx</th>
+<th style={{ width: 40 }}>Sh</th>
+<th style={{ width: 45 }}>H2O</th>
+<th style={{ width: 55 }}>Sol</th>
+<th style={{ width: 55 }}>Drv</th>
+<th style={{ width: 55 }}>Shr</th>
+<th style={{ width: 60 }}>Tot</th>
+<th style={{ width: 40 }}>Day</th>
+<th style={{ minWidth: 220 }}>Notes</th>
+</tr>
+</thead>
 
-          <tbody>
-            {filteredRows.map((r) => (
-              <tr key={r.trip_date}>
-                <td>{r.trip_day}</td>
-                <td>{r.date_label}</td>
+<tbody>
+{filteredRows.map((r)=>(
+<tr key={r.trip_date}>
 
-                {/* 7AM */}
-                <td>
-                  <input
-                    style={{ width: 55, textAlign: "right" }}
-                    defaultValue={r.battery_pct_7am ?? ""}
-                    onBlur={(e) =>
-                      updateField(
-                        r.trip_date,
-                        "battery_pct_7am",
-                        e.target.value === ""
-                          ? null
-                          : parseInt(e.target.value)
-                      )
-                    }
-                  />
-                </td>
+<td>{r.date_label}</td>
 
-                {/* 7PM */}
-                <td>
-                  <input
-                    style={{ width: 55, textAlign: "right" }}
-                    defaultValue={r.actual_7pm_pct ?? ""}
-                    onBlur={(e) =>
-                      updateField(
-                        r.trip_date,
-                        "battery_pct_7pm",
-                        e.target.value === ""
-                          ? null
-                          : parseInt(e.target.value)
-                      )
-                    }
-                  />
-                </td>
+{/* 7AM */}
+<td>
+<input
+style={{ width:45, textAlign:"right" }}
+defaultValue={r.battery_pct_7am ?? ""}
+onBlur={(e)=>updateField(
+r.trip_date,
+"battery_pct_7am",
+e.target.value === "" ? null : parseInt(e.target.value)
+)}
+/>
+</td>
 
-                {/* FORECAST */}
-                <td
-                  style={{
-                    fontWeight: 700,
-                    color:
-                      r.forecast_7pm_pct < 20
-                        ? "red"
-                        : r.forecast_7pm_pct < 40
-                        ? "orange"
-                        : "#1565c0",
-                  }}
-                >
-                  {r.forecast_7pm_pct}
-                </td>
+{/* 7PM */}
+<td>
+<input
+style={{ width:45, textAlign:"right" }}
+defaultValue={r.actual_7pm_pct ?? ""}
+onBlur={(e)=>updateField(
+r.trip_date,
+"battery_pct_7pm",
+e.target.value === "" ? null : parseInt(e.target.value)
+)}
+/>
+</td>
 
-                {/* PLAN DRIVE */}
-                <td>
-                  <input
-                    style={{ width: 55, textAlign: "right" }}
-                    defaultValue={
-                      r.plan_drive != null
-                        ? Number(r.plan_drive).toFixed(1)
-                        : ""
-                    }
-                    onBlur={(e) =>
-                      updateField(
-                        r.trip_date,
-                        "driving_hours",
-                        e.target.value === ""
-                          ? null
-                          : parseFloat(e.target.value)
-                      )
-                    }
-                  />
-                </td>
+{/* Forecast */}
+<td style={{
+fontWeight:700,
+textAlign:"right",
+color:
+r.forecast_7pm_pct < 20 ? "red" :
+r.forecast_7pm_pct < 40 ? "orange" :
+"#1565c0"
+}}>
+{r.forecast_7pm_pct}
+</td>
 
-                {/* WEATHER */}
-                <td>
-                  <select
-                    value={r.plan_condition || ""}
-                    onChange={(e) =>
-                      updateField(
-                        r.trip_date,
-                        "condition_text",
-                        e.target.value
-                      )
-                    }
-                  >
-                    <option>Sunny</option>
-                    <option>Partly Sunny</option>
-                    <option>Cloudy</option>
-                  </select>
-                </td>
+{/* Plan */}
+<td>
+<input
+style={{ width:50, textAlign:"right" }}
+defaultValue={
+r.plan_drive != null
+? Number(r.plan_drive).toFixed(1)
+: ""
+}
+onBlur={(e)=>updateField(
+r.trip_date,
+"driving_hours",
+e.target.value === "" ? null : parseFloat(e.target.value)
+)}
+/>
+</td>
 
-                {/* SHORE */}
-                <td>
-                  <input
-                    type="checkbox"
-                    checked={r.plan_shore || false}
-                    onChange={(e) =>
-                      updateField(
-                        r.trip_date,
-                        "night_shore_power",
-                        e.target.checked
-                      )
-                    }
-                  />
-                </td>
+{/* Weather */}
+<td>
+<select
+value={r.plan_condition || ""}
+onChange={(e)=>updateField(
+r.trip_date,
+"condition_text",
+e.target.value
+)}
+>
+<option>Sunny</option>
+<option>Partly Sunny</option>
+<option>Cloudy</option>
+</select>
+</td>
 
-                {/* HOT WATER */}
-                <td>
-                  <input
-                    type="checkbox"
-                    checked={r.plan_h2o || false}
-                    onChange={(e) =>
-                      updateField(
-                        r.trip_date,
-                        "day_hot_water",
-                        e.target.checked
-                      )
-                    }
-                  />
-                </td>
+{/* Shore */}
+<td style={{ textAlign:"center" }}>
+<input
+type="checkbox"
+checked={r.plan_shore || false}
+onChange={(e)=>updateField(
+r.trip_date,
+"night_shore_power",
+e.target.checked
+)}
+/>
+</td>
 
-                <td>{r.solar_wh}</td>
-                <td>{r.driving_wh}</td>
-                <td>{r.shore_wh}</td>
-                <td style={{ fontWeight: 700 }}>{r.total_wh}</td>
+{/* H2O */}
+<td style={{ textAlign:"center" }}>
+<input
+type="checkbox"
+checked={r.plan_h2o || false}
+onChange={(e)=>updateField(
+r.trip_date,
+"day_hot_water",
+e.target.checked
+)}
+/>
+</td>
 
-                {/* NOTES */}
-                <td>
-                  <input
-                    style={{ width: 140 }}
-                    defaultValue={r.notes || ""}
-                    onBlur={(e) =>
-                      updateField(
-                        r.trip_date,
-                        "notes",
-                        e.target.value
-                      )
-                    }
-                  />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+<td style={{ textAlign:"right" }}>{r.solar_wh}</td>
+<td style={{ textAlign:"right" }}>{r.driving_wh}</td>
+<td style={{ textAlign:"right" }}>{r.shore_wh}</td>
+<td style={{ textAlign:"right", fontWeight:700 }}>{r.total_wh}</td>
+
+{/* Day (moved here) */}
+<td style={{ textAlign:"center" }}>{r.trip_day}</td>
+
+{/* Notes (wider) */}
+<td>
+<input
+style={{ width:"100%", minWidth:220 }}
+defaultValue={r.notes || ""}
+onBlur={(e)=>updateField(
+r.trip_date,
+"notes",
+e.target.value
+)}
+/>
+</td>
+
+</tr>
+))}
+</tbody>
+</table>
+</div>
 
       {/* =========================
           POWER DEVICES
