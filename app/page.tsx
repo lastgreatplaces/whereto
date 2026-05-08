@@ -1907,6 +1907,25 @@ if (heartBtn) {
           {isRouteMode ? "Route ✓" : "Build Route"}
         </button>
 
+<a
+  href="/add-place"
+  style={{
+    background: "white",
+    border: "1px solid #ccc",
+    borderRadius: 8,
+    padding: "8px 10px",
+    textDecoration: "none",
+    color: "#333",
+    fontWeight: 700,
+    fontSize: 13,
+    textAlign: "center",
+    boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
+  }}
+>
+  Add Place
+</a>
+
+
         <a
           href="/lastgreatplaces"
           style={{
