@@ -118,7 +118,7 @@ function formatAcres(acres: number | null) {
 
 export default function Home() {
 const [states, setStates] = useState<string[]>([]);
-const [stateFilterMode, setStateFilterMode] = useState<"national" | "filtered">("national");
+const [stateFilterMode, setStateFilterMode] = useState<"national" | "filtered">("filtered");
 const [placeTypes, setPlaceTypes] = useState<PlaceType[]>([]);
 const [selectedCampSubtypes, setSelectedCampSubtypes] = useState<string[]>(UI_CAMP_SUBTYPES);
 const [selectedHighwaySubtypes, setSelectedHighwaySubtypes] = useState<string[]>(UI_HIGHWAY_SUBTYPES);
@@ -2060,7 +2060,19 @@ if (heartBtn) {
     transition: "width 0.2s ease, padding 0.2s ease"
   }}
 >
-  <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: isFilterOpen ? 16 : 0 }}>
+  <div
+  style={{
+    display: "flex",
+    alignItems: "center",
+    gap: 12,
+    marginBottom: isFilterOpen ? 16 : 0,
+
+    position: "sticky",
+    top: 0,
+    background: "white",
+    zIndex: 2000
+  }}
+>
     {isFilterOpen ? (
       <>
         <button
