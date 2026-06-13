@@ -145,6 +145,7 @@ const [isLandscapeSectionOpen, setIsLandscapeSectionOpen] = useState(false);
 const [openGroups, setOpenGroups] = useState<string[]>([]);
 const [isCampSubmenuOpen, setIsCampSubmenuOpen] = useState(false);
 const [isHighwaySubmenuOpen, setIsHighwaySubmenuOpen] = useState(false);
+const [isToolsMenuOpen, setIsToolsMenuOpen] = useState(false);
 
 const [searchQuery, setSearchQuery] = useState("");
 const [loadedPlaces, setLoadedPlaces] = useState<any[]>([]);
@@ -1853,118 +1854,6 @@ if (heartBtn) {
         style={{ position: "absolute", inset: 0 }}
       />
 
-      <div
-        style={{
-          position: "absolute",
-          right: 12,
-          top: 78,
-          zIndex: 20,
-          display: "flex",
-          flexDirection: "column",
-          gap: 6,
-          width: 118
-        }}
-      >
-        <a
-          href="/climate-sql"
-          style={{
-            background: "white",
-            border: "1px solid #ccc",
-            borderRadius: 8,
-            padding: "8px 10px",
-            textDecoration: "none",
-            color: "#333",
-            fontWeight: 700,
-            fontSize: 13,
-            textAlign: "center",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
-          }}
-        >
-          Climate Map
-        </a>
-
-        <button
-          onClick={() => {
-            setIsRouteMode((prev) => !prev);
-            setRouteMessage(!isRouteMode ? "Route mode on" : "Route mode off");
-            if (infoWindowRef.current) {
-              infoWindowRef.current.close();
-              isPopupOpenRef.current = false;
-            }
-          }}
-          style={{
-            background: isRouteMode ? "#188038" : "white",
-            border: "1px solid #ccc",
-            borderRadius: 8,
-            padding: "8px 10px",
-            color: isRouteMode ? "white" : "#333",
-            fontWeight: 700,
-            fontSize: 13,
-            boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-            cursor: "pointer"
-          }}
-        >
-          {isRouteMode ? "Route ✓" : "Build Route"}
-        </button>
-
-<a
-  href="/add-place"
-  style={{
-    background: "white",
-    border: "1px solid #ccc",
-    borderRadius: 8,
-    padding: "8px 10px",
-    textDecoration: "none",
-    color: "#333",
-    fontWeight: 700,
-    fontSize: 13,
-    textAlign: "center",
-    boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
-  }}
->
-  Add Place
-</a>
-
-
-        <a
-          href="/lastgreatplaces"
-          style={{
-            background: "white",
-            border: "1px solid #ccc",
-            borderRadius: 8,
-            padding: "8px 10px",
-            textDecoration: "none",
-            color: "#333",
-            fontWeight: 700,
-            fontSize: 13,
-            textAlign: "center",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
-          }}
-        >
-          Last Great Places
-        </a>
-      <a
-          href="/van-power"
-          style={{
-            background: "white",
-            border: "1px solid #ccc",
-            borderRadius: 8,
-            padding: "8px 10px",
-            textDecoration: "none",
-            color: "#333",
-            fontWeight: 700,
-            fontSize: 13,
-            textAlign: "center",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
-          }}
-        >
-          Van Power
-        </a>
-
-
-
-      </div>
-
       {routeMessage && (
         <div
           style={{
@@ -2086,7 +1975,7 @@ if (heartBtn) {
     position: "absolute",
     left: 16,
     top: 16,
-    zIndex: 10,
+    zIndex: 20,
     width: isFilterOpen ? 410 : 56,
     maxWidth: "calc(100vw - 32px)",
     maxHeight: "calc(100vh - 32px)",
@@ -2105,7 +1994,6 @@ if (heartBtn) {
     alignItems: "center",
     gap: 12,
     marginBottom: isFilterOpen ? 16 : 0,
-
     position: "sticky",
     top: 0,
     background: "white",
@@ -2115,7 +2003,10 @@ if (heartBtn) {
     {isFilterOpen ? (
       <>
         <button
-          onClick={() => setIsFilterOpen(false)}
+          onClick={() => {
+            setIsFilterOpen(false);
+            setIsToolsMenuOpen(false);
+          }}
           style={{
             width: 40,
             height: 40,
@@ -2130,7 +2021,122 @@ if (heartBtn) {
         >
           ×
         </button>
-        <div style={{ fontSize: 22, fontWeight: 700 }}>Home/Filters</div>
+        <div style={{ fontSize: 22, fontWeight: 700, flex: 1 }}>Home</div>
+        <div style={{ position: "relative" }}>
+          <button
+            onClick={() => setIsToolsMenuOpen((v) => !v)}
+            style={{
+              width: 40,
+              height: 40,
+              borderRadius: 8,
+              border: "1px solid #d9d9d9",
+              background: "#f6f6f6",
+              cursor: "pointer",
+              fontSize: 22,
+              lineHeight: 1
+            }}
+            title="Open tools menu"
+          >
+            ⋯
+          </button>
+          {isToolsMenuOpen && (
+            <div
+              style={{
+                position: "absolute",
+                top: 46,
+                right: 0,
+                width: 170,
+                background: "white",
+                border: "1px solid #d9d9d9",
+                borderRadius: 10,
+                boxShadow: "0 6px 20px rgba(0,0,0,0.12)",
+                overflow: "hidden",
+                zIndex: 2100
+              }}
+            >
+              <a
+                href="/van-power"
+                style={{
+                  display: "block",
+                  padding: "10px 12px",
+                  textDecoration: "none",
+                  color: "#333",
+                  fontWeight: 700,
+                  fontSize: 14,
+                  borderBottom: "1px solid #eee"
+                }}
+              >
+                Van Power
+              </a>
+              <a
+                href="/climate-sql"
+                style={{
+                  display: "block",
+                  padding: "10px 12px",
+                  textDecoration: "none",
+                  color: "#333",
+                  fontWeight: 700,
+                  fontSize: 14,
+                  borderBottom: "1px solid #eee"
+                }}
+              >
+                Climate Map
+              </a>
+              <button
+                onClick={() => {
+                  setIsRouteMode((prev) => !prev);
+                  setRouteMessage(!isRouteMode ? "Route mode on" : "Route mode off");
+                  setIsToolsMenuOpen(false);
+                  if (infoWindowRef.current) {
+                    infoWindowRef.current.close();
+                    isPopupOpenRef.current = false;
+                  }
+                }}
+                style={{
+                  width: "100%",
+                  background: "white",
+                  border: "none",
+                  borderBottom: "1px solid #eee",
+                  padding: "10px 12px",
+                  color: "#333",
+                  fontWeight: 700,
+                  fontSize: 14,
+                  textAlign: "left",
+                  cursor: "pointer"
+                }}
+              >
+                {isRouteMode ? "Build Route ✓" : "Build Route"}
+              </button>
+              <a
+                href="/add-place"
+                style={{
+                  display: "block",
+                  padding: "10px 12px",
+                  textDecoration: "none",
+                  color: "#333",
+                  fontWeight: 700,
+                  fontSize: 14,
+                  borderBottom: "1px solid #eee"
+                }}
+              >
+                Add Place
+              </a>
+              <a
+                href="/lastgreatplaces"
+                style={{
+                  display: "block",
+                  padding: "10px 12px",
+                  textDecoration: "none",
+                  color: "#333",
+                  fontWeight: 700,
+                  fontSize: 14
+                }}
+              >
+                Last Great Places
+              </a>
+            </div>
+          )}
+        </div>
       </>
     ) : (
       <button
@@ -2154,98 +2160,7 @@ if (heartBtn) {
 
   {isFilterOpen && (
     <>
-      <input
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-        placeholder="Search..."
-        style={{
-          width: "100%",
-          boxSizing: "border-box",
-          padding: "10px 12px",
-          fontSize: 15,
-          borderRadius: 10,
-          border: "1px solid #d9d9d9",
-          marginBottom: 8
-        }}
-      />
 
-      {(placeResults.length > 0 || highwayResults.length > 0 || landscapeResults.length > 0) && (
-        <div
-          style={{
-            marginBottom: 14,
-            border: "1px solid #eee",
-            borderRadius: 10,
-            padding: 10,
-            background: "#fafafa"
-          }}
-        >
-          {placeResults.map((p) => (
-            <button
-              key={`p-search-${p.id}`}
-              onClick={() => {
-                setSearchQuery("");
-                triggerPlacePopup(p);
-              }}
-              style={{
-                width: "100%",
-                textAlign: "left",
-                background: "#fff",
-                border: "1px solid #e6e6e6",
-                borderRadius: 6,
-                padding: "7px 8px",
-                marginBottom: 6,
-                cursor: "pointer"
-              }}
-            >
-              <div style={{ fontSize: 12, fontWeight: 700, color: "#222" }}>{p.name}</div>
-              <div style={{ fontSize: 11, color: "#666" }}>{p.state || "—"} · {p.place_type || "place"}</div>
-            </button>
-          ))}
-
-          {highwayResults.map((h) => (
-            <button
-              key={`h-search-${h.byway_id}`}
-              onClick={() => setSearchQuery("")}
-              style={{
-                width: "100%",
-                textAlign: "left",
-                background: "#fff",
-                border: "1px solid #e6e6e6",
-                borderRadius: 6,
-                padding: "7px 8px",
-                marginBottom: 6,
-                cursor: "pointer"
-              }}
-            >
-              <div style={{ fontSize: 12, fontWeight: 700, color: "#222" }}>{h.name}</div>
-              <div style={{ fontSize: 11, color: "#666" }}>{h.designats || h.subtype || "Byway"}</div>
-            </button>
-          ))}
-
-          {landscapeResults.map((l) => (
-            <button
-              key={`l-search-${l.place_id}`}
-              onClick={() => {
-                setSearchQuery("");
-                triggerLandscapePopup(l);
-              }}
-              style={{
-                width: "100%",
-                textAlign: "left",
-                background: "#fff",
-                border: "1px solid #e6e6e6",
-                borderRadius: 6,
-                padding: "7px 8px",
-                marginBottom: 6,
-                cursor: "pointer"
-              }}
-            >
-              <div style={{ fontSize: 12, fontWeight: 700, color: "#222" }}>{l.name}</div>
-              <div style={{ fontSize: 11, color: "#666" }}>{l.states || "—"} · Landscape</div>
-            </button>
-          ))}
-        </div>
-      )}
 
       <div style={{ fontSize: 14, fontWeight: 700, color: "#555", marginBottom: 10 }}>
         Categories
@@ -2569,6 +2484,104 @@ if (heartBtn) {
       })}
     </div>
   )}
+
+      <div style={{ marginTop: 14, marginBottom: 16, borderTop: "1px solid #eee", paddingTop: 12 }}>
+        <div style={{ fontSize: 14, fontWeight: 700, color: "#555", marginBottom: 10 }}>
+          Search
+        </div>
+      <input
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        placeholder="Search..."
+        style={{
+          width: "100%",
+          boxSizing: "border-box",
+          padding: "10px 12px",
+          fontSize: 15,
+          borderRadius: 10,
+          border: "1px solid #d9d9d9",
+          marginBottom: 8
+        }}
+      />
+
+      {(placeResults.length > 0 || highwayResults.length > 0 || landscapeResults.length > 0) && (
+        <div
+          style={{
+            marginBottom: 14,
+            border: "1px solid #eee",
+            borderRadius: 10,
+            padding: 10,
+            background: "#fafafa"
+          }}
+        >
+          {placeResults.map((p) => (
+            <button
+              key={`p-search-${p.id}`}
+              onClick={() => {
+                setSearchQuery("");
+                triggerPlacePopup(p);
+              }}
+              style={{
+                width: "100%",
+                textAlign: "left",
+                background: "#fff",
+                border: "1px solid #e6e6e6",
+                borderRadius: 6,
+                padding: "7px 8px",
+                marginBottom: 6,
+                cursor: "pointer"
+              }}
+            >
+              <div style={{ fontSize: 12, fontWeight: 700, color: "#222" }}>{p.name}</div>
+              <div style={{ fontSize: 11, color: "#666" }}>{p.state || "—"} · {p.place_type || "place"}</div>
+            </button>
+          ))}
+
+          {highwayResults.map((h) => (
+            <button
+              key={`h-search-${h.byway_id}`}
+              onClick={() => setSearchQuery("")}
+              style={{
+                width: "100%",
+                textAlign: "left",
+                background: "#fff",
+                border: "1px solid #e6e6e6",
+                borderRadius: 6,
+                padding: "7px 8px",
+                marginBottom: 6,
+                cursor: "pointer"
+              }}
+            >
+              <div style={{ fontSize: 12, fontWeight: 700, color: "#222" }}>{h.name}</div>
+              <div style={{ fontSize: 11, color: "#666" }}>{h.designats || h.subtype || "Byway"}</div>
+            </button>
+          ))}
+
+          {landscapeResults.map((l) => (
+            <button
+              key={`l-search-${l.place_id}`}
+              onClick={() => {
+                setSearchQuery("");
+                triggerLandscapePopup(l);
+              }}
+              style={{
+                width: "100%",
+                textAlign: "left",
+                background: "#fff",
+                border: "1px solid #e6e6e6",
+                borderRadius: 6,
+                padding: "7px 8px",
+                marginBottom: 6,
+                cursor: "pointer"
+              }}
+            >
+              <div style={{ fontSize: 12, fontWeight: 700, color: "#222" }}>{l.name}</div>
+              <div style={{ fontSize: 11, color: "#666" }}>{l.states || "—"} · Landscape</div>
+            </button>
+          ))}
+        </div>
+      )}
+      </div>
 
 
       <div style={{ marginTop: 14, marginBottom: 16, borderTop: "1px solid #eee", paddingTop: 12 }}>
