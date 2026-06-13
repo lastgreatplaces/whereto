@@ -2086,7 +2086,7 @@ if (heartBtn) {
     position: "absolute",
     left: 16,
     top: 16,
-    zIndex: 20,
+    zIndex: 10,
     width: isFilterOpen ? 410 : 56,
     maxWidth: "calc(100vw - 32px)",
     maxHeight: "calc(100vh - 32px)",
@@ -2130,7 +2130,7 @@ if (heartBtn) {
         >
           ×
         </button>
-        <div style={{ fontSize: 22, fontWeight: 700 }}>Filters</div>
+        <div style={{ fontSize: 22, fontWeight: 700 }}>Home/Filters</div>
       </>
     ) : (
       <button
