@@ -1,0 +1,257 @@
+site_id,site_name,state,footprint,winter,winter_rating,spring,spring_rating,summer,summer_rating,fall,fall_rating
+412,Hart-Miller Island IBA,MD,0.232,42,Exceptional,54,Exceptional,50,Exceptional,57,Exceptional
+1668,Hennepin and Hopper Lake,IL,0.235,26,Good,44,Exceptional,39,Exceptional,40,Exceptional
+1109,Bear Island Wildlife Management Area,SC,0.034,32,Very Good,47,Exceptional,38,Exceptional,30,Good
+2554,Otter Slough Conservation Area-03,MO,0.275,31,Very Good,42,Exceptional,35,Exceptional,36,Exceptional
+1120,Santee Coastal Reserve,SC,0.037,36,Exceptional,40,Exceptional,31,Very Good,35,Very Good
+2343,Fish Springs National Wildlife Refuge UT16,UT,0.029,30,Good,39,Exceptional,37,Exceptional,36,Exceptional
+920,Donnelly Wildlife Management Area,SC,0.078,35,Exceptional,39,Exceptional,33,Very Good,30,Good
+84,Orlando Wetlands Park,FL,0.330,39,Exceptional,34,Very Good,28,Good,34,Very Good
+3565,Eufaula National Wildlife Refuge,AL,0.213,32,Very Good,34,Very Good,32,Very Good,31,Very Good
+2874,Tennessee National Wildlife Refuge,TN,0.200,30,Good,36,Exceptional,31,Very Good,29,Good
+1121,Santee National Wildlife Refuge,SC,0.283,32,Very Good,34,Very Good,28,Good,33,Very Good
+1112,Cape Romain National Wildlife Refuge,SC,0.035,34,Very Good,34,Very Good,29,Good,29,Good
+1775,St. Catherine Creek National Wildlife Refuge,MS,0.237,29,Good,28,Good,35,Exceptional,31,Very Good
+1989,Wapanocca National Wildlife Refuge,AR,0.295,32,Very Good,33,Very Good,22,Low,32,Very Good
+2298,Sonoita Creek SNA/Patagonia Lake IBA,AZ,0.225,29,Good,33,Very Good,29,Good,25,Low
+1509,Green Island Wildlife Area,IA,0.194,14,Low,37,Exceptional,39,Exceptional,26,Good
+3477,Whitewater Draw State Wildlife Area IBA,AZ,0.081,25,Good,26,Good,21,Low,33,Very Good
+315,Pee Dee National Wildlife Refuge,NC,0.240,25,Fair,31,Very Good,26,Good,23,Low
+2926,Dawson Forest,GA,0.282,16,Low,30,Good,26,Good,31,Very Good
+2294,Willcox Playa/Cochise Lakes IBA,AZ,0.189,19,Low,29,Good,26,Good,28,Good
+1984,Holla Bend National Wildlife Refuge,AR,0.216,30,Very Good,26,Good,23,Low,22,Low
+2930,Bowdoin National Wildlife Refuge,MT,0.082,,N/A,38,Exceptional,37,Exceptional,23,Low
+2289,Atascosa Highlands IBA,AZ,0.074,22,Fair,26,Good,26,Good,24,Low
+2695,South Park Wildlife Habitat Management Area,WY,0.322,,N/A,40,Exceptional,36,Exceptional,20,Low
+901,San Pedro Riparian National Conservation Area IBA,AZ,0.125,21,Fair,26,Good,24,Low,23,Low
+566,"Bitter Lake 
+National Wildlife Refuge",NM,0.084,19,Low,28,Good,24,Low,23,Low
+299,Calispell Lake,WA,0.205,,N/A,41,Exceptional,52,Exceptional,0,N/A
+686,"Rattlesnake Springs/ 
+Washington Ranch",NM,0.156,19,Low,26,Good,24,Low,24,Low
+4298,Slate Creek Wildlife Area,KS,0.181,0,N/A,35,Exceptional,31,Very Good,26,Good
+2630,Quivira National Wildlife Refuge,KS,0.131,13,Low,26,Good,29,Good,23,Low
+2953,Pablo National Wildlife Refuge,MT,0.311,9,Low,20,Low,29,Good,29,Good
+3262,Oconee National Forest,GA,0.163,20,Low,24,Low,24,Low,19,Low
+2622,Cheyenne Bottoms Preserve and Wildlife Area,KS,0.192,13,Low,26,Good,25,Good,21,Low
+3291,Jackson Lake State Park,CO,0.224,13,Low,21,Low,24,Low,27,Good
+567,"Bosque del Apache 
+National Wildlife Refuge",NM,0.045,19,Low,27,Good,20,Low,18,Low
+2632,Salt Plains National Wildlife Refuge,OK,0.184,19,Low,24,Low,21,Low,20,Low
+599,Maxwell National Wildlife Refuge,NM,0.095,15,Low,22,Low,21,Low,23,Low
+80,Lake Woodruff National Wildlife Refuge,FL,0.200,34,Very Good,31,Very Good,24,Low,31,Very Good
+2542,Squaw Creek National Wildlife Refuge-23,MO,0.205,19,Low,42,Exceptional,30,Good,25,Good
+19,St. Marks National Wildlife Refuge,FL,0.122,30,Good,29,Good,25,Good,30,Good
+357,Walla Walla River Delta,WA,0.234,18,Low,34,Very Good,33,Very Good,28,Good
+2066,Willow Slough Fish and Wildlife Area,IN,0.264,14,Low,33,Very Good,33,Very Good,32,Very Good
+10000,Fort Fisher State Recreation Area,NC,0.171,34,Very Good,22,Low,19,Low,34,Very Good
+922,Pinckney Island National Wildlife Refuge,SC,0.299,28,Good,30,Good,24,Low,27,Good
+4258,Marais des Cygnes Wildlife Area & National Wildlife Refuge,KS,0.217,21,Fair,32,Very Good,29,Good,23,Low
+2878,Mississippi Alluvial Valley,TN,0.296,21,Fair,31,Very Good,28,Good,26,Good
+2968,Eufaula National Wildlife Refuge - Bradley Unit,GA,0.212,28,Good,30,Good,21,Low,24,Low
+2639,Two Rivers NWR (Calhoun Division) / Mississippi River SFWA,IL,0.161,21,Fair,25,Low,33,Very Good,24,Low
+2575,Osage River Bottoms-36,MO,0.224,24,Fair,31,Very Good,28,Good,18,Low
+1693,Meredosia Lake,IL,0.239,18,Low,33,Very Good,28,Good,21,Low
+2823,Catahoula-Dewey Wills-Three Rivers,LA,0.244,27,Good,22,Low,27,Good,24,Low
+1772,Pearl River Wildlife Refuge and Management Area,MS,0.181,24,Fair,31,Very Good,24,Low,21,Low
+393,Upper Neuse River Bottomlands,NC,0.321,22,Fair,36,Exceptional,22,Low,20,Low
+928,Webb Wildlife Management Area,SC,0.054,21,Fair,30,Good,28,Good,18,Low
+2520,Lincoln Alluvial Complex-32,MO,0.185,17,Low,31,Very Good,27,Good,22,Low
+2536,Summer Lake WMA,OR,0.064,13,Low,30,Good,31,Very Good,23,Low
+1776,Coldwater River National Wildlife Refuge,MS,0.121,21,Fair,29,Good,23,Low,23,Low
+2553,Mingo Basin-01,MO,0.200,22,Fair,28,Good,24,Low,20,Low
+1673,Chautauqua National Wildlife Refuge,IL,0.196,13,Low,26,Good,31,Very Good,24,Low
+3095,Harris Neck National Wildlife Refuge,GA,0.117,24,Fair,25,Good,22,Low,22,Low
+2147,Cane Ridge Wildlife Management Area and Gibson Lake,IN,0.325,20,Low,26,Good,24,Low,23,Low
+1235,Boyce Thompson Arboretum/Arnett-Queen Creeks IBA,AZ,0.178,20,Low,26,Good,24,Low,23,Low
+2522,Lower Grand River Wetlands-08,MO,0.295,15,Low,31,Very Good,25,Low,20,Low
+3007,Active Delta (Mississippi River Birdsfoot Delta),LA,0.064,27,Good,24,Low,17,Low,23,Low
+2833,Hatchie National Wildlife Refuge,TN,0.203,21,Fair,29,Good,22,Low,19,Low
+1965,Bear River Bay UT02,UT,0.227,16,Low,29,Good,26,Good,21,Low
+1118,Tom Yawkey Wildlife Center,SC,0.022,35,Very Good,27,Good,,N/A,29,Good
+3260,Chenier Plain,LA,0.160,23,Fair,24,Low,21,Low,23,Low
+2555,Southeast Missouri Bottomlands-40,MO,0.320,21,Fair,25,Good,21,Low,22,Low
+1241,Patagonia Sonoita Creek TNC Preserve IBA,AZ,0.293,20,Low,25,Low,23,Low,22,Low
+2981,Lake Mattamuskeet - Swan Quarter,NC,0.178,24,Fair,24,Low,19,Low,21,Low
+3513,Wehle-Barbour,AL,0.099,20,Low,26,Good,24,Low,18,Low
+925,Silver Bluff Audubon Center and Sanctuary,SC,0.288,19,Low,25,Low,22,Low,22,Low
+1236,Lower Oak Creek IBA,AZ,0.184,22,Fair,24,Low,22,Low,20,Low
+2568,Upper Klamath Lake NWR,OR,0.147,16,Low,25,Good,23,Low,23,Low
+898,Arivaca Cienaga/Arivaca Creek IBA,AZ,0.146,17,Low,23,Low,24,Low,23,Low
+2288,Salt-Verde Ecosystem IBA,AZ,0.150,21,Fair,25,Low,20,Low,22,Low
+2614,Cape Hills-02,MO,0.315,16,Low,23,Low,27,Good,20,Low
+973,Lahontan Valley Wetlands,NV,0.103,18,Low,25,Low,22,Low,21,Low
+3076,Beanblossom Bottoms,IN,0.302,16,Low,24,Low,25,Low,19,Low
+2502,Mount Pisgah (Howard Buford Recreation Area),OR,0.329,18,Low,25,Low,21,Low,19,Low
+2506,New River,OR,0.204,18,Low,25,Low,18,Low,22,Low
+408,Eastern Neck NWR IBA,MD,0.301,21,Fair,22,Low,21,Low,28,Good
+93,Upper St. Johns River Basin,FL,0.212,26,Good,22,Low,19,Low,22,Low
+3273,Barataria Terrebonne,LA,0.193,24,Fair,22,Low,20,Low,23,Low
+2047,Pine Creek/Robert Feldt Marsh,IN,0.328,10,Low,27,Good,29,Good,21,Low
+2451,Strawberry Plains Audubon Center,MS,0.283,21,Fair,23,Low,21,Low,20,Low
+402,Pea Island National Wildlife Refuge,NC,0.126,20,Low,20,Low,23,Low,22,Low
+101,Babcock-Webb Ecosystem,FL,0.233,26,Good,25,Low,16,Low,18,Low
+597,Mud Lake Wildlife Management Area,ID,0.154,0,N/A,32,Very Good,29,Good,23,Low
+917,ACE Basin National Wildlife Refuge--Edisto Unit,SC,0.031,31,Very Good,27,Good,0,N/A,26,Good
+57,Cape Canaveral-Merritt Island,FL,0.302,25,Fair,21,Low,18,Low,21,Low
+1731,Pascagoula River and Ward Bayou Wildlife Management Areas,MS,0.184,23,Fair,23,Low,19,Low,18,Low
+590,Market Lake Wildlife Management Area,ID,0.229,9,Low,28,Good,29,Good,18,Low
+2717,Back Bay,VA,0.223,18,Low,23,Low,21,Low,22,Low
+916,Congaree  National Park,SC,0.078,21,Fair,23,Low,20,Low,19,Low
+3015,Atchafalaya Basin,LA,0.263,18,Low,22,Low,24,Low,18,Low
+2681,Long Lake National Wildlife Refuge,ND,0.118,,N/A,30,Very Good,29,Good,22,Low
+3848,Harrison Reservoir,MT,0.114,,N/A,23,Low,32,Very Good,24,Low
+2942,Canyon Ferry Wildlife Management Area,MT,0.256,,N/A,26,Good,30,Good,22,Low
+2128,Crescent Lake National Wildlife Refuge,NE,0.098,,N/A,27,Good,29,Good,21,Low
+495,Great Plains Reservoir System,CO,0.073,12,Low,20,Low,21,Low,21,Low
+471,Walden Reservoir,CO,0.249,,N/A,28,Good,25,Low,20,Low
+3776,Wigwam Bay marshes (inc. Rifle River mouth),MI,0.177,,N/A,29,Good,31,Very Good,0,N/A
+3575,Sturgeon River Sloughs Wildlife Area,MI,0.076,,N/A,23,Low,23,Low,11,Low
+3686,Spread Eagle Barrens,WI,0.314,0,N/A,18,Low,21,Low,9,Low
+4998,Lacreek National Wildlife Refuge,SD,0.120,,N/A,23,Low,22,Low,0,N/A
+1990,Camp Robinson Special Use Area,AR,0.305,14,Low,24,Low,23,Low,19,Low
+3066,Harrison-Crawford Forest Complex,IN,0.288,0,N/A,29,Good,30,Good,22,Low
+2543,Potato Creek State Park,IN,0.319,12,Low,27,Good,22,Low,20,Low
+2545,Yellowwood State Forest,IN,0.254,19,Low,24,Low,17,Low,19,Low
+2327,Lynnville-Squaw Creek Mine Complex,IN,0.271,13,Low,21,Low,26,Good,19,Low
+3450,Bankhead National Forest,AL,0.239,18,Low,22,Low,21,Low,18,Low
+2896,Charlie Elliot Management Area,GA,0.268,20,Low,24,Low,17,Low,17,Low
+3108,Piedmont National Wildlife Refuge,GA,0.093,16,Low,25,Low,20,Low,16,Low
+2929,Benton Lake National Wildlife Refuge,MT,0.175,3,Low,25,Low,31,Very Good,17,Low
+1239,Cave Creek Ecosystem IBA,AZ,0.303,16,Low,21,Low,21,Low,17,Low
+3220,Sherburne NWR IBA,MN,0.301,6,Low,21,Low,30,Good,16,Low
+2682,Lostwood National Wildlife Refuge,ND,0.157,,N/A,32,Very Good,39,Exceptional,,N/A
+1855,Croft State Natural Area,SC,0.315,15,Low,24,Low,18,Low,14,Low
+2367,Ouray National Wildlife Refuge UT13,UT,0.177,8,Low,21,Low,24,Low,17,Low
+476,Highline State Park,CO,0.257,15,Low,25,Low,14,Low,17,Low
+2067,Fort Chaffee,AR,0.286,14,Low,22,Low,17,Low,17,Low
+587,Kootenai National Wildlife Refuge,ID,0.218,9,Low,22,Low,23,Low,13,Low
+2910,Agassiz National Wildlife Refuge IBA,MN,0.052,,N/A,25,Low,27,Good,15,Low
+2932,Freezout Lake Wildlife Management Area,MT,0.217,,N/A,23,Low,27,Good,17,Low
+2064,Wayne National Forest-Marietta,OH,0.303,10,Low,20,Low,17,Low,17,Low
+4,Bear Lake National Wildlife Refuge,ID,0.049,,N/A,24,Low,25,Low,15,Low
+2947,Lake Helena,MT,0.325,5,Low,19,Low,25,Low,14,Low
+3317,Spring Park Reservoir,CO,0.254,0,N/A,22,Low,29,Good,12,Low
+501,Manitou Lake (and Manitou Experimental Forest Flammulated Owl Study Area),CO,0.112,7,Low,17,Low,22,Low,16,Low
+3338,Nature Conservancy Love Creek Preserve,TX,0.065,,N/A,34,Very Good,28,Good,0,N/A
+2952,Ninepipe National Wildlife Refuge,MT,0.305,8,Low,18,Low,20,Low,16,Low
+1968,Deseret Land and Livestock Ranch UT10,UT,0.095,0,N/A,33,Very Good,28,Good,,N/A
+493,Castlewood Canyon State Park,CO,0.272,9,Low,17,Low,20,Low,15,Low
+2704,Sand Lake National Wildlife Refuge,SD,0.182,,N/A,24,Low,35,Very Good,,N/A
+2931,Red Rock Lakes National Wildlife Refuge,MT,0.037,,N/A,22,Low,24,Low,13,Low
+2496,Ladd Marsh Wildlife Area,OR,0.235,8,Low,17,Low,22,Low,11,Low
+3444,Upper Verde River Wildlife Area IBA,AZ,0.074,0,N/A,35,Very Good,21,Low,0,N/A
+1548,Melrose Migrant Trap,NM,0.135,0,N/A,18,Low,16,Low,21,Low
+1643,Seney National Wildlife Refuge,MI,0.023,,N/A,14,Low,20,Low,12,Low
+3674,Dunbar Barrens,WI,0.085,,N/A,17,Low,25,Low,,N/A
+2315,Havasu National Wildlife Refuge IBA,AZ,0.116,16,Low,22,Low,21,Low,22,Low
+1992,Big Lake,AR,0.089,21,Fair,24,Low,14,Low,21,Low
+2982,Mackay Island,NC,0.227,17,Low,23,Low,23,Low,17,Low
+22,Big Bend Ecosystem,FL,0.073,21,Fair,21,Low,15,Low,22,Low
+2442,Deer Island,MS,0.228,17,Low,24,Low,20,Low,19,Low
+2573,Western Cherokee Prairies-12,MO,0.259,17,Low,21,Low,21,Low,21,Low
+2365,Lytle Preserve UT19,UT,0.046,18,Low,23,Low,21,Low,18,Low
+1744,Hancock County Marsh Coastal Preserve,MS,0.316,18,Low,23,Low,19,Low,20,Low
+1769,Noxubee National Wildlife Refuge,MS,0.120,18,Low,22,Low,21,Low,19,Low
+2549,Ted Shanks Alluvial Complex-31,MO,0.135,19,Low,33,Very Good,27,Good,0,N/A
+1979,Cache-Lower White Rivers,AR,0.181,23,Fair,23,Low,17,Low,16,Low
+82,Myakka River Watershed,FL,0.286,23,Fair,20,Low,15,Low,20,Low
+324,Cape Lookout National Seashore,NC,0.023,19,Low,19,Low,19,Low,21,Low
+126,Lake Okeechobee,FL,0.326,23,Fair,21,Low,13,Low,19,Low
+541,Camas National Wildlife Refuge,ID,0.208,7,Low,23,Low,28,Good,18,Low
+23,Camp Blanding-Jennings,FL,0.216,20,Fair,18,Low,18,Low,19,Low
+35,Corkscrew Swamp Watershed,FL,0.253,24,Fair,21,Low,12,Low,19,Low
+3466,Cibola NWR IBA,AZ,0.102,20,Fair,19,Low,18,Low,18,Low
+2101,Indian Cave State Park,NE,0.131,14,Low,27,Good,21,Low,14,Low
+2773,Brookville Lake/Whitewater State Park,IN,0.298,12,Low,24,Low,21,Low,19,Low
+919,Carolina Sandhills National Wildlife Refuge,SC,0.096,19,Low,22,Low,19,Low,16,Low
+438,Lawrence Woods,OH,0.285,8,Low,27,Good,24,Low,16,Low
+346,Lea-Hutaff Island,NC,0.240,0,N/A,26,Good,24,Low,24,Low
+53,Avon Park Air Force Range-Bombing Range Ridge,FL,0.196,22,Fair,18,Low,18,Low,16,Low
+3749,Isles Dernieres-Timbalier Islands,LA,0.068,0,N/A,30,Good,20,Low,24,Low
+2637,Tallgrass Prairie Preserve,OK,0.127,12,Low,24,Low,24,Low,13,Low
+3,American Falls Reservoir,ID,0.316,16,Low,18,Low,22,Low,18,Low
+3089,Monroe Lake,IN,0.249,14,Low,21,Low,21,Low,17,Low
+18,Red Hills Ecosystem,FL,0.197,19,Low,22,Low,15,Low,17,Low
+907,Mittry Lake State Wildlife Area IBA,AZ,0.218,16,Low,20,Low,18,Low,18,Low
+124,Fisheating Creek Watershed,FL,0.127,21,Fair,18,Low,15,Low,19,Low
+273,North Willapa Bay (Willapa River Estuary),WA,0.215,20,Fair,17,Low,15,Low,20,Low
+351,North Potholes Preserve,WA,0.194,14,Low,19,Low,21,Low,18,Low
+1746,Mahannah Wildlife Management Area,MS,0.036,24,Fair,0,N/A,25,Good,22,Low
+3075,Jackson-Washington and Clark State Forests,IN,0.307,12,Low,21,Low,19,Low,19,Low
+327,Chowan River Bottomlands,NC,0.229,18,Low,22,Low,16,Low,15,Low
+2627,John Redmond Reservoir & Flint Hills National Wildlife Refuge,KS,0.190,15,Low,20,Low,18,Low,18,Low
+2988,Palmetto Peartree-Buckridge,NC,0.096,16,Low,22,Low,16,Low,17,Low
+1863,Cumberland Island National Seashore,GA,0.045,18,Low,20,Low,15,Low,18,Low
+3078,Bernheim Forest,KY,0.292,14,Low,20,Low,18,Low,17,Low
+2835,Land Between the Lakes,TN,0.106,12,Low,24,Low,18,Low,17,Low
+2126,Goose Pond/Beehunter Marsh Fish and Wildlife Area,IN,0.294,12,Low,20,Low,21,Low,16,Low
+3657,Horicon Marsh,WI,0.328,6,Low,21,Low,26,Good,16,Low
+2068,Indiana Dunes State Park,IN,0.328,9,Low,29,Good,17,Low,14,Low
+3510,Mobile/Tensaw Delta,AL,0.200,16,Low,17,Low,15,Low,21,Low
+2336,Ogden Bay UT03,UT,0.205,15,Low,23,Low,16,Low,14,Low
+1690,"Lost Mound Unit, Savanna District of the Upper Mississippi River NWR",IL,0.239,10,Low,23,Low,24,Low,11,Low
+1564,Blackjack Peninsula of Aransas National Wildlife Refuge,TX,0.045,22,Fair,19,Low,12,Low,16,Low
+899,Agua Fria NM Riparian Corridors IBA,AZ,0.046,14,Low,21,Low,21,Low,13,Low
+1675,Banner Marsh State Fish and Wildlife Area,IL,0.272,9,Low,19,Low,22,Low,17,Low
+982,Lake Mead NRA,NV,0.108,17,Low,15,Low,14,Low,21,Low
+3045,Hoosier National Forest - Tell City Unit,IN,0.238,12,Low,21,Low,17,Low,17,Low
+3579,Otis Sanctuary,MI,0.202,10,Low,20,Low,21,Low,15,Low
+1860,St. Catherines Island,GA,0.005,25,Good,0,N/A,14,Low,27,Good
+2579,White River Glades and Woodlands-22,MO,0.183,13,Low,22,Low,17,Low,14,Low
+3456,State Cattle Ranch/Black Belt,AL,0.183,23,Fair,25,Low,18,Low,0,N/A
+354,Toppenish Creek/ Yakima River Oxbows,WA,0.223,14,Low,23,Low,16,Low,12,Low
+3205,Sprague Lake,WA,0.155,0,N/A,25,Good,22,Low,18,Low
+3639,Governor Dodge State Park,WI,0.294,9,Low,23,Low,17,Low,15,Low
+2020,Spring Creek Prairie Audubon Center,NE,0.327,7,Low,20,Low,22,Low,14,Low
+1988,Great Dismal Swamp,VA,0.152,15,Low,20,Low,15,Low,13,Low
+996,Altamaha River Delta,GA,0.062,17,Low,23,Low,0,N/A,24,Low
+2610,Shell Knob Glades and Woodlands-38,MO,0.227,10,Low,23,Low,18,Low,10,Low
+659,Silver Creek Preserve,ID,0.162,11,Low,17,Low,21,Low,12,Low
+349,Fort Simcoe,WA,0.323,9,Low,16,Low,20,Low,15,Low
+947,Ruby Lake NWR,NV,0.037,0,N/A,23,Low,20,Low,17,Low
+1653,Whitefish Point,MI,0.102,5,Low,15,Low,16,Low,23,Low
+3652,George W. Mead Wildlife Area,WI,0.297,5,Low,19,Low,23,Low,12,Low
+2933,Medicine Lake National Wildlife Refuge,MT,0.090,,N/A,27,Good,31,Very Good,0,N/A
+2642,Lake Cascade,ID,0.209,,N/A,19,Low,21,Low,16,Low
+2605,Laramie Plains Lakes Complex,WY,0.071,4,Low,17,Low,22,Low,14,Low
+2017,Big Oaks National Wildlife Refuge,IN,0.106,0,N/A,32,Very Good,22,Low,0,N/A
+3209,Ballard County Bottoms,KY,0.314,0,N/A,29,Good,25,Low,0,N/A
+3647,Quincy Bluff,WI,0.265,0,N/A,28,Good,25,Low,0,N/A
+2787,Blackfoot Valley,MT,0.097,,N/A,20,Low,18,Low,13,Low
+1521,Ruthven Wildlife Area/Dewey's Pasture,IA,0.270,,N/A,26,Good,26,Good,0,N/A
+3292,Arapaho National Wildlife Refuge,CO,0.092,,N/A,17,Low,21,Low,11,Low
+2134,Niobrara State Park,NE,0.323,,N/A,15,Low,20,Low,11,Low
+556,Grays Lake National Wildlife Refuge,ID,0.076,,N/A,27,Good,19,Low,0,N/A
+3709,Apostle Islands National Lakeshore,WI,0.051,,N/A,23,Low,12,Low,12,Low
+690,Six-Mile Dam,NM,0.284,24,Fair,22,Low,0,N/A,0,N/A
+3728,Niobrara Valley Preserve,NE,0.116,,N/A,23,Low,22,Low,,N/A
+3448,Kanawha State Forest,WV,0.165,9,Low,20,Low,15,Low,0,N/A
+3041,Lower Rappahannock River,VA,0.314,17,Low,23,Low,21,Low,19,Low
+362,Southern Dorchester County IBA,MD,0.197,17,Low,20,Low,19,Low,20,Low
+2430,Barrier Island/Lagoon System,VA,0.114,16,Low,20,Low,20,Low,19,Low
+360,Yakima Training Center,WA,0.148,13,Low,14,Low,8,Low,21,Low
+2476,Cold Springs National Wildlife Refuge,OR,0.314,0,N/A,22,Low,15,Low,19,Low
+3198,Conboy Lake,WA,0.103,0,N/A,20,Low,19,Low,14,Low
+1704,Pomona Nongame Bird Management Area,IL,0.195,0,N/A,25,Low,25,Low,,N/A
+3649,Bear Bluff Peatlands,WI,0.089,0,N/A,26,Good,19,Low,,N/A
+1695,"Oakwood Bottoms, Shawnee National Forest",IL,0.077,0,N/A,22,Low,21,Low,0,N/A
+2537,Grand River Grasslands-05,MO,0.198,0,N/A,18,Low,24,Low,0,N/A
+542,Camas Prairie Centennial Marsh Wildlife Management Area,ID,0.134,,N/A,22,Low,20,Low,0,N/A
+1859,Grand Bay/Banks Lake Ecosystem,GA,0.254,19,Low,23,Low,0,N/A,0,N/A
+3633,Rush Creek Forest-Prairie,WI,0.280,0,N/A,22,Low,20,Low,0,N/A
+2594,Eleven Point Watershed-43,MO,0.183,0,N/A,25,Good,15,Low,,N/A
+1527,Lacey Keosauqua State Park,IA,0.311,,N/A,21,Low,20,Low,0,N/A
+607,Bosque Redondo,NM,0.288,0,N/A,20,Low,0,N/A,19,Low
+2628,Kirwin National Wildlife Refuge,KS,0.158,0,N/A,21,Low,16,Low,0,N/A
+3785,Sumter National Forest: Long Cane,SC,0.178,0,N/A,23,Low,16,Low,0,N/A
+2595,Big Piney Hills-39,MO,0.229,0,N/A,15,Low,23,Low,0,N/A
+1986,Piney Grove,VA,0.068,0,N/A,15,Low,21,Low,0,N/A
+2607,Little Sandy Landscape,WY,0.058,,N/A,22,Low,13,Low,0,N/A
+2673,Chase Lake National Wildlife Refuge,ND,0.081,,N/A,0,N/A,32,Very Good,,N/A
+2643,Boundary Creek WMA,ID,0.122,0,N/A,0,N/A,31,Very Good,0,N/A
+2674,Des Lacs National Wildlife Refuge,ND,0.184,,N/A,0,N/A,28,Good,0,N/A
+3283,Great Cypress Swamp IBA,MD,0.321,,N/A,21,Low,18,Low,0,N/A
+2491,Horse Creek Meadow Wildlife Area,OR,0.028,,N/A,0,N/A,25,Good,,N/A
+3008,Chandeleur Islands (Breton National Wildlife Refuge),LA,0.047,0,N/A,24,Low,0,N/A,0,N/A
+374,Central Chesapeake Islands IBA,MD,0.037,,N/A,0,N/A,21,Low,0,N/A
