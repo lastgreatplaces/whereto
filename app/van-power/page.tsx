@@ -7,6 +7,8 @@ import Link from "next/link";
 type TripRow = {
   id: number;
   trip_name: string;
+  start_date: string | null;
+  end_date: string | null;
 };
 
 export default function VanPowerPage() {
@@ -26,6 +28,13 @@ export default function VanPowerPage() {
   });
   const [isCreatingTrip, setIsCreatingTrip] = useState(false);
 
+  const [isEndTripOpen, setIsEndTripOpen] = useState(false);
+  const [endTripDate, setEndTripDate] = useState(() => {
+    const d = new Date();
+    return d.toISOString().slice(0, 10);
+  });
+  const [isEndingTrip, setIsEndingTrip] = useState(false);
+
   const selectedTrip = useMemo(
     () => trips.find((t) => t.id === selectedTripId) ?? null,
     [trips, selectedTripId]
@@ -34,7 +43,7 @@ export default function VanPowerPage() {
   async function loadTrips() {
     const { data, error } = await supabase
       .from("power_trips")
-      .select("id, trip_name")
+      .select("id, trip_name, start_date, end_date")
       .order("id", { ascending: false });
 
     if (error) {
@@ -50,18 +59,27 @@ export default function VanPowerPage() {
     }
   }
 
-  async function loadData(tripId?: number | null) {
+  async function loadData(tripId?: number | null, tripEndDate?: string | null) {
     const effectiveTripId = tripId ?? selectedTripId;
+    const effectiveEndDate =
+      tripEndDate !== undefined ? tripEndDate : selectedTrip?.end_date ?? null;
+
     if (!effectiveTripId) {
       setRows([]);
       return;
     }
 
-    const { data, error } = await supabase
+    let query = supabase
       .from("v_power_trip_forecast_7pm")
       .select("*")
       .eq("trip_id", effectiveTripId)
       .order("trip_date");
+
+    if (effectiveEndDate) {
+      query = query.lte("trip_date", effectiveEndDate);
+    }
+
+    const { data, error } = await query;
 
     if (error) {
       console.error("Error loading trip data:", error);
@@ -110,7 +128,16 @@ export default function VanPowerPage() {
     if (selectedTripId) {
       loadData(selectedTripId);
     }
-  }, [selectedTripId]);
+  }, [selectedTripId, selectedTrip?.end_date]);
+
+  useEffect(() => {
+    if (selectedTrip?.end_date) {
+      setEndTripDate(selectedTrip.end_date);
+    } else {
+      const d = new Date();
+      setEndTripDate(d.toISOString().slice(0, 10));
+    }
+  }, [selectedTripId, selectedTrip?.end_date]);
 
   async function updateField(tripId: number, date: string, field: string, value: any) {
     const { error } = await supabase
@@ -174,8 +201,14 @@ export default function VanPowerPage() {
     try {
       const { data: tripData, error: tripError } = await supabase
         .from("power_trips")
-        .insert([{ trip_name: tripName }])
-        .select("id, trip_name")
+        .insert([
+          {
+            trip_name: tripName,
+            start_date: newTripStartDate,
+            end_date: null
+          }
+        ])
+        .select("id, trip_name, start_date, end_date")
         .single();
 
       if (tripError || !tripData) {
@@ -217,6 +250,54 @@ export default function VanPowerPage() {
       setIsNewTripOpen(false);
     } finally {
       setIsCreatingTrip(false);
+    }
+  }
+
+  async function saveTripEndDate() {
+    if (!selectedTripId || !endTripDate) return;
+
+    setIsEndingTrip(true);
+    try {
+      const { error } = await supabase
+        .from("power_trips")
+        .update({ end_date: endTripDate })
+        .eq("id", selectedTripId);
+
+      if (error) {
+        console.error("Error ending trip:", error);
+        alert(`Could not end trip: ${error.message}`);
+        return;
+      }
+
+      await loadTrips();
+      await loadData(selectedTripId, endTripDate);
+      setIsEndTripOpen(false);
+    } finally {
+      setIsEndingTrip(false);
+    }
+  }
+
+  async function clearTripEndDate() {
+    if (!selectedTripId) return;
+
+    setIsEndingTrip(true);
+    try {
+      const { error } = await supabase
+        .from("power_trips")
+        .update({ end_date: null })
+        .eq("id", selectedTripId);
+
+      if (error) {
+        console.error("Error clearing trip end:", error);
+        alert(`Could not clear end date: ${error.message}`);
+        return;
+      }
+
+      await loadTrips();
+      await loadData(selectedTripId, null);
+      setIsEndTripOpen(false);
+    } finally {
+      setIsEndingTrip(false);
     }
   }
 
@@ -297,6 +378,20 @@ export default function VanPowerPage() {
         >
           + New Trip
         </button>
+
+        <button
+          onClick={() => setIsEndTripOpen((v) => !v)}
+          style={{
+            padding: "8px 12px",
+            borderRadius: 8,
+            border: "1px solid #d0d0d0",
+            background: "#f7f7f7",
+            fontWeight: 600,
+            cursor: "pointer"
+          }}
+        >
+          End Trip
+        </button>
       </div>
 
       {isNewTripOpen && (
@@ -360,6 +455,68 @@ export default function VanPowerPage() {
           >
             {isCreatingTrip ? "Creating..." : "Create Trip"}
           </button>
+        </div>
+      )}
+
+      {isEndTripOpen && selectedTrip && (
+        <div
+          style={{
+            marginBottom: 14,
+            padding: 12,
+            border: "1px solid #ddd",
+            borderRadius: 10,
+            background: "#fafafa",
+            display: "flex",
+            flexWrap: "wrap",
+            gap: 10,
+            alignItems: "end"
+          }}
+        >
+          <div>
+            <div style={{ fontSize: 12, marginBottom: 4 }}>End Date</div>
+            <input
+              type="date"
+              value={endTripDate}
+              onChange={(e) => setEndTripDate(e.target.value)}
+              style={{
+                padding: "8px 10px",
+                borderRadius: 8,
+                border: "1px solid #d0d0d0"
+              }}
+            />
+          </div>
+
+          <button
+            onClick={saveTripEndDate}
+            disabled={isEndingTrip}
+            style={{
+              padding: "8px 12px",
+              borderRadius: 8,
+              border: "1px solid #d0d0d0",
+              background: isEndingTrip ? "#eee" : "#fff2e8",
+              fontWeight: 600,
+              cursor: isEndingTrip ? "default" : "pointer"
+            }}
+          >
+            {isEndingTrip ? "Saving..." : "Save End Date"}
+          </button>
+
+          {selectedTrip.end_date && (
+            <button
+              onClick={clearTripEndDate}
+              disabled={isEndingTrip}
+              style={{
+                padding: "8px 12px",
+                borderRadius: 8,
+                border: "1px solid #d0d0d0",
+                background: "#f7f7f7",
+                fontWeight: 600,
+                cursor: isEndingTrip ? "default" : "pointer"
+              }}
+            >
+              Clear End Date
+            </button>
+          )}
         </div>
       )}
 
