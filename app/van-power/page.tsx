@@ -200,16 +200,17 @@ export default function VanPowerPage() {
 
     try {
       const { data: tripData, error: tripError } = await supabase
-        .from("power_trips")
-        .insert([
-          {
-            trip_name: tripName,
-            start_date: newTripStartDate,
-            end_date: null
-          }
-        ])
-        .select("id, trip_name, start_date, end_date")
-        .single();
+  .from("power_trips")
+  .insert([
+    {
+      trip_name: tripName,
+      profile_id: 1,
+      start_date: newTripStartDate,
+      end_date: null
+    }
+  ])
+  .select("id, trip_name, start_date, end_date")
+  .single();
 
       if (tripError || !tripData) {
         console.error("Error creating trip:", tripError);
