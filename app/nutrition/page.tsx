@@ -25,6 +25,8 @@ type Averages = {
   avg_30day_sat_fat_g: number;
 };
 
+type EatenSort = "food" | "satFat" | "sodium";
+
 const SAT_FAT_TARGET = 15;
 const SODIUM_TARGET = 2000;
 
@@ -39,16 +41,20 @@ function num(v: any) {
 
 export default function NutritionPage() {
   const [foods, setFoods] = useState<FoodRow[]>([]);
+  const [eatenSort, setEatenSort] = useState<EatenSort>("food");
+
   const [totals, setTotals] = useState<TodayTotals>({
     sodium_mg: 0,
     sat_fat_g: 0
   });
+
   const [averages, setAverages] = useState<Averages>({
     avg_7day_sodium_mg: 0,
     avg_7day_sat_fat_g: 0,
     avg_30day_sodium_mg: 0,
     avg_30day_sat_fat_g: 0
   });
+
   const [isLoading, setIsLoading] = useState(true);
 
   async function loadData() {
@@ -136,6 +142,32 @@ export default function NutritionPage() {
 
     return groups;
   }, [foods]);
+
+  const eatenToday = useMemo(() => {
+    return foods
+      .filter((f) => Number(f.qty_today ?? 0) > 0)
+      .sort((a, b) => {
+        if (eatenSort === "satFat") {
+          return (
+            Number(b.qty_today) * Number(b.sat_fat_g ?? 0) -
+            Number(a.qty_today) * Number(a.sat_fat_g ?? 0)
+          );
+        }
+
+        if (eatenSort === "sodium") {
+          return (
+            Number(b.qty_today) * Number(b.sodium_mg ?? 0) -
+            Number(a.qty_today) * Number(a.sodium_mg ?? 0)
+          );
+        }
+
+        return a.list_order - b.list_order;
+      });
+  }, [foods, eatenSort]);
+
+  function sortLabel(key: EatenSort, label: string) {
+    return eatenSort === key ? `${label} ▼` : label;
+  }
 
   const satPct = Math.round((totals.sat_fat_g / SAT_FAT_TARGET) * 100);
   const sodiumPct = Math.round((totals.sodium_mg / SODIUM_TARGET) * 100);
@@ -244,38 +276,96 @@ export default function NutritionPage() {
           </table>
         </div>
       ))}
-<div style={{ marginTop: 24 }}>
-  <h3 style={{ marginBottom: 8 }}>Eaten Today</h3>
 
-  {foods.filter((f) => Number(f.qty_today ?? 0) > 0).length === 0 ? (
-    <div style={{ color: "#666" }}>Nothing logged yet today.</div>
-  ) : (
-    <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
-      <tbody>
-        {foods
-          .filter((f) => Number(f.qty_today ?? 0) > 0)
-          .map((f) => (
-            <tr key={`eaten-${f.list_order}`} style={{ borderBottom: "1px solid #eee" }}>
-              <td style={{ padding: "6px 8px", fontWeight: 700, width: 40 }}>
-                {Number(f.qty_today)}
-              </td>
+      <div style={{ marginTop: 24 }}>
+        <h3 style={{ marginBottom: 8, fontWeight: 800 }}>Eaten Today</h3>
 
-              <td style={{ padding: "6px 8px" }}>{f.food_name}</td>
+        {eatenToday.length === 0 ? (
+          <div style={{ color: "#666" }}>Nothing logged yet today.</div>
+        ) : (
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
+            <thead>
+              <tr style={{ borderBottom: "1px solid #ddd" }}>
+                <th style={{ width: 40, padding: "6px 8px", textAlign: "left" }}>
+                  Qty
+                </th>
 
-              <td style={{ width: 90, textAlign: "right", color: "#555" }}>
-                {(Number(f.qty_today) * Number(f.sat_fat_g ?? 0)).toFixed(1)} g
-              </td>
+                <th
+                  onClick={() => setEatenSort("food")}
+                  style={{
+                    padding: "6px 8px",
+                    textAlign: "left",
+                    cursor: "pointer",
+                    fontWeight: eatenSort === "food" ? 800 : 600
+                  }}
+                >
+                  {sortLabel("food", "Food")}
+                </th>
 
-              <td style={{ width: 90, textAlign: "right", color: "#555" }}>
-                {Math.round(Number(f.qty_today) * Number(f.sodium_mg ?? 0))} mg
-              </td>
-            </tr>
-          ))}
-      </tbody>
-    </table>
-  )}
-</div>
+                <th
+                  onClick={() => setEatenSort("satFat")}
+                  style={{
+                    width: 90,
+                    padding: "6px 8px",
+                    textAlign: "right",
+                    cursor: "pointer",
+                    fontWeight: eatenSort === "satFat" ? 800 : 600
+                  }}
+                >
+                  {sortLabel("satFat", "Sat Fat")}
+                </th>
 
+                <th
+                  onClick={() => setEatenSort("sodium")}
+                  style={{
+                    width: 90,
+                    padding: "6px 8px",
+                    textAlign: "right",
+                    cursor: "pointer",
+                    fontWeight: eatenSort === "sodium" ? 800 : 600
+                  }}
+                >
+                  {sortLabel("sodium", "Sodium")}
+                </th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {eatenToday.map((f) => (
+                <tr key={`eaten-${f.list_order}`} style={{ borderBottom: "1px solid #eee" }}>
+                  <td style={{ padding: "6px 8px", fontWeight: 700 }}>
+                    {Number(f.qty_today)}
+                  </td>
+
+                  <td style={{ padding: "6px 8px" }}>{f.food_name}</td>
+
+                  <td
+                    style={{
+                      width: 90,
+                      textAlign: "right",
+                      color: "#555",
+                      fontWeight: eatenSort === "satFat" ? 800 : 400
+                    }}
+                  >
+                    {(Number(f.qty_today) * Number(f.sat_fat_g ?? 0)).toFixed(1)} g
+                  </td>
+
+                  <td
+                    style={{
+                      width: 90,
+                      textAlign: "right",
+                      color: "#555",
+                      fontWeight: eatenSort === "sodium" ? 800 : 400
+                    }}
+                  >
+                    {Math.round(Number(f.qty_today) * Number(f.sodium_mg ?? 0))} mg
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
     </div>
   );
 }
