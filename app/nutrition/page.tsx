@@ -360,12 +360,18 @@ export default function NutritionPage() {
     width: 90,
     textAlign: "right",
     color:
-      Number(f.qty_today) * Number(f.sat_fat_g ?? 0) >= 3
+      Number(f.qty_today) * Number(f.sat_fat_g ?? 0) >= 4.0
         ? "red"
-        : Number(f.qty_today) * Number(f.sat_fat_g ?? 0) >= 1.5
+        : Number(f.qty_today) * Number(f.sat_fat_g ?? 0) >= 2.0
         ? "orange"
         : "#555",
-    fontWeight: eatenSort === "satFat" ? 800 : 400
+
+    fontWeight:
+      Number(f.qty_today) * Number(f.sat_fat_g ?? 0) >= 1.5
+        ? 800
+        : eatenSort === "satFat"
+        ? 800
+        : 400
   }}
 >
   {(Number(f.qty_today) * Number(f.sat_fat_g ?? 0)).toFixed(1)} g
@@ -381,7 +387,13 @@ export default function NutritionPage() {
         : Number(f.qty_today) * Number(f.sodium_mg ?? 0) >= 200
         ? "orange"
         : "#555",
-    fontWeight: eatenSort === "sodium" ? 800 : 400
+
+    fontWeight:
+      Number(f.qty_today) * Number(f.sodium_mg ?? 0) >= 200
+        ? 800
+        : eatenSort === "sodium"
+        ? 800
+        : 400
   }}
 >
   {Math.round(Number(f.qty_today) * Number(f.sodium_mg ?? 0))} mg
