@@ -2134,6 +2134,22 @@ if (heartBtn) {
               >
                 Last Great Places
               </a>
+              <a
+                href="/nutrition"
+                style={{
+                  display: "block",
+                  padding: "10px 12px",
+                  textDecoration: "none",
+                  color: "#333",
+                  fontWeight: 700,
+                  fontSize: 14
+                }}
+              >
+                Nutrition
+              </a>
+
+
+
             </div>
           )}
         </div>
