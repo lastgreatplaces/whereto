@@ -244,6 +244,38 @@ export default function NutritionPage() {
           </table>
         </div>
       ))}
+<div style={{ marginTop: 24 }}>
+  <h3 style={{ marginBottom: 8 }}>Eaten Today</h3>
+
+  {foods.filter((f) => Number(f.qty_today ?? 0) > 0).length === 0 ? (
+    <div style={{ color: "#666" }}>Nothing logged yet today.</div>
+  ) : (
+    <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
+      <tbody>
+        {foods
+          .filter((f) => Number(f.qty_today ?? 0) > 0)
+          .map((f) => (
+            <tr key={`eaten-${f.list_order}`} style={{ borderBottom: "1px solid #eee" }}>
+              <td style={{ padding: "6px 8px", fontWeight: 700, width: 40 }}>
+                {Number(f.qty_today)}
+              </td>
+
+              <td style={{ padding: "6px 8px" }}>{f.food_name}</td>
+
+              <td style={{ width: 90, textAlign: "right", color: "#555" }}>
+                {(Number(f.qty_today) * Number(f.sat_fat_g ?? 0)).toFixed(1)} g
+              </td>
+
+              <td style={{ width: 90, textAlign: "right", color: "#555" }}>
+                {Math.round(Number(f.qty_today) * Number(f.sodium_mg ?? 0))} mg
+              </td>
+            </tr>
+          ))}
+      </tbody>
+    </table>
+  )}
+</div>
+
     </div>
   );
 }
