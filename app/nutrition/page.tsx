@@ -32,7 +32,10 @@ const SODIUM_TARGET = 2000;
 
 function todayLocalDate() {
   const d = new Date();
-  return d.toISOString().slice(0, 10);
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
 }
 
 function num(v: any) {
@@ -194,7 +197,20 @@ export default function NutritionPage() {
         </Link>
       </div>
 
-      <h2 style={{ marginTop: 4, marginBottom: 10 }}>Nutrition</h2>
+      <h2
+  style={{
+    marginTop: 4,
+    marginBottom: 10,
+    fontWeight: 800
+  }}
+>
+  Nutrition •{" "}
+  {new Date().toLocaleDateString(undefined, {
+    weekday: "short",
+    month: "short",
+    day: "numeric"
+  })}
+</h2>
 
       <div
         style={{
@@ -340,26 +356,38 @@ export default function NutritionPage() {
                   <td style={{ padding: "6px 8px" }}>{f.food_name}</td>
 
                   <td
-                    style={{
-                      width: 90,
-                      textAlign: "right",
-                      color: "#555",
-                      fontWeight: eatenSort === "satFat" ? 800 : 400
-                    }}
-                  >
-                    {(Number(f.qty_today) * Number(f.sat_fat_g ?? 0)).toFixed(1)} g
-                  </td>
+  style={{
+    width: 90,
+    textAlign: "right",
+    color:
+      Number(f.qty_today) * Number(f.sat_fat_g ?? 0) >= 3
+        ? "red"
+        : Number(f.qty_today) * Number(f.sat_fat_g ?? 0) >= 1.5
+        ? "orange"
+        : "#555",
+    fontWeight: eatenSort === "satFat" ? 800 : 400
+  }}
+>
+  {(Number(f.qty_today) * Number(f.sat_fat_g ?? 0)).toFixed(1)} g
+</td>
 
                   <td
-                    style={{
-                      width: 90,
-                      textAlign: "right",
-                      color: "#555",
-                      fontWeight: eatenSort === "sodium" ? 800 : 400
-                    }}
-                  >
-                    {Math.round(Number(f.qty_today) * Number(f.sodium_mg ?? 0))} mg
-                  </td>
+  style={{
+    width: 90,
+    textAlign: "right",
+    color:
+      Number(f.qty_today) * Number(f.sodium_mg ?? 0) >= 400
+        ? "red"
+        : Number(f.qty_today) * Number(f.sodium_mg ?? 0) >= 200
+        ? "orange"
+        : "#555",
+    fontWeight: eatenSort === "sodium" ? 800 : 400
+  }}
+>
+  {Math.round(Number(f.qty_today) * Number(f.sodium_mg ?? 0))} mg
+</td>
+
+
                 </tr>
               ))}
             </tbody>
