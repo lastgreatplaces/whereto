@@ -4,21 +4,13 @@ import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import Link from "next/link";
 
-type FoodBaseRow = {
+type FoodRow = {
   list_order: number;
   category: string | null;
   food_name: string;
   sodium_mg: number;
   sat_fat_g: number;
-};
-
-type FoodRow = FoodBaseRow & {
   qty_today: number;
-};
-
-type LogRow = {
-  food_id: number;
-  qty: number;
 };
 
 type TodayTotals = {
@@ -46,33 +38,11 @@ function todayLocalDate() {
   return `${year}-${month}-${day}`;
 }
 
-function shiftDate(dateString: string, days: number) {
-  const [year, month, day] = dateString.split("-").map(Number);
-  const d = new Date(year, month - 1, day);
-  d.setDate(d.getDate() + days);
-
-  return [
-    d.getFullYear(),
-    String(d.getMonth() + 1).padStart(2, "0"),
-    String(d.getDate()).padStart(2, "0")
-  ].join("-");
-}
-
-function displayDate(dateString: string) {
-  const [year, month, day] = dateString.split("-").map(Number);
-  return new Date(year, month - 1, day).toLocaleDateString(undefined, {
-    weekday: "short",
-    month: "short",
-    day: "numeric"
-  });
-}
-
 function num(v: any) {
   return Number(v ?? 0);
 }
 
 export default function NutritionPage() {
-  const [selectedDate, setSelectedDate] = useState(todayLocalDate());
   const [foods, setFoods] = useState<FoodRow[]>([]);
   const [eatenSort, setEatenSort] = useState<EatenSort>("food");
 
@@ -90,53 +60,33 @@ export default function NutritionPage() {
 
   const [isLoading, setIsLoading] = useState(true);
 
-  async function loadData(dateToLoad = selectedDate) {
+  async function loadData() {
     setIsLoading(true);
 
     const { data: foodData, error: foodError } = await supabase
-      .from("nutrition_foods")
-      .select("list_order, category, food_name, sodium_mg, sat_fat_g")
+      .from("nutrition_foods_today")
+      .select("*")
       .order("list_order");
 
     if (foodError) {
       console.error("Error loading foods:", foodError);
-      setIsLoading(false);
-      return;
+    } else {
+      setFoods((foodData ?? []) as FoodRow[]);
     }
 
-    const { data: logData, error: logError } = await supabase
-      .from("nutrition_log")
-      .select("food_id, qty")
-      .eq("log_date", dateToLoad);
+    const { data: totalData, error: totalError } = await supabase
+      .from("nutrition_today_totals")
+      .select("*")
+      .single();
 
-    if (logError) {
-      console.error("Error loading log:", logError);
-      setIsLoading(false);
-      return;
+    if (totalError) {
+      console.error("Error loading totals:", totalError);
+    } else if (totalData) {
+      setTotals({
+        sodium_mg: num(totalData.sodium_mg),
+        sat_fat_g: num(totalData.sat_fat_g)
+      });
     }
-
-    const logMap: Record<number, number> = {};
-    ((logData ?? []) as LogRow[]).forEach((r) => {
-      logMap[r.food_id] = Number(r.qty ?? 0);
-    });
-
-    const mergedFoods = ((foodData ?? []) as FoodBaseRow[]).map((f) => ({
-      ...f,
-      qty_today: logMap[f.list_order] ?? 0
-    }));
-
-    setFoods(mergedFoods);
-
-    const selectedTotals = mergedFoods.reduce(
-      (sum, f) => {
-        sum.sodium_mg += Number(f.qty_today) * Number(f.sodium_mg ?? 0);
-        sum.sat_fat_g += Number(f.qty_today) * Number(f.sat_fat_g ?? 0);
-        return sum;
-      },
-      { sodium_mg: 0, sat_fat_g: 0 }
-    );
-
-    setTotals(selectedTotals);
 
     const { data: avgData, error: avgError } = await supabase
       .from("nutrition_averages")
@@ -158,17 +108,18 @@ export default function NutritionPage() {
   }
 
   useEffect(() => {
-    loadData(selectedDate);
-  }, [selectedDate]);
+    loadData();
+  }, []);
 
   async function changeQty(foodId: number, currentQty: number, delta: number) {
+    const logDate = todayLocalDate();
     const newQty = Math.max(0, Number(currentQty ?? 0) + delta);
 
     if (newQty === 0) {
       const { error } = await supabase
         .from("nutrition_log")
         .delete()
-        .eq("log_date", selectedDate)
+        .eq("log_date", logDate)
         .eq("food_id", foodId);
 
       if (error) {
@@ -177,7 +128,7 @@ export default function NutritionPage() {
         return;
       }
 
-      await loadData(selectedDate);
+      await loadData();
       return;
     }
 
@@ -185,7 +136,7 @@ export default function NutritionPage() {
       .from("nutrition_log")
       .upsert(
         {
-          log_date: selectedDate,
+          log_date: logDate,
           food_id: foodId,
           qty: newQty
         },
@@ -198,7 +149,7 @@ export default function NutritionPage() {
       return;
     }
 
-    await loadData(selectedDate);
+    await loadData();
   }
 
   const groupedFoods = useMemo(() => {
@@ -281,8 +232,18 @@ export default function NutritionPage() {
           marginBottom: 10
         }}
       >
-        <h2 style={{ margin: 0, fontWeight: 800 }}>
-          Nutrition • {displayDate(selectedDate)}
+        <h2
+          style={{
+            margin: 0,
+            fontWeight: 800
+          }}
+        >
+          Nutrition •{" "}
+          {new Date().toLocaleDateString(undefined, {
+            weekday: "short",
+            month: "short",
+            day: "numeric"
+          })}
         </h2>
 
         <button
@@ -303,49 +264,6 @@ export default function NutritionPage() {
 
       <div
         style={{
-          display: "flex",
-          gap: 8,
-          alignItems: "center",
-          marginBottom: 12,
-          flexWrap: "wrap"
-        }}
-      >
-        <button
-          onClick={() => setSelectedDate(shiftDate(selectedDate, -1))}
-          style={dateButtonStyle}
-        >
-          ←
-        </button>
-
-        <input
-          type="date"
-          value={selectedDate}
-          onChange={(e) => setSelectedDate(e.target.value)}
-          style={{
-            padding: "7px 9px",
-            borderRadius: 8,
-            border: "1px solid #ccc",
-            fontWeight: 700
-          }}
-        />
-
-        <button
-          onClick={() => setSelectedDate(shiftDate(selectedDate, 1))}
-          style={dateButtonStyle}
-        >
-          →
-        </button>
-
-        <button
-          onClick={() => setSelectedDate(todayLocalDate())}
-          style={dateButtonStyle}
-        >
-          Today
-        </button>
-      </div>
-
-      <div
-        style={{
           display: "grid",
           gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
           gap: 10,
@@ -353,13 +271,13 @@ export default function NutritionPage() {
         }}
       >
         <div style={cardStyle}>
-          <div style={labelStyle}>Selected Day Sat Fat</div>
+          <div style={labelStyle}>Today Sat Fat</div>
           <div style={bigNumberStyle}>{totals.sat_fat_g.toFixed(1)} g</div>
           <div>{SAT_FAT_TARGET} g max · {satPct}%</div>
         </div>
 
         <div style={cardStyle}>
-          <div style={labelStyle}>Selected Day Sodium</div>
+          <div style={labelStyle}>Today Sodium</div>
           <div style={bigNumberStyle}>{Math.round(totals.sodium_mg)} mg</div>
           <div>{SODIUM_TARGET} mg max · {sodiumPct}%</div>
         </div>
@@ -429,7 +347,7 @@ export default function NutritionPage() {
         <h3 style={{ marginBottom: 8, fontWeight: 800 }}>Eaten Today</h3>
 
         {eatenToday.length === 0 ? (
-          <div style={{ color: "#666" }}>Nothing logged for this date.</div>
+          <div style={{ color: "#666" }}>Nothing logged yet today.</div>
         ) : (
           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
             <thead>
@@ -539,16 +457,6 @@ export default function NutritionPage() {
     </div>
   );
 }
-
-const dateButtonStyle: React.CSSProperties = {
-  padding: "7px 11px",
-  borderRadius: 8,
-  border: "1px solid #ccc",
-  background: "#f7f7f7",
-  fontWeight: 800,
-  cursor: "pointer",
-  whiteSpace: "nowrap"
-};
 
 const cardStyle: React.CSSProperties = {
   padding: 12,
