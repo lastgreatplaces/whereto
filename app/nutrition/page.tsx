@@ -111,28 +111,46 @@ export default function NutritionPage() {
     loadData();
   }, []);
 
-  async function changeQty(foodId: number, currentQty: number, delta: number) {
-    const newQty = Math.max(0, Number(currentQty ?? 0) + delta);
+ async function changeQty(foodId: number, currentQty: number, delta: number) {
+  const logDate = todayLocalDate();
+  const newQty = Math.max(0, Number(currentQty ?? 0) + delta);
 
+  if (newQty === 0) {
     const { error } = await supabase
       .from("nutrition_log")
-      .upsert(
-        {
-          log_date: todayLocalDate(),
-          food_id: foodId,
-          qty: newQty
-        },
-        { onConflict: "log_date,food_id" }
-      );
+      .delete()
+      .eq("log_date", logDate)
+      .eq("food_id", foodId);
 
     if (error) {
-      console.error("Error updating nutrition log:", error);
-      alert(`Could not update food item: ${error.message}`);
+      console.error("Error deleting nutrition log row:", error);
+      alert(`Could not remove food item: ${error.message}`);
       return;
     }
 
     await loadData();
+    return;
   }
+
+  const { error } = await supabase
+    .from("nutrition_log")
+    .upsert(
+      {
+        log_date: logDate,
+        food_id: foodId,
+        qty: newQty
+      },
+      { onConflict: "log_date,food_id" }
+    );
+
+  if (error) {
+    console.error("Error updating nutrition log:", error);
+    alert(`Could not update food item: ${error.message}`);
+    return;
+  }
+
+  await loadData();
+}
 
   const groupedFoods = useMemo(() => {
     const groups: Record<string, FoodRow[]> = {};
