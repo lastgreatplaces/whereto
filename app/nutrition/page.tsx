@@ -108,46 +108,46 @@ export default function NutritionPage() {
     loadData();
   }, []);
 
- async function changeQty(foodId: number, currentQty: number, delta: number) {
-  const logDate = todayLocalDate();
-  const newQty = Math.max(0, Number(currentQty ?? 0) + delta);
+  async function changeQty(foodId: number, currentQty: number, delta: number) {
+    const logDate = todayLocalDate();
+    const newQty = Math.max(0, Number(currentQty ?? 0) + delta);
 
-  if (newQty === 0) {
+    if (newQty === 0) {
+      const { error } = await supabase
+        .from("nutrition_log")
+        .delete()
+        .eq("log_date", logDate)
+        .eq("food_id", foodId);
+
+      if (error) {
+        console.error("Error deleting nutrition log row:", error);
+        alert(`Could not remove food item: ${error.message}`);
+        return;
+      }
+
+      await loadData();
+      return;
+    }
+
     const { error } = await supabase
       .from("nutrition_log")
-      .delete()
-      .eq("log_date", logDate)
-      .eq("food_id", foodId);
+      .upsert(
+        {
+          log_date: logDate,
+          food_id: foodId,
+          qty: newQty
+        },
+        { onConflict: "log_date,food_id" }
+      );
 
     if (error) {
-      console.error("Error deleting nutrition log row:", error);
-      alert(`Could not remove food item: ${error.message}`);
+      console.error("Error updating nutrition log:", error);
+      alert(`Could not update food item: ${error.message}`);
       return;
     }
 
     await loadData();
-    return;
   }
-
-  const { error } = await supabase
-    .from("nutrition_log")
-    .upsert(
-      {
-        log_date: logDate,
-        food_id: foodId,
-        qty: newQty
-      },
-      { onConflict: "log_date,food_id" }
-    );
-
-  if (error) {
-    console.error("Error updating nutrition log:", error);
-    alert(`Could not update food item: ${error.message}`);
-    return;
-  }
-
-  await loadData();
-}
 
   const groupedFoods = useMemo(() => {
     const groups: Record<string, FoodRow[]> = {};
@@ -187,6 +187,13 @@ export default function NutritionPage() {
     return eatenSort === key ? `${label} ▼` : label;
   }
 
+  function scrollToEatenToday() {
+    document.getElementById("eaten-today")?.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+  }
+
   const satPct = Math.round((totals.sat_fat_g / SAT_FAT_TARGET) * 100);
   const sodiumPct = Math.round((totals.sodium_mg / SODIUM_TARGET) * 100);
 
@@ -212,20 +219,45 @@ export default function NutritionPage() {
         </Link>
       </div>
 
-      <h2
-  style={{
-    marginTop: 4,
-    marginBottom: 10,
-    fontWeight: 800
-  }}
->
-  Nutrition •{" "}
-  {new Date().toLocaleDateString(undefined, {
-    weekday: "short",
-    month: "short",
-    day: "numeric"
-  })}
-</h2>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          gap: 10,
+          marginTop: 4,
+          marginBottom: 10
+        }}
+      >
+        <h2
+          style={{
+            margin: 0,
+            fontWeight: 800
+          }}
+        >
+          Nutrition •{" "}
+          {new Date().toLocaleDateString(undefined, {
+            weekday: "short",
+            month: "short",
+            day: "numeric"
+          })}
+        </h2>
+
+        <button
+          onClick={scrollToEatenToday}
+          style={{
+            padding: "7px 11px",
+            borderRadius: 8,
+            border: "1px solid #ccc",
+            background: "#f7f7f7",
+            fontWeight: 800,
+            cursor: "pointer",
+            whiteSpace: "nowrap"
+          }}
+        >
+          Eaten
+        </button>
+      </div>
 
       <div
         style={{
@@ -308,7 +340,7 @@ export default function NutritionPage() {
         </div>
       ))}
 
-      <div style={{ marginTop: 24 }}>
+      <div id="eaten-today" style={{ marginTop: 24 }}>
         <h3 style={{ marginBottom: 8, fontWeight: 800 }}>Eaten Today</h3>
 
         {eatenToday.length === 0 ? (
@@ -362,61 +394,59 @@ export default function NutritionPage() {
             </thead>
 
             <tbody>
-              {eatenToday.map((f) => (
-                <tr key={`eaten-${f.list_order}`} style={{ borderBottom: "1px solid #eee" }}>
-                  <td style={{ padding: "6px 8px", fontWeight: 700 }}>
-                    {Number(f.qty_today)}
-                  </td>
+              {eatenToday.map((f) => {
+                const satFatValue =
+                  Number(f.qty_today) * Number(f.sat_fat_g ?? 0);
+                const sodiumValue =
+                  Number(f.qty_today) * Number(f.sodium_mg ?? 0);
 
-                  <td style={{ padding: "6px 8px" }}>{f.food_name}</td>
+                return (
+                  <tr
+                    key={`eaten-${f.list_order}`}
+                    style={{ borderBottom: "1px solid #eee" }}
+                  >
+                    <td style={{ padding: "6px 8px", fontWeight: 700 }}>
+                      {Number(f.qty_today)}
+                    </td>
 
-                  <td
-  style={{
-    width: 90,
-    textAlign: "right",
-    color:
-      Number(f.qty_today) * Number(f.sat_fat_g ?? 0) >= 4.0
-        ? "red"
-        : Number(f.qty_today) * Number(f.sat_fat_g ?? 0) >= 2.0
-        ? "orange"
-        : "#555",
+                    <td style={{ padding: "6px 8px" }}>{f.food_name}</td>
 
-    fontWeight:
-      Number(f.qty_today) * Number(f.sat_fat_g ?? 0) >= 1.5
-        ? 800
-        : eatenSort === "satFat"
-        ? 800
-        : 400
-  }}
->
-  {(Number(f.qty_today) * Number(f.sat_fat_g ?? 0)).toFixed(1)} g
-</td>
+                    <td
+                      style={{
+                        width: 90,
+                        textAlign: "right",
+                        color:
+                          satFatValue >= 4
+                            ? "red"
+                            : satFatValue >= 2
+                            ? "orange"
+                            : "#555",
+                        fontWeight:
+                          satFatValue >= 2 || eatenSort === "satFat" ? 800 : 400
+                      }}
+                    >
+                      {satFatValue.toFixed(1)} g
+                    </td>
 
-                  <td
-  style={{
-    width: 90,
-    textAlign: "right",
-    color:
-      Number(f.qty_today) * Number(f.sodium_mg ?? 0) >= 400
-        ? "red"
-        : Number(f.qty_today) * Number(f.sodium_mg ?? 0) >= 200
-        ? "orange"
-        : "#555",
-
-    fontWeight:
-      Number(f.qty_today) * Number(f.sodium_mg ?? 0) >= 200
-        ? 800
-        : eatenSort === "sodium"
-        ? 800
-        : 400
-  }}
->
-  {Math.round(Number(f.qty_today) * Number(f.sodium_mg ?? 0))} mg
-</td>
-
-
-                </tr>
-              ))}
+                    <td
+                      style={{
+                        width: 90,
+                        textAlign: "right",
+                        color:
+                          sodiumValue >= 400
+                            ? "red"
+                            : sodiumValue >= 200
+                            ? "orange"
+                            : "#555",
+                        fontWeight:
+                          sodiumValue >= 200 || eatenSort === "sodium" ? 800 : 400
+                      }}
+                    >
+                      {Math.round(sodiumValue)} mg
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         )}
