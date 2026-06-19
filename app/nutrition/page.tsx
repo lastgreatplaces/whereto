@@ -33,8 +33,12 @@ type TodayTotals = {
 type Averages = {
   avg_7day_sodium_mg: number;
   avg_7day_sat_fat_g: number;
+  avg_7day_protein_g: number;
+  avg_7day_fiber_g: number;
   avg_30day_sodium_mg: number;
   avg_30day_sat_fat_g: number;
+  avg_30day_protein_g: number;
+  avg_30day_fiber_g: number;
 };
 
 type EatenSort = "food" | "satFat" | "sodium";
@@ -92,8 +96,12 @@ export default function NutritionPage() {
   const [averages, setAverages] = useState<Averages>({
     avg_7day_sodium_mg: 0,
     avg_7day_sat_fat_g: 0,
+    avg_7day_protein_g: 0,
+    avg_7day_fiber_g: 0,
     avg_30day_sodium_mg: 0,
-    avg_30day_sat_fat_g: 0
+    avg_30day_sat_fat_g: 0,
+    avg_30day_protein_g: 0,
+    avg_30day_fiber_g: 0
   });
 
   const [isLoading, setIsLoading] = useState(true);
@@ -166,8 +174,12 @@ export default function NutritionPage() {
       setAverages({
         avg_7day_sodium_mg: num(avgData.avg_7day_sodium_mg),
         avg_7day_sat_fat_g: num(avgData.avg_7day_sat_fat_g),
+        avg_7day_protein_g: num(avgData.avg_7day_protein_g),
+        avg_7day_fiber_g: num(avgData.avg_7day_fiber_g),
         avg_30day_sodium_mg: num(avgData.avg_30day_sodium_mg),
-        avg_30day_sat_fat_g: num(avgData.avg_30day_sat_fat_g)
+        avg_30day_sat_fat_g: num(avgData.avg_30day_sat_fat_g),
+        avg_30day_protein_g: num(avgData.avg_30day_protein_g),
+        avg_30day_fiber_g: num(avgData.avg_30day_fiber_g)
       });
     }
 
@@ -356,8 +368,8 @@ export default function NutritionPage() {
         style={{
           display: "grid",
           gridTemplateColumns: "1fr",
-          gap: 8,
-          marginBottom: 14
+          gap: 6,
+          marginBottom: 12
         }}
       >
         <div style={compactCardStyle}>
@@ -402,14 +414,22 @@ export default function NutritionPage() {
 
         <div style={cardStyle}>
           <div style={labelStyle}>7-Day Average</div>
-          <div>Sat Fat: {averages.avg_7day_sat_fat_g.toFixed(1)} g</div>
-          <div>Sodium: {Math.round(averages.avg_7day_sodium_mg)} mg</div>
+          <div style={averageGridStyle}>
+            <div>Sat Fat: {averages.avg_7day_sat_fat_g.toFixed(1)} g</div>
+            <div>Protein: {Math.round(averages.avg_7day_protein_g)} g</div>
+            <div>Sodium: {Math.round(averages.avg_7day_sodium_mg)} mg</div>
+            <div>Fiber: {averages.avg_7day_fiber_g.toFixed(1)} g</div>
+          </div>
         </div>
 
         <div style={cardStyle}>
           <div style={labelStyle}>30-Day Average</div>
-          <div>Sat Fat: {averages.avg_30day_sat_fat_g.toFixed(1)} g</div>
-          <div>Sodium: {Math.round(averages.avg_30day_sodium_mg)} mg</div>
+          <div style={averageGridStyle}>
+            <div>Sat Fat: {averages.avg_30day_sat_fat_g.toFixed(1)} g</div>
+            <div>Protein: {Math.round(averages.avg_30day_protein_g)} g</div>
+            <div>Sodium: {Math.round(averages.avg_30day_sodium_mg)} mg</div>
+            <div>Fiber: {averages.avg_30day_fiber_g.toFixed(1)} g</div>
+          </div>
         </div>
       </div>
 
@@ -587,7 +607,7 @@ const dateButtonStyle: React.CSSProperties = {
 };
 
 const compactCardStyle: React.CSSProperties = {
-  padding: "10px 12px",
+  padding: "6px 12px",
   border: "1px solid #ddd",
   borderRadius: 10,
   background: "#fafafa"
@@ -601,7 +621,7 @@ const compactMetricRowStyle: React.CSSProperties = {
 };
 
 const compactNumberStyle: React.CSSProperties = {
-  fontSize: 24,
+  fontSize: 20,
   fontWeight: 800
 };
 
@@ -612,8 +632,14 @@ const compactTargetStyle: React.CSSProperties = {
   textAlign: "right"
 };
 
+const averageGridStyle: React.CSSProperties = {
+  display: "grid",
+  gridTemplateColumns: "1fr 1fr",
+  gap: 4
+};
+
 const cardStyle: React.CSSProperties = {
-  padding: 12,
+  padding: 10,
   border: "1px solid #ddd",
   borderRadius: 10,
   background: "#fafafa"
@@ -622,7 +648,7 @@ const cardStyle: React.CSSProperties = {
 const labelStyle: React.CSSProperties = {
   fontSize: 12,
   color: "#666",
-  marginBottom: 4,
+  marginBottom: 2,
   fontWeight: 700
 };
 
