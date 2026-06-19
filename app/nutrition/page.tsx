@@ -372,7 +372,12 @@ export default function NutritionPage() {
           marginBottom: 12
         }}
       >
-        <div style={compactCardStyle}>
+        <div
+  style={{
+    ...compactCardStyle,
+    background: "#fff7f2"
+  }}
+>
           <div style={labelStyle}>Sat Fat</div>
           <div style={compactMetricRowStyle}>
             <div style={compactNumberStyle}>{totals.sat_fat_g.toFixed(1)} g</div>
@@ -382,7 +387,12 @@ export default function NutritionPage() {
           </div>
         </div>
 
-        <div style={compactCardStyle}>
+        <div
+  style={{
+    ...compactCardStyle,
+    background: "#fff7f2"
+  }}
+>
           <div style={labelStyle}>Sodium</div>
           <div style={compactMetricRowStyle}>
             <div style={compactNumberStyle}>{Math.round(totals.sodium_mg)} mg</div>
