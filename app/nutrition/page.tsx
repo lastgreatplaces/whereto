@@ -10,6 +10,8 @@ type FoodBaseRow = {
   food_name: string;
   sodium_mg: number;
   sat_fat_g: number;
+  protein_g: number;
+  fiber_g: number;
 };
 
 type FoodRow = FoodBaseRow & {
@@ -24,6 +26,8 @@ type LogRow = {
 type TodayTotals = {
   sodium_mg: number;
   sat_fat_g: number;
+  protein_g: number;
+  fiber_g: number;
 };
 
 type Averages = {
@@ -37,6 +41,8 @@ type EatenSort = "food" | "satFat" | "sodium";
 
 const SAT_FAT_TARGET = 15;
 const SODIUM_TARGET = 2000;
+const PROTEIN_TARGET = 100;
+const FIBER_TARGET = 30;
 
 function todayLocalDate() {
   const d = new Date();
@@ -78,7 +84,9 @@ export default function NutritionPage() {
 
   const [totals, setTotals] = useState<TodayTotals>({
     sodium_mg: 0,
-    sat_fat_g: 0
+    sat_fat_g: 0,
+    protein_g: 0,
+    fiber_g: 0
   });
 
   const [averages, setAverages] = useState<Averages>({
@@ -95,7 +103,9 @@ export default function NutritionPage() {
 
     const { data: foodData, error: foodError } = await supabase
       .from("nutrition_foods")
-      .select("list_order, category, food_name, sodium_mg, sat_fat_g")
+      .select(
+        "list_order, category, food_name, sodium_mg, sat_fat_g, protein_g, fiber_g"
+      )
       .order("list_order");
 
     if (foodError) {
@@ -131,9 +141,16 @@ export default function NutritionPage() {
       (sum, f) => {
         sum.sodium_mg += Number(f.qty_today) * Number(f.sodium_mg ?? 0);
         sum.sat_fat_g += Number(f.qty_today) * Number(f.sat_fat_g ?? 0);
+        sum.protein_g += Number(f.qty_today) * Number(f.protein_g ?? 0);
+        sum.fiber_g += Number(f.qty_today) * Number(f.fiber_g ?? 0);
         return sum;
       },
-      { sodium_mg: 0, sat_fat_g: 0 }
+      {
+        sodium_mg: 0,
+        sat_fat_g: 0,
+        protein_g: 0,
+        fiber_g: 0
+      }
     );
 
     setTotals(selectedTotals);
@@ -248,6 +265,8 @@ export default function NutritionPage() {
 
   const satPct = Math.round((totals.sat_fat_g / SAT_FAT_TARGET) * 100);
   const sodiumPct = Math.round((totals.sodium_mg / SODIUM_TARGET) * 100);
+  const proteinPct = Math.round((totals.protein_g / PROTEIN_TARGET) * 100);
+  const fiberPct = Math.round((totals.fiber_g / FIBER_TARGET) * 100);
 
   return (
     <div style={{ padding: 12, fontSize: 14 }}>
@@ -285,18 +304,7 @@ export default function NutritionPage() {
           Nutrition • {displayDate(selectedDate)}
         </h2>
 
-        <button
-          onClick={scrollToEatenToday}
-          style={{
-            padding: "7px 11px",
-            borderRadius: 8,
-            border: "1px solid #ccc",
-            background: "#f7f7f7",
-            fontWeight: 800,
-            cursor: "pointer",
-            whiteSpace: "nowrap"
-          }}
-        >
+        <button onClick={scrollToEatenToday} style={dateButtonStyle}>
           Eaten
         </button>
       </div>
@@ -347,21 +355,49 @@ export default function NutritionPage() {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
-          gap: 10,
+          gridTemplateColumns: "1fr",
+          gap: 8,
           marginBottom: 14
         }}
       >
-        <div style={cardStyle}>
-          <div style={labelStyle}>Selected Day Sat Fat</div>
-          <div style={bigNumberStyle}>{totals.sat_fat_g.toFixed(1)} g</div>
-          <div>{SAT_FAT_TARGET} g max · {satPct}%</div>
+        <div style={compactCardStyle}>
+          <div style={labelStyle}>Sat Fat</div>
+          <div style={compactMetricRowStyle}>
+            <div style={compactNumberStyle}>{totals.sat_fat_g.toFixed(1)} g</div>
+            <div style={compactTargetStyle}>
+              {satPct}% of {SAT_FAT_TARGET} g
+            </div>
+          </div>
         </div>
 
-        <div style={cardStyle}>
-          <div style={labelStyle}>Selected Day Sodium</div>
-          <div style={bigNumberStyle}>{Math.round(totals.sodium_mg)} mg</div>
-          <div>{SODIUM_TARGET} mg max · {sodiumPct}%</div>
+        <div style={compactCardStyle}>
+          <div style={labelStyle}>Sodium</div>
+          <div style={compactMetricRowStyle}>
+            <div style={compactNumberStyle}>{Math.round(totals.sodium_mg)} mg</div>
+            <div style={compactTargetStyle}>
+              {sodiumPct}% of {SODIUM_TARGET} mg
+            </div>
+          </div>
+        </div>
+
+        <div style={compactCardStyle}>
+          <div style={labelStyle}>Protein</div>
+          <div style={compactMetricRowStyle}>
+            <div style={compactNumberStyle}>{totals.protein_g.toFixed(0)} g</div>
+            <div style={compactTargetStyle}>
+              {proteinPct}% of {PROTEIN_TARGET} g
+            </div>
+          </div>
+        </div>
+
+        <div style={compactCardStyle}>
+          <div style={labelStyle}>Fiber</div>
+          <div style={compactMetricRowStyle}>
+            <div style={compactNumberStyle}>{totals.fiber_g.toFixed(0)} g</div>
+            <div style={compactTargetStyle}>
+              {fiberPct}% of {FIBER_TARGET} g
+            </div>
+          </div>
         </div>
 
         <div style={cardStyle}>
@@ -550,6 +586,32 @@ const dateButtonStyle: React.CSSProperties = {
   whiteSpace: "nowrap"
 };
 
+const compactCardStyle: React.CSSProperties = {
+  padding: "10px 12px",
+  border: "1px solid #ddd",
+  borderRadius: 10,
+  background: "#fafafa"
+};
+
+const compactMetricRowStyle: React.CSSProperties = {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "baseline",
+  gap: 12
+};
+
+const compactNumberStyle: React.CSSProperties = {
+  fontSize: 24,
+  fontWeight: 800
+};
+
+const compactTargetStyle: React.CSSProperties = {
+  fontSize: 14,
+  fontWeight: 700,
+  color: "#555",
+  textAlign: "right"
+};
+
 const cardStyle: React.CSSProperties = {
   padding: 12,
   border: "1px solid #ddd",
@@ -562,12 +624,6 @@ const labelStyle: React.CSSProperties = {
   color: "#666",
   marginBottom: 4,
   fontWeight: 700
-};
-
-const bigNumberStyle: React.CSSProperties = {
-  fontSize: 24,
-  fontWeight: 800,
-  marginBottom: 4
 };
 
 const buttonStyle: React.CSSProperties = {
