@@ -12,6 +12,7 @@ type FoodBaseRow = {
   sat_fat_g: number;
   protein_g: number;
   fiber_g: number;
+  benefit_cost_ratio: number | null;
 };
 
 type FoodRow = FoodBaseRow & {
@@ -42,6 +43,7 @@ type Averages = {
 };
 
 type EatenSort = "food" | "satFat" | "sodium";
+type FoodListSort = "food" | "roi";
 
 const SAT_FAT_TARGET = 15;
 const SODIUM_TARGET = 2000;
@@ -85,6 +87,7 @@ export default function NutritionPage() {
   const [selectedDate, setSelectedDate] = useState(todayLocalDate());
   const [foods, setFoods] = useState<FoodRow[]>([]);
   const [eatenSort, setEatenSort] = useState<EatenSort>("food");
+  const [foodListSort, setFoodListSort] = useState<FoodListSort>("food");
 
   const [totals, setTotals] = useState<TodayTotals>({
     sodium_mg: 0,
@@ -110,9 +113,9 @@ export default function NutritionPage() {
     setIsLoading(true);
 
     const { data: foodData, error: foodError } = await supabase
-      .from("nutrition_foods")
+      .from("v_nutrition_foods_roi")
       .select(
-        "list_order, category, food_name, sodium_mg, sat_fat_g, protein_g, fiber_g"
+        "list_order, category, food_name, sodium_mg, sat_fat_g, protein_g, fiber_g, benefit_cost_ratio"
       )
       .order("list_order");
 
@@ -153,12 +156,7 @@ export default function NutritionPage() {
         sum.fiber_g += Number(f.qty_today) * Number(f.fiber_g ?? 0);
         return sum;
       },
-      {
-        sodium_mg: 0,
-        sat_fat_g: 0,
-        protein_g: 0,
-        fiber_g: 0
-      }
+      { sodium_mg: 0, sat_fat_g: 0, protein_g: 0, fiber_g: 0 }
     );
 
     setTotals(selectedTotals);
@@ -239,8 +237,21 @@ export default function NutritionPage() {
       groups[cat].push(f);
     });
 
+    Object.keys(groups).forEach((cat) => {
+      groups[cat].sort((a, b) => {
+        if (foodListSort === "roi") {
+          return (
+            Number(b.benefit_cost_ratio ?? 0) -
+            Number(a.benefit_cost_ratio ?? 0)
+          );
+        }
+
+        return a.list_order - b.list_order;
+      });
+    });
+
     return groups;
-  }, [foods]);
+  }, [foods, foodListSort]);
 
   const eatenToday = useMemo(() => {
     return foods
@@ -268,6 +279,17 @@ export default function NutritionPage() {
     return eatenSort === key ? `${label} ▼` : label;
   }
 
+  function foodListSortLabel(key: FoodListSort, label: string) {
+    return foodListSort === key ? `${label} ▼` : label;
+  }
+
+  function roiColor(roi: number | null) {
+    const v = Number(roi ?? 0);
+    if (v >= 2) return "green";
+    if (v >= 1) return "#c08000";
+    return "#b33a00";
+  }
+
   function scrollToEatenToday() {
     document.getElementById("eaten-today")?.scrollIntoView({
       behavior: "smooth",
@@ -283,35 +305,12 @@ export default function NutritionPage() {
   return (
     <div style={{ padding: 12, fontSize: 14 }}>
       <div style={{ marginBottom: 12 }}>
-        <Link
-          href="/"
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: "8px 12px",
-            borderRadius: 8,
-            border: "1px solid #d0d0d0",
-            background: "#f7f7f7",
-            textDecoration: "none",
-            color: "#111",
-            fontWeight: 600
-          }}
-        >
+        <Link href="/" style={homeButtonStyle}>
           ← Home
         </Link>
       </div>
 
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          gap: 10,
-          marginTop: 4,
-          marginBottom: 10
-        }}
-      >
+      <div style={topRowStyle}>
         <h2 style={{ margin: 0, fontWeight: 800 }}>
           Nutrition • {displayDate(selectedDate)}
         </h2>
@@ -321,15 +320,7 @@ export default function NutritionPage() {
         </button>
       </div>
 
-      <div
-        style={{
-          display: "flex",
-          gap: 8,
-          alignItems: "center",
-          marginBottom: 12,
-          flexWrap: "wrap"
-        }}
-      >
+      <div style={dateRowStyle}>
         <button
           onClick={() => setSelectedDate(shiftDate(selectedDate, -1))}
           style={dateButtonStyle}
@@ -341,12 +332,7 @@ export default function NutritionPage() {
           type="date"
           value={selectedDate}
           onChange={(e) => setSelectedDate(e.target.value)}
-          style={{
-            padding: "7px 9px",
-            borderRadius: 8,
-            border: "1px solid #ccc",
-            fontWeight: 700
-          }}
+          style={dateInputStyle}
         />
 
         <button
@@ -364,20 +350,8 @@ export default function NutritionPage() {
         </button>
       </div>
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "1fr",
-          gap: 6,
-          marginBottom: 12
-        }}
-      >
-        <div
-  style={{
-    ...compactCardStyle,
-    background: "#fff7f2"
-  }}
->
+      <div style={cardsGridStyle}>
+        <div style={costCardStyle}>
           <div style={labelStyle}>Sat Fat</div>
           <div style={compactMetricRowStyle}>
             <div style={compactNumberStyle}>{totals.sat_fat_g.toFixed(1)} g</div>
@@ -387,12 +361,7 @@ export default function NutritionPage() {
           </div>
         </div>
 
-        <div
-  style={{
-    ...compactCardStyle,
-    background: "#fff7f2"
-  }}
->
+        <div style={costCardStyle}>
           <div style={labelStyle}>Sodium</div>
           <div style={compactMetricRowStyle}>
             <div style={compactNumberStyle}>{Math.round(totals.sodium_mg)} mg</div>
@@ -450,6 +419,46 @@ export default function NutritionPage() {
           <h3 style={{ marginBottom: 8 }}>{category}</h3>
 
           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
+            <thead>
+              <tr style={{ borderBottom: "1px solid #ddd" }}>
+                <th style={{ width: 38 }}></th>
+                <th style={{ width: 36, textAlign: "center" }}>Qty</th>
+                <th style={{ width: 38 }}></th>
+
+                <th
+                  onClick={() => setFoodListSort("food")}
+                  style={{
+                    padding: "6px 8px",
+                    textAlign: "left",
+                    cursor: "pointer",
+                    fontWeight: foodListSort === "food" ? 800 : 600
+                  }}
+                >
+                  {foodListSortLabel("food", "Food")}
+                </th>
+
+                <th
+                  onClick={() => setFoodListSort("roi")}
+                  style={{
+                    width: 54,
+                    textAlign: "right",
+                    cursor: "pointer",
+                    fontWeight: foodListSort === "roi" ? 800 : 600
+                  }}
+                >
+                  {foodListSortLabel("roi", "ROI")}
+                </th>
+
+                <th style={{ width: 74, textAlign: "right", color: "#555" }}>
+                  Sat
+                </th>
+
+                <th style={{ width: 76, textAlign: "right", color: "#555" }}>
+                  Na
+                </th>
+              </tr>
+            </thead>
+
             <tbody>
               {items.map((f) => (
                 <tr key={f.list_order} style={{ borderBottom: "1px solid #eee" }}>
@@ -477,11 +486,22 @@ export default function NutritionPage() {
 
                   <td style={{ padding: "6px 8px" }}>{f.food_name}</td>
 
-                  <td style={{ width: 90, textAlign: "right", color: "#555" }}>
+                  <td
+                    style={{
+                      width: 54,
+                      textAlign: "right",
+                      fontWeight: 800,
+                      color: roiColor(f.benefit_cost_ratio)
+                    }}
+                  >
+                    {Number(f.benefit_cost_ratio ?? 0).toFixed(1)}
+                  </td>
+
+                  <td style={{ width: 74, textAlign: "right", color: "#555" }}>
                     {Number(f.sat_fat_g ?? 0).toFixed(1)} g
                   </td>
 
-                  <td style={{ width: 90, textAlign: "right", color: "#555" }}>
+                  <td style={{ width: 76, textAlign: "right", color: "#555" }}>
                     {Math.round(Number(f.sodium_mg ?? 0))} mg
                   </td>
                 </tr>
@@ -606,6 +626,43 @@ export default function NutritionPage() {
   );
 }
 
+const homeButtonStyle: React.CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  padding: "8px 12px",
+  borderRadius: 8,
+  border: "1px solid #d0d0d0",
+  background: "#f7f7f7",
+  textDecoration: "none",
+  color: "#111",
+  fontWeight: 600
+};
+
+const topRowStyle: React.CSSProperties = {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  gap: 10,
+  marginTop: 4,
+  marginBottom: 10
+};
+
+const dateRowStyle: React.CSSProperties = {
+  display: "flex",
+  gap: 8,
+  alignItems: "center",
+  marginBottom: 12,
+  flexWrap: "wrap"
+};
+
+const dateInputStyle: React.CSSProperties = {
+  padding: "7px 9px",
+  borderRadius: 8,
+  border: "1px solid #ccc",
+  fontWeight: 700
+};
+
 const dateButtonStyle: React.CSSProperties = {
   padding: "7px 11px",
   borderRadius: 8,
@@ -616,11 +673,23 @@ const dateButtonStyle: React.CSSProperties = {
   whiteSpace: "nowrap"
 };
 
+const cardsGridStyle: React.CSSProperties = {
+  display: "grid",
+  gridTemplateColumns: "1fr",
+  gap: 6,
+  marginBottom: 12
+};
+
 const compactCardStyle: React.CSSProperties = {
   padding: "6px 12px",
   border: "1px solid #ddd",
   borderRadius: 10,
   background: "#fafafa"
+};
+
+const costCardStyle: React.CSSProperties = {
+  ...compactCardStyle,
+  background: "#fff7f2"
 };
 
 const compactMetricRowStyle: React.CSSProperties = {
