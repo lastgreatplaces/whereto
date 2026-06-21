@@ -42,7 +42,7 @@ type Averages = {
   avg_30day_fiber_g: number;
 };
 
-type EatenSort = "food" | "satFat" | "sodium";
+type EatenSort = "food" | "satFat" | "sodium" | "protein" | "fiber";
 type FoodListSort = "food" | "roi";
 
 const SAT_FAT_TARGET = 15;
@@ -240,10 +240,7 @@ export default function NutritionPage() {
     Object.keys(groups).forEach((cat) => {
       groups[cat].sort((a, b) => {
         if (foodListSort === "roi") {
-          return (
-            Number(b.benefit_cost_ratio ?? 0) -
-            Number(a.benefit_cost_ratio ?? 0)
-          );
+          return Number(b.benefit_cost_ratio ?? 0) - Number(a.benefit_cost_ratio ?? 0);
         }
 
         return a.list_order - b.list_order;
@@ -258,17 +255,23 @@ export default function NutritionPage() {
       .filter((f) => Number(f.qty_today ?? 0) > 0)
       .sort((a, b) => {
         if (eatenSort === "satFat") {
-          return (
-            Number(b.qty_today) * Number(b.sat_fat_g ?? 0) -
-            Number(a.qty_today) * Number(a.sat_fat_g ?? 0)
-          );
+          return Number(b.qty_today) * Number(b.sat_fat_g ?? 0) -
+            Number(a.qty_today) * Number(a.sat_fat_g ?? 0);
         }
 
         if (eatenSort === "sodium") {
-          return (
-            Number(b.qty_today) * Number(b.sodium_mg ?? 0) -
-            Number(a.qty_today) * Number(a.sodium_mg ?? 0)
-          );
+          return Number(b.qty_today) * Number(b.sodium_mg ?? 0) -
+            Number(a.qty_today) * Number(a.sodium_mg ?? 0);
+        }
+
+        if (eatenSort === "protein") {
+          return Number(b.qty_today) * Number(b.protein_g ?? 0) -
+            Number(a.qty_today) * Number(a.protein_g ?? 0);
+        }
+
+        if (eatenSort === "fiber") {
+          return Number(b.qty_today) * Number(b.fiber_g ?? 0) -
+            Number(a.qty_today) * Number(a.fiber_g ?? 0);
         }
 
         return a.list_order - b.list_order;
@@ -285,9 +288,10 @@ export default function NutritionPage() {
 
   function roiColor(roi: number | null) {
     const v = Number(roi ?? 0);
-    if (v >= 2) return "green";
-    if (v >= 1) return "#c08000";
-    return "#b33a00";
+    if (v > 1.5) return "#006400";
+    if (v > 1.0) return "green";
+    if (v > 0.5) return "orange";
+    return "red";
   }
 
   function scrollToEatenToday() {
@@ -418,96 +422,110 @@ export default function NutritionPage() {
         <div key={category} style={{ marginBottom: 18 }}>
           <h3 style={{ marginBottom: 8 }}>{category}</h3>
 
-          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
-            <thead>
-              <tr style={{ borderBottom: "1px solid #ddd" }}>
-                <th style={{ width: 38 }}></th>
-                <th style={{ width: 36, textAlign: "center" }}>Qty</th>
-                <th style={{ width: 38 }}></th>
+          <div style={{ overflowX: "auto" }}>
+            <table
+              style={{
+                minWidth: 720,
+                width: "100%",
+                borderCollapse: "collapse",
+                fontSize: 14
+              }}
+            >
+              <thead>
+                <tr style={{ borderBottom: "1px solid #ddd" }}>
+                  <th style={{ width: 38 }}></th>
+                  <th style={{ width: 36, textAlign: "center" }}>Qty</th>
+                  <th style={{ width: 38 }}></th>
 
-                <th
-                  onClick={() => setFoodListSort("food")}
-                  style={{
-                    padding: "6px 8px",
-                    textAlign: "left",
-                    cursor: "pointer",
-                    fontWeight: foodListSort === "food" ? 800 : 600
-                  }}
-                >
-                  {foodListSortLabel("food", "Food")}
-                </th>
-
-                <th
-                  onClick={() => setFoodListSort("roi")}
-                  style={{
-                    width: 54,
-                    textAlign: "right",
-                    cursor: "pointer",
-                    fontWeight: foodListSort === "roi" ? 800 : 600
-                  }}
-                >
-                  {foodListSortLabel("roi", "ROI")}
-                </th>
-
-                <th style={{ width: 74, textAlign: "right", color: "#555" }}>
-                  Sat
-                </th>
-
-                <th style={{ width: 76, textAlign: "right", color: "#555" }}>
-                  Na
-                </th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {items.map((f) => (
-                <tr key={f.list_order} style={{ borderBottom: "1px solid #eee" }}>
-                  <td style={{ width: 38, padding: "6px 2px" }}>
-                    <button
-                      onClick={() => changeQty(f.list_order, f.qty_today, -1)}
-                      style={buttonStyle}
-                    >
-                      −
-                    </button>
-                  </td>
-
-                  <td style={{ width: 36, textAlign: "center", fontWeight: 700 }}>
-                    {Number(f.qty_today ?? 0)}
-                  </td>
-
-                  <td style={{ width: 38, padding: "6px 2px" }}>
-                    <button
-                      onClick={() => changeQty(f.list_order, f.qty_today, 1)}
-                      style={buttonStyle}
-                    >
-                      +
-                    </button>
-                  </td>
-
-                  <td style={{ padding: "6px 8px" }}>{f.food_name}</td>
-
-                  <td
+                  <th
+                    onClick={() => setFoodListSort("food")}
                     style={{
-                      width: 54,
-                      textAlign: "right",
-                      fontWeight: 800,
-                      color: roiColor(f.benefit_cost_ratio)
+                      padding: "6px 8px",
+                      textAlign: "left",
+                      cursor: "pointer",
+                      fontWeight: foodListSort === "food" ? 800 : 600
                     }}
                   >
-                    {Number(f.benefit_cost_ratio ?? 0).toFixed(1)}
-                  </td>
+                    {foodListSortLabel("food", "Food")}
+                  </th>
 
-                  <td style={{ width: 74, textAlign: "right", color: "#555" }}>
-                    {Number(f.sat_fat_g ?? 0).toFixed(1)} g
-                  </td>
+                  <th
+                    onClick={() => setFoodListSort("roi")}
+                    style={{
+                      width: 58,
+                      textAlign: "right",
+                      cursor: "pointer",
+                      fontWeight: foodListSort === "roi" ? 800 : 600
+                    }}
+                  >
+                    {foodListSortLabel("roi", "ROI")}
+                  </th>
 
-                  <td style={{ width: 76, textAlign: "right", color: "#555" }}>
-                    {Math.round(Number(f.sodium_mg ?? 0))} mg
-                  </td>
+                  <th style={nutrientHeaderStyle}>Sat Fat</th>
+                  <th style={nutrientHeaderStyle}>Sodium</th>
+                  <th style={nutrientHeaderStyle}>Protein</th>
+                  <th style={nutrientHeaderStyle}>Fiber</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+
+              <tbody>
+                {items.map((f) => (
+                  <tr key={f.list_order} style={{ borderBottom: "1px solid #eee" }}>
+                    <td style={{ width: 38, padding: "6px 2px" }}>
+                      <button
+                        onClick={() => changeQty(f.list_order, f.qty_today, -1)}
+                        style={buttonStyle}
+                      >
+                        −
+                      </button>
+                    </td>
+
+                    <td style={{ width: 36, textAlign: "center", fontWeight: 700 }}>
+                      {Number(f.qty_today ?? 0)}
+                    </td>
+
+                    <td style={{ width: 38, padding: "6px 2px" }}>
+                      <button
+                        onClick={() => changeQty(f.list_order, f.qty_today, 1)}
+                        style={buttonStyle}
+                      >
+                        +
+                      </button>
+                    </td>
+
+                    <td style={{ padding: "6px 8px" }}>{f.food_name}</td>
+
+                    <td
+                      style={{
+                        width: 58,
+                        textAlign: "right",
+                        fontWeight: 800,
+                        color: roiColor(f.benefit_cost_ratio)
+                      }}
+                    >
+                      {Number(f.benefit_cost_ratio ?? 0).toFixed(1)}
+                    </td>
+
+                    <td style={nutrientCellStyle}>
+                      {Number(f.sat_fat_g ?? 0).toFixed(1)} g
+                    </td>
+
+                    <td style={nutrientCellStyle}>
+                      {Math.round(Number(f.sodium_mg ?? 0))} mg
+                    </td>
+
+                    <td style={nutrientCellStyle}>
+                      {Number(f.protein_g ?? 0).toFixed(0)} g
+                    </td>
+
+                    <td style={nutrientCellStyle}>
+                      {Number(f.fiber_g ?? 0).toFixed(0)} g
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       ))}
 
@@ -517,109 +535,167 @@ export default function NutritionPage() {
         {eatenToday.length === 0 ? (
           <div style={{ color: "#666" }}>Nothing logged for this date.</div>
         ) : (
-          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
-            <thead>
-              <tr style={{ borderBottom: "1px solid #ddd" }}>
-                <th style={{ width: 40, padding: "6px 8px", textAlign: "left" }}>
-                  Qty
-                </th>
+          <div style={{ overflowX: "auto" }}>
+            <table
+              style={{
+                minWidth: 650,
+                width: "100%",
+                borderCollapse: "collapse",
+                fontSize: 14
+              }}
+            >
+              <thead>
+                <tr style={{ borderBottom: "1px solid #ddd" }}>
+                  <th style={{ width: 40, padding: "6px 8px", textAlign: "left" }}>
+                    Qty
+                  </th>
 
-                <th
-                  onClick={() => setEatenSort("food")}
-                  style={{
-                    padding: "6px 8px",
-                    textAlign: "left",
-                    cursor: "pointer",
-                    fontWeight: eatenSort === "food" ? 800 : 600
-                  }}
-                >
-                  {sortLabel("food", "Food")}
-                </th>
-
-                <th
-                  onClick={() => setEatenSort("satFat")}
-                  style={{
-                    width: 90,
-                    padding: "6px 8px",
-                    textAlign: "right",
-                    cursor: "pointer",
-                    fontWeight: eatenSort === "satFat" ? 800 : 600
-                  }}
-                >
-                  {sortLabel("satFat", "Sat Fat")}
-                </th>
-
-                <th
-                  onClick={() => setEatenSort("sodium")}
-                  style={{
-                    width: 90,
-                    padding: "6px 8px",
-                    textAlign: "right",
-                    cursor: "pointer",
-                    fontWeight: eatenSort === "sodium" ? 800 : 600
-                  }}
-                >
-                  {sortLabel("sodium", "Sodium")}
-                </th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {eatenToday.map((f) => {
-                const satFatValue =
-                  Number(f.qty_today) * Number(f.sat_fat_g ?? 0);
-                const sodiumValue =
-                  Number(f.qty_today) * Number(f.sodium_mg ?? 0);
-
-                return (
-                  <tr
-                    key={`eaten-${f.list_order}`}
-                    style={{ borderBottom: "1px solid #eee" }}
+                  <th
+                    onClick={() => setEatenSort("food")}
+                    style={{
+                      padding: "6px 8px",
+                      textAlign: "left",
+                      cursor: "pointer",
+                      fontWeight: eatenSort === "food" ? 800 : 600
+                    }}
                   >
-                    <td style={{ padding: "6px 8px", fontWeight: 700 }}>
-                      {Number(f.qty_today)}
-                    </td>
+                    {sortLabel("food", "Food")}
+                  </th>
 
-                    <td style={{ padding: "6px 8px" }}>{f.food_name}</td>
+                  <th
+                    onClick={() => setEatenSort("satFat")}
+                    style={{
+                      width: 90,
+                      padding: "6px 8px",
+                      textAlign: "right",
+                      cursor: "pointer",
+                      fontWeight: eatenSort === "satFat" ? 800 : 600
+                    }}
+                  >
+                    {sortLabel("satFat", "Sat Fat")}
+                  </th>
 
-                    <td
-                      style={{
-                        width: 90,
-                        textAlign: "right",
-                        color:
-                          satFatValue >= 4
-                            ? "red"
-                            : satFatValue >= 2
-                            ? "orange"
-                            : "#555",
-                        fontWeight:
-                          satFatValue >= 2 || eatenSort === "satFat" ? 800 : 400
-                      }}
+                  <th
+                    onClick={() => setEatenSort("sodium")}
+                    style={{
+                      width: 90,
+                      padding: "6px 8px",
+                      textAlign: "right",
+                      cursor: "pointer",
+                      fontWeight: eatenSort === "sodium" ? 800 : 600
+                    }}
+                  >
+                    {sortLabel("sodium", "Sodium")}
+                  </th>
+
+                  <th
+                    onClick={() => setEatenSort("protein")}
+                    style={{
+                      width: 90,
+                      padding: "6px 8px",
+                      textAlign: "right",
+                      cursor: "pointer",
+                      fontWeight: eatenSort === "protein" ? 800 : 600
+                    }}
+                  >
+                    {sortLabel("protein", "Protein")}
+                  </th>
+
+                  <th
+                    onClick={() => setEatenSort("fiber")}
+                    style={{
+                      width: 90,
+                      padding: "6px 8px",
+                      textAlign: "right",
+                      cursor: "pointer",
+                      fontWeight: eatenSort === "fiber" ? 800 : 600
+                    }}
+                  >
+                    {sortLabel("fiber", "Fiber")}
+                  </th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {eatenToday.map((f) => {
+                  const qty = Number(f.qty_today);
+                  const satFatValue = qty * Number(f.sat_fat_g ?? 0);
+                  const sodiumValue = qty * Number(f.sodium_mg ?? 0);
+                  const proteinValue = qty * Number(f.protein_g ?? 0);
+                  const fiberValue = qty * Number(f.fiber_g ?? 0);
+
+                  return (
+                    <tr
+                      key={`eaten-${f.list_order}`}
+                      style={{ borderBottom: "1px solid #eee" }}
                     >
-                      {satFatValue.toFixed(1)} g
-                    </td>
+                      <td style={{ padding: "6px 8px", fontWeight: 700 }}>
+                        {qty}
+                      </td>
 
-                    <td
-                      style={{
-                        width: 90,
-                        textAlign: "right",
-                        color:
-                          sodiumValue >= 400
-                            ? "red"
-                            : sodiumValue >= 200
-                            ? "orange"
-                            : "#555",
-                        fontWeight:
-                          sodiumValue >= 200 || eatenSort === "sodium" ? 800 : 400
-                      }}
-                    >
-                      {Math.round(sodiumValue)} mg
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                      <td style={{ padding: "6px 8px" }}>{f.food_name}</td>
+
+                      <td
+                        style={{
+                          width: 90,
+                          textAlign: "right",
+                          color:
+                            satFatValue >= 4
+                              ? "red"
+                              : satFatValue >= 2
+                              ? "orange"
+                              : "#555",
+                          fontWeight:
+                            satFatValue >= 2 || eatenSort === "satFat" ? 800 : 400
+                        }}
+                      >
+                        {satFatValue.toFixed(1)} g
+                      </td>
+
+                      <td
+                        style={{
+                          width: 90,
+                          textAlign: "right",
+                          color:
+                            sodiumValue >= 400
+                              ? "red"
+                              : sodiumValue >= 200
+                              ? "orange"
+                              : "#555",
+                          fontWeight:
+                            sodiumValue >= 200 || eatenSort === "sodium" ? 800 : 400
+                        }}
+                      >
+                        {Math.round(sodiumValue)} mg
+                      </td>
+
+                      <td
+                        style={{
+                          width: 90,
+                          textAlign: "right",
+                          color: "#555",
+                          fontWeight: eatenSort === "protein" ? 800 : 400
+                        }}
+                      >
+                        {proteinValue.toFixed(0)} g
+                      </td>
+
+                      <td
+                        style={{
+                          width: 90,
+                          textAlign: "right",
+                          color: "#555",
+                          fontWeight: eatenSort === "fiber" ? 800 : 400
+                        }}
+                      >
+                        {fiberValue.toFixed(0)} g
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     </div>
@@ -729,6 +805,22 @@ const labelStyle: React.CSSProperties = {
   color: "#666",
   marginBottom: 2,
   fontWeight: 700
+};
+
+const nutrientHeaderStyle: React.CSSProperties = {
+  width: 86,
+  textAlign: "right",
+  color: "#555",
+  padding: "6px 8px",
+  whiteSpace: "nowrap"
+};
+
+const nutrientCellStyle: React.CSSProperties = {
+  width: 86,
+  textAlign: "right",
+  color: "#555",
+  padding: "6px 8px",
+  whiteSpace: "nowrap"
 };
 
 const buttonStyle: React.CSSProperties = {
