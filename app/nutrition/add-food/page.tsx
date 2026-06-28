@@ -5,7 +5,7 @@ import { supabase } from "@/lib/supabaseClient";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-const categories = ["Breakfast", "Lunch", "Snacks", "Dinner", "Other"];
+const categories = ["Breakfast", "Lunch", "Snacks", "Dinner", "Items"];
 
 function num(v: string) {
   return Number(v || 0);
