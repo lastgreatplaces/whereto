@@ -320,12 +320,14 @@ export default function NutritionPage() {
         <h2
   style={{
     margin: 0,
-    fontSize: 30,
-    fontWeight: 700
+    fontSize: 22,
+    fontWeight: 800,
+    lineHeight: 1.15,
+    whiteSpace: "nowrap"
   }}
 >
-          Nutrition • {displayDate(selectedDate)}
-        </h2>
+  Nutrition • {displayDate(selectedDate)}
+</h2>
 
         <button onClick={scrollToEatenToday} style={dateButtonStyle}>
           Eaten
@@ -736,36 +738,38 @@ const topRowStyle: React.CSSProperties = {
   display: "flex",
   justifyContent: "space-between",
   alignItems: "center",
-  gap: 10,
+  gap: 8,
   marginTop: 4,
   marginBottom: 10
 };
 
 const dateRowStyle: React.CSSProperties = {
   display: "flex",
-  gap: 8,
   alignItems: "center",
+  gap: 6,
   marginBottom: 12,
   flexWrap: "nowrap"
 };
 
-const dateInputStyle = {
-  width: 132,
+const dateInputStyle: React.CSSProperties = {
+  width: 128,
   padding: "6px 6px",
   borderRadius: 8,
   border: "1px solid #ccc",
   fontWeight: 700,
-  fontSize: 15
+  fontSize: 14
 };
 
-const dateButtonStyle = {
-  padding: "6px 8px",
-  minWidth: 44,
+const dateButtonStyle: React.CSSProperties = {
+  padding: "6px 7px",
+  minWidth: 42,
   borderRadius: 8,
   border: "1px solid #ccc",
   background: "#f7f7f7",
-  fontWeight: 700,
-  fontSize: 15,
+  color: "#111",
+  textDecoration: "none",
+  fontWeight: 800,
+  fontSize: 14,
   cursor: "pointer",
   whiteSpace: "nowrap"
 };
