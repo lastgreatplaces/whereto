@@ -332,9 +332,7 @@ export default function NutritionPage() {
           style={dateButtonStyle}
         >
 
-<Link href="/nutrition/add-food" style={dateButtonStyle}>
-  + Food
-</Link>
+
 
           ←
         </button>
@@ -359,6 +357,12 @@ export default function NutritionPage() {
         >
           Today
         </button>
+
+<Link href="/nutrition/add-food" style={dateButtonStyle}>
+  + Food
+</Link>
+
+
       </div>
 
       <div style={cardsGridStyle}>
