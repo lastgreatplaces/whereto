@@ -309,7 +309,7 @@ export default function NutritionPage() {
   const fiberPct = Math.round((totals.fiber_g / FIBER_TARGET) * 100);
 
   return (
-    <div style={{ padding: 8, fontSize: 12 }}>
+    <div style={{ padding: 6, fontSize: 12 }}>
       <div style={{ marginBottom: 12 }}>
         <Link href="/" style={homeButtonStyle}>
           ← Home
@@ -317,7 +317,7 @@ export default function NutritionPage() {
       </div>
 
       <div style={topRowStyle}>
-        <h2 style={{ margin: 0, fontWeight: 1200 }}>
+        <h2 style={{ margin: 0, fontWeight: 400 }}>
           Nutrition • {displayDate(selectedDate)}
         </h2>
 
