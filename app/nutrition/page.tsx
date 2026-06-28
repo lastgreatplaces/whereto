@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import Link from "next/link";
 
+
 type FoodBaseRow = {
   list_order: number;
   category: string | null;
@@ -44,6 +45,7 @@ type Averages = {
 
 type EatenSort = "food" | "satFat" | "sodium" | "protein" | "fiber";
 type FoodListSort = "food" | "roi";
+
 
 const SAT_FAT_TARGET = 15;
 const SODIUM_TARGET = 2000;
@@ -329,6 +331,11 @@ export default function NutritionPage() {
           onClick={() => setSelectedDate(shiftDate(selectedDate, -1))}
           style={dateButtonStyle}
         >
+
+<Link href="/nutrition/add-food" style={dateButtonStyle}>
+  + Food
+</Link>
+
           ←
         </button>
 
