@@ -317,7 +317,13 @@ export default function NutritionPage() {
       </div>
 
       <div style={topRowStyle}>
-        <h2 style={{ margin: 0, fontWeight: 400 }}>
+        <h2
+  style={{
+    margin: 0,
+    fontSize: 30,
+    fontWeight: 700
+  }}
+>
           Nutrition • {displayDate(selectedDate)}
         </h2>
 
@@ -359,7 +365,7 @@ export default function NutritionPage() {
         </button>
 
 <Link href="/nutrition/add-food" style={dateButtonStyle}>
-  + Food
+  +Food
 </Link>
 
 
@@ -740,22 +746,26 @@ const dateRowStyle: React.CSSProperties = {
   gap: 8,
   alignItems: "center",
   marginBottom: 12,
-  flexWrap: "wrap"
+  flexWrap: "nowrap"
 };
 
-const dateInputStyle: React.CSSProperties = {
-  padding: "7px 9px",
+const dateInputStyle = {
+  width: 132,
+  padding: "6px 6px",
   borderRadius: 8,
   border: "1px solid #ccc",
-  fontWeight: 700
+  fontWeight: 700,
+  fontSize: 15
 };
 
-const dateButtonStyle: React.CSSProperties = {
-  padding: "7px 11px",
+const dateButtonStyle = {
+  padding: "6px 8px",
+  minWidth: 44,
   borderRadius: 8,
   border: "1px solid #ccc",
   background: "#f7f7f7",
-  fontWeight: 800,
+  fontWeight: 700,
+  fontSize: 15,
   cursor: "pointer",
   whiteSpace: "nowrap"
 };
