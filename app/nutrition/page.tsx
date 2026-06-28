@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import Link from "next/link";
 
-
 type FoodBaseRow = {
   list_order: number;
   category: string | null;
@@ -13,6 +12,7 @@ type FoodBaseRow = {
   sat_fat_g: number;
   protein_g: number;
   fiber_g: number;
+  potassium_mg: number;
   benefit_cost_ratio: number | null;
 };
 
@@ -30,6 +30,7 @@ type TodayTotals = {
   sat_fat_g: number;
   protein_g: number;
   fiber_g: number;
+  potassium_mg: number;
 };
 
 type Averages = {
@@ -37,20 +38,22 @@ type Averages = {
   avg_7day_sat_fat_g: number;
   avg_7day_protein_g: number;
   avg_7day_fiber_g: number;
+  avg_7day_potassium_mg: number;
   avg_30day_sodium_mg: number;
   avg_30day_sat_fat_g: number;
   avg_30day_protein_g: number;
   avg_30day_fiber_g: number;
+  avg_30day_potassium_mg: number;
 };
 
 type EatenSort = "food" | "satFat" | "sodium" | "protein" | "fiber";
 type FoodListSort = "food" | "roi";
 
-
 const SAT_FAT_TARGET = 15;
 const SODIUM_TARGET = 2000;
 const PROTEIN_TARGET = 100;
 const FIBER_TARGET = 30;
+const POTASSIUM_TARGET = 4700;
 
 function todayLocalDate() {
   const d = new Date();
@@ -95,7 +98,8 @@ export default function NutritionPage() {
     sodium_mg: 0,
     sat_fat_g: 0,
     protein_g: 0,
-    fiber_g: 0
+    fiber_g: 0,
+    potassium_mg: 0
   });
 
   const [averages, setAverages] = useState<Averages>({
@@ -103,10 +107,12 @@ export default function NutritionPage() {
     avg_7day_sat_fat_g: 0,
     avg_7day_protein_g: 0,
     avg_7day_fiber_g: 0,
+    avg_7day_potassium_mg: 0,
     avg_30day_sodium_mg: 0,
     avg_30day_sat_fat_g: 0,
     avg_30day_protein_g: 0,
-    avg_30day_fiber_g: 0
+    avg_30day_fiber_g: 0,
+    avg_30day_potassium_mg: 0
   });
 
   const [isLoading, setIsLoading] = useState(true);
@@ -127,6 +133,23 @@ export default function NutritionPage() {
       return;
     }
 
+    const { data: potassiumData, error: potassiumError } = await supabase
+      .from("nutrition_foods")
+      .select("list_order, potassium_mg");
+
+    if (potassiumError) {
+      console.error("Error loading potassium:", potassiumError);
+      setIsLoading(false);
+      return;
+    }
+
+    const potassiumMap: Record<number, number> = {};
+    ((potassiumData ?? []) as { list_order: number; potassium_mg: number }[]).forEach(
+      (r) => {
+        potassiumMap[r.list_order] = Number(r.potassium_mg ?? 0);
+      }
+    );
+
     const { data: logData, error: logError } = await supabase
       .from("nutrition_log")
       .select("food_id, qty")
@@ -143,10 +166,13 @@ export default function NutritionPage() {
       logMap[r.food_id] = Number(r.qty ?? 0);
     });
 
-    const mergedFoods = ((foodData ?? []) as FoodBaseRow[]).map((f) => ({
-      ...f,
-      qty_today: logMap[f.list_order] ?? 0
-    }));
+    const mergedFoods = ((foodData ?? []) as Omit<FoodBaseRow, "potassium_mg">[]).map(
+      (f) => ({
+        ...f,
+        potassium_mg: potassiumMap[f.list_order] ?? 0,
+        qty_today: logMap[f.list_order] ?? 0
+      })
+    );
 
     setFoods(mergedFoods);
 
@@ -156,9 +182,16 @@ export default function NutritionPage() {
         sum.sat_fat_g += Number(f.qty_today) * Number(f.sat_fat_g ?? 0);
         sum.protein_g += Number(f.qty_today) * Number(f.protein_g ?? 0);
         sum.fiber_g += Number(f.qty_today) * Number(f.fiber_g ?? 0);
+        sum.potassium_mg += Number(f.qty_today) * Number(f.potassium_mg ?? 0);
         return sum;
       },
-      { sodium_mg: 0, sat_fat_g: 0, protein_g: 0, fiber_g: 0 }
+      {
+        sodium_mg: 0,
+        sat_fat_g: 0,
+        protein_g: 0,
+        fiber_g: 0,
+        potassium_mg: 0
+      }
     );
 
     setTotals(selectedTotals);
@@ -176,10 +209,12 @@ export default function NutritionPage() {
         avg_7day_sat_fat_g: num(avgData.avg_7day_sat_fat_g),
         avg_7day_protein_g: num(avgData.avg_7day_protein_g),
         avg_7day_fiber_g: num(avgData.avg_7day_fiber_g),
+        avg_7day_potassium_mg: num(avgData.avg_7day_potassium_mg),
         avg_30day_sodium_mg: num(avgData.avg_30day_sodium_mg),
         avg_30day_sat_fat_g: num(avgData.avg_30day_sat_fat_g),
         avg_30day_protein_g: num(avgData.avg_30day_protein_g),
-        avg_30day_fiber_g: num(avgData.avg_30day_fiber_g)
+        avg_30day_fiber_g: num(avgData.avg_30day_fiber_g),
+        avg_30day_potassium_mg: num(avgData.avg_30day_potassium_mg)
       });
     }
 
@@ -242,7 +277,10 @@ export default function NutritionPage() {
     Object.keys(groups).forEach((cat) => {
       groups[cat].sort((a, b) => {
         if (foodListSort === "roi") {
-          return Number(b.benefit_cost_ratio ?? 0) - Number(a.benefit_cost_ratio ?? 0);
+          return (
+            Number(b.benefit_cost_ratio ?? 0) -
+            Number(a.benefit_cost_ratio ?? 0)
+          );
         }
 
         return a.list_order - b.list_order;
@@ -257,23 +295,31 @@ export default function NutritionPage() {
       .filter((f) => Number(f.qty_today ?? 0) > 0)
       .sort((a, b) => {
         if (eatenSort === "satFat") {
-          return Number(b.qty_today) * Number(b.sat_fat_g ?? 0) -
-            Number(a.qty_today) * Number(a.sat_fat_g ?? 0);
+          return (
+            Number(b.qty_today) * Number(b.sat_fat_g ?? 0) -
+            Number(a.qty_today) * Number(a.sat_fat_g ?? 0)
+          );
         }
 
         if (eatenSort === "sodium") {
-          return Number(b.qty_today) * Number(b.sodium_mg ?? 0) -
-            Number(a.qty_today) * Number(a.sodium_mg ?? 0);
+          return (
+            Number(b.qty_today) * Number(b.sodium_mg ?? 0) -
+            Number(a.qty_today) * Number(a.sodium_mg ?? 0)
+          );
         }
 
         if (eatenSort === "protein") {
-          return Number(b.qty_today) * Number(b.protein_g ?? 0) -
-            Number(a.qty_today) * Number(a.protein_g ?? 0);
+          return (
+            Number(b.qty_today) * Number(b.protein_g ?? 0) -
+            Number(a.qty_today) * Number(a.protein_g ?? 0)
+          );
         }
 
         if (eatenSort === "fiber") {
-          return Number(b.qty_today) * Number(b.fiber_g ?? 0) -
-            Number(a.qty_today) * Number(a.fiber_g ?? 0);
+          return (
+            Number(b.qty_today) * Number(b.fiber_g ?? 0) -
+            Number(a.qty_today) * Number(a.fiber_g ?? 0)
+          );
         }
 
         return a.list_order - b.list_order;
@@ -307,6 +353,9 @@ export default function NutritionPage() {
   const sodiumPct = Math.round((totals.sodium_mg / SODIUM_TARGET) * 100);
   const proteinPct = Math.round((totals.protein_g / PROTEIN_TARGET) * 100);
   const fiberPct = Math.round((totals.fiber_g / FIBER_TARGET) * 100);
+  const potassiumPct = Math.round(
+    (totals.potassium_mg / POTASSIUM_TARGET) * 100
+  );
 
   return (
     <div style={{ padding: 6, fontSize: 12 }}>
@@ -318,16 +367,16 @@ export default function NutritionPage() {
 
       <div style={topRowStyle}>
         <h2
-  style={{
-    margin: 0,
-    fontSize: 22,
-    fontWeight: 800,
-    lineHeight: 1.15,
-    whiteSpace: "nowrap"
-  }}
->
-  Nutrition • {displayDate(selectedDate)}
-</h2>
+          style={{
+            margin: 0,
+            fontSize: 22,
+            fontWeight: 800,
+            lineHeight: 1.15,
+            whiteSpace: "nowrap"
+          }}
+        >
+          Nutrition • {displayDate(selectedDate)}
+        </h2>
 
         <button onClick={scrollToEatenToday} style={dateButtonStyle}>
           Eaten
@@ -339,9 +388,6 @@ export default function NutritionPage() {
           onClick={() => setSelectedDate(shiftDate(selectedDate, -1))}
           style={dateButtonStyle}
         >
-
-
-
           ←
         </button>
 
@@ -366,11 +412,9 @@ export default function NutritionPage() {
           Today
         </button>
 
-<Link href="/nutrition/add-food" style={dateButtonStyle}>
-  +Food
-</Link>
-
-
+        <Link href="/nutrition/add-food" style={dateButtonStyle}>
+          +Food
+        </Link>
       </div>
 
       <div style={cardsGridStyle}>
@@ -414,6 +458,18 @@ export default function NutritionPage() {
           </div>
         </div>
 
+        <div style={compactCardStyle}>
+          <div style={labelStyle}>Potassium</div>
+          <div style={compactMetricRowStyle}>
+            <div style={compactNumberStyle}>
+              {Math.round(totals.potassium_mg)} mg
+            </div>
+            <div style={compactTargetStyle}>
+              {potassiumPct}% of {POTASSIUM_TARGET} mg
+            </div>
+          </div>
+        </div>
+
         <div style={cardStyle}>
           <div style={labelStyle}>7-Day Average</div>
           <div style={averageGridStyle}>
@@ -421,6 +477,7 @@ export default function NutritionPage() {
             <div>Protein: {Math.round(averages.avg_7day_protein_g)} g</div>
             <div>Sodium: {Math.round(averages.avg_7day_sodium_mg)} mg</div>
             <div>Fiber: {averages.avg_7day_fiber_g.toFixed(1)} g</div>
+            <div>Potassium: {Math.round(averages.avg_7day_potassium_mg)} mg</div>
           </div>
         </div>
 
@@ -431,6 +488,7 @@ export default function NutritionPage() {
             <div>Protein: {Math.round(averages.avg_30day_protein_g)} g</div>
             <div>Sodium: {Math.round(averages.avg_30day_sodium_mg)} mg</div>
             <div>Fiber: {averages.avg_30day_fiber_g.toFixed(1)} g</div>
+            <div>Potassium: {Math.round(averages.avg_30day_potassium_mg)} mg</div>
           </div>
         </div>
       </div>
@@ -777,12 +835,12 @@ const dateButtonStyle: React.CSSProperties = {
 const cardsGridStyle: React.CSSProperties = {
   display: "grid",
   gridTemplateColumns: "1fr",
-  gap: 6,
-  marginBottom: 12
+  gap: 5,
+  marginBottom: 10
 };
 
 const compactCardStyle: React.CSSProperties = {
-  padding: "6px 12px",
+  padding: "5px 11px",
   border: "1px solid #ddd",
   borderRadius: 10,
   background: "#fafafa"
@@ -797,16 +855,16 @@ const compactMetricRowStyle: React.CSSProperties = {
   display: "flex",
   justifyContent: "space-between",
   alignItems: "baseline",
-  gap: 12
+  gap: 10
 };
 
 const compactNumberStyle: React.CSSProperties = {
-  fontSize: 20,
+  fontSize: 19,
   fontWeight: 800
 };
 
 const compactTargetStyle: React.CSSProperties = {
-  fontSize: 14,
+  fontSize: 13,
   fontWeight: 700,
   color: "#555",
   textAlign: "right"
@@ -815,11 +873,13 @@ const compactTargetStyle: React.CSSProperties = {
 const averageGridStyle: React.CSSProperties = {
   display: "grid",
   gridTemplateColumns: "1fr 1fr",
-  gap: 4
+  gap: 2,
+  fontSize: 12,
+  lineHeight: 1.25
 };
 
 const cardStyle: React.CSSProperties = {
-  padding: 10,
+  padding: "7px 10px",
   border: "1px solid #ddd",
   borderRadius: 10,
   background: "#fafafa"
@@ -828,7 +888,7 @@ const cardStyle: React.CSSProperties = {
 const labelStyle: React.CSSProperties = {
   fontSize: 12,
   color: "#666",
-  marginBottom: 2,
+  marginBottom: 1,
   fontWeight: 700
 };
 
