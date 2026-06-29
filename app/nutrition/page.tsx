@@ -46,7 +46,14 @@ type Averages = {
   avg_30day_potassium_mg: number;
 };
 
-type EatenSort = "food" | "satFat" | "sodium" | "protein" | "fiber";
+type EatenSort =
+  | "food"
+  | "satFat"
+  | "sodium"
+  | "potassium"
+  | "protein"
+  | "fiber";
+
 type FoodListSort = "food" | "roi";
 
 const SAT_FAT_TARGET = 15;
@@ -308,6 +315,13 @@ export default function NutritionPage() {
           );
         }
 
+        if (eatenSort === "potassium") {
+          return (
+            Number(b.qty_today) * Number(b.potassium_mg ?? 0) -
+            Number(a.qty_today) * Number(a.potassium_mg ?? 0)
+          );
+        }
+
         if (eatenSort === "protein") {
           return (
             Number(b.qty_today) * Number(b.protein_g ?? 0) -
@@ -502,7 +516,7 @@ export default function NutritionPage() {
           <div style={{ overflowX: "auto" }}>
             <table
               style={{
-                minWidth: 720,
+                minWidth: 820,
                 width: "100%",
                 borderCollapse: "collapse",
                 fontSize: 14
@@ -540,6 +554,7 @@ export default function NutritionPage() {
 
                   <th style={nutrientHeaderStyle}>Sat Fat</th>
                   <th style={nutrientHeaderStyle}>Sodium</th>
+                  <th style={nutrientHeaderStyle}>Potassium</th>
                   <th style={nutrientHeaderStyle}>Protein</th>
                   <th style={nutrientHeaderStyle}>Fiber</th>
                 </tr>
@@ -592,6 +607,10 @@ export default function NutritionPage() {
                     </td>
 
                     <td style={nutrientCellStyle}>
+                      {Math.round(Number(f.potassium_mg ?? 0))} mg
+                    </td>
+
+                    <td style={nutrientCellStyle}>
                       {Number(f.protein_g ?? 0).toFixed(0)} g
                     </td>
 
@@ -615,7 +634,7 @@ export default function NutritionPage() {
           <div style={{ overflowX: "auto" }}>
             <table
               style={{
-                minWidth: 650,
+                minWidth: 760,
                 width: "100%",
                 borderCollapse: "collapse",
                 fontSize: 14
@@ -666,6 +685,19 @@ export default function NutritionPage() {
                   </th>
 
                   <th
+                    onClick={() => setEatenSort("potassium")}
+                    style={{
+                      width: 100,
+                      padding: "6px 8px",
+                      textAlign: "right",
+                      cursor: "pointer",
+                      fontWeight: eatenSort === "potassium" ? 800 : 600
+                    }}
+                  >
+                    {sortLabel("potassium", "Potassium")}
+                  </th>
+
+                  <th
                     onClick={() => setEatenSort("protein")}
                     style={{
                       width: 90,
@@ -698,6 +730,7 @@ export default function NutritionPage() {
                   const qty = Number(f.qty_today);
                   const satFatValue = qty * Number(f.sat_fat_g ?? 0);
                   const sodiumValue = qty * Number(f.sodium_mg ?? 0);
+                  const potassiumValue = qty * Number(f.potassium_mg ?? 0);
                   const proteinValue = qty * Number(f.protein_g ?? 0);
                   const fiberValue = qty * Number(f.fiber_g ?? 0);
 
@@ -744,6 +777,17 @@ export default function NutritionPage() {
                         }}
                       >
                         {Math.round(sodiumValue)} mg
+                      </td>
+
+                      <td
+                        style={{
+                          width: 100,
+                          textAlign: "right",
+                          color: "#555",
+                          fontWeight: eatenSort === "potassium" ? 800 : 400
+                        }}
+                      >
+                        {Math.round(potassiumValue)} mg
                       </td>
 
                       <td
