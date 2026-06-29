@@ -18,6 +18,7 @@ export default function AddFoodPage() {
   const [category, setCategory] = useState("Breakfast");
   const [satFat, setSatFat] = useState("");
   const [sodium, setSodium] = useState("");
+  const [potassium, setPotassium] = useState("");
   const [protein, setProtein] = useState("");
   const [fiber, setFiber] = useState("");
   const [isSaving, setIsSaving] = useState(false);
@@ -50,6 +51,7 @@ export default function AddFoodPage() {
       food_name: foodName.trim(),
       sat_fat_g: num(satFat),
       sodium_mg: num(sodium),
+      potassium_mg: num(potassium),
       protein_g: num(protein),
       fiber_g: num(fiber)
     });
@@ -111,6 +113,14 @@ export default function AddFoodPage() {
       <input
         value={sodium}
         onChange={(e) => setSodium(e.target.value)}
+        inputMode="decimal"
+        style={inputStyle}
+      />
+
+      <label style={labelStyle}>Potassium mg</label>
+      <input
+        value={potassium}
+        onChange={(e) => setPotassium(e.target.value)}
         inputMode="decimal"
         style={inputStyle}
       />
